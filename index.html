@@ -42,7 +42,7 @@
     <!-- JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
-    <!-- PDF.js -->
+    <!-- PDF.js (Visualizador) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         window.addEventListener('load', function() {
@@ -51,6 +51,10 @@
             }
         });
     </script>
+
+    <!-- LIBRERIAS PARA GENERAR PDF (jspdf + html2canvas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -586,20 +590,15 @@
         }
 
         function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
+        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-couch absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
+        function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
+        function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
+        function setShiftType(type) { tempShiftType = type; updateShiftTypeUI(); }
+        function updateShiftTypeUI() { document.querySelectorAll('.shift-type-btn').forEach(btn => { btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); if (String(tempShiftType) === btn.dataset.type) { btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); btn.classList.remove('text-neutral-500', 'bg-white'); } }); }
+        function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
+        function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
         
-        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; 
-        if (shift) { 
-            if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } 
-            else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } 
-            else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } 
-            else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } 
-            else if (shift.type === 'libre') { // Vehiculo Agendado
-                bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; 
-                content += `<i class="fa-solid fa-car absolute text-xs bottom-1 opacity-50"></i>`; // Icono Auto
-            } 
-        } 
-        const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
-
+        // --- WORK ORDERS & PATIENTS LOGIC ---
         function getWorkOrdersHTML() {
             const patients = state.patients || [];
             const totalCars = patients.length;
@@ -850,13 +849,7 @@
         }
         
         function createPatientTaskHTML(t, patientId) { return `<div id="patient-task-${t.id}" class="flex items-center gap-2 group/task mb-1 item-enter"><button onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" class="text-sm ${t.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition"><i class="fa-${t.done ? 'solid' : 'regular'} fa-square-check"></i></button><span id="txt-ptask-${t.id}" class="text-sm flex-1 ${t.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'}">${t.text}</span><button onclick="deletePatientTask(${patientId}, ${t.id})" class="text-neutral-200 dark:text-neutral-700 hover:text-red-400 opacity-0 group-hover/task:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button></div>`; }
-        
-        function generatePatientsHTML() { 
-            if ((state.patients || []).length === 0) {
-                return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-400 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-400 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`;
-            }
-            return state.patients.map(p => createPatientCardHTML(p)).join(''); 
-        }
+        function generatePatientsHTML() { if ((state.patients || []).length === 0) return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-400 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-400 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`; return state.patients.map(p => createPatientCardHTML(p)).join(''); }
 
         function deletePatient(id) { 
             showConfirmModal("¿Finalizar Orden?", "El vehículo saldrá del sistema.", "Finalizar", () => { 
@@ -943,17 +936,6 @@
                 }
             } 
         }
-
-        function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
-        
-        function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
-        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-couch absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
-        function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
-        function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
-        function setShiftType(type) { tempShiftType = type; updateShiftTypeUI(); }
-        function updateShiftTypeUI() { document.querySelectorAll('.shift-type-btn').forEach(btn => { btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); if (String(tempShiftType) === btn.dataset.type) { btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); btn.classList.remove('text-neutral-500', 'bg-white'); } }); }
-        function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
-        function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
         
         function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-image" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Foto</label><input type="file" id="new-note-image" accept="image/*" class="hidden"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full h-auto min-h-0"><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
         function generateFoldersHTML() { return `<button onclick="changeFolder('all')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => `<button onclick="changeFolder('${f.id}')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === f.id ? 'bg-red-600 text-white border-red-600 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="${f.id}">${f.name}</button>`).join('')}<button onclick="openFolderModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition"><i class="fa-solid fa-plus text-xs"></i></button>`; }
@@ -964,44 +946,93 @@
             const note = state.notes.find(n => n.id === id);
             if (!note) return;
 
-            if (navigator.share) {
-                try {
-                    const shareData = {
-                        title: 'Apunte Mecamonico',
-                        text: note.text
-                    };
+            showToast("Generando PDF...", "fa-file-pdf");
 
-                    if (note.image) {
-                        try {
-                            const blob = await (await fetch(note.image)).blob();
-                            const file = new File([blob], "apunte_tecnico.jpg", { type: blob.type });
-                            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                shareData.files = [file];
-                            }
-                        } catch (e) {
-                            console.warn("No se pudo procesar la imagen para compartir, compartiendo solo texto.", e);
-                        }
-                    }
+            // Crear contenedor temporal para el PDF con estilo limpio
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.top = '0';
+            tempContainer.style.width = '595px'; // Ancho A4 aprox en pixeles para canvas
+            tempContainer.style.padding = '40px';
+            tempContainer.style.backgroundColor = '#ffffff';
+            tempContainer.style.color = '#000000';
+            tempContainer.style.fontFamily = 'sans-serif';
+            
+            // Construir HTML del PDF
+            let htmlContent = `
+                <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico</h1>
+                        <p style="margin: 0; font-size: 12px; color: #666;">Reporte Técnico</p>
+                    </div>
+                    <div style="font-size: 12px; color: #666;">
+                        ${new Date().toLocaleDateString()}
+                    </div>
+                </div>
+            `;
 
-                    await navigator.share(shareData);
-                    showToast("Compartido exitosamente", "fa-share-nodes");
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        console.error("Error al compartir:", err);
-                        fallbackCopy(note.text);
-                    }
-                }
-            } else {
-                fallbackCopy(note.text);
+            if (note.image) {
+                htmlContent += `<div style="margin-bottom: 20px; text-align: center;"><img src="${note.image}" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
             }
-        }
 
-        async function fallbackCopy(text) {
+            htmlContent += `
+                <div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #333;">${note.text}</div>
+            `;
+            
+            htmlContent += `
+                <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 10px; color: #999;">
+                    Generado por Mecamonico App
+                </div>
+            `;
+
+            tempContainer.innerHTML = htmlContent;
+            document.body.appendChild(tempContainer);
+
             try {
-                await navigator.clipboard.writeText(text);
-                showToast("Texto copiado al portapapeles", "fa-copy");
+                // Usar html2canvas para capturar el elemento
+                const canvas = await html2canvas(tempContainer, { 
+                    scale: 2, // Mejor calidad
+                    useCORS: true,
+                    logging: false
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                
+                const pdfBlob = pdf.output('blob');
+                const file = new File([pdfBlob], `Mecamonico_Nota_${id}.pdf`, { type: 'application/pdf' });
+
+                // Intentar compartir archivo
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Nota Técnica Mecamonico',
+                        text: 'Adjunto reporte técnico en PDF.'
+                    });
+                    showToast("PDF Compartido", "fa-share-nodes");
+                } else {
+                    // Fallback: Descargar
+                    pdf.save(`Mecamonico_Nota_${id}.pdf`);
+                    showToast("PDF Descargado", "fa-download");
+                }
+
             } catch (err) {
-                showToast("No se pudo compartir", "fa-circle-xmark");
+                console.error("Error generando PDF:", err);
+                showToast("Error al crear PDF", "fa-triangle-exclamation");
+            } finally {
+                document.body.removeChild(tempContainer);
             }
         }
 

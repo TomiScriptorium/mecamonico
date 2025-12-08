@@ -6,21 +6,23 @@
     <title>Mecamonico</title>
     
     <!-- --- CONFIGURACIÓN DE ICONOS (FAVICON & APP) --- -->
-    <!-- Favicon estándar para navegadores -->
+    <!-- Favicon estándar -->
     <link rel="icon" type="image/png" href="iconomecamonico.png">
     <link rel="shortcut icon" type="image/png" href="iconomecamonico.png">
     
-    <!-- iOS (iPhone/iPad) - Icono de pantalla de inicio -->
+    <!-- iOS (iPhone/iPad) -->
     <link rel="apple-touch-icon" href="iconomecamonico.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="iconomecamonico.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="iconomecamonico.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="iconomecamonico.png">
     
-    <!-- Android / Chrome - Iconos de alta resolución -->
+    <!-- Android / Samsung Internet / Chrome -->
+    <!-- Definimos explícitamente tamaños clave para asegurar que Samsung Internet lo tome -->
     <link rel="icon" sizes="192x192" href="iconomecamonico.png">
     <link rel="icon" sizes="128x128" href="iconomecamonico.png">
     
-    <!-- Configuración PWA iOS (Barra de estado y Título) -->
+    <!-- PWA Manifest (Opcional pero recomendado para control total, simulado aquí con meta tags) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Mecamonico">
+    
+    <!-- Configuración PWA iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Mecamonico">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -193,9 +195,11 @@
                     <i class="fa-solid fa-car text-xl text-white"></i>
                 </div>
                 <div>
+                    <!-- Quitamos uppercase italic -->
                     <h1 class="text-2xl font-bold flex items-center gap-2">
                         Mecamonico <i class="fa-solid fa-wrench wrench-anim text-red-500 text-sm"></i>
                     </h1>
+                    <!-- Quitamos uppercase tracking-widest -->
                     <p class="text-xs text-neutral-400 font-bold">Gestión de Taller & Estudio</p>
                 </div>
             </div>
@@ -222,6 +226,7 @@
             <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-warehouse text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <!-- Quitamos uppercase -->
                 <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
             </button>
             <button onclick="renderView('todo')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">

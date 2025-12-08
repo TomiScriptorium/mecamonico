@@ -5,34 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Mecamonico</title>
     
-    <!-- --- CONFIGURACIÓN DE ICONOS (FAVICON & APP) --- -->
-    <!-- Favicon estándar -->
+    <!-- --- CONFIGURACIÓN DE ICONOS --- -->
     <link rel="icon" type="image/png" href="iconomecamonico.png">
     <link rel="shortcut icon" type="image/png" href="iconomecamonico.png">
-    
-    <!-- iOS (iPhone/iPad) -->
     <link rel="apple-touch-icon" href="iconomecamonico.png">
-    
-    <!-- Android / Samsung Internet / Chrome -->
-    <!-- Definimos explícitamente tamaños clave para asegurar que Samsung Internet lo tome -->
     <link rel="icon" sizes="192x192" href="iconomecamonico.png">
     <link rel="icon" sizes="128x128" href="iconomecamonico.png">
     
-    <!-- PWA Manifest (Opcional pero recomendado para control total, simulado aquí con meta tags) -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Mecamonico">
-    
-    <!-- Configuración PWA iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Mecamonico">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#171717">
     
-    <!-- Tailwind CSS (Configurado para Modo Oscuro por Clase) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class', // Activa el modo oscuro manual
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -48,10 +39,10 @@
         }
     </script>
     
-    <!-- JSZip para compresión de datos -->
+    <!-- JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
-    <!-- PDF.js para visualizar manuales -->
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         window.addEventListener('load', function() {
@@ -61,27 +52,23 @@
         });
     </script>
 
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Roboto Condensed para TODO el sitio -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Paleta Mecánica V2 (Rojo Racing) */
-            --mech-primary: #dc2626; /* Rojo */
-            --mech-dark: #171717;    /* Neutral 900 */
-            --mech-steel: #a3a3a3;   /* Neutral 400 */
-            --mech-bg: #f5f5f5;      /* Neutral 100 */
+            --mech-primary: #dc2626;
+            --mech-dark: #171717;
+            --mech-steel: #a3a3a3;
+            --mech-bg: #f5f5f5;
         }
 
         body {
-            /* Fuente Unificada: Roboto Condensed */
             font-family: 'Roboto Condensed', sans-serif; 
-            /* Fondo claro por defecto, oscuro manejado por Tailwind dark: */
             background-color: var(--mech-bg);
-            /* Patrón de rejilla técnica en movimiento */
             background-image: 
                 linear-gradient(rgba(23, 23, 23, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(23, 23, 23, 0.05) 1px, transparent 1px);
@@ -93,7 +80,6 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Override para el modo oscuro en el fondo body */
         .dark body {
             background-color: #0a0a0a;
             background-image: 
@@ -101,7 +87,6 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         }
 
-        /* Aseguramos que inputs, textareas y botones usen TAMBIÉN Roboto Condensed */
         input, textarea, button, select, .font-handwriting {
             font-family: 'Roboto Condensed', sans-serif !important;
         }
@@ -112,7 +97,6 @@
         }
         
         .work-order {
-            /* Colores base claros, oscuros manejados por clases utility */
             background: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
             border: 1px solid #d4d4d4;
@@ -120,10 +104,9 @@
             border-left: 4px solid var(--mech-primary);
         }
 
-        /* Estilo oscuro para work-order */
         .dark .work-order {
-            background: #171717; /* neutral-900 */
-            border-color: #404040; /* neutral-700 */
+            background: #171717;
+            border-color: #404040;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
@@ -161,7 +144,7 @@
         .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
     </style>
 </head>
-<body class="text-neutral-700 dark:text-neutral-200 h-screen flex flex-col overflow-hidden relative transition-colors duration-300">
+<body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
 
     <!-- Decoración de Fondo -->
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-10 dark:opacity-5 transition-opacity duration-300">
@@ -195,21 +178,17 @@
                     <i class="fa-solid fa-car text-xl text-white"></i>
                 </div>
                 <div>
-                    <!-- Quitamos uppercase italic -->
                     <h1 class="text-2xl font-bold flex items-center gap-2">
                         Mecamonico <i class="fa-solid fa-wrench wrench-anim text-red-500 text-sm"></i>
                     </h1>
-                    <!-- Quitamos uppercase tracking-widest -->
                     <p class="text-xs text-neutral-400 font-bold">Gestión de Taller & Estudio</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <!-- Botón Modo Noche -->
                 <button onclick="toggleDarkMode()" class="text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-9 h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
                 </button>
-                <!-- Botón Backup -->
                 <button onclick="openBackupModal()" class="text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-3 py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5">
                     <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
                 </button>
@@ -218,41 +197,45 @@
     </header>
 
     <!-- Main Container -->
-    <main id="app-container" class="flex-1 overflow-y-auto p-4 pb-28 relative scroll-smooth hide-scrollbar z-10"></main>
+    <main id="app-container" class="flex-1 overflow-y-auto p-4 pb-40 relative scroll-smooth hide-scrollbar z-10"></main>
 
     <!-- Nav Bar -->
     <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <nav class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-2 pointer-events-auto flex justify-around items-center">
-            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
+        <nav class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-2 pointer-events-auto flex justify-around items-center overflow-x-auto hide-scrollbar">
+            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-warehouse text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <!-- Quitamos uppercase -->
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
+                <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
             </button>
-            <button onclick="renderView('todo')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
+            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-clipboard-list text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
+                <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Taller</span>
             </button>
-            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
+            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-regular fa-calendar-days text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
+                <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
             </button>
-            <button onclick="renderView('notes')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
+            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-book-open text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
+                <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
             </button>
-            <button onclick="renderView('links')" class="nav-btn group relative p-2 w-full flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
+            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-toolbox text-2xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Manuales</span>
+                <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
+            </button>
+            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[60px] flex-1 flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
+                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
+                <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Manuales</span>
             </button>
         </nav>
     </div>
 
-    <!-- Modales (Adaptados a Dark Mode) -->
+    <!-- Modales -->
     <div id="shift-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-neutral-900 rounded-sm shadow-2xl w-full max-w-sm p-0 overflow-hidden transform transition-all scale-100 border-l-4 border-red-600">
              <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
@@ -285,28 +268,16 @@
     
     <div id="folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-red-600"></i> Nueva Sección</h3><input type="text" id="new-folder-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Ej: Motores, Electricidad..."><div class="flex justify-end gap-3"><button onclick="closeFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="createFolder()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Crear</button></div></div></div>
     
-    <!-- Modales Nombre y Titulo -->
     <div id="name-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-neutral-800 dark:border-neutral-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-id-card text-neutral-600"></i> Credencial</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Nombre del Técnico/a</p><input type="text" id="new-user-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-neutral-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mecánico Juan"><div class="flex justify-end gap-3"><button onclick="closeNameModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveName()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
     
-    <!-- Modal para editar el Título -->
-    <div id="title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600">
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-tag text-red-600"></i> Rol / Título</h3>
-            <p class="text-sm text-neutral-400 mb-3 font-bold">Define tu cargo en el taller</p>
-            <input type="text" id="new-user-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Estudiante">
-            <div class="flex justify-end gap-3">
-                <button onclick="closeTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button>
-                <button onclick="saveTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button>
-            </div>
-        </div>
-    </div>
+    <div id="title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-tag text-red-600"></i> Rol / Título</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Define tu cargo en el taller</p><input type="text" id="new-user-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Estudiante"><div class="flex justify-end gap-3"><button onclick="closeTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
     
-    <!-- Modal Nuevo Vehículo -->
     <div id="patient-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-t-4 border-blue-600">
             <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-car-side text-blue-600"></i> Ingresar Vehículo</h3>
             <div class="space-y-3">
                 <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Modelo / Cliente">
+                <input type="tel" id="patient-contact" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Teléfono / Whatsapp">
                 <div class="flex gap-3">
                     <input type="text" id="patient-room" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold text-center dark:text-white" placeholder="Patente">
                     <input type="text" id="patient-dx" class="w-2/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Falla / Servicio">
@@ -319,10 +290,8 @@
         </div>
     </div>
     
-    <!-- Modal Backup -->
     <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group cursor-pointer relative"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label><button onclick="exportDataToClipboard()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-copy"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">JSON Texto</h4><p class="text-xs text-neutral-400">Portapapeles (Rápido)</p></div></button></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
 
-    <!-- Modal Lector PDF -->
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-neutral-900 z-[90] flex flex-col animate-fade-in outline-none" tabindex="0">
         <div class="bg-neutral-800 text-white pt-safe px-4 pb-3 flex justify-between items-center shadow-lg shrink-0 z-20 relative border-b border-neutral-600">
             <h3 id="pdf-reader-title" class="text-lg font-bold truncate max-w-[60%] flex items-center font-mono text-red-500"><i class="fa-solid fa-file-pdf mr-2 text-white"></i> Manual</h3>
@@ -353,23 +322,20 @@
         <div class="bg-neutral-800 h-safe-bottom shrink-0 pb-safe"></div>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-3 rounded-full shadow-xl opacity-0 transition-all duration-300 pointer-events-none z-[80] flex items-center gap-3 text-sm font-bold translate-y-4 border border-neutral-600">
         <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-xs text-white"><i class="fa-solid fa-check"></i></div>
         <span id="toast-msg">Notificación</span>
     </div>
 
     <script>
-        // MANTENEMOS LA MISMA KEY PARA NO PERDER DATOS PREVIOS
         const APP_KEY = 'mecamonico_data_v1'; 
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
-            darkMode: false // Nuevo estado para modo oscuro
+            darkMode: false
         };
         let selectedDateKey = null; 
         let tempShiftType = null;
 
-        // --- SISTEMA DE ALMACENAMIENTO LOCAL ---
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }; }); },
             async set(key, val) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.put(val, key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); }; }); }
@@ -378,7 +344,7 @@
         async function init() {
             try {
                 await loadData();
-                applyTheme(); // Aplicar tema al inicio
+                applyTheme();
                 setupGlobalListeners();
                 state.view = null; 
                 renderView('dashboard');
@@ -397,7 +363,6 @@
                     if (!saved.patients) saved.patients = []; 
                     if (!saved.userName) saved.userName = 'Estudiante'; 
                     if (!saved.userTitle) saved.userTitle = 'Estudiante'; 
-                    // Asegurar que darkMode existe
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     state = { ...state, ...saved, currentDate: new Date() }; 
                 } else {
@@ -416,7 +381,6 @@
             try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { showToast("Error al guardar", "fa-triangle-exclamation"); }
         }
 
-        // --- MODO NOCHE ---
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
             applyTheme();
@@ -431,10 +395,8 @@
             }
         }
 
-        // PDF Variables
         let pdfDoc = null; let pageNum = 1; let pageRendering = false; let pageNumPending = null; let renderTask = null; let currentZoom = 1.0; let baseCanvasWidth = null;
 
-        // --- PDF RENDER ---
         function renderPage(num) {
             pageRendering = true;
             if(renderTask) renderTask.cancel();
@@ -507,11 +469,9 @@
         }
         function closePdfReader() { document.getElementById('pdf-reader-modal').classList.add('hidden'); if(renderTask) { renderTask.cancel(); renderTask = null; } pdfDoc = null; pageNum = 1; pageRendering = false; pageNumPending = null; }
 
-        // --- UI & Helpers ---
         function showToast(msg, icon = 'fa-info-circle') { const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; toast.querySelector('div').innerHTML = `<i class="fa-solid ${icon}"></i>`; toast.classList.remove('opacity-0', 'translate-y-4'); toast.classList.add('translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); toast.classList.remove('translate-y-0'); }, 3000); }
         async function updateProfileImage(input) { if (input.files && input.files[0]) { try { const base64 = await processImage(input.files[0]); state.userProfileImage = base64; saveData(); renderView('dashboard'); showToast("Foto actualizada", "fa-camera"); } catch (e) { showToast("Error al procesar imagen", "fa-triangle-exclamation"); } } }
         
-        // MODALES NOMBRE Y TITULO
         function openNameModal() { document.getElementById('new-user-name').value = state.userName || ''; document.body.classList.add('modal-open'); document.getElementById('name-modal').classList.remove('hidden'); document.getElementById('new-user-name').focus(); }
         function closeNameModal() { document.body.classList.remove('modal-open'); document.getElementById('name-modal').classList.add('hidden'); }
         function saveName() { const name = document.getElementById('new-user-name').value.trim(); if (name) { state.userName = name; saveData(); renderView('dashboard'); closeNameModal(); showToast("Nombre actualizado", "fa-id-card"); } }
@@ -525,12 +485,12 @@
         async function downloadBackupFile() { try { showToast("Comprimiendo...", "fa-spinner fa-spin"); const zip = new JSZip(); const dataStr = JSON.stringify(state, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast("Backup Descargado", "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
         async function importBackupFromFile(input) { const file = input.files[0]; if (!file) return; try { showToast("Analizando ZIP...", "fa-spinner fa-spin"); const zip = await JSZip.loadAsync(file); const dataFile = zip.file("mecamonico_data.json"); if (!dataFile) throw new Error("ZIP inválido."); const content = await dataFile.async("string"); const data = JSON.parse(content); if (data && (data.todos || data.notes || data.shifts)) { showConfirmModal("Restaurar desde ZIP", "Se reemplazará toda la información actual.", "Restaurar", function() { state = { ...state, ...data, currentDate: new Date() }; saveData(); closeConfirmModal(); closeBackupModal(); state.view = null; renderView('dashboard'); showToast("Datos restaurados", "fa-check-double"); }); } else { showToast("Datos corruptos", "fa-triangle-exclamation"); } } catch (err) { showToast("Error: Archivo inválido", "fa-bug"); } input.value = ''; }
         function exportDataToClipboard() { const textArea = document.createElement("textarea"); textArea.value = JSON.stringify(state); textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.select(); try { if(document.execCommand('copy')) showToast("JSON copiado", "fa-clipboard-check"); else showToast("Error al copiar", "fa-times"); } catch (err) { showToast("Error al copiar", "fa-times"); } document.body.removeChild(textArea); }
+        
         function triggerPdfInput() { document.getElementById('pdf-input-file').click(); }
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); renderView('links'); showToast("Manual Agregado", "fa-file-pdf"); } catch(e) { console.error(e); showToast("Error al leer", "fa-times"); } input.value = ''; }
         function processFileBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
         function deletePdf(id) { showConfirmModal("¿Eliminar Manual?", "Acción irreversible.", "Eliminar", () => { state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
 
-        // --- VISTAS TEMATIZADAS (ROJO/NEGRO) ---
         function setInfoTab(tab) {
             state.activeInfoTab = tab;
             const webBtn = document.getElementById('tab-btn-web'); const pdfBtn = document.getElementById('tab-btn-pdf'); const webContent = document.getElementById('tab-content-web'); const pdfContent = document.getElementById('tab-content-pdf');
@@ -546,9 +506,9 @@
         function getLinksHTML() {
             const isWeb = state.activeInfoTab === 'web';
             const linksHTML = (state.links || []).map(l => createLinkHTML(l)).join('');
-            const webContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Nuevo Recurso</h3><div class="flex flex-col gap-3"><input type="text" id="link-title" placeholder="Nombre (ej: Foro, Manual)" class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full font-bold dark:text-white"><div class="flex flex-col gap-2"><input type="url" id="link-url" placeholder="https://..." class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full dark:text-white"><button onclick="addLink()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-3 rounded font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transition shadow-lg text-sm w-full mt-1"><i class="fa-solid fa-plus mr-2"></i> Guardar</button></div></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Biblioteca Web</h3><div id="links-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-20">${linksHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin enlaces guardados</div>'}</div></div></div>`;
+            const webContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Nuevo Recurso</h3><div class="flex flex-col gap-3"><input type="text" id="link-title" placeholder="Nombre (ej: Foro, Manual)" class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full font-bold dark:text-white"><div class="flex flex-col gap-2"><input type="url" id="link-url" placeholder="https://..." class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full dark:text-white"><button onclick="addLink()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-3 rounded font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transition shadow-lg text-sm w-full mt-1"><i class="fa-solid fa-plus mr-2"></i> Guardar</button></div></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Biblioteca Web</h3><div id="links-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${linksHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin enlaces guardados</div>'}</div></div></div>`;
             const pdfsHTML = (state.pdfs || []).map(p => createPdfHTML(p)).join('');
-            const pdfContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0 text-center"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3 text-left">Subir Manual Técnico</h3><div class="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer group flex flex-col items-center justify-center gap-2 h-64" onclick="triggerPdfInput()"><div class="w-16 h-16 rounded bg-neutral-100 dark:bg-neutral-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition mb-2"><i class="fa-solid fa-file-arrow-up text-3xl text-neutral-400 dark:text-neutral-500 group-hover:text-red-500 transition"></i></div><p class="text-lg font-bold text-neutral-500 dark:text-neutral-300 group-hover:text-red-600 transition">Toca para subir</p><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">PDF (Máx 25MB)</p><input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)"></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Manuales Guardados</h3><div id="pdfs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-20">${pdfsHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin documentos guardados</div>'}</div></div></div>`;
+            const pdfContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0 text-center"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3 text-left">Subir Manual Técnico</h3><div class="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer group flex flex-col items-center justify-center gap-2 h-64" onclick="triggerPdfInput()"><div class="w-16 h-16 rounded bg-neutral-100 dark:bg-neutral-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition mb-2"><i class="fa-solid fa-file-arrow-up text-3xl text-neutral-400 dark:text-neutral-500 group-hover:text-red-500 transition"></i></div><p class="text-lg font-bold text-neutral-500 dark:text-neutral-300 group-hover:text-red-600 transition">Toca para subir</p><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">PDF (Máx 25MB)</p><input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)"></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Manuales Guardados</h3><div id="pdfs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${pdfsHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin documentos guardados</div>'}</div></div></div>`;
             
             const activeClass = "bg-red-600 text-white shadow-md";
             const inactiveClass = "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200";
@@ -562,17 +522,19 @@
         function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.com/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a><button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
         function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); renderView('links'); showToast("Recurso añadido", "fa-bookmark"); }
         function deleteLink(id) { state.links = state.links.filter(l => l.id !== id); saveData(); renderView('links'); }
+        
         function openFolderModal() { document.body.classList.add('modal-open'); document.getElementById('folder-modal').classList.remove('hidden'); document.getElementById('new-folder-name').focus(); }
         function closeFolderModal() { document.body.classList.remove('modal-open'); document.getElementById('folder-modal').classList.add('hidden'); document.getElementById('new-folder-name').value = ''; }
         function createFolder() { const name = document.getElementById('new-folder-name').value.trim(); if (!name) return; const id = 'f_' + Date.now(); state.folders.push({ id, name }); state.currentFolderId = id; saveData(); closeFolderModal(); changeFolder(id); showToast(`Sección "${name}" creada`, "fa-folder-plus"); }
+        
         function processImage(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = (event) => { const img = new Image(); img.src = event.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_WIDTH = 800; let width = img.width; let height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', 0.6)); }; img.onerror = reject; }; reader.onerror = reject; }); }
         function previewImage(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { const img = document.getElementById('image-preview'); if(img) { img.src = e.target.result; document.getElementById('image-preview-container').classList.remove('hidden'); } }; reader.readAsDataURL(input.files[0]); } }
         function clearImageInput() { document.getElementById('new-note-image').value = ''; document.getElementById('image-preview-container').classList.add('hidden'); document.getElementById('image-preview').src = ''; }
+        
         function showConfirmModal(title, message, actionBtnText, onConfirm) { const modal = document.getElementById('confirm-modal'); modal.querySelector('h3').innerText = title; document.getElementById('confirm-message').innerText = message; const btn = document.getElementById('confirm-btn-action'); btn.innerText = actionBtnText; btn.onclick = onConfirm; document.body.classList.add('modal-open'); modal.classList.remove('hidden'); }
         function closeConfirmModal() { document.body.classList.remove('modal-open'); document.getElementById('confirm-modal').classList.add('hidden'); }
         function confirmDelete(type, id) { let msg = "Esta acción es definitiva."; if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; if(type === 'note') msg = "¿Eliminar esta anotación?"; if(type === 'link') msg = "¿Eliminar este recurso?"; showConfirmModal("¿Estás seguro?", msg, "Eliminar", function() { if (type === 'todo') deleteTodo(id); else if (type === 'note') deleteNote(id); else if (type === 'link') deleteLink(id); closeConfirmModal(); }); }
 
-        // --- DASHBOARD MECÁNICO (ROJO/NEGRO) ---
         function getDashboardHTML() {
             const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; let shift = state.shifts[dateKey]; let isNextShift = false; let nextDateStr = "";
             if (!shift) { const futureDates = Object.keys(state.shifts).filter(date => date > dateKey).sort(); if (futureDates.length > 0) { const nextDateKey = futureDates[0]; shift = state.shifts[nextDateKey]; isNextShift = true; const [ny, nm, nd] = nextDateKey.split('-').map(Number); const dateObj = new Date(ny, nm - 1, nd); nextDateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); nextDateStr = nextDateStr.charAt(0).toUpperCase() + nextDateStr.slice(1); } }
@@ -598,19 +560,347 @@
             
             const profileImageSrc = state.userProfileImage || 'catita.png'; const displayUserName = state.userName || 'Mecánico'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
             
-            return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-8"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://via.placeholder.com/64?text=Mec'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
+            return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-20"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://via.placeholder.com/64?text=Mec'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
         }
 
-        function openPatientModal() { document.getElementById('patient-modal').classList.remove('hidden'); document.body.classList.add('modal-open'); document.getElementById('patient-name').value = ''; document.getElementById('patient-room').value = ''; document.getElementById('patient-dx').value = ''; document.getElementById('patient-name').focus(); }
+        function getWorkOrdersHTML() {
+            const patients = state.patients || [];
+            const totalCars = patients.length;
+            const totalTasks = patients.reduce((acc, p) => acc + p.tasks.length, 0);
+            const doneTasks = patients.reduce((acc, p) => acc + p.tasks.filter(t => t.done).length, 0);
+            const globalProgress = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
+
+            const cardsHTML = patients.length === 0 
+                ? `<div class="col-span-full text-center py-20 opacity-50 fade-enter">
+                    <div class="w-24 h-24 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-car-side text-5xl text-neutral-300 dark:text-neutral-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral-400 dark:text-neutral-500">Taller Vacío</h3>
+                    <p class="text-sm text-neutral-400 dark:text-neutral-600">Ingresa un vehículo para comenzar.</p>
+                    <button onclick="openPatientModal()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-blue-700 transition">Ingresar Vehículo</button>
+                   </div>`
+                : patients.map(p => createWorkOrderCardHTML(p)).join('');
+
+            return `
+                <div class="flex flex-col h-full fade-enter">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 shrink-0">
+                        <div class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-600">
+                            <span class="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Vehículos</span>
+                            <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100">${totalCars}</div>
+                        </div>
+                        <div class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-green-500">
+                            <span class="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Progreso Global</span>
+                            <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100">${globalProgress}<span class="text-base align-top text-neutral-400">%</span></div>
+                        </div>
+                        <div class="col-span-2 bg-gradient-to-r from-neutral-800 to-neutral-900 text-white p-4 rounded shadow-lg flex justify-between items-center cursor-pointer hover:shadow-xl transition relative overflow-hidden group" onclick="openPatientModal()">
+                            <div class="relative z-10">
+                                <h3 class="font-bold text-lg"><i class="fa-solid fa-plus-circle text-blue-400 mr-2"></i>Nueva Orden</h3>
+                                <p class="text-xs text-neutral-400">Ingresar vehículo a taller</p>
+                            </div>
+                            <i class="fa-solid fa-wrench text-6xl absolute -right-2 -bottom-4 opacity-10 group-hover:opacity-20 transition rotate-12"></i>
+                        </div>
+                    </div>
+                    <div class="mb-4 relative">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                        <input type="text" placeholder="Buscar por modelo o patente..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-blue-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterWorkOrders(this.value)">
+                    </div>
+                    <div id="work-orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-32">
+                        ${cardsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createWorkOrderCardHTML(p) {
+            const total = p.tasks.length;
+            const done = p.tasks.filter(t => t.done).length;
+            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            
+            let progressColor = 'bg-blue-600';
+            let borderColor = 'border-l-blue-600';
+            if (pct === 100 && total > 0) { progressColor = 'bg-green-500'; borderColor = 'border-l-green-500'; }
+            else if (total === 0) { progressColor = 'bg-neutral-400'; borderColor = 'border-l-neutral-400'; }
+
+            const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join('');
+
+            let contactDisplay = '';
+            if (p.contact) {
+                contactDisplay = `<a href="tel:${p.contact}" class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded border border-green-200 dark:border-green-800 hover:bg-green-100 transition mt-1 w-fit">
+                    <i class="fa-solid fa-phone"></i> ${p.contact}
+                </a>`;
+            }
+
+            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded shadow-sm hover:shadow-lg transition-all duration-300 border border-neutral-300 dark:border-neutral-700 border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${p.name.toLowerCase()} ${p.room.toLowerCase()}">
+                    <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
+                        <div>
+                            <span class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm">${p.room}</span>
+                            <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${p.name}</h4>
+                            ${contactDisplay}
+                            <p class="text-sm font-bold text-neutral-500 dark:text-neutral-400 mt-1 truncate"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> ${p.dx}</p>
+                        </div>
+                        <button onclick="deletePatient(${p.id})" class="w-8 h-8 flex items-center justify-center rounded-full text-neutral-300 hover:bg-red-50 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <div class="h-1.5 w-full bg-neutral-200 dark:bg-neutral-700">
+                        <div class="h-full ${progressColor} transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col min-h-[150px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Tareas (${done}/${total})</span>
+                            <span class="text-xs font-bold ${pct === 100 && total > 0 ? 'text-green-500' : 'text-blue-500'}">${pct}%</span>
+                        </div>
+                        <div class="flex-1 overflow-y-auto hide-scrollbar max-h-[200px] space-y-1 mb-3" id="wo-tasks-${p.id}">
+                            ${tasksHTML.length ? tasksHTML : '<p class="text-center text-xs text-neutral-300 italic py-4">Sin tareas registradas</p>'}
+                        </div>
+                        <div class="mt-auto pt-2 border-t border-dashed border-neutral-200 dark:border-neutral-700">
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="new-task-input-${p.id}-lg" placeholder="+ Tarea rápida..." class="bg-transparent text-sm outline-none w-full placeholder-neutral-400 dark:placeholder-neutral-600 focus:placeholder-blue-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
+                                <button onclick="addPatientTaskWrapper(${p.id})" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function addPatientTaskWrapper(patientId) {
+            const inputLg = document.getElementById(`new-task-input-${patientId}-lg`);
+            if (inputLg && inputLg.value.trim()) {
+                const text = inputLg.value.trim();
+                const patient = state.patients.find(p => p.id === patientId);
+                if(patient) {
+                    const newTask = { id: Date.now(), text, done: false };
+                    patient.tasks.push(newTask);
+                    saveData();
+                    const tasksContainer = document.getElementById(`wo-tasks-${patientId}`);
+                    if(tasksContainer) {
+                        const emptyMsg = tasksContainer.querySelector('p.italic');
+                        if(emptyMsg) emptyMsg.remove();
+                        tasksContainer.insertAdjacentHTML('beforeend', createPatientTaskHTML(newTask, patientId));
+                        tasksContainer.scrollTop = tasksContainer.scrollHeight;
+                    }
+                    updateCardProgress(patientId);
+                    inputLg.value = '';
+                    inputLg.focus();
+                }
+            } else {
+                addPatientTask(patientId);
+            }
+        }
+
+        function filterWorkOrders(query) {
+            const term = query.toLowerCase();
+            document.querySelectorAll('.work-order-card').forEach(card => {
+                const searchData = card.dataset.search;
+                if(searchData.includes(term)) card.classList.remove('hidden');
+                else card.classList.add('hidden');
+            });
+        }
+        
+        function updateCardProgress(patientId) {
+            const patient = state.patients.find(p => p.id === patientId);
+            if (!patient) return;
+            const card = document.getElementById(`wo-card-${patientId}`);
+            if (!card) return;
+            const total = patient.tasks.length;
+            const done = patient.tasks.filter(t => t.done).length;
+            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            const progressBar = card.querySelector('.transition-all.duration-500');
+            if (progressBar) {
+                progressBar.style.width = `${pct}%`;
+                if (pct === 100 && total > 0) {
+                    progressBar.className = 'h-full bg-green-500 transition-all duration-500';
+                    card.classList.remove('border-l-blue-600', 'border-l-neutral-400');
+                    card.classList.add('border-l-green-500');
+                } else if (total === 0) {
+                    progressBar.className = 'h-full bg-neutral-400 transition-all duration-500';
+                    card.classList.remove('border-l-blue-600', 'border-l-green-500');
+                    card.classList.add('border-l-neutral-400');
+                } else {
+                    progressBar.className = 'h-full bg-blue-600 transition-all duration-500';
+                    card.classList.remove('border-l-green-500', 'border-l-neutral-400');
+                    card.classList.add('border-l-blue-600');
+                }
+            }
+            const counterText = card.querySelector('.uppercase.tracking-wider');
+            if (counterText) counterText.innerText = `Tareas (${done}/${total})`;
+            const pctText = card.querySelector('.text-xs.font-bold:not(.uppercase)');
+            if (pctText) {
+                pctText.innerText = `${pct}%`;
+                pctText.className = `text-xs font-bold ${pct === 100 && total > 0 ? 'text-green-500' : 'text-blue-500'}`;
+            }
+        }
+
+        function openPatientModal() { 
+            document.getElementById('patient-modal').classList.remove('hidden'); 
+            document.body.classList.add('modal-open'); 
+            document.getElementById('patient-name').value = ''; 
+            document.getElementById('patient-contact').value = ''; 
+            document.getElementById('patient-room').value = ''; 
+            document.getElementById('patient-dx').value = ''; 
+            document.getElementById('patient-name').focus(); 
+        }
         function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); document.body.classList.remove('modal-open'); }
-        function createPatientCardHTML(p) { const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join(''); return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600"><div class="flex justify-between items-start mb-2"><div><div class="flex gap-2 mb-1"><span class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-car mr-1"></i> ${p.room}</span></div><h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${p.name}</h4><p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${p.dx}</p></div><button onclick="deletePatient(${p.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can text-lg"></i></button></div><div class="mt-3 pl-1 border-l-2 border-neutral-100 dark:border-neutral-800"><div id="patient-tasks-${p.id}">${tasksHTML}</div><div class="flex items-center gap-2 mt-2"><input type="text" id="new-task-input-${p.id}" placeholder="+ Tarea (ej: Cambiar filtro)..." class="bg-transparent text-sm outline-none w-full placeholder-neutral-400 dark:placeholder-neutral-500 focus:placeholder-blue-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') addPatientTask(${p.id})"><button onclick="addPatientTask(${p.id})" class="text-blue-500 hover:text-blue-700 text-lg"><i class="fa-solid fa-plus-square"></i></button></div></div></div>`; }
+        
+        function createPatient() { 
+            const name = document.getElementById('patient-name').value.trim(); 
+            const contact = document.getElementById('patient-contact').value.trim(); 
+            const room = document.getElementById('patient-room').value.trim(); 
+            const dx = document.getElementById('patient-dx').value.trim(); 
+            if (!name) return; 
+            
+            const newPatient = { id: Date.now(), name, contact: contact || '', room: room || '---', dx: dx || 'Revisión', tasks: [] }; 
+            state.patients.unshift(newPatient); 
+            saveData(); 
+            closePatientModal(); 
+            
+            if (state.view === 'work_orders') {
+                const grid = document.getElementById('work-orders-grid');
+                if (grid) {
+                    if (state.patients.length === 1) {
+                        grid.innerHTML = ''; 
+                    }
+                    grid.insertAdjacentHTML('afterbegin', createWorkOrderCardHTML(newPatient));
+                    const newCard = document.getElementById(`wo-card-${newPatient.id}`);
+                    if (newCard) {
+                        newCard.classList.add('fade-enter');
+                        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    renderView('work_orders'); 
+                }
+            } else {
+                const container = document.getElementById('patients-list-container'); 
+                if (container) { 
+                    const emptyMsg = document.getElementById('empty-patients-msg'); 
+                    if (emptyMsg) emptyMsg.remove(); 
+                    container.insertAdjacentHTML('afterbegin', createPatientCardHTML(newPatient)); 
+                } else { 
+                    renderView('dashboard'); 
+                } 
+            }
+            showToast("Vehículo Ingresado", "fa-check"); 
+        }
+
+        function createPatientCardHTML(p) { 
+            const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join(''); 
+            
+            let contactBtn = '';
+            if (p.contact) {
+                contactBtn = `<a href="tel:${p.contact}" class="ml-2 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200" title="Llamar: ${p.contact}"><i class="fa-solid fa-phone text-xs"></i></a>`;
+            }
+
+            return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <div class="flex gap-2 mb-1">
+                            <span class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-car mr-1"></i> ${p.room}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${p.name}</h4>
+                            ${contactBtn}
+                        </div>
+                        <p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${p.dx}</p>
+                    </div>
+                    <button onclick="deletePatient(${p.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                </div>
+                <div class="mt-3 pl-1 border-l-2 border-neutral-100 dark:border-neutral-800">
+                    <div id="patient-tasks-${p.id}">${tasksHTML}</div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <input type="text" id="new-task-input-${p.id}" placeholder="+ Tarea (ej: Cambiar filtro)..." class="bg-transparent text-sm outline-none w-full placeholder-neutral-400 dark:placeholder-neutral-500 focus:placeholder-blue-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') addPatientTask(${p.id})">
+                        <button onclick="addPatientTask(${p.id})" class="text-blue-500 hover:text-blue-700 text-lg"><i class="fa-solid fa-plus-square"></i></button>
+                    </div>
+                </div>
+            </div>`; 
+        }
+        
         function createPatientTaskHTML(t, patientId) { return `<div id="patient-task-${t.id}" class="flex items-center gap-2 group/task mb-1 item-enter"><button onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" class="text-sm ${t.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition"><i class="fa-${t.done ? 'solid' : 'regular'} fa-square-check"></i></button><span id="txt-ptask-${t.id}" class="text-sm flex-1 ${t.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'}">${t.text}</span><button onclick="deletePatientTask(${patientId}, ${t.id})" class="text-neutral-200 dark:text-neutral-700 hover:text-red-400 opacity-0 group-hover/task:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button></div>`; }
         function generatePatientsHTML() { if ((state.patients || []).length === 0) return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-400 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-400 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`; return state.patients.map(p => createPatientCardHTML(p)).join(''); }
-        function createPatient() { const name = document.getElementById('patient-name').value.trim(); const room = document.getElementById('patient-room').value.trim(); const dx = document.getElementById('patient-dx').value.trim(); if (!name) return; const newPatient = { id: Date.now(), name, room: room || '---', dx: dx || 'Revisión', tasks: [] }; state.patients.unshift(newPatient); saveData(); closePatientModal(); const container = document.getElementById('patients-list-container'); if (container) { const emptyMsg = document.getElementById('empty-patients-msg'); if (emptyMsg) emptyMsg.remove(); container.insertAdjacentHTML('afterbegin', createPatientCardHTML(newPatient)); } else { renderView('dashboard'); } showToast("Vehículo Ingresado", "fa-check"); }
-        function deletePatient(id) { showConfirmModal("¿Finalizar Orden?", "El vehículo saldrá del sistema.", "Finalizar", () => { state.patients = state.patients.filter(p => p.id !== id); saveData(); closeConfirmModal(); const card = document.getElementById(`patient-card-${id}`); if (card) { card.classList.add('item-leave'); setTimeout(() => { card.remove(); const container = document.getElementById('patients-list-container'); if (container && container.children.length === 0) container.innerHTML = generatePatientsHTML(); }, 300); } else { renderView('dashboard'); } showToast("Orden Finalizada", "fa-check-double"); }); }
-        function addPatientTask(patientId) { const input = document.getElementById(`new-task-input-${patientId}`); if(!input) return; const text = input.value.trim(); if(!text) return; const patient = state.patients.find(p => p.id === patientId); if(patient) { const newTask = { id: Date.now(), text, done: false }; patient.tasks.push(newTask); saveData(); const tasksContainer = document.getElementById(`patient-tasks-${patientId}`); if(tasksContainer) tasksContainer.insertAdjacentHTML('beforeend', createPatientTaskHTML(newTask, patientId)); input.value = ''; input.focus(); } }
-        function togglePatientTask(patientId, taskId) { const patient = state.patients.find(p => p.id === patientId); if(patient) { const task = patient.tasks.find(t => t.id === taskId); if(task) { task.done = !task.done; saveData(); const btn = document.getElementById(`btn-ptask-${taskId}`); const txt = document.getElementById(`txt-ptask-${taskId}`); if(btn && txt) { btn.className = `text-sm ${task.done ? 'text-green-600' : 'text-neutral-300 hover:text-blue-500'} transition`; btn.innerHTML = `<i class="fa-${task.done ? 'solid' : 'regular'} fa-square-check"></i>`; txt.className = `text-sm flex-1 ${task.done ? 'text-neutral-400 line-through' : 'text-neutral-600 font-bold'}`; } } } }
-        function deletePatientTask(patientId, taskId) { const patient = state.patients.find(p => p.id === patientId); if(patient) { patient.tasks = patient.tasks.filter(t => t.id !== taskId); saveData(); const taskEl = document.getElementById(`patient-task-${taskId}`); if(taskEl) taskEl.remove(); } }
+
+        function deletePatient(id) { 
+            showConfirmModal("¿Finalizar Orden?", "El vehículo saldrá del sistema.", "Finalizar", () => { 
+                state.patients = state.patients.filter(p => p.id !== id); 
+                saveData(); 
+                closeConfirmModal(); 
+                
+                const card = document.getElementById(`patient-card-${id}`); 
+                const woCard = document.getElementById(`wo-card-${id}`);
+
+                if (state.view === 'work_orders' && woCard) {
+                    woCard.style.transition = 'all 0.3s';
+                    woCard.style.opacity = '0';
+                    woCard.style.transform = 'scale(0.9)';
+                    setTimeout(() => { 
+                        woCard.remove(); 
+                        const grid = document.getElementById('work-orders-grid');
+                        if(grid && grid.children.length === 0) renderView('work_orders');
+                    }, 300);
+                } else if (card) { 
+                    card.classList.add('item-leave'); 
+                    setTimeout(() => { 
+                        card.remove(); 
+                        const container = document.getElementById('patients-list-container'); 
+                        if (container && container.children.length === 0) container.innerHTML = generatePatientsHTML(); 
+                    }, 300); 
+                } else { 
+                    renderView('dashboard'); 
+                } 
+                showToast("Orden Finalizada", "fa-check-double"); 
+            }); 
+        }
+
+        function addPatientTask(patientId) { 
+            const input = document.getElementById(`new-task-input-${patientId}`); 
+            if(!input) return; 
+            const text = input.value.trim(); 
+            if(!text) return; 
+            const patient = state.patients.find(p => p.id === patientId); 
+            if(patient) { 
+                const newTask = { id: Date.now(), text, done: false }; 
+                patient.tasks.push(newTask); 
+                saveData(); 
+                const tasksContainer = document.getElementById(`patient-tasks-${patientId}`); 
+                if(tasksContainer) tasksContainer.insertAdjacentHTML('beforeend', createPatientTaskHTML(newTask, patientId)); 
+                input.value = ''; 
+                input.focus(); 
+            } 
+        }
+
+        function togglePatientTask(patientId, taskId) { 
+            const patient = state.patients.find(p => p.id === patientId); 
+            if(patient) { 
+                const task = patient.tasks.find(t => t.id === taskId); 
+                if(task) { 
+                    task.done = !task.done; 
+                    saveData(); 
+                    
+                    const btn = document.getElementById(`btn-ptask-${taskId}`); 
+                    const txt = document.getElementById(`txt-ptask-${taskId}`); 
+                    if(btn && txt) { 
+                        btn.className = `text-sm ${task.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition`; 
+                        btn.innerHTML = `<i class="fa-${task.done ? 'solid' : 'regular'} fa-square-check"></i>`; 
+                        txt.className = `text-sm flex-1 ${task.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'}`; 
+                    }
+                    
+                    if (state.view === 'work_orders') {
+                        updateCardProgress(patientId);
+                    }
+                } 
+            } 
+        }
+
+        function deletePatientTask(patientId, taskId) { 
+            const patient = state.patients.find(p => p.id === patientId); 
+            if(patient) { 
+                patient.tasks = patient.tasks.filter(t => t.id !== taskId); 
+                saveData(); 
+                const taskEl = document.getElementById(`patient-task-${taskId}`); 
+                if(taskEl) taskEl.remove(); 
+                
+                if (state.view === 'work_orders') {
+                    updateCardProgress(patientId);
+                }
+            } 
+        }
+
         function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
         
         function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Día</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Noche</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Franco</span></div></div>`; return html; }
@@ -622,7 +912,7 @@
         function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
         function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
         
-        function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-image" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Foto</label><input type="file" id="new-note-image" accept="image/*" class="hidden"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full min-h-0"><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-20 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
+        function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-image" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Foto</label><input type="file" id="new-note-image" accept="image/*" class="hidden"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full h-auto min-h-0"><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
         function generateFoldersHTML() { return `<button onclick="changeFolder('all')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => `<button onclick="changeFolder('${f.id}')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === f.id ? 'bg-red-600 text-white border-red-600 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="${f.id}">${f.name}</button>`).join('')}<button onclick="openFolderModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition"><i class="fa-solid fa-plus text-xs"></i></button>`; }
         function generateNotesListHTML() { let filteredNotes = state.notes || []; if (state.currentFolderId !== 'all') { filteredNotes = filteredNotes.filter(n => n.folderId === state.currentFolderId); } if (filteredNotes.length === 0) return `<div class="text-center py-10 opacity-40"><i class="fa-solid fa-file-signature text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin apuntes</p></div>`; return filteredNotes.map(n => createNoteHTML(n)).join(''); }
         function createNoteHTML(note) { const img = note.image ? `<img src="${note.image}" class="w-full h-auto rounded mb-3 border border-neutral-200 dark:border-neutral-700">` : ''; const folderName = (state.folders || []).find(f => f.id === note.folderId)?.name || 'General'; return `<div id="note-${note.id}" class="work-order p-5 rounded item-enter group hover:-translate-y-1 transition-transform duration-300"><div class="absolute top-3 right-3 opacity-20 group-hover:opacity-100 transition text-neutral-400 dark:text-neutral-600 text-2xl rotate-12"><i class="fa-solid fa-wrench"></i></div>${img}<p class="text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap font-handwriting text-2xl leading-relaxed relative z-10">${note.text}</p><div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-neutral-300 dark:border-neutral-700"><span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 tracking-wider bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded border border-neutral-200 dark:border-neutral-700">${folderName}</span><div class="flex gap-2 opacity-60 group-hover:opacity-100 transition"><button onclick="startEditNote(${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-blue-500 px-1"><i class="fa-solid fa-pen"></i></button><button onclick="confirmDelete('note', ${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-red-500 px-1"><i class="fa-solid fa-trash"></i></button></div></div></div>`; }
@@ -632,14 +922,16 @@
         async function saveNote() { const textInput = document.getElementById('new-note-text'); const fileInput = document.getElementById('new-note-image'); const imgPreview = document.getElementById('image-preview'); const text = textInput.value.trim(); const file = fileInput.files[0]; let imageData = null; if (!text && !file && imgPreview.classList.contains('hidden')) return showToast("Nota vacía", "fa-pen"); if (file) { try { imageData = await processImage(file); } catch (e) { return showToast("Error imagen", "fa-times"); } } else if (!document.getElementById('image-preview-container').classList.contains('hidden')) { imageData = imgPreview.src; } if (state.editingNoteId) { const noteIndex = state.notes.findIndex(n => n.id === state.editingNoteId); if (noteIndex > -1) { state.notes[noteIndex].text = text; state.notes[noteIndex].image = imageData; } cancelEdit(); showToast("Registro actualizado", "fa-rotate"); } else { const targetFolder = state.currentFolderId === 'all' ? 'general' : state.currentFolderId; const newNote = { id: Date.now(), text, image: imageData, folderId: targetFolder }; state.notes.unshift(newNote); textInput.value = ''; clearImageInput(); showToast("Nota guardada", "fa-check"); } saveData(); document.getElementById('notes-list').innerHTML = generateNotesListHTML(); }
         function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const el = document.getElementById(`note-${id}`); if(el) { el.classList.add('item-leave'); setTimeout(() => el.remove(), 300); } showToast("Nota eliminada", "fa-trash"); }
         
-        function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-20">${todosHTML}</ul></div>`; }
+        function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
         function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${todo.text}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
         function addTodo() { const input = document.getElementById('new-todo'); const text = input.value.trim(); if (!text) return; const newTodo = { id: Date.now(), text, done: false }; state.todos.unshift(newTodo); saveData(); const list = document.getElementById('todo-list'); if(list) { const emptyMsg = document.getElementById('empty-todo-msg'); if(emptyMsg) emptyMsg.remove(); list.insertAdjacentHTML('afterbegin', createTodoItemHTML(newTodo)); } input.value = ''; showToast("Tarea añadida", "fa-plus"); }
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
 
         function renderView(viewName) {
-            const container = document.getElementById('app-container'); state.view = viewName; state.editingNoteId = null; document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); let contentHTML = ''; let containerClass = "fade-enter h-full "; if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; try { switch(viewName) { case 'dashboard': contentHTML = getDashboardHTML(); break; case 'turnario': contentHTML = getTurnarioHTML(); break; case 'todo': contentHTML = getTodoHTML(); break; case 'notes': contentHTML = getNotesHTML(); break; case 'links': contentHTML = getLinksHTML(); break; default: contentHTML = getDashboardHTML(); } } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { const imgInput = document.getElementById('new-note-image'); if(imgInput) imgInput.addEventListener('change', function() { previewImage(this); }); } saveData();
+            const container = document.getElementById('app-container'); state.view = viewName; state.editingNoteId = null; document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
+            let containerClass = "fade-enter min-h-full "; 
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; try { switch(viewName) { case 'dashboard': contentHTML = getDashboardHTML(); break; case 'turnario': contentHTML = getTurnarioHTML(); break; case 'todo': contentHTML = getTodoHTML(); break; case 'notes': contentHTML = getNotesHTML(); break; case 'links': contentHTML = getLinksHTML(); break; case 'work_orders': contentHTML = getWorkOrdersHTML(); break; default: contentHTML = getDashboardHTML(); } } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { const imgInput = document.getElementById('new-note-image'); if(imgInput) imgInput.addEventListener('change', function() { previewImage(this); }); } saveData();
         }
 
         init();

@@ -5,15 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Mecamonico</title>
     
-    <!-- --- CONFIGURACIÓN DE ICONOS --- -->
-    <link rel="icon" type="image/png" href="iconointermona.png">
-    <link rel="shortcut icon" type="image/png" href="iconointermona.png">
-    <link rel="apple-touch-icon" href="iconointermona.png"> 
+    <!-- --- CONFIGURACIÓN DE ICONOS (FAVICON & APP) --- -->
+    <!-- Favicon estándar para navegadores -->
+    <link rel="icon" type="image/png" href="iconomecamonico.png">
+    <link rel="shortcut icon" type="image/png" href="iconomecamonico.png">
     
-    <!-- PWA iOS -->
+    <!-- iOS (iPhone/iPad) - Icono de pantalla de inicio -->
+    <link rel="apple-touch-icon" href="iconomecamonico.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="iconomecamonico.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="iconomecamonico.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="iconomecamonico.png">
+    
+    <!-- Android / Chrome - Iconos de alta resolución -->
+    <link rel="icon" sizes="192x192" href="iconomecamonico.png">
+    <link rel="icon" sizes="128x128" href="iconomecamonico.png">
+    
+    <!-- Configuración PWA iOS (Barra de estado y Título) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Mecamonico">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#171717">
     
     <!-- Tailwind CSS (Configurado para Modo Oscuro por Clase) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -64,10 +75,11 @@
         }
 
         body {
+            /* Fuente Unificada: Roboto Condensed */
             font-family: 'Roboto Condensed', sans-serif; 
             /* Fondo claro por defecto, oscuro manejado por Tailwind dark: */
             background-color: var(--mech-bg);
-            /* Patrón de rejilla técnica */
+            /* Patrón de rejilla técnica en movimiento */
             background-image: 
                 linear-gradient(rgba(23, 23, 23, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(23, 23, 23, 0.05) 1px, transparent 1px);

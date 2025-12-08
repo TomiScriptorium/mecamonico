@@ -528,11 +528,75 @@
                 <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
             </div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
         }
-        function createPdfHTML(pdf) { return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div><button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
-        function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.com/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a><button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
+        function createPdfHTML(pdf) { return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
+        <!-- Share PDF Button -->
+        <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
+        <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
+        
+        function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.com/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a>
+        <!-- Share Link Button -->
+        <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
+        <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
+        
         function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); renderView('links'); showToast("Recurso añadido", "fa-bookmark"); }
         function deleteLink(id) { state.links = state.links.filter(l => l.id !== id); saveData(); renderView('links'); }
         
+        // --- NEW SHARE FUNCTIONS ---
+        async function shareLink(id) {
+            const link = state.links.find(l => l.id === id);
+            if (!link) return;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: link.title,
+                        text: `Mira este enlace: ${link.title}`,
+                        url: link.url
+                    });
+                    showToast("Enlace compartido", "fa-check");
+                } catch (err) {
+                    // Fallback clipboard
+                    fallbackCopy(link.url);
+                }
+            } else {
+                fallbackCopy(link.url);
+            }
+        }
+
+        async function sharePdfFile(id) {
+            const pdf = state.pdfs.find(p => p.id === id);
+            if (!pdf) return;
+
+            // Convert Base64 back to Blob/File
+            try {
+                showToast("Preparando archivo...", "fa-spinner fa-spin");
+                const res = await fetch(pdf.data);
+                const blob = await res.blob();
+                const file = new File([blob], `${pdf.title}.pdf`, { type: "application/pdf" });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: pdf.title,
+                        text: "Te comparto este manual técnico."
+                    });
+                    showToast("Archivo compartido", "fa-file-pdf");
+                } else {
+                    // Fallback Download
+                    const a = document.createElement('a');
+                    a.href = pdf.data;
+                    a.download = `${pdf.title}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast("Descargando archivo...", "fa-download");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Error al compartir", "fa-triangle-exclamation");
+            }
+        }
+
         function openFolderModal() { document.body.classList.add('modal-open'); document.getElementById('folder-modal').classList.remove('hidden'); document.getElementById('new-folder-name').focus(); }
         function closeFolderModal() { document.body.classList.remove('modal-open'); document.getElementById('folder-modal').classList.add('hidden'); document.getElementById('new-folder-name').value = ''; }
         function createFolder() { const name = document.getElementById('new-folder-name').value.trim(); if (!name) return; const id = 'f_' + Date.now(); state.folders.push({ id, name }); state.currentFolderId = id; saveData(); closeFolderModal(); changeFolder(id); showToast(`Sección "${name}" creada`, "fa-folder-plus"); }
@@ -590,15 +654,20 @@
         }
 
         function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
-        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-couch absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
-        function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
-        function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
-        function setShiftType(type) { tempShiftType = type; updateShiftTypeUI(); }
-        function updateShiftTypeUI() { document.querySelectorAll('.shift-type-btn').forEach(btn => { btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); if (String(tempShiftType) === btn.dataset.type) { btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); btn.classList.remove('text-neutral-500', 'bg-white'); } }); }
-        function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
-        function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
         
-        // --- WORK ORDERS & PATIENTS LOGIC ---
+        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; 
+        if (shift) { 
+            if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } 
+            else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } 
+            else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } 
+            else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } 
+            else if (shift.type === 'libre') { // Vehiculo Agendado
+                bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; 
+                content += `<i class="fa-solid fa-car absolute text-xs bottom-1 opacity-50"></i>`; // Icono Auto
+            } 
+        } 
+        const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
+
         function getWorkOrdersHTML() {
             const patients = state.patients || [];
             const totalCars = patients.length;

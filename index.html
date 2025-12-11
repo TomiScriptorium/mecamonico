@@ -9,8 +9,6 @@
     <link rel="icon" type="image/png" href="iconomecamonico.png">
     <link rel="shortcut icon" type="image/png" href="iconomecamonico.png">
     <link rel="apple-touch-icon" href="iconomecamonico.png">
-    <link rel="icon" sizes="192x192" href="iconomecamonico.png">
-    <link rel="icon" sizes="128x128" href="iconomecamonico.png">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Mecamonico">
@@ -55,6 +53,8 @@
     <!-- LIBRERIAS PARA GENERAR PDF (jspdf + html2canvas) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- AutoTable para tablas limpias en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -207,37 +207,44 @@
     <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
         <nav class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory">
             
-            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
+            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
             </button>
             
-            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
+            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Taller</span>
             </button>
+
+            <!-- NUEVO MODULO DE COMPRAS -->
+            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
+                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
+                <i class="fa-solid fa-cart-shopping text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Compras</span>
+            </button>
             
-            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
+            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
             </button>
             
-            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
+            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
             </button>
             
-            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
+            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
             </button>
             
-            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
+            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Manuales</span>
@@ -335,7 +342,9 @@
     <script>
         const APP_KEY = 'mecamonico_data_v1'; 
         let state = {
-            view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
+            view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
+            shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', // Updated Shopping State
+            userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false
         };
         let selectedDateKey = null; 
@@ -370,6 +379,11 @@
                     if (!saved.userName) saved.userName = 'Estudiante'; 
                     if (!saved.userTitle) saved.userTitle = 'Estudiante'; 
                     if (saved.darkMode === undefined) saved.darkMode = false;
+                    // Initialize shopping list if not present
+                    if (!saved.shoppingList) saved.shoppingList = [];
+                    if (!saved.shopAddress) saved.shopAddress = '';
+                    if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
+                    if (!saved.shopNote) saved.shopNote = '';
                     
                     // Migration for Note Images (string -> array)
                     saved.notes = saved.notes.map(n => {
@@ -570,7 +584,7 @@
         }
         function deleteLink(id) { state.links = state.links.filter(l => l.id !== id); saveData(); renderView('links'); }
         
-        // --- NEW SHARE FUNCTIONS ---
+        // --- SHARE FUNCTIONS ---
         async function shareLink(id) {
             const link = state.links.find(l => l.id === id);
             if (!link) return;
@@ -1165,7 +1179,7 @@
             }
 
             htmlContent += `<div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #333;">${note.text}</div>`;
-            htmlContent += `<div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 10px; color: #999;">Generado por Mecamonico App</div>`;
+            // htmlContent += `<div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 10px; color: #999;">Generado por Mecamonico App</div>`; // WATERMARK REMOVED
 
             tempContainer.innerHTML = htmlContent;
             document.body.appendChild(tempContainer);
@@ -1296,10 +1310,250 @@
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
 
+        // --- NEW MODULE: SHOPPING LIST (COMPRAS) - UPDATED FLUIDITY ---
+        
+        function getShoppingRowHTML(item, index) {
+            return `
+                <tr id="shop-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                    <td class="p-3">
+                        <input type="text" value="${item.product}" onchange="updateShoppingItem(${index}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
+                    </td>
+                    <td class="p-3 w-24">
+                        <input type="text" value="${item.qty}" onchange="updateShoppingItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant.">
+                    </td>
+                    <td class="p-3 w-10 text-center">
+                        <button onclick="deleteShoppingItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function getShoppingListHTML() {
+            const itemsHTML = state.shoppingList.length === 0 
+                ? `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`
+                : state.shoppingList.map((item, index) => getShoppingRowHTML(item, index)).join('');
+
+            return `
+                <div class="pb-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
+                            <i class="fa-solid fa-cart-shopping text-red-600"></i> Compras
+                        </h2>
+                        <div class="flex gap-2">
+                            <button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
+                                <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar</span>
+                            </button>
+                            <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
+                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Título de la Lista</label>
+                            <input type="text" id="shop-title" value="${state.shopTitle}" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent text-xl font-black text-neutral-800 dark:text-neutral-100 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Repuestos Motor V8">
+                        </div>
+                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Dirección del Taller (para PDF)</label>
+                            <input type="text" id="shop-address" value="${state.shopAddress}" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Av. Principal 123, Santiago">
+                        </div>
+                         <!-- NUEVO CAMPO DE NOTA EXTRA -->
+                        <div class="p-4">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Nota al pie / Observaciones</label>
+                            <input type="text" id="shop-note" value="${state.shopNote || ''}" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-blue-500 transition placeholder-neutral-300" placeholder="Ej: Solicitar factura a nombre de...">
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                                    <th class="p-3 font-bold uppercase tracking-wider">Producto</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-center">Cant.</th>
+                                    <th class="p-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="shopping-table-body">
+                                ${itemsHTML}
+                            </tbody>
+                            <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
+                                <tr>
+                                    <td class="p-3">
+                                        <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
+                                    </td>
+                                    <td class="p-3">
+                                        <input type="text" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') addShoppingItem()">
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        <button onclick="addShoppingItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                            <i class="fa-solid fa-plus text-xs"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateShopHeader(field, value) {
+            if (field === 'title') state.shopTitle = value;
+            if (field === 'address') state.shopAddress = value;
+            if (field === 'note') state.shopNote = value; // Saving extra note
+            saveData();
+        }
+
+        function addShoppingItem() {
+            const prodInput = document.getElementById('new-item-product');
+            const qtyInput = document.getElementById('new-item-qty');
+            const product = prodInput.value.trim();
+            const qty = qtyInput.value.trim() || '1';
+
+            if (!product) return;
+
+            const newItem = { product, qty };
+            state.shoppingList.push(newItem);
+            saveData();
+            
+            // DOM MANIPULATION INSTEAD OF RENDERVIEW (FLUIDITY FIX)
+            const tbody = document.getElementById('shopping-table-body');
+            if (tbody) {
+                const emptyMsg = document.getElementById('empty-shop-msg');
+                if (emptyMsg) emptyMsg.remove();
+                
+                // Append new row at the end
+                const newIndex = state.shoppingList.length - 1;
+                tbody.insertAdjacentHTML('beforeend', getShoppingRowHTML(newItem, newIndex));
+            }
+
+            prodInput.value = '';
+            qtyInput.value = '';
+            prodInput.focus();
+            
+            showToast("Producto agregado", "fa-cart-plus");
+        }
+
+        function updateShoppingItem(index, field, value) {
+            state.shoppingList[index][field] = value;
+            saveData();
+        }
+
+        function deleteShoppingItem(index) {
+            state.shoppingList.splice(index, 1);
+            saveData();
+            
+            // DOM MANIPULATION INSTEAD OF RENDERVIEW (FLUIDITY FIX)
+            // We need to re-render the body to fix indices of remaining items
+            // This is faster than re-rendering the whole view (keeping focus on header inputs if needed)
+            const tbody = document.getElementById('shopping-table-body');
+            if (tbody) {
+                if (state.shoppingList.length === 0) {
+                    tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                } else {
+                    tbody.innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('');
+                }
+            }
+        }
+
+        function clearShoppingList() {
+            if (state.shoppingList.length === 0) return;
+            showConfirmModal("¿Limpiar Lista?", "Se borrarán todos los productos.", "Limpiar Todo", function() {
+                state.shoppingList = [];
+                saveData();
+                closeConfirmModal();
+                const tbody = document.getElementById('shopping-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                }
+                showToast("Lista limpia", "fa-eraser");
+            });
+        }
+
+        function downloadShoppingPDF() {
+            if (state.shoppingList.length === 0) {
+                showToast("Lista vacía", "fa-triangle-exclamation");
+                return;
+            }
+            
+            showToast("Generando PDF...", "fa-spinner fa-spin");
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configuración
+            const margin = 20;
+            let yPos = 20;
+            
+            // Header
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(23, 23, 23); // Neutral-900
+            doc.text(state.shopTitle || "Lista de Compras", margin, yPos);
+            
+            yPos += 10;
+            
+            // Subheader / Address
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            const address = state.shopAddress ? `Dirección: ${state.shopAddress}` : `Fecha: ${new Date().toLocaleDateString()}`;
+            doc.text(address, margin, yPos);
+            
+            yPos += 15;
+            
+            // Table
+            const tableData = state.shoppingList.map(item => [item.product, item.qty]);
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Producto', 'Cantidad']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [220, 38, 38], textColor: [255, 255, 255], fontStyle: 'bold' }, // Red-600 header
+                styles: { fontSize: 12, cellPadding: 4 },
+                alternateRowStyles: { fillColor: [245, 245, 245] },
+                margin: { left: margin, right: margin }
+            });
+            
+            // EXTRA NOTE AT BOTTOM
+            if (state.shopNote) {
+                let finalY = doc.lastAutoTable.finalY + 15;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text("OBSERVACIONES:", margin, finalY);
+                
+                doc.setFont("helvetica", "italic");
+                doc.setTextColor(80, 80, 80);
+                // Split text to fit width
+                const splitNote = doc.splitTextToSize(state.shopNote, 170);
+                doc.text(splitNote, margin, finalY + 6);
+            }
+            
+            // Save
+            const fileName = `Compras_${new Date().toISOString().slice(0,10)}.pdf`;
+            doc.save(fileName);
+            showToast("PDF Descargado", "fa-file-pdf");
+        }
+
         function renderView(viewName) {
             const container = document.getElementById('app-container'); state.view = viewName; state.editingNoteId = null; document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
             let containerClass = "fade-enter min-h-full "; 
-            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; try { switch(viewName) { case 'dashboard': contentHTML = getDashboardHTML(); break; case 'turnario': contentHTML = getTurnarioHTML(); break; case 'todo': contentHTML = getTodoHTML(); break; case 'notes': contentHTML = getNotesHTML(); break; case 'links': contentHTML = getLinksHTML(); break; case 'work_orders': contentHTML = getWorkOrdersHTML(); break; default: contentHTML = getDashboardHTML(); } } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { 
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; 
+            try { 
+                switch(viewName) { 
+                    case 'dashboard': contentHTML = getDashboardHTML(); break; 
+                    case 'turnario': contentHTML = getTurnarioHTML(); break; 
+                    case 'todo': contentHTML = getTodoHTML(); break; 
+                    case 'notes': contentHTML = getNotesHTML(); break; 
+                    case 'links': contentHTML = getLinksHTML(); break; 
+                    case 'work_orders': contentHTML = getWorkOrdersHTML(); break; 
+                    case 'shopping_list': contentHTML = getShoppingListHTML(); break; // New Case
+                    default: contentHTML = getDashboardHTML(); 
+                } 
+            } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { 
                 // Restore state if returning to notes
                 updateImagePreview();
             } saveData();

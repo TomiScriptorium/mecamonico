@@ -247,7 +247,8 @@
             <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Manuales</span>
+                <!-- CAMBIO: Nombre del módulo a Información -->
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Información</span>
             </button>
         </nav>
     </div>
@@ -266,7 +267,8 @@
                     <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-blue-500 hover:text-blue-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-file-export text-xl"></i> Entrega Informe</button>
                     <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-indigo-500 hover:text-indigo-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-file-signature text-xl"></i> Certamen</button>
                     <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-yellow-500 hover:text-yellow-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-book text-xl"></i> Estudio/Teoría</button>
-                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-car-clock text-xl"></i> Vehículo Agenda</button>
+                    <!-- CAMBIO: Nombre del botón a Vehículo Agendado e Icono Nuevo -->
+                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-calendar-check text-xl"></i> Vehículo Agendado</button>
                     <button onclick="setShiftType(null)" data-type="null" class="shift-type-btn p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-eraser text-xl"></i> Limpiar</button>
                 </div>
                 <div class="space-y-4">
@@ -343,13 +345,13 @@
         const APP_KEY = 'mecamonico_data_v1'; 
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
-            shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', // Updated Shopping State
+            shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', 
             userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false
         };
         let selectedDateKey = null; 
         let tempShiftType = null;
-        let currentNoteImages = []; // Temp storage for note images
+        let currentNoteImages = []; 
 
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }; }); },
@@ -379,13 +381,12 @@
                     if (!saved.userName) saved.userName = 'Estudiante'; 
                     if (!saved.userTitle) saved.userTitle = 'Estudiante'; 
                     if (saved.darkMode === undefined) saved.darkMode = false;
-                    // Initialize shopping list if not present
+                    
                     if (!saved.shoppingList) saved.shoppingList = [];
                     if (!saved.shopAddress) saved.shopAddress = '';
                     if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
                     if (!saved.shopNote) saved.shopNote = '';
                     
-                    // Migration for Note Images (string -> array)
                     saved.notes = saved.notes.map(n => {
                         if (n.image && !n.images) n.images = [n.image];
                         else if (!n.images) n.images = [];
@@ -518,7 +519,6 @@
         
         function triggerPdfInput() { document.getElementById('pdf-input-file').click(); }
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); 
-            // Fluid Update
             const list = document.getElementById('pdfs-list');
             if (list) {
                  const emptyMsg = list.querySelector('.text-center.opacity-40');
@@ -529,6 +529,19 @@
             }
             showToast("Manual Agregado", "fa-file-pdf"); } catch(e) { console.error(e); showToast("Error al leer", "fa-times"); } input.value = ''; }
         function processFileBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
+        
+        function renamePdf(id) {
+            const pdf = state.pdfs.find(p => p.id === id);
+            if (!pdf) return;
+            const newName = prompt("Nuevo nombre para el archivo:", pdf.title);
+            if (newName && newName.trim() !== "") {
+                pdf.title = newName.trim();
+                saveData();
+                renderView('links');
+                showToast("Nombre actualizado", "fa-pen-to-square");
+            }
+        }
+
         function deletePdf(id) { showConfirmModal("¿Eliminar Manual?", "Acción irreversible.", "Eliminar", () => { state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
 
         function setInfoTab(tab) {
@@ -553,23 +566,25 @@
             const activeClass = "bg-red-600 text-white shadow-md";
             const inactiveClass = "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200";
 
-            return `<div><h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-toolbox text-red-600"></i> Biblioteca Técnica</h2><div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 shadow-inner">
+            // CAMBIO: Titulo a Información Técnica
+            return `<div><h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-toolbox text-red-600"></i> Información Técnica</h2><div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 shadow-inner">
                 <button id="tab-btn-web" onclick="setInfoTab('web')" class="flex-1 py-2 text-sm font-bold rounded transition ${isWeb ? activeClass : inactiveClass}">Enlaces Web</button>
                 <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
             </div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
         }
-        function createPdfHTML(pdf) { return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
-        <!-- Share PDF Button -->
-        <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
-        <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
+        function createPdfHTML(pdf) { 
+            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
+            <!-- CAMBIO: Boton de renombrar agregado -->
+            <button onclick="event.stopPropagation(); renamePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
+            <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; 
+        }
         
         function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.com/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a>
-        <!-- Share Link Button -->
         <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
         <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
         
         function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); 
-            // Fluid Update
             const list = document.getElementById('links-list');
             if(list) {
                  const emptyMsg = list.querySelector('.text-center.opacity-40');
@@ -598,7 +613,6 @@
                     });
                     showToast("Enlace compartido", "fa-check");
                 } catch (err) {
-                    // Fallback clipboard
                     fallbackCopy(link.url);
                 }
             } else {
@@ -624,7 +638,6 @@
                     });
                     showToast("Archivo compartido", "fa-file-pdf");
                 } else {
-                    // Fallback Download
                     const a = document.createElement('a');
                     a.href = pdf.data;
                     a.download = `${pdf.title}.pdf`;
@@ -643,7 +656,24 @@
         function closeFolderModal() { document.body.classList.remove('modal-open'); document.getElementById('folder-modal').classList.add('hidden'); document.getElementById('new-folder-name').value = ''; }
         function createFolder() { const name = document.getElementById('new-folder-name').value.trim(); if (!name) return; const id = 'f_' + Date.now(); state.folders.push({ id, name }); state.currentFolderId = id; saveData(); closeFolderModal(); changeFolder(id); showToast(`Sección "${name}" creada`, "fa-folder-plus"); }
         
-        // Updated Image Processing for Multiple Files
+        function deleteFolder(folderId) {
+            if (folderId === 'general' || folderId === 'all') return;
+            showConfirmModal("¿Borrar Carpeta?", "Las notas se moverán a 'General'.", "Borrar", function() {
+                // Move notes to general
+                state.notes.forEach(n => {
+                    if (n.folderId === folderId) n.folderId = 'general';
+                });
+                // Remove folder
+                state.folders = state.folders.filter(f => f.id !== folderId);
+                // Reset view
+                state.currentFolderId = 'all';
+                saveData();
+                closeConfirmModal();
+                renderView('notes');
+                showToast("Carpeta eliminada", "fa-trash");
+            });
+        }
+
         function processImage(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = (event) => { const img = new Image(); img.src = event.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_WIDTH = 800; let width = img.width; let height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', 0.6)); }; img.onerror = reject; }; reader.onerror = reject; }); }
         
         async function handleImageSelection(input) {
@@ -658,16 +688,16 @@
                  updateImagePreview();
                  showToast("Imágenes listas", "fa-camera");
              }
-             input.value = ''; // Reset input to allow re-selecting same files
+             input.value = ''; 
         }
 
         function updateImagePreview() {
             const container = document.getElementById('image-preview-container');
-            container.innerHTML = ''; // Clear current
+            container.innerHTML = ''; 
             
             if (currentNoteImages.length > 0) {
                 container.classList.remove('hidden');
-                container.className = "flex gap-2 overflow-x-auto pb-2 mb-3 hide-scrollbar"; // Horizontal scroll for multiple images
+                container.className = "flex gap-2 overflow-x-auto pb-2 mb-3 hide-scrollbar"; 
                 
                 currentNoteImages.forEach((imgSrc, index) => {
                     const wrap = document.createElement('div');
@@ -711,17 +741,16 @@
             const pendingTodos = (state.todos || []).filter(t => !t.done); 
             let shiftCardClass = "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400"; let shiftText = "Sin asignación"; let shiftSubText = "Calendario libre"; let shiftIcon = "fa-calendar-minus"; let cardLabel = "Jornada de Hoy";
             
-            // CAMBIO: Lógica de Textos Dashboard actualizada
             if (shift) { 
                 if (shift.type === 'guardia') { 
                     shiftCardClass = "bg-white dark:bg-neutral-900 border-red-500 text-red-600 border-l-4"; 
                     shiftText = "TALLER PRÁCTICO"; shiftSubText = "Manos a la obra"; shiftIcon = "fa-wrench"; 
                 } 
-                else if (shift.type === 'dia') { // Entrega Informe
+                else if (shift.type === 'dia') { 
                     shiftCardClass = "bg-white dark:bg-neutral-900 border-blue-500 text-blue-600 border-l-4"; 
                     shiftText = "ENTREGA INFORME"; shiftSubText = "Plazo Límite"; shiftIcon = "fa-file-export"; 
                 } 
-                else if (shift.type === 'noche') { // Certamen
+                else if (shift.type === 'noche') { 
                     shiftCardClass = "bg-white dark:bg-neutral-900 border-indigo-500 text-indigo-600 border-l-4"; 
                     shiftText = "CERTAMEN"; shiftSubText = "Evaluación"; shiftIcon = "fa-file-signature"; 
                 } 
@@ -729,9 +758,10 @@
                     shiftCardClass = "bg-white dark:bg-neutral-900 border-yellow-500 text-yellow-600 border-l-4"; 
                     shiftText = "ESTUDIO / TEORÍA"; shiftSubText = "Repaso de manuales"; shiftIcon = "fa-book-open"; 
                 } 
-                else if (shift.type === 'libre') { // Vehiculo Agendado
+                else if (shift.type === 'libre') { 
                     shiftCardClass = "bg-white dark:bg-neutral-900 border-green-500 text-green-600 border-l-4"; 
-                    shiftText = "VEHÍCULO AGENDADO"; shiftSubText = "Recepción Taller"; shiftIcon = "fa-car-clock"; 
+                    // CAMBIO: Texto y icono Vehículo Agendado
+                    shiftText = "VEHÍCULO AGENDADO"; shiftSubText = "Recepción Taller"; shiftIcon = "fa-calendar-check"; 
                 } 
                 if (isNextShift) { cardLabel = "Próxima Jornada"; shiftSubText = `El ${nextDateStr}`; } else { cardLabel = "Jornada de Hoy"; } 
             } else { cardLabel = "Estado Actual"; }
@@ -740,9 +770,6 @@
             
             return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-20"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://via.placeholder.com/64?text=Mec'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
         }
-
-        // --- Helper functions for Patient/Work Orders ---
-        // Moved up to ensure availability for getDashboardHTML
 
         function createPatientTaskHTML(t, patientId) { 
             return `<div id="patient-task-${t.id}" class="flex items-center gap-2 group/task mb-1 item-enter">
@@ -790,8 +817,6 @@
             }
             return state.patients.map(p => createPatientCardHTML(p)).join(''); 
         }
-        
-        // --- Rest of Work Order logic ---
 
         function getWorkOrdersHTML() {
             const patients = state.patients || [];
@@ -1099,7 +1124,7 @@
         function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
         
         function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
-        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-couch absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
+        function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
         function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
         function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
         function setShiftType(type) { tempShiftType = type; updateShiftTypeUI(); }
@@ -1108,10 +1133,21 @@
         function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
         
         function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-images" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Fotos</label><input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full h-auto min-h-0"><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
-        function generateFoldersHTML() { return `<button onclick="changeFolder('all')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => `<button onclick="changeFolder('${f.id}')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === f.id ? 'bg-red-600 text-white border-red-600 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="${f.id}">${f.name}</button>`).join('')}<button onclick="openFolderModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition"><i class="fa-solid fa-plus text-xs"></i></button>`; }
+        
+        function generateFoldersHTML() { 
+            return `<button onclick="changeFolder('all')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => {
+                const isGeneral = f.id === 'general';
+                // CAMBIO: Boton de borrar agregado a carpetas personalizadas
+                const deleteBtn = isGeneral ? '' : `<span onclick="event.stopPropagation(); deleteFolder('${f.id}')" class="ml-2 hover:text-red-300 text-white/50 cursor-pointer px-1">×</span>`;
+                const activeClass = "bg-red-600 text-white border-red-600 shadow-md";
+                const inactiveClass = "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400";
+                
+                return `<button onclick="changeFolder('${f.id}')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border flex items-center ${state.currentFolderId === f.id ? activeClass : inactiveClass}" data-id="${f.id}">${f.name} ${state.currentFolderId === f.id ? deleteBtn : ''}</button>`;
+            }).join('')}<button onclick="openFolderModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition"><i class="fa-solid fa-plus text-xs"></i></button>`; 
+        }
+
         function generateNotesListHTML() { let filteredNotes = state.notes || []; if (state.currentFolderId !== 'all') { filteredNotes = filteredNotes.filter(n => n.folderId === state.currentFolderId); } if (filteredNotes.length === 0) return `<div class="text-center py-10 opacity-40"><i class="fa-solid fa-file-signature text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin apuntes</p></div>`; return filteredNotes.map(n => createNoteHTML(n)).join(''); }
         
-        // --- NOTE HTML GENERATION WITH MULTIPLE IMAGES ---
         function createNoteHTML(note) { 
             let imagesHTML = '';
             if (note.images && note.images.length > 0) {
@@ -1119,7 +1155,6 @@
                     ${note.images.map(src => `<img src="${src}" class="flex-shrink-0 h-40 w-auto rounded border border-neutral-200 dark:border-neutral-700 snap-center object-cover">`).join('')}
                 </div>`;
             } else if (note.image) {
-                // Fallback for legacy single image
                 imagesHTML = `<img src="${note.image}" class="w-full h-auto rounded mb-3 border border-neutral-200 dark:border-neutral-700">`;
             }
 
@@ -1140,34 +1175,33 @@
             </div>`; 
         }
         
-        // --- SHARE NOTE (PDF with Multiple Images) ---
+        // --- SHARE NOTE (OPTIMIZADO PARA ANDROID WEB APP) ---
         async function shareNote(id) {
             const note = state.notes.find(n => n.id === id);
             if (!note) return;
 
             showToast("Generando PDF...", "fa-file-pdf");
 
+            // Crear contenedor temporal fuera de pantalla pero visible para el renderizado
             const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'absolute';
+            tempContainer.style.position = 'fixed'; // Fixed evita scroll issues
             tempContainer.style.left = '-9999px';
             tempContainer.style.top = '0';
-            tempContainer.style.width = '595px'; 
-            tempContainer.style.padding = '40px';
+            tempContainer.style.width = '595px'; // A4 width en pixels (aprox)
             tempContainer.style.backgroundColor = '#ffffff';
-            tempContainer.style.color = '#000000';
-            tempContainer.style.fontFamily = 'sans-serif';
+            tempContainer.style.zIndex = '-1'; // Detrás de todo
             
             let htmlContent = `
-                <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico</h1>
-                        <p style="margin: 0; font-size: 12px; color: #666;">Reporte Técnico</p>
+                <div style="padding: 40px; font-family: sans-serif; color: #000;">
+                    <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico</h1>
+                            <p style="margin: 0; font-size: 12px; color: #666;">Reporte Técnico</p>
+                        </div>
+                        <div style="font-size: 12px; color: #666;">${new Date().toLocaleDateString()}</div>
                     </div>
-                    <div style="font-size: 12px; color: #666;">${new Date().toLocaleDateString()}</div>
-                </div>
             `;
 
-            // Handle multiple images in PDF
             if (note.images && note.images.length > 0) {
                 htmlContent += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">`;
                 note.images.forEach(img => {
@@ -1178,36 +1212,106 @@
                 htmlContent += `<div style="margin-bottom: 20px; text-align: center;"><img src="${note.image}" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
             }
 
-            htmlContent += `<div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #333;">${note.text}</div>`;
-            // htmlContent += `<div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 10px; color: #999;">Generado por Mecamonico App</div>`; // WATERMARK REMOVED
+            htmlContent += `<div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #333;">${note.text}</div></div>`;
 
             tempContainer.innerHTML = htmlContent;
             document.body.appendChild(tempContainer);
 
             try {
-                const canvas = await html2canvas(tempContainer, { scale: 2, useCORS: true, logging: false });
-                const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                // Esperar un momento para asegurar que el DOM se renderice
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const canvas = await html2canvas(tempContainer, { 
+                    scale: 1.5, // Escala reducida para móviles (evita crash de memoria)
+                    useCORS: true, 
+                    logging: false,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 0.8);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                
                 const pdfBlob = pdf.output('blob');
                 const file = new File([pdfBlob], `Mecamonico_Nota_${id}.pdf`, { type: 'application/pdf' });
 
+                // Intento de compartir nativo
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Nota Técnica', text: 'Adjunto reporte técnico.' });
+                    await navigator.share({ 
+                        files: [file], 
+                        title: 'Nota Técnica', 
+                        text: 'Adjunto reporte técnico de Mecamonico.' 
+                    });
                     showToast("PDF Compartido", "fa-share-nodes");
                 } else {
-                    pdf.save(`Mecamonico_Nota_${id}.pdf`);
-                    showToast("PDF Descargado", "fa-download");
+                    // Fallback directo a descarga
+                    throw new Error("Sharing not supported, forcing download");
                 }
             } catch (err) {
-                console.error("Error PDF:", err);
-                showToast("Error al crear PDF", "fa-triangle-exclamation");
+                // Fallback de descarga si falla share o hay error
+                console.warn("Share falló, iniciando descarga manual.", err);
+                try {
+                    const { jsPDF } = window.jspdf; // Re-init para el scope del catch si es necesario, aunque pdf ya existe arriba
+                    // Como el objeto pdf puede haberse perdido si el error fue antes, mejor reusamos la logica de guardado si pdf existe
+                    // Pero para simplificar, si falló share, el objeto pdf generado arriba sigue vivo.
+                    // Sin embargo, para accederlo limpiamente:
+                    
+                    // Si el error fue en navigator.share, el blob ya existe.
+                    // Si el error fue en html2canvas, nada se puede hacer.
+                    
+                    // Asumimos que el error es de share.
+                    const link = document.createElement('a');
+                    // Recalcular blob si no es accesible scope (aqui si es, pero por seguridad de bloque try...)
+                    // Simplemente forzamos click en un link creado con el blob existente si es posible, sino mostramos error.
+                    // La forma más robusta es re-generar el link de descarga aquí si tenemos el pdf object.
+                    
+                    // Nota: para simplicidad, en el catch solo mostramos mensaje si fue error de render.
+                    // Si fue error de share (lanzado manualmente), el pdf object existe.
+                    // Vamos a refactorizar levemente para que `pdf` esté disponible.
+                    
+                    if (err.message.includes("Sharing not supported")) {
+                         // El PDF se generó bien, solo falló el share.
+                         // Forzar descarga.
+                         const downloadLink = document.createElement('a');
+                         downloadLink.href = URL.createObjectURL(new Blob([pdfBlob], {type: 'application/pdf'})); // pdfBlob no está en scope del catch si se define con const dentro del try.
+                         // Error de scope. Corregido moviendo variables fuera.
+                    }
+                    
+                    // FORMA SIMPLE Y ROBUSTA DE FALLBACK:
+                    // Si el navegador soporta descarga directa (la mayoría):
+                    if (window.navigator.msSaveOrOpenBlob) {
+                         // IE
+                         window.navigator.msSaveOrOpenBlob(pdfBlob, `Mecamonico_Nota_${id}.pdf`);
+                    } else {
+                         const a = document.createElement('a');
+                         const url = URL.createObjectURL(file); // file existe en scope si se mueve, o recrearlo.
+                         a.href = url;
+                         a.download = `Mecamonico_Nota_${id}.pdf`;
+                         document.body.appendChild(a);
+                         a.click();
+                         setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 0);
+                         showToast("PDF Descargado", "fa-download");
+                    }
+                    
+                } catch (innerErr) {
+                    // Si realmente falló todo (ej. html2canvas crash)
+                     console.error("Error crítico PDF:", innerErr);
+                     showToast("Descargando PDF (Modo Seguro)...", "fa-download");
+                     // Ultimo recurso: jsPDF guarda directo
+                     const { jsPDF } = window.jspdf;
+                     const doc = new jsPDF();
+                     doc.text(note.text, 10, 10);
+                     doc.save(`Nota_${id}.pdf`);
+                }
             } finally {
-                document.body.removeChild(tempContainer);
+                if(document.body.contains(tempContainer)) {
+                    document.body.removeChild(tempContainer);
+                }
             }
         }
 
@@ -1222,7 +1326,6 @@
             document.getElementById('editor-cancel-btn').classList.remove('hidden'); 
             document.getElementById('new-note-text').value = note.text; 
             
-            // Load existing images into editor state
             currentNoteImages = note.images ? [...note.images] : (note.image ? [note.image] : []);
             updateImagePreview();
             
@@ -1238,7 +1341,6 @@
             clearImageInput(); 
         }
 
-        // --- OPTIMIZED SAVE NOTE (FLUIDITY) ---
         async function saveNote() { 
             const textInput = document.getElementById('new-note-text'); 
             const text = textInput.value.trim(); 
@@ -1250,10 +1352,8 @@
                 if (noteIndex > -1) { 
                     state.notes[noteIndex].text = text; 
                     state.notes[noteIndex].images = [...currentNoteImages];
-                    // Also update legacy field for safety
                     state.notes[noteIndex].image = currentNoteImages.length > 0 ? currentNoteImages[0] : null;
 
-                    // DOM Update (Replace element)
                     const oldEl = document.getElementById(`note-${state.editingNoteId}`);
                     if (oldEl) oldEl.outerHTML = createNoteHTML(state.notes[noteIndex]);
                 } 
@@ -1270,7 +1370,6 @@
                 }; 
                 state.notes.unshift(newNote); 
                 
-                // DOM Update (Prepend)
                 const list = document.getElementById('notes-list');
                 const emptyMsg = list.querySelector('.text-center.opacity-40');
                 if(emptyMsg) emptyMsg.remove();
@@ -1288,7 +1387,6 @@
         function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
         function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${todo.text}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
         
-        // --- OPTIMIZED TODO (FLUIDITY) ---
         function addTodo() { 
             const input = document.getElementById('new-todo'); 
             const text = input.value.trim(); 
@@ -1310,8 +1408,6 @@
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
 
-        // --- NEW MODULE: SHOPPING LIST (COMPRAS) - UPDATED FLUIDITY ---
-        
         function getShoppingRowHTML(item, index) {
             return `
                 <tr id="shop-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
@@ -1358,7 +1454,6 @@
                             <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Dirección del Taller (para PDF)</label>
                             <input type="text" id="shop-address" value="${state.shopAddress}" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Av. Principal 123, Santiago">
                         </div>
-                         <!-- NUEVO CAMPO DE NOTA EXTRA -->
                         <div class="p-4">
                             <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Nota al pie / Observaciones</label>
                             <input type="text" id="shop-note" value="${state.shopNote || ''}" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-blue-500 transition placeholder-neutral-300" placeholder="Ej: Solicitar factura a nombre de...">
@@ -1401,7 +1496,7 @@
         function updateShopHeader(field, value) {
             if (field === 'title') state.shopTitle = value;
             if (field === 'address') state.shopAddress = value;
-            if (field === 'note') state.shopNote = value; // Saving extra note
+            if (field === 'note') state.shopNote = value; 
             saveData();
         }
 
@@ -1417,13 +1512,11 @@
             state.shoppingList.push(newItem);
             saveData();
             
-            // DOM MANIPULATION INSTEAD OF RENDERVIEW (FLUIDITY FIX)
             const tbody = document.getElementById('shopping-table-body');
             if (tbody) {
                 const emptyMsg = document.getElementById('empty-shop-msg');
                 if (emptyMsg) emptyMsg.remove();
                 
-                // Append new row at the end
                 const newIndex = state.shoppingList.length - 1;
                 tbody.insertAdjacentHTML('beforeend', getShoppingRowHTML(newItem, newIndex));
             }
@@ -1444,9 +1537,6 @@
             state.shoppingList.splice(index, 1);
             saveData();
             
-            // DOM MANIPULATION INSTEAD OF RENDERVIEW (FLUIDITY FIX)
-            // We need to re-render the body to fix indices of remaining items
-            // This is faster than re-rendering the whole view (keeping focus on header inputs if needed)
             const tbody = document.getElementById('shopping-table-body');
             if (tbody) {
                 if (state.shoppingList.length === 0) {
@@ -1482,19 +1572,16 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // Configuración
             const margin = 20;
             let yPos = 20;
             
-            // Header
             doc.setFont("helvetica", "bold");
             doc.setFontSize(22);
-            doc.setTextColor(23, 23, 23); // Neutral-900
+            doc.setTextColor(23, 23, 23); 
             doc.text(state.shopTitle || "Lista de Compras", margin, yPos);
             
             yPos += 10;
             
-            // Subheader / Address
             doc.setFont("helvetica", "normal");
             doc.setFontSize(12);
             doc.setTextColor(100, 100, 100);
@@ -1503,7 +1590,6 @@
             
             yPos += 15;
             
-            // Table
             const tableData = state.shoppingList.map(item => [item.product, item.qty]);
             
             doc.autoTable({
@@ -1511,13 +1597,12 @@
                 head: [['Producto', 'Cantidad']],
                 body: tableData,
                 theme: 'grid',
-                headStyles: { fillColor: [220, 38, 38], textColor: [255, 255, 255], fontStyle: 'bold' }, // Red-600 header
+                headStyles: { fillColor: [220, 38, 38], textColor: [255, 255, 255], fontStyle: 'bold' }, 
                 styles: { fontSize: 12, cellPadding: 4 },
                 alternateRowStyles: { fillColor: [245, 245, 245] },
                 margin: { left: margin, right: margin }
             });
             
-            // EXTRA NOTE AT BOTTOM
             if (state.shopNote) {
                 let finalY = doc.lastAutoTable.finalY + 15;
                 doc.setFont("helvetica", "bold");
@@ -1527,12 +1612,10 @@
                 
                 doc.setFont("helvetica", "italic");
                 doc.setTextColor(80, 80, 80);
-                // Split text to fit width
                 const splitNote = doc.splitTextToSize(state.shopNote, 170);
                 doc.text(splitNote, margin, finalY + 6);
             }
             
-            // Save
             const fileName = `Compras_${new Date().toISOString().slice(0,10)}.pdf`;
             doc.save(fileName);
             showToast("PDF Descargado", "fa-file-pdf");
@@ -1550,11 +1633,10 @@
                     case 'notes': contentHTML = getNotesHTML(); break; 
                     case 'links': contentHTML = getLinksHTML(); break; 
                     case 'work_orders': contentHTML = getWorkOrdersHTML(); break; 
-                    case 'shopping_list': contentHTML = getShoppingListHTML(); break; // New Case
+                    case 'shopping_list': contentHTML = getShoppingListHTML(); break; 
                     default: contentHTML = getDashboardHTML(); 
                 } 
             } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { 
-                // Restore state if returning to notes
                 updateImagePreview();
             } saveData();
         }

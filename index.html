@@ -158,21 +158,8 @@
         .animate-spin-slow { animation: spin-slow 20s linear infinite; }
         .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
 
-        /* Estilo para drag and drop en Nav Bar */
-        .drag-scroll {
-            cursor: grab;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            touch-action: pan-y;
-        }
-        .drag-scroll:active {
-            cursor: grabbing;
-        }
-
         /* --- MEJORAS DE FLUIDEZ Y DESLIZAMIENTO --- */
-        /* 1. Deslizamiento en Nav Bar */
+        /* 1. Deslizamiento en Nav Bar (propiedades nativas) */
         #nav-menu {
             -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
             scroll-behavior: smooth; /* Para transiciones suaves entre snaps */
@@ -239,8 +226,8 @@
 
     <!-- Nav Bar -->
     <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <!-- Se agregó id="nav-menu" y la clase drag-scroll -->
-        <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory drag-scroll">
+        <!-- Se quitó la clase 'drag-scroll' para asegurar el deslizamiento nativo en móvil -->
+        <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory">
             
             <!-- Se cambió min-w-[20%] a min-w-[25%] en todos los botones -->
             <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
@@ -504,40 +491,9 @@
             if(currentZoom > 1.0) { canvas.style.maxWidth = 'none'; canvas.style.width = `${newCSSWidth}px`; } else { canvas.style.width = "100%"; canvas.style.maxWidth = `${baseCanvasWidth}px`; }
         }
         
-        // Función para implementar el scroll arrastrable con el ratón
+        // Función para implementar el scroll arrastrable con el ratón (SE ELIMINA EL CONTENIDO DE ESTA FUNCIÓN)
         function setupDragScroll(elementId) {
-            const slider = document.getElementById(elementId);
-            if (!slider) return;
-
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-
-            // Eventos del ratón
-            slider.addEventListener('mousedown', (e) => {
-                isDown = true;
-                slider.classList.add('active-drag');
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            });
-
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-                slider.classList.remove('active-drag');
-            });
-
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-                slider.classList.remove('active-drag');
-            });
-
-            slider.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1.5; // Multiplicador para un scroll más rápido
-                slider.scrollLeft = scrollLeft - walk;
-            });
+            // Se eliminó la lógica de arrastre con mouse/touch para priorizar el scroll nativo en móvil.
         }
         
         function setupGlobalListeners() {
@@ -555,8 +511,7 @@
                 container.addEventListener('touchend', e => { if (e.changedTouches.length > 0 && currentZoom <= 1.05) { const touchEndX = e.changedTouches[0].screenX; if (touchEndX < touchStartX - 80) changePdfPage(1); if (touchEndX > touchStartX + 80) changePdfPage(-1); } }, {passive: true});
             }
             
-            // NEW: Configurar arrastre en el menú de navegación
-            setupDragScroll('nav-menu');
+            // SE ELIMINÓ: setupDragScroll('nav-menu');
         }
 
         function manualZoom(delta) { updateCanvasStyle(currentZoom + delta); }

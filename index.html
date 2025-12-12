@@ -117,7 +117,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* --- CLASES DE TRANSICIÓN PARA FLUIDEZ --- */
+        /* --- CLASES DE TRANSICIÓN PARA FLUIDEZ GENERAL --- */
         /* Animación para el contenido entrante */
         .fade-enter { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         /* Animación para el contenido saliente */
@@ -169,6 +169,26 @@
         }
         .drag-scroll:active {
             cursor: grabbing;
+        }
+
+        /* --- MEJORAS DE FLUIDEZ Y DESLIZAMIENTO --- */
+        /* 1. Deslizamiento en Nav Bar */
+        #nav-menu {
+            -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+            scroll-behavior: smooth; /* Para transiciones suaves entre snaps */
+        }
+        
+        /* 2. Transición fluida en pestañas de Compras/Costos */
+        .tab-content-transition {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .tab-content-enter {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tab-content-leave {
+            opacity: 0;
+            transform: translateY(10px);
         }
     </style>
 </head>
@@ -532,7 +552,7 @@
             if (container) {
                 let touchStartX = 0;
                 container.addEventListener('touchstart', e => { if(e.touches.length === 1) touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-                container.addEventListener('touchend', e => { if(e.touches.length === 0 && currentZoom <= 1.05) { const touchEndX = e.changedTouches[0].screenX; if (touchEndX < touchStartX - 80) changePdfPage(1); if (touchEndX > touchStartX + 80) changePdfPage(-1); } }, {passive: true});
+                container.addEventListener('touchend', e => { if (e.changedTouches.length > 0 && currentZoom <= 1.05) { const touchEndX = e.changedTouches[0].screenX; if (touchEndX < touchStartX - 80) changePdfPage(1); if (touchEndX > touchStartX + 80) changePdfPage(-1); } }, {passive: true});
             }
             
             // NEW: Configurar arrastre en el menú de navegación
@@ -635,7 +655,7 @@
             <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; 
         }
         
-        function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.com/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a>
+        function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a>
         <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
         <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
         
@@ -1176,7 +1196,7 @@
 
         function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
         
-        function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
+        function getTurnarioHTML() { const year = state.currentDate.getFullYear(); const month = state.currentDate.getMonth(); const firstDay = new Date(year, month, 1); const lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(); const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; for (let i = 0; i < startingDay; i++) html += `<div></div>`; for (let day = 1; day <= daysInMonth; day++) { const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; html += createDayCellHTML(dateKey, day); } html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; return html; }
         function createDayCellHTML(dateKey, day) { const shift = state.shifts[dateKey]; let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; if (shift) { if (shift.type === 'guardia') { bgClass = "bg-red-500 text-white border-red-600 shadow-md"; } else if (shift.type === 'dia') { bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; } else if (shift.type === 'noche') { bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; } else if (shift.type === 'post') { bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; } else if (shift.type === 'libre') { bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50"></i>`; } } const todayKey = new Date().toISOString().split('T')[0]; if (dateKey === todayKey) { bgClass += " ring-2 ring-neutral-800 dark:ring-neutral-200 ring-offset-1 z-20"; } let dots = ""; if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600"></div>`; } return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; }
         function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
         function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
@@ -1664,11 +1684,60 @@
             });
         }
         
-        function setActiveShopTab(tab) {
+        // --- FUNCIÓN LOCAL PARA CAMBIAR TABS EN VISTA COMPRAS (MEJORA DE FLUIDEZ) ---
+        function switchShopTab(tab) {
             state.activeShopTab = tab;
-            renderView('shopping_list');
-        }
+            saveData(); 
 
+            const isItems = tab === 'items';
+            const itemsContent = document.getElementById('shop-content-items');
+            const servicesContent = document.getElementById('shop-content-services');
+            const itemsBtn = document.getElementById('shop-tab-items');
+            const servicesBtn = document.getElementById('shop-tab-services');
+
+            const inactiveClass = 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
+            const activeClass = 'bg-red-600 text-white shadow-md';
+            
+            // Update Button Classes
+            const updateBtnClasses = (btn, isActive) => {
+                let classes = btn.className.split(' ').filter(c => !c.startsWith('bg-') && !c.startsWith('text-') && c !== 'shadow-md').join(' ');
+                btn.className = classes + ` transition flex-1 py-2 text-sm font-bold rounded flex items-center justify-center gap-2 ${isActive ? activeClass : inactiveClass}`;
+            };
+            updateBtnClasses(itemsBtn, isItems);
+            updateBtnClasses(servicesBtn, !isItems);
+            
+            // Apply transitions for smooth content swap (Opacity + Y-translation)
+            if (isItems) {
+                // Hide Services, Show Items
+                servicesContent.classList.remove('tab-content-enter');
+                servicesContent.classList.add('tab-content-leave');
+                itemsContent.classList.remove('tab-content-leave');
+                itemsContent.classList.add('tab-content-enter');
+
+                itemsContent.style.position = 'relative'; // Active content pushes height
+                itemsContent.style.display = 'block';
+
+                setTimeout(() => { 
+                    servicesContent.style.display = 'none'; 
+                    servicesContent.style.position = 'absolute'; // Hidden content collapses
+                }, 300); // Wait for transition to finish
+            } else {
+                // Hide Items, Show Services
+                itemsContent.classList.remove('tab-content-enter');
+                itemsContent.classList.add('tab-content-leave');
+                servicesContent.classList.remove('tab-content-leave');
+                servicesContent.classList.add('tab-content-enter');
+
+                servicesContent.style.position = 'relative'; 
+                servicesContent.style.display = 'block';
+
+                setTimeout(() => { 
+                    itemsContent.style.display = 'none'; 
+                    itemsContent.style.position = 'absolute';
+                }, 300);
+            }
+        }
+        
         // --- FUNCIÓN PRINCIPAL DE VISTA DE COMPRAS CON TABS ---
         function getShoppingListHTML() {
             const isItems = state.activeShopTab === 'items';
@@ -1677,6 +1746,15 @@
 
             const itemsContent = getShoppingListContentHTML();
             const servicesContent = getServiceListContentHTML();
+
+            // Determine initial classes for local tab switch (must be 'block' on initial render for correct height)
+            const itemsInitialClass = isItems 
+                ? 'tab-content-transition tab-content-enter relative block' 
+                : 'tab-content-transition tab-content-leave absolute hidden';
+            const servicesInitialClass = !isItems 
+                ? 'tab-content-transition tab-content-enter relative block' 
+                : 'tab-content-transition tab-content-leave absolute hidden';
+
 
             return `
                 <div class="pb-24 fade-enter">
@@ -1703,8 +1781,8 @@
                     </div>
 
                     <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner">
-                        <button onclick="setActiveShopTab('items')" class="flex-1 py-2 text-sm font-bold rounded transition ${itemsActive} flex items-center justify-center gap-2"><i class="fa-solid fa-cart-arrow-down"></i> Productos (Lista de Compras)</button>
-                        <button onclick="setActiveShopTab('services')" class="flex-1 py-2 text-sm font-bold rounded transition ${servicesActive} flex items-center justify-center gap-2"><i class="fa-solid fa-tags"></i> Servicios (Costos)</button>
+                        <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="flex-1 py-2 text-sm font-bold rounded transition ${itemsActive} flex items-center justify-center gap-2"><i class="fa-solid fa-cart-arrow-down"></i> Productos (Lista de Compras)</button>
+                        <button onclick="setActiveShopTab('services')" id="shop-tab-services" class="flex-1 py-2 text-sm font-bold rounded transition ${servicesActive} flex items-center justify-center gap-2"><i class="fa-solid fa-tags"></i> Servicios (Costos)</button>
                     </div>
 
                     <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
@@ -1722,9 +1800,30 @@
                         </div>
                     </div>
                     
-                    ${isItems ? itemsContent : servicesContent}
+                    <div id="shop-content-wrapper" class="relative"> 
+                        <div id="shop-content-items" class="${itemsInitialClass}">
+                            ${itemsContent}
+                        </div>
+                        <div id="shop-content-services" class="${servicesInitialClass}">
+                            ${servicesContent}
+                        </div>
+                    </div>
                 </div>
             `;
+        }
+
+        // Overwrite the original setActiveShopTab to check if elements are present and switch locally
+        function setActiveShopTab(tab) {
+            if (state.view === 'shopping_list' && document.getElementById('shop-tab-items')) {
+                // Si ya estamos en la vista de compras y los elementos del tab están renderizados,
+                // realizamos un cambio de tab local con transición CSS.
+                switchShopTab(tab);
+            } else {
+                // En caso contrario, o si es la primera vez que entramos a la vista,
+                // realizamos un render completo de la vista (comportamiento original).
+                state.activeShopTab = tab;
+                renderView('shopping_list');
+            }
         }
 
         // --- FUNCIÓN DE GENERACIÓN DE PDF COMPARTIBLE (REFACTORIZADA) ---

@@ -116,8 +116,19 @@
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
+        
+        /* --- CLASES DE TRANSICIÓN PARA FLUIDEZ --- */
+        /* Animación para el contenido entrante */
         .fade-enter { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        /* Animación para el contenido saliente */
+        .fade-leave {
+            animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeOut { 
+            from { opacity: 1; transform: translateY(0); } 
+            to { opacity: 0; transform: translateY(10px); } 
+        }
+
         .item-enter { animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -146,6 +157,19 @@
         
         .animate-spin-slow { animation: spin-slow 20s linear infinite; }
         .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
+
+        /* Estilo para drag and drop en Nav Bar */
+        .drag-scroll {
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: pan-y;
+        }
+        .drag-scroll:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
@@ -160,16 +184,6 @@
             <path d="M360 400L330 370" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
             <path d="M152 400L182 370" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
             <path d="M88 200L128 220" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-        </svg>
-        <svg class="absolute top-[30%] -right-32 w-[600px] h-[600px] text-neutral-600 dark:text-neutral-500 animate-spin-reverse-slow" fill="currentColor" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-             <circle cx="256" cy="256" r="240" fill="none" stroke="currentColor" stroke-width="20"/>
-             <circle cx="256" cy="256" r="80" fill="currentColor"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(0 256 256)"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(60 256 256)"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(120 256 256)"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(180 256 256)"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(240 256 256)"/>
-             <path d="M256 256 L256 64" stroke="currentColor" stroke-width="40" transform="rotate(300 256 256)"/>
         </svg>
         <i class="fa-solid fa-wrench text-neutral-400 dark:text-neutral-600 absolute -bottom-10 left-[10%] text-[12rem] rotate-12 opacity-50"></i>
     </div>
@@ -205,45 +219,47 @@
 
     <!-- Nav Bar -->
     <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <nav class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory">
+        <!-- Se agregó id="nav-menu" y la clase drag-scroll -->
+        <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory drag-scroll">
             
-            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
+            <!-- Se cambió min-w-[20%] a min-w-[25%] en todos los botones -->
+            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
             </button>
             
-            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
+            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Taller</span>
             </button>
 
-            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
+            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-cart-shopping text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Compras</span>
             </button>
             
-            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
+            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
             </button>
             
-            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
+            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
             </button>
             
-            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
+            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
             </button>
             
-            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[20%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
+            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Información</span>
@@ -302,7 +318,7 @@
             </div>
         </div>
     </div>
-    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group cursor-pointer relative"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label><button onclick="exportDataToClipboard()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-copy"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">JSON Texto</h4><p class="text-xs text-neutral-400">Portapapeles (Rápido)</p></div></button></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
+    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label><button onclick="exportDataToClipboard()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-copy"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">JSON Texto</h4><p class="text-xs text-neutral-400">Portapapeles (Rápido)</p></div></button></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-neutral-900 z-[90] flex flex-col animate-fade-in outline-none" tabindex="0">
         <div class="bg-neutral-800 text-white pt-safe px-4 pb-3 flex justify-between items-center shadow-lg shrink-0 z-20 relative border-b border-neutral-600">
             <h3 id="pdf-reader-title" class="text-lg font-bold truncate max-w-[60%] flex items-center font-mono text-red-500"><i class="fa-solid fa-file-pdf mr-2 text-white"></i> Manual</h3>
@@ -343,6 +359,8 @@
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
             shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', 
+            serviceList: [], // NEW: Lista de Servicios/Costos
+            activeShopTab: 'items', // NEW: 'items' or 'services'
             userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false
         };
@@ -383,6 +401,9 @@
                     if (!saved.shopAddress) saved.shopAddress = '';
                     if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
                     if (!saved.shopNote) saved.shopNote = '';
+                    if (!saved.serviceList) saved.serviceList = []; // NEW
+                    if (!saved.activeShopTab) saved.activeShopTab = 'items'; // NEW
+
                     
                     saved.notes = saved.notes.map(n => {
                         if (n.image && !n.images) n.images = [n.image];
@@ -462,7 +483,43 @@
             const newCSSWidth = baseCanvasWidth * currentZoom;
             if(currentZoom > 1.0) { canvas.style.maxWidth = 'none'; canvas.style.width = `${newCSSWidth}px`; } else { canvas.style.width = "100%"; canvas.style.maxWidth = `${baseCanvasWidth}px`; }
         }
+        
+        // Función para implementar el scroll arrastrable con el ratón
+        function setupDragScroll(elementId) {
+            const slider = document.getElementById(elementId);
+            if (!slider) return;
 
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            // Eventos del ratón
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.classList.add('active-drag');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('active-drag');
+            });
+
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('active-drag');
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.5; // Multiplicador para un scroll más rápido
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+        
         function setupGlobalListeners() {
             document.addEventListener('keydown', (e) => {
                 if(!document.getElementById('pdf-reader-modal').classList.contains('hidden')) {
@@ -477,6 +534,9 @@
                 container.addEventListener('touchstart', e => { if(e.touches.length === 1) touchStartX = e.changedTouches[0].screenX; }, {passive: true});
                 container.addEventListener('touchend', e => { if(e.touches.length === 0 && currentZoom <= 1.05) { const touchEndX = e.changedTouches[0].screenX; if (touchEndX < touchStartX - 80) changePdfPage(1); if (touchEndX > touchStartX + 80) changePdfPage(-1); } }, {passive: true});
             }
+            
+            // NEW: Configurar arrastre en el menú de navegación
+            setupDragScroll('nav-menu');
         }
 
         function manualZoom(delta) { updateCanvasStyle(currentZoom + delta); }
@@ -518,11 +578,11 @@
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); 
             const list = document.getElementById('pdfs-list');
             if (list) {
-                 const emptyMsg = list.querySelector('.text-center.opacity-40');
-                 if(emptyMsg) emptyMsg.remove();
-                 list.insertAdjacentHTML('afterbegin', createPdfHTML(newPdf));
+                const emptyMsg = list.querySelector('.text-center.opacity-40');
+                if(emptyMsg) emptyMsg.remove();
+                list.insertAdjacentHTML('afterbegin', createPdfHTML(newPdf));
             } else {
-                 renderView('links'); 
+                renderView('links'); 
             }
             showToast("Manual Agregado", "fa-file-pdf"); } catch(e) { console.error(e); showToast("Error al leer", "fa-times"); } input.value = ''; }
         function processFileBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
@@ -582,11 +642,11 @@
         function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); 
             const list = document.getElementById('links-list');
             if(list) {
-                 const emptyMsg = list.querySelector('.text-center.opacity-40');
-                 if(emptyMsg) emptyMsg.remove();
-                 list.insertAdjacentHTML('beforeend', createLinkHTML(newLink));
+                const emptyMsg = list.querySelector('.text-center.opacity-40');
+                if(emptyMsg) emptyMsg.remove();
+                list.insertAdjacentHTML('beforeend', createLinkHTML(newLink));
             } else {
-                 renderView('links'); 
+                renderView('links'); 
             }
             showToast("Recurso añadido", "fa-bookmark"); 
             document.getElementById('link-title').value = '';
@@ -759,9 +819,9 @@
                 if (isNextShift) { cardLabel = "Próxima Jornada"; shiftSubText = `El ${nextDateStr}`; } else { cardLabel = "Jornada de Hoy"; } 
             } else { cardLabel = "Estado Actual"; }
             
-            const profileImageSrc = state.userProfileImage || 'catita.png'; const displayUserName = state.userName || 'Mecánico'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
+            const profileImageSrc = state.userProfileImage || 'https://placehold.co/64x64/dc2626/ffffff?text=MEC'; const displayUserName = state.userName || 'Mecánico'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
             
-            return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-20"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://via.placeholder.com/64?text=Mec'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
+            return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-20"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://placehold.co/64x64/dc2626/ffffff?text=MEC'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
         }
 
         function createPatientTaskHTML(t, patientId) { 
@@ -1184,10 +1244,10 @@
             tempContainer.style.zIndex = '-1';
             
             let htmlContent = `
-                <div style="padding: 40px; font-family: sans-serif; color: #000;">
+                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000;">
                     <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico</h1>
+                            <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico Nota</h1>
                             <p style="margin: 0; font-size: 12px; color: #666;">Reporte Técnico</p>
                         </div>
                         <div style="font-size: 12px; color: #666;">${new Date().toLocaleDateString()}</div>
@@ -1245,29 +1305,19 @@
                 console.warn("Share falló, iniciando descarga manual.", err);
                 try {
                     const { jsPDF } = window.jspdf;
-                    if (err.message.includes("Sharing not supported")) {
-                         // Already handled logic
-                    }
-                    if (window.navigator.msSaveOrOpenBlob) {
-                         // IE legacy (just in case)
-                    } else {
-                         // Use the generated PDF object if possible, re-create simply
-                         // Recreating PDF blob for download scope safety
-                         const canvas = await html2canvas(tempContainer, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
-                         const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                         const imgProps = pdf.getImageProperties(imgData);
-                         const pdfWidth = pdf.internal.pageSize.getWidth();
-                         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                         
-                         pdf.save(`Mecamonico_Nota_${id}.pdf`);
-                         showToast("PDF Descargado", "fa-download");
-                    }
+                    const canvas = await html2canvas(tempContainer, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
+                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
+                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`Mecamonico_Nota_${id}.pdf`);
+                    showToast("PDF Descargado", "fa-download");
                     
                 } catch (innerErr) {
-                     console.error("Error crítico PDF:", innerErr);
-                     showToast("Error al generar PDF", "fa-triangle-exclamation");
+                    console.error("Error crítico PDF:", innerErr);
+                    showToast("Error al generar PDF", "fa-triangle-exclamation");
                 }
             } finally {
                 if(document.body.contains(tempContainer)) {
@@ -1368,6 +1418,8 @@
 
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
+        
+        // --- FUNCIONES DE LISTA DE COMPRAS (PRODUCTS) ---
 
         function getShoppingRowHTML(item, index) {
             return `
@@ -1385,83 +1437,18 @@
             `;
         }
 
-        function getShoppingListHTML() {
-            const itemsHTML = state.shoppingList.length === 0 
-                ? `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`
-                : state.shoppingList.map((item, index) => getShoppingRowHTML(item, index)).join('');
-
-            return `
-                <div class="pb-24">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
-                            <i class="fa-solid fa-cart-shopping text-red-600"></i> Compras
-                        </h2>
-                        <div class="flex gap-2">
-                            <button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
-                                <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar</span>
-                            </button>
-                            <!-- BOTON DE PDF ACTUALIZADO PARA COMPARTIR -->
-                            <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                                <i class="fa-solid fa-share-nodes text-red-400"></i> Compartir
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
-                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50">
-                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Título de la Lista</label>
-                            <input type="text" id="shop-title" value="${state.shopTitle}" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent text-xl font-black text-neutral-800 dark:text-neutral-100 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Repuestos Motor V8">
-                        </div>
-                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800">
-                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Dirección del Taller (para PDF)</label>
-                            <input type="text" id="shop-address" value="${state.shopAddress}" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Av. Principal 123, Santiago">
-                        </div>
-                        <div class="p-4">
-                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Nota al pie / Observaciones</label>
-                            <input type="text" id="shop-note" value="${state.shopNote || ''}" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-blue-500 transition placeholder-neutral-300" placeholder="Ej: Solicitar factura a nombre de...">
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                    <th class="p-3 font-bold uppercase tracking-wider">Producto</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-center">Cant.</th>
-                                    <th class="p-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="shopping-table-body">
-                                ${itemsHTML}
-                            </tbody>
-                            <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
-                                <tr>
-                                    <td class="p-3">
-                                        <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
-                                    </td>
-                                    <td class="p-3">
-                                        <input type="text" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') addShoppingItem()">
-                                    </td>
-                                    <td class="p-3 text-center">
-                                        <button onclick="addShoppingItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
-                                            <i class="fa-solid fa-plus text-xs"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateShopHeader(field, value) {
-            if (field === 'title') state.shopTitle = value;
-            if (field === 'address') state.shopAddress = value;
-            if (field === 'note') state.shopNote = value; 
+        function updateShoppingItem(index, field, value) {
+            state.shoppingList[index][field] = value;
             saveData();
         }
 
+        function deleteShoppingItem(index) {
+            state.shoppingList.splice(index, 1);
+            saveData();
+            // Re-render the whole list to fix indices
+            document.getElementById('shopping-table-body').innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('') || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+        }
+        
         function addShoppingItem() {
             const prodInput = document.getElementById('new-item-product');
             const qtyInput = document.getElementById('new-item-qty');
@@ -1490,23 +1477,177 @@
             showToast("Producto agregado", "fa-cart-plus");
         }
 
-        function updateShoppingItem(index, field, value) {
-            state.shoppingList[index][field] = value;
-            saveData();
+        // --- FUNCIONES DE LISTA DE SERVICIOS (COSTS) ---
+
+        function getServiceRowHTML(item, index) {
+            const price = parseFloat(item.price) || 0;
+            return `
+                <tr id="service-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                    <td class="p-3">
+                        <input type="text" value="${item.service}" onchange="updateServiceItem(${index}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
+                    </td>
+                    <td class="p-3 w-32">
+                        <input type="number" value="${price}" onchange="updateServiceItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
+                    </td>
+                    <td class="p-3 w-10 text-center">
+                        <button onclick="deleteServiceItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>
+            `;
         }
 
-        function deleteShoppingItem(index) {
-            state.shoppingList.splice(index, 1);
+        function updateServiceItem(index, field, value) {
+            if (field === 'price') {
+                state.serviceList[index][field] = parseFloat(value) || 0;
+            } else {
+                state.serviceList[index][field] = value;
+            }
+            saveData();
+            updateServiceTotal();
+        }
+
+        function deleteServiceItem(index) {
+            state.serviceList.splice(index, 1);
+            saveData();
+            // Re-render the whole list to fix indices
+            document.getElementById('service-table-body').innerHTML = state.serviceList.map((item, idx) => getServiceRowHTML(item, idx)).join('') || `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
+            updateServiceTotal();
+        }
+        
+        function addServiceItem() {
+            const serviceInput = document.getElementById('new-service-desc');
+            const priceInput = document.getElementById('new-service-price');
+            const service = serviceInput.value.trim();
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!service) return;
+
+            const newItem = { service, price };
+            state.serviceList.push(newItem);
             saveData();
             
-            const tbody = document.getElementById('shopping-table-body');
+            const tbody = document.getElementById('service-table-body');
             if (tbody) {
-                if (state.shoppingList.length === 0) {
-                    tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
-                } else {
-                    tbody.innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('');
-                }
+                const emptyMsg = document.getElementById('empty-service-msg');
+                if (emptyMsg) emptyMsg.remove();
+                
+                const newIndex = state.serviceList.length - 1;
+                tbody.insertAdjacentHTML('beforeend', getServiceRowHTML(newItem, newIndex));
             }
+
+            serviceInput.value = '';
+            priceInput.value = '';
+            serviceInput.focus();
+            
+            showToast("Servicio agregado", "fa-tools");
+            updateServiceTotal();
+        }
+
+        function updateServiceTotal() {
+            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const totalEl = document.getElementById('service-total');
+            if (totalEl) {
+                totalEl.innerText = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            }
+        }
+
+        function clearServiceList() {
+            if (state.serviceList.length === 0) return;
+            showConfirmModal("¿Limpiar Servicios?", "Se borrarán todos los costos de servicio.", "Limpiar Todo", function() {
+                state.serviceList = [];
+                saveData();
+                closeConfirmModal();
+                const tbody = document.getElementById('service-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
+                }
+                updateServiceTotal();
+                showToast("Lista de servicios limpia", "fa-eraser");
+            });
+        }
+        
+        function getShoppingListContentHTML() {
+            const itemsHTML = state.shoppingList.map((item, index) => getShoppingRowHTML(item, index)).join('');
+            return `
+                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                                <th class="p-3 font-bold uppercase tracking-wider">Producto</th>
+                                <th class="p-3 font-bold uppercase tracking-wider text-center">Cant.</th>
+                                <th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopping-table-body">
+                            ${itemsHTML || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`}
+                        </tbody>
+                        <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
+                            <tr>
+                                <td class="p-3">
+                                    <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') addShoppingItem()">
+                                </td>
+                                <td class="p-3 text-center">
+                                    <button onclick="addShoppingItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getServiceListContentHTML() {
+            const servicesHTML = state.serviceList.map((item, index) => getServiceRowHTML(item, index)).join('');
+            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            
+            return `
+                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                                <th class="p-3 font-bold uppercase tracking-wider">Servicio / Detalle</th>
+                                <th class="p-3 font-bold uppercase tracking-wider text-right">Precio</th>
+                                <th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="service-table-body">
+                            ${servicesHTML || `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`}
+                        </tbody>
+                        <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
+                            <tr>
+                                <td class="p-3 text-right font-black text-sm uppercase">Total:</td>
+                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="service-total">$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
+                                <td class="p-3"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">
+                                    <input type="text" id="new-service-desc" placeholder="Agregar servicio..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-service-price').focus()">
+                                </td>
+                                <td class="p-3">
+                                    <input type="number" id="new-service-price" placeholder="0" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addServiceItem()">
+                                </td>
+                                <td class="p-3 text-center">
+                                    <button onclick="addServiceItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function updateShopHeader(field, value) {
+            if (field === 'title') state.shopTitle = value;
+            if (field === 'address') state.shopAddress = value;
+            if (field === 'note') state.shopNote = value; 
+            saveData();
         }
 
         function clearShoppingList() {
@@ -1522,17 +1663,74 @@
                 showToast("Lista limpia", "fa-eraser");
             });
         }
+        
+        function setActiveShopTab(tab) {
+            state.activeShopTab = tab;
+            renderView('shopping_list');
+        }
 
-        // --- FUNCIÓN ACTUALIZADA DE COMPARTIR LISTA DE COMPRAS ---
-        async function downloadShoppingPDF() {
-            if (state.shoppingList.length === 0) {
-                showToast("Lista vacía", "fa-triangle-exclamation");
-                return;
-            }
-            
+        // --- FUNCIÓN PRINCIPAL DE VISTA DE COMPRAS CON TABS ---
+        function getShoppingListHTML() {
+            const isItems = state.activeShopTab === 'items';
+            const itemsActive = isItems ? 'bg-red-600 text-white shadow-md' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
+            const servicesActive = !isItems ? 'bg-red-600 text-white shadow-md' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
+
+            const itemsContent = getShoppingListContentHTML();
+            const servicesContent = getServiceListContentHTML();
+
+            return `
+                <div class="pb-24 fade-enter">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
+                            <i class="fa-solid fa-cart-shopping text-red-600"></i> Gestión de Costos
+                        </h2>
+                        <div class="flex gap-2">
+                            ${isItems 
+                                ? `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
+                                     <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Lista</span>
+                                   </button>
+                                   <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                                     <i class="fa-solid fa-share-nodes text-red-400"></i> Compartir Productos
+                                   </button>`
+                                : `<button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
+                                     <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Servicios</span>
+                                   </button>
+                                   <button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                                     <i class="fa-solid fa-share-nodes text-blue-400"></i> Compartir Servicios
+                                   </button>`
+                            }
+                        </div>
+                    </div>
+
+                    <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner">
+                        <button onclick="setActiveShopTab('items')" class="flex-1 py-2 text-sm font-bold rounded transition ${itemsActive} flex items-center justify-center gap-2"><i class="fa-solid fa-cart-arrow-down"></i> Productos (Lista de Compras)</button>
+                        <button onclick="setActiveShopTab('services')" class="flex-1 py-2 text-sm font-bold rounded transition ${servicesActive} flex items-center justify-center gap-2"><i class="fa-solid fa-tags"></i> Servicios (Costos)</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
+                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Título del Documento</label>
+                            <input type="text" id="shop-title" value="${state.shopTitle}" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent text-xl font-black text-neutral-800 dark:text-neutral-100 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Repuestos Motor V8">
+                        </div>
+                        <div class="p-4 border-b border-neutral-200 dark:border-neutral-800">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Dirección del Taller (para PDF)</label>
+                            <input type="text" id="shop-address" value="${state.shopAddress}" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-red-500 transition placeholder-neutral-300" placeholder="Ej: Av. Principal 123, Santiago">
+                        </div>
+                        <div class="p-4">
+                            <label class="block text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Nota al pie / Observaciones</label>
+                            <input type="text" id="shop-note" value="${state.shopNote || ''}" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-400 outline-none border-b border-transparent focus:border-blue-500 transition placeholder-neutral-300" placeholder="Ej: Solicitar factura a nombre de...">
+                        </div>
+                    </div>
+                    
+                    ${isItems ? itemsContent : servicesContent}
+                </div>
+            `;
+        }
+
+        // --- FUNCIÓN DE GENERACIÓN DE PDF COMPARTIBLE (REFACTORIZADA) ---
+        async function generateCleanPDF(contentHTML, title, fileName) {
             showToast("Generando PDF...", "fa-spinner fa-spin");
 
-            // 1. Crear HTML temporal para el PDF (Igual que en notas)
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'fixed';
             tempContainer.style.left = '-9999px';
@@ -1540,58 +1738,12 @@
             tempContainer.style.width = '595px'; // Ancho A4
             tempContainer.style.backgroundColor = '#ffffff';
             tempContainer.style.zIndex = '-1';
-            
-            const listItemsHTML = state.shoppingList.map((item) => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 8px; color: #333; font-weight: bold;">${item.product}</td>
-                    <td style="padding: 8px; color: #333; text-align: center;">${item.qty}</td>
-                </tr>
-            `).join('');
-
-            const addressText = state.shopAddress ? `<p style="margin: 5px 0; color: #666; font-size: 12px;">${state.shopAddress}</p>` : '';
-            const noteText = state.shopNote ? `
-                <div style="margin-top: 20px; padding-top: 10px; border-top: 1px dashed #ccc;">
-                    <strong style="font-size: 10px; color: #999; text-transform: uppercase;">Observaciones:</strong>
-                    <p style="margin: 5px 0; color: #333; font-style: italic; font-size: 12px;">${state.shopNote}</p>
-                </div>` : '';
-
-            tempContainer.innerHTML = `
-                <div style="padding: 40px; font-family: sans-serif; color: #000;">
-                    <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div>
-                            <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">${state.shopTitle || "Lista de Compras"}</h1>
-                            ${addressText}
-                        </div>
-                        <div style="font-size: 12px; color: #666;">${new Date().toLocaleDateString()}</div>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-                        <thead>
-                            <tr style="background-color: #f5f5f5; color: #666;">
-                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Producto</th>
-                                <th style="padding: 8px; text-align: center; width: 80px; border-bottom: 2px solid #ddd;">Cant.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${listItemsHTML}
-                        </tbody>
-                    </table>
-                    
-                    ${noteText}
-                    
-                    <div style="margin-top: 40px; text-align: center; color: #ccc; font-size: 10px;">
-                        Generado con Mecamonico App
-                    </div>
-                </div>
-            `;
-            
+            tempContainer.innerHTML = contentHTML;
             document.body.appendChild(tempContainer);
-            
+
             try {
-                // Esperar renderizado
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // 2. Convertir a Imagen con html2canvas
                 const canvas = await html2canvas(tempContainer, { 
                     scale: 1.5,
                     useCORS: true, 
@@ -1600,7 +1752,6 @@
                     backgroundColor: '#ffffff'
                 });
                 
-                // 3. Crear PDF con jsPDF
                 const imgData = canvas.toDataURL('image/jpeg', 0.8);
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -1610,38 +1761,26 @@
                 
                 doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                 
-                const fileName = `Compras_${new Date().toISOString().slice(0,10)}.pdf`;
                 const pdfBlob = doc.output('blob');
-                const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                // 4. Compartir nativamente
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: "Lista de Compras", // Mensaje Predefinido
-                        text: "Lista de Compras" // Mensaje Predefinido
-                    });
-                    showToast("Lista compartida", "fa-share-nodes");
+                    await navigator.share({ files: [file], title: title, text: title });
+                    showToast("Documento Compartido", "fa-share-nodes");
                 } else {
-                    // Fallback: Descargar
                     doc.save(fileName);
                     showToast("PDF Descargado", "fa-download");
                 }
 
             } catch (err) {
-                console.error("Error al generar/compartir PDF de compras:", err);
+                console.error("Error al generar/compartir PDF:", err);
                 showToast("Error al generar PDF", "fa-triangle-exclamation");
-                // Intento de descarga simple por si falla lo gráfico
+                // Fallback de descarga simple en caso de error crítico
                 try {
                     const { jsPDF } = window.jspdf;
                     const fallbackDoc = new jsPDF();
-                    fallbackDoc.text("Lista de Compras (Texto Simple)", 10, 10);
-                    let y = 20;
-                    state.shoppingList.forEach(item => {
-                        fallbackDoc.text(`- ${item.product} (${item.qty})`, 10, y);
-                        y += 10;
-                    });
-                    fallbackDoc.save("Compras_Simple.pdf");
+                    fallbackDoc.text(`${title} (Error)`, 10, 10);
+                    fallbackDoc.save(fileName.replace('.pdf', '_Simple.pdf'));
                 } catch(e) {}
             } finally {
                 if(document.body.contains(tempContainer)) {
@@ -1650,10 +1789,115 @@
             }
         }
 
-        function renderView(viewName) {
-            const container = document.getElementById('app-container'); state.view = viewName; state.editingNoteId = null; document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
-            let containerClass = "fade-enter min-h-full "; 
+        async function downloadShoppingPDF() {
+            if (state.shoppingList.length === 0) {
+                showToast("Lista de productos vacía", "fa-triangle-exclamation");
+                return;
+            }
+
+            const listItemsHTML = state.shoppingList.map((item) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.product}</td>
+                    <td style="padding: 10px 15px; color: #333; text-align: right;">${item.qty}</td>
+                </tr>
+            `).join('');
+
+            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
+            const noteText = state.shopNote ? `
+                <div style="margin-top: 30px;">
+                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
+                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
+                </div>` : '';
+
+            const contentHTML = `
+                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
+                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">${state.shopTitle || "Lista de Compras"}</h1>
+                    ${addressText}
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <thead>
+                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
+                                <th style="padding: 10px 15px; text-align: left;">Producto</th>
+                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${listItemsHTML}
+                        </tbody>
+                    </table>
+                    
+                    ${noteText}
+                </div>
+            `;
+            
+            const fileName = `Lista_Compras_${new Date().toISOString().slice(0,10)}.pdf`;
+            await generateCleanPDF(contentHTML, state.shopTitle || "Lista de Compras", fileName);
+        }
+
+        async function downloadServicePDF() {
+            if (state.serviceList.length === 0) {
+                showToast("Lista de servicios vacía", "fa-triangle-exclamation");
+                return;
+            }
+            
+            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const listItemsHTML = state.serviceList.map((item) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.service}</td>
+                    <td style="padding: 10px 15px; color: #dc2626; font-weight: 700; text-align: right; width: 120px;">$${(parseFloat(item.price) || 0).toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
+                </tr>
+            `).join('');
+
+            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
+            const noteText = state.shopNote ? `
+                <div style="margin-top: 30px;">
+                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
+                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
+                </div>` : '';
+
+            const title = state.shopTitle.replace('Lista de Compras', 'Detalle de Servicios') || "Detalle de Servicios";
+
+            const contentHTML = `
+                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
+                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">${title}</h1>
+                    ${addressText}
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <thead>
+                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
+                                <th style="padding: 10px 15px; text-align: left;">Servicio / Detalle</th>
+                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${listItemsHTML}
+                        </tbody>
+                        <tfoot>
+                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
+                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL</td>
+                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    ${noteText}
+                </div>
+            `;
+            
+            const fileName = `Servicios_${new Date().toISOString().slice(0,10)}.pdf`;
+            await generateCleanPDF(contentHTML, title, fileName);
+        }
+
+        function performContentSwap(viewName) {
+            const container = document.getElementById('app-container');
+            state.view = viewName; 
+            state.editingNoteId = null; 
+            document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
+            // Usamos una clase wrapper para identificar el contenido principal que se reemplaza
+            let containerClass = "app-view-wrapper fade-enter min-h-full "; 
             if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; 
+            let contentHTML = '';
             try { 
                 switch(viewName) { 
                     case 'dashboard': contentHTML = getDashboardHTML(); break; 
@@ -1665,9 +1909,47 @@
                     case 'shopping_list': contentHTML = getShoppingListHTML(); break; 
                     default: contentHTML = getDashboardHTML(); 
                 } 
-            } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } const wrapper = document.createElement('div'); wrapper.className = containerClass; wrapper.innerHTML = contentHTML; container.replaceChildren(wrapper); container.scrollTop = 0; if (viewName === 'notes') { 
+            } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } 
+
+            const wrapper = document.createElement('div'); 
+            wrapper.className = containerClass; 
+            wrapper.innerHTML = contentHTML; 
+            container.replaceChildren(wrapper); 
+            container.scrollTop = 0; 
+            
+            if (viewName === 'notes') { 
                 updateImagePreview();
-            } saveData();
+            } 
+            if (viewName === 'shopping_list') {
+                 // Inicializar el total de servicios al cargar la vista
+                updateServiceTotal(); 
+            }
+            saveData();
+        }
+
+        function renderView(viewName) {
+            const container = document.getElementById('app-container');
+            const currentWrapper = container.querySelector('.app-view-wrapper');
+
+            // 1. Si hay contenido previo, iniciamos el fade-out
+            if (currentWrapper && state.view !== null) {
+                // Prevenimos que el contenido entrante se muestre si es la misma vista
+                if (state.view === viewName) {
+                    performContentSwap(viewName);
+                    return;
+                }
+                
+                currentWrapper.classList.remove('fade-enter');
+                currentWrapper.classList.add('fade-leave');
+                
+                // 2. Esperamos la duración del fade-out (200ms) para realizar el swap
+                setTimeout(() => {
+                    performContentSwap(viewName);
+                }, 200); 
+            } else {
+                // 3. Primer renderizado o no hay contenido previo, hacemos swap inmediatamente
+                performContentSwap(viewName);
+            }
         }
 
         init();

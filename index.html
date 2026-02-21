@@ -118,16 +118,9 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         /* --- CLASES DE TRANSICIÓN PARA FLUIDEZ GENERAL --- */
-        /* Animación para el contenido entrante */
         .fade-enter { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        /* Animación para el contenido saliente */
-        .fade-leave {
-            animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes fadeOut { 
-            from { opacity: 1; transform: translateY(0); } 
-            to { opacity: 0; transform: translateY(10px); } 
-        }
+        .fade-leave { animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
         .item-enter { animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         
@@ -158,25 +151,14 @@
         .animate-spin-slow { animation: spin-slow 20s linear infinite; }
         .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
 
-        /* --- MEJORAS DE FLUIDEZ Y DESLIZAMIENTO --- */
-        /* 1. Deslizamiento en Nav Bar (propiedades nativas) */
         #nav-menu {
-            -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
-            scroll-behavior: smooth; /* Para transiciones suaves entre snaps */
+            -webkit-overflow-scrolling: touch; 
+            scroll-behavior: smooth; 
         }
         
-        /* 2. Transición fluida en pestañas de Compras/Costos */
-        .tab-content-transition {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .tab-content-enter {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .tab-content-leave {
-            opacity: 0;
-            transform: translateY(10px);
-        }
+        .tab-content-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .tab-content-enter { opacity: 1; transform: translateY(0); }
+        .tab-content-leave { opacity: 0; transform: translateY(10px); }
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
@@ -198,15 +180,15 @@
     <!-- Header -->
     <header class="bg-neutral-900 text-white pt-safe shadow-lg z-20 shrink-0 relative overflow-hidden border-b-4 border-red-600">
         <div class="p-4 flex justify-between items-center relative z-10">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="renderView('dashboard')">
-                <div class="bg-red-700 p-2 rounded-md shadow-md border border-red-500">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-700 p-2 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform" onclick="renderView('dashboard')" title="Ir a Inicio">
                     <i class="fa-solid fa-car text-xl text-white"></i>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold flex items-center gap-2">
-                        Mecamonico <i class="fa-solid fa-wrench wrench-anim text-red-500 text-sm"></i>
+                <div class="cursor-pointer group" onclick="openAppTitleModal()" title="Editar Encabezado">
+                    <h1 class="text-2xl font-bold flex items-center gap-2 group-hover:text-red-400 transition-colors">
+                        <span id="header-app-title">Mecamonico</span> <i class="fa-solid fa-wrench wrench-anim text-red-500 text-sm"></i>
                     </h1>
-                    <p class="text-xs text-neutral-400 font-bold">Gestión de Taller & Estudio</p>
+                    <p id="header-app-subtitle" class="text-xs text-neutral-400 font-bold group-hover:text-neutral-300 transition-colors">Gestión de Taller & Estudio</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -226,10 +208,8 @@
 
     <!-- Nav Bar -->
     <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <!-- Se quitó la clase 'drag-scroll' para asegurar el deslizamiento nativo en móvil -->
         <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory">
             
-            <!-- Se cambió min-w-[20%] a min-w-[25%] en todos los botones -->
             <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
@@ -244,8 +224,8 @@
 
             <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-cart-shopping text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Compras</span>
+                <i class="fa-solid fa-boxes-stacked text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Gestión</span>
             </button>
             
             <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
@@ -308,6 +288,21 @@
     <div id="folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-red-600"></i> Nueva Sección</h3><input type="text" id="new-folder-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Ej: Motores, Electricidad..."><div class="flex justify-end gap-3"><button onclick="closeFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="createFolder()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Crear</button></div></div></div>
     <div id="name-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-neutral-800 dark:border-neutral-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-id-card text-neutral-600"></i> Credencial</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Nombre del Técnico/a</p><input type="text" id="new-user-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-neutral-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mecánico Juan"><div class="flex justify-end gap-3"><button onclick="closeNameModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveName()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
     <div id="title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-tag text-red-600"></i> Rol / Título</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Define tu cargo en el taller</p><input type="text" id="new-user-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Estudiante"><div class="flex justify-end gap-3"><button onclick="closeTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
+    
+    <div id="app-title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600">
+            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-red-600"></i> Encabezado</h3>
+            <p class="text-sm text-neutral-400 mb-1 font-bold">Título Principal</p>
+            <input type="text" id="new-app-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-3 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mi Taller">
+            <p class="text-sm text-neutral-400 mb-1 font-bold">Subtítulo</p>
+            <input type="text" id="new-app-subtitle" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-sm font-bold text-neutral-800 dark:text-white" placeholder="Ej: Especialista Automotriz">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeAppTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button>
+                <button onclick="saveAppTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="patient-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-t-4 border-blue-600">
             <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-car-side text-blue-600"></i> Ingresar Vehículo</h3>
@@ -366,9 +361,10 @@
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
             shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', 
-            serviceList: [], // NEW: Lista de Servicios/Costos
-            activeShopTab: 'items', // NEW: 'items' or 'services'
-            userProfileImage: null, userName: 'Futuro Mecánico', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
+            serviceList: [], inventoryList: [], 
+            activeShopTab: 'items', 
+            appTitle: 'Mecamonico', appSubtitle: 'Gestión de Taller & Estudio', 
+            userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false
         };
         let selectedDateKey = null; 
@@ -384,6 +380,7 @@
             try {
                 await loadData();
                 applyTheme();
+                updateHeaderUI();
                 setupGlobalListeners();
                 state.view = null; 
                 renderView('dashboard');
@@ -400,7 +397,10 @@
                     if (!saved.pdfs) saved.pdfs = []; 
                     if (!saved.folders) saved.folders = [{id: 'general', name: 'General'}];
                     if (!saved.patients) saved.patients = []; 
-                    if (!saved.userName) saved.userName = 'Estudiante'; 
+                    
+                    if (!saved.appTitle) saved.appTitle = 'Mecamonico';
+                    if (!saved.appSubtitle) saved.appSubtitle = 'Gestión de Taller & Estudio';
+                    if (!saved.userName) saved.userName = 'Usuario'; 
                     if (!saved.userTitle) saved.userTitle = 'Estudiante'; 
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     
@@ -408,10 +408,10 @@
                     if (!saved.shopAddress) saved.shopAddress = '';
                     if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
                     if (!saved.shopNote) saved.shopNote = '';
-                    if (!saved.serviceList) saved.serviceList = []; // NEW
-                    if (!saved.activeShopTab) saved.activeShopTab = 'items'; // NEW
+                    if (!saved.serviceList) saved.serviceList = []; 
+                    if (!saved.inventoryList) saved.inventoryList = []; 
+                    if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
-                    
                     saved.notes = saved.notes.map(n => {
                         if (n.image && !n.images) n.images = [n.image];
                         else if (!n.images) n.images = [];
@@ -491,11 +491,6 @@
             if(currentZoom > 1.0) { canvas.style.maxWidth = 'none'; canvas.style.width = `${newCSSWidth}px`; } else { canvas.style.width = "100%"; canvas.style.maxWidth = `${baseCanvasWidth}px`; }
         }
         
-        // Función para implementar el scroll arrastrable con el ratón (SE ELIMINA EL CONTENIDO DE ESTA FUNCIÓN)
-        function setupDragScroll(elementId) {
-            // Se eliminó la lógica de arrastre con mouse/touch para priorizar el scroll nativo en móvil.
-        }
-        
         function setupGlobalListeners() {
             document.addEventListener('keydown', (e) => {
                 if(!document.getElementById('pdf-reader-modal').classList.contains('hidden')) {
@@ -510,8 +505,6 @@
                 container.addEventListener('touchstart', e => { if(e.touches.length === 1) touchStartX = e.changedTouches[0].screenX; }, {passive: true});
                 container.addEventListener('touchend', e => { if (e.changedTouches.length > 0 && currentZoom <= 1.05) { const touchEndX = e.changedTouches[0].screenX; if (touchEndX < touchStartX - 80) changePdfPage(1); if (touchEndX > touchStartX + 80) changePdfPage(-1); } }, {passive: true});
             }
-            
-            // SE ELIMINÓ: setupDragScroll('nav-menu');
         }
 
         function manualZoom(delta) { updateCanvasStyle(currentZoom + delta); }
@@ -542,6 +535,11 @@
         function openTitleModal() { document.getElementById('new-user-title').value = state.userTitle || ''; document.body.classList.add('modal-open'); document.getElementById('title-modal').classList.remove('hidden'); document.getElementById('new-user-title').focus(); }
         function closeTitleModal() { document.body.classList.remove('modal-open'); document.getElementById('title-modal').classList.add('hidden'); }
         function saveTitle() { const title = document.getElementById('new-user-title').value.trim(); if (title) { state.userTitle = title; saveData(); renderView('dashboard'); closeTitleModal(); showToast("Título actualizado", "fa-tag"); } }
+
+        function updateHeaderUI() { document.getElementById('header-app-title').innerText = state.appTitle || 'Mecamonico'; document.getElementById('header-app-subtitle').innerText = state.appSubtitle || 'Gestión de Taller & Estudio'; }
+        function openAppTitleModal() { document.getElementById('new-app-title').value = state.appTitle || ''; document.getElementById('new-app-subtitle').value = state.appSubtitle || ''; document.body.classList.add('modal-open'); document.getElementById('app-title-modal').classList.remove('hidden'); document.getElementById('new-app-title').focus(); }
+        function closeAppTitleModal() { document.body.classList.remove('modal-open'); document.getElementById('app-title-modal').classList.add('hidden'); }
+        function saveAppTitle() { const t = document.getElementById('new-app-title').value.trim(); const s = document.getElementById('new-app-subtitle').value.trim(); if(t) state.appTitle = t; state.appSubtitle = s; saveData(); updateHeaderUI(); closeAppTitleModal(); showToast("Encabezado actualizado", "fa-check"); }
 
         function openBackupModal() { document.getElementById('backup-modal').classList.remove('hidden'); }
         function closeBackupModal() { document.getElementById('backup-modal').classList.add('hidden'); document.getElementById('backup-file-input').value = ''; }
@@ -688,13 +686,10 @@
         function deleteFolder(folderId) {
             if (folderId === 'general' || folderId === 'all') return;
             showConfirmModal("¿Borrar Carpeta?", "Las notas se moverán a 'General'.", "Borrar", function() {
-                // Move notes to general
                 state.notes.forEach(n => {
                     if (n.folderId === folderId) n.folderId = 'general';
                 });
-                // Remove folder
                 state.folders = state.folders.filter(f => f.id !== folderId);
-                // Reset view
                 state.currentFolderId = 'all';
                 saveData();
                 closeConfirmModal();
@@ -794,7 +789,7 @@
                 if (isNextShift) { cardLabel = "Próxima Jornada"; shiftSubText = `El ${nextDateStr}`; } else { cardLabel = "Jornada de Hoy"; } 
             } else { cardLabel = "Estado Actual"; }
             
-            const profileImageSrc = state.userProfileImage || 'https://placehold.co/64x64/dc2626/ffffff?text=MEC'; const displayUserName = state.userName || 'Mecánico'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
+            const profileImageSrc = state.userProfileImage || 'https://placehold.co/64x64/dc2626/ffffff?text=MEC'; const displayUserName = state.userName || 'Usuario'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
             
             return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full min-h-full pb-20"><div class="order-4 lg:order-1 lg:col-span-1 lg:min-w-[350px] flex flex-col lg:h-[calc(100vh-140px)] h-auto"><div class="flex justify-between items-center mb-4 sticky top-0 bg-[#f5f5f5]/80 dark:bg-neutral-900/80 backdrop-blur-sm z-10 py-2 rounded-lg px-2 shadow-sm"><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-blue-600"></i> Órdenes de Trabajo</h2><button onclick="openPatientModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 shadow transition"><i class="fa-solid fa-plus mr-1"></i> Nueva Orden</button></div><div id="patients-list-container" class="lg:flex-1 lg:overflow-y-auto lg:pr-1 w-full hide-scrollbar">${patientsListContent}</div></div><div class="contents lg:flex lg:flex-col lg:gap-6 lg:order-2 lg:col-span-2 lg:overflow-y-auto lg:p-6 lg:h-[calc(100vh-140px)] hide-scrollbar"><div class="order-1 flex items-center gap-4 bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0"><div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://placehold.co/64x64/dc2626/ffffff?text=MEC'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div><div><p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p><h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2></div></div><div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}<div class="order-5 grid grid-cols-2 gap-3 shrink-0"><div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clipboard-list text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Pendientes (${pendingTodos.length})</span></div><div onclick="renderView('notes')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer"><div class="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-book-open text-2xl"></i></div><span class="text-xs font-bold text-neutral-600 dark:text-neutral-300 tracking-wide">Bitácora</span></div></div></div></div>`;
         }
@@ -1153,7 +1148,6 @@
 
         function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
         
-        // FIX #1: Calendar logic
         function getTurnarioHTML() { 
             const year = state.currentDate.getFullYear(); 
             const month = state.currentDate.getMonth(); 
@@ -1161,18 +1155,14 @@
             const lastDay = new Date(year, month + 1, 0); 
             const daysInMonth = lastDay.getDate(); 
             
-            // FIX: Convert Date().getDay() (0=Domingo, 1=Lunes) to (0=Lunes, 6=Domingo)
-            // Lunes (1) -> 0, Domingo (0) -> 6
             let startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; 
 
             const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
             
             let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; 
             
-            // Renderiza celdas vacías para el desfase
             for (let i = 0; i < startingDay; i++) { html += `<div></div>`; } 
             
-            // Renderiza los días del mes
             for (let day = 1; day <= daysInMonth; day++) { 
                 const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; 
                 html += createDayCellHTML(dateKey, day); 
@@ -1188,14 +1178,11 @@
             let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; 
             let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; 
             
-            // Determinar si es Sábado (5) o Domingo (6) en la nueva convención (Lunes=0)
             const [year, month, dayOfMonth] = dateKey.split('-').map(Number);
             const dateObj = new Date(year, month - 1, dayOfMonth);
-            const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1; // Lunes=0, Domingo=6
+            const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1; 
 
-            if (dayOfWeek >= 5) { // Sábado (5) o Domingo (6)
-                 bgClass += " text-red-500 dark:text-red-400";
-            }
+            if (dayOfWeek >= 5) { bgClass += " text-red-500 dark:text-red-400"; }
             
             if (shift) { 
                 if (shift.type === 'guardia') { 
@@ -1211,28 +1198,21 @@
                     bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; 
                     content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50"></i>`; 
                 }
-                 // Si hay un evento asignado, forzamos el color del día si no es un color temático
+                
                 if (shift.type === 'post' || shift.type === 'libre') {
-                     // El color ya está establecido en el bloque anterior
                 } else if (shift.type !== null) {
-                    // Si hay un evento con color fuerte, removemos el color de fin de semana si se aplicó
                     bgClass = bgClass.replace(' text-red-500 dark:text-red-400', '');
                 } else if (dayOfWeek >= 5) {
-                    // Si no hay evento asignado pero es fin de semana, nos aseguramos que el color de texto se mantenga.
                     bgClass = bgClass.replace('bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300', '');
                     bgClass += " text-red-500 dark:text-red-400";
                 }
             } 
             
             const todayKey = new Date().toISOString().split('T')[0]; 
-            if (dateKey === todayKey) { 
-                bgClass += " ring-2 ring-red-500 ring-offset-1 z-20"; // Marcar el día de hoy con un anillo rojo
-            } 
+            if (dateKey === todayKey) { bgClass += " ring-2 ring-red-500 ring-offset-1 z-20"; } 
             
             let dots = ""; 
-            if (shift && (shift.note || shift.eventTime)) { 
-                dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border border-white dark:border-neutral-800"></div>`; 
-            } 
+            if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border border-white dark:border-neutral-800"></div>`; } 
             
             return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; 
         }
@@ -1286,19 +1266,17 @@
             </div>`; 
         }
         
-        // --- SHARE NOTE (OPTIMIZADO PARA ANDROID WEB APP) ---
         async function shareNote(id) {
             const note = state.notes.find(n => n.id === id);
             if (!note) return;
 
             showToast("Generando PDF...", "fa-file-pdf");
 
-            // Crear contenedor temporal fuera de pantalla pero visible para el renderizado
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'fixed';
             tempContainer.style.left = '-9999px';
             tempContainer.style.top = '0';
-            tempContainer.style.width = '595px'; // A4 width en pixels (aprox)
+            tempContainer.style.width = '595px'; 
             tempContainer.style.backgroundColor = '#ffffff';
             tempContainer.style.zIndex = '-1';
             
@@ -1478,16 +1456,19 @@
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
         
-        // --- FUNCIONES DE LISTA DE COMPRAS (PRODUCTS) ---
-
         function getShoppingRowHTML(item, index) {
+            const price = parseFloat(item.price) || 0;
+            const qty = parseFloat(item.qty) || 1;
             return `
                 <tr id="shop-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
                     <td class="p-3">
                         <input type="text" value="${item.product}" onchange="updateShoppingItem(${index}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
                     </td>
-                    <td class="p-3 w-24">
-                        <input type="text" value="${item.qty}" onchange="updateShoppingItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant.">
+                    <td class="p-3 w-20">
+                        <input type="number" value="${qty}" onchange="updateShoppingItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant." min="1">
+                    </td>
+                    <td class="p-3 w-28">
+                        <input type="number" value="${price}" onchange="updateShoppingItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio Un." min="0">
                     </td>
                     <td class="p-3 w-10 text-center">
                         <button onclick="deleteShoppingItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
@@ -1497,26 +1478,33 @@
         }
 
         function updateShoppingItem(index, field, value) {
-            state.shoppingList[index][field] = value;
+            if (field === 'price' || field === 'qty') {
+                state.shoppingList[index][field] = parseFloat(value) || 0;
+            } else {
+                state.shoppingList[index][field] = value;
+            }
             saveData();
+            updateShoppingTotal();
         }
 
         function deleteShoppingItem(index) {
             state.shoppingList.splice(index, 1);
             saveData();
-            // Re-render the whole list to fix indices
-            document.getElementById('shopping-table-body').innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('') || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+            document.getElementById('shopping-table-body').innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('') || `<tr id="empty-shop-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+            updateShoppingTotal();
         }
         
         function addShoppingItem() {
             const prodInput = document.getElementById('new-item-product');
             const qtyInput = document.getElementById('new-item-qty');
+            const priceInput = document.getElementById('new-item-price');
             const product = prodInput.value.trim();
-            const qty = qtyInput.value.trim() || '1';
+            const qty = parseFloat(qtyInput.value) || 1;
+            const price = parseFloat(priceInput.value) || 0;
 
             if (!product) return;
 
-            const newItem = { product, qty };
+            const newItem = { product, qty, price };
             state.shoppingList.push(newItem);
             saveData();
             
@@ -1530,13 +1518,23 @@
             }
 
             prodInput.value = '';
-            qtyInput.value = '';
+            qtyInput.value = '1';
+            if (priceInput) priceInput.value = '';
             prodInput.focus();
             
             showToast("Producto agregado", "fa-cart-plus");
+            updateShoppingTotal();
         }
 
-        // --- FUNCIONES DE LISTA DE SERVICIOS (COSTS) ---
+        function updateShoppingTotal() {
+            const subtotal = state.shoppingList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+            const totalEl = document.getElementById('shopping-total');
+            if (totalEl) {
+                totalEl.innerHTML = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}<div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>`;
+            }
+        }
 
         function getServiceRowHTML(item, index) {
             const price = parseFloat(item.price) || 0;
@@ -1568,7 +1566,6 @@
         function deleteServiceItem(index) {
             state.serviceList.splice(index, 1);
             saveData();
-            // Re-render the whole list to fix indices
             document.getElementById('service-table-body').innerHTML = state.serviceList.map((item, idx) => getServiceRowHTML(item, idx)).join('') || `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
             updateServiceTotal();
         }
@@ -1603,10 +1600,12 @@
         }
 
         function updateServiceTotal() {
-            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
             const totalEl = document.getElementById('service-total');
             if (totalEl) {
-                totalEl.innerText = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+                totalEl.innerHTML = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}<div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>`;
             }
         }
 
@@ -1625,28 +1624,139 @@
             });
         }
         
+        function getInventoryRowHTML(item, index) {
+            const price = parseFloat(item.price) || 0;
+            const qty = parseFloat(item.qty) || 0;
+            return `
+                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                    <td class="p-3">
+                        <input type="text" value="${item.product}" onchange="updateInventoryItem(${index}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Ítem / Repuesto">
+                    </td>
+                    <td class="p-3 w-20">
+                        <input type="number" value="${qty}" onchange="updateInventoryItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Stock" min="0">
+                    </td>
+                    <td class="p-3 w-28">
+                        <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400" placeholder="Valor Un." min="0">
+                    </td>
+                    <td class="p-3 w-10 text-center">
+                        <button onclick="deleteInventoryItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function updateInventoryItem(index, field, value) {
+            if (field === 'price' || field === 'qty') {
+                state.inventoryList[index][field] = parseFloat(value) || 0;
+            } else {
+                state.inventoryList[index][field] = value;
+            }
+            saveData();
+            updateInventoryTotal();
+        }
+
+        function deleteInventoryItem(index) {
+            state.inventoryList.splice(index, 1);
+            saveData();
+            document.getElementById('inventory-table-body').innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`;
+            updateInventoryTotal();
+        }
+        
+        function addInventoryItem() {
+            const prodInput = document.getElementById('new-inv-product');
+            const qtyInput = document.getElementById('new-inv-qty');
+            const priceInput = document.getElementById('new-inv-price');
+            const product = prodInput.value.trim();
+            const qty = parseFloat(qtyInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+
+            if (!product) return;
+
+            const newItem = { product, qty, price };
+            state.inventoryList.push(newItem);
+            saveData();
+            
+            const tbody = document.getElementById('inventory-table-body');
+            if (tbody) {
+                const emptyMsg = document.getElementById('empty-inventory-msg');
+                if (emptyMsg) emptyMsg.remove();
+                
+                const newIndex = state.inventoryList.length - 1;
+                tbody.insertAdjacentHTML('beforeend', getInventoryRowHTML(newItem, newIndex));
+            }
+
+            prodInput.value = '';
+            qtyInput.value = '';
+            priceInput.value = '';
+            prodInput.focus();
+            
+            showToast("Ítem registrado", "fa-box-open");
+            updateInventoryTotal();
+        }
+
+        function updateInventoryTotal() {
+            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+            const totalEl = document.getElementById('inventory-total');
+            if (totalEl) {
+                totalEl.innerHTML = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}<div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>`;
+            }
+        }
+
+        function clearInventoryList() {
+            if (state.inventoryList.length === 0) return;
+            showConfirmModal("¿Limpiar Inventario?", "Se borrarán todos los ítems registrados.", "Limpiar Todo", function() {
+                state.inventoryList = [];
+                saveData();
+                closeConfirmModal();
+                const tbody = document.getElementById('inventory-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`;
+                }
+                updateInventoryTotal();
+                showToast("Inventario limpio", "fa-eraser");
+            });
+        }
+
         function getShoppingListContentHTML() {
             const itemsHTML = state.shoppingList.map((item, index) => getShoppingRowHTML(item, index)).join('');
+            const subtotal = state.shoppingList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+
             return `
                 <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                <th class="p-3 font-bold uppercase tracking-wider">Producto</th>
+                                <th class="p-3 font-bold uppercase tracking-wider">Producto / Repuesto</th>
                                 <th class="p-3 font-bold uppercase tracking-wider text-center">Cant.</th>
+                                <th class="p-3 font-bold uppercase tracking-wider text-right">Precio Un.</th>
                                 <th class="p-3"></th>
                             </tr>
                         </thead>
                         <tbody id="shopping-table-body">
-                            ${itemsHTML || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`}
+                            ${itemsHTML || `<tr id="empty-shop-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`}
                         </tbody>
                         <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
+                            <tr>
+                                <td colspan="2" class="p-3 text-right font-black text-sm uppercase">Total Calculado:</td>
+                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="shopping-total">
+                                    $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
+                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
+                                </td>
+                                <td class="p-3"></td>
+                            </tr>
                             <tr>
                                 <td class="p-3">
                                     <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
                                 </td>
                                 <td class="p-3">
-                                    <input type="text" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') addShoppingItem()">
+                                    <input type="number" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="1" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-price').focus()">
+                                </td>
+                                <td class="p-3">
+                                    <input type="number" id="new-item-price" placeholder="Valor" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addShoppingItem()">
                                 </td>
                                 <td class="p-3 text-center">
                                     <button onclick="addShoppingItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
@@ -1662,14 +1772,16 @@
 
         function getServiceListContentHTML() {
             const servicesHTML = state.serviceList.map((item, index) => getServiceRowHTML(item, index)).join('');
-            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
             
             return `
                 <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                <th class="p-3 font-bold uppercase tracking-wider">Servicio / Detalle</th>
+                                <th class="p-3 font-bold uppercase tracking-wider">Servicio / Mano de Obra</th>
                                 <th class="p-3 font-bold uppercase tracking-wider text-right">Precio</th>
                                 <th class="p-3"></th>
                             </tr>
@@ -1679,8 +1791,11 @@
                         </tbody>
                         <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
                             <tr>
-                                <td class="p-3 text-right font-black text-sm uppercase">Total:</td>
-                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="service-total">$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
+                                <td class="p-3 text-right font-black text-sm uppercase">Costo Total:</td>
+                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="service-total">
+                                    $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
+                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
+                                </td>
                                 <td class="p-3"></td>
                             </tr>
                             <tr>
@@ -1692,6 +1807,57 @@
                                 </td>
                                 <td class="p-3 text-center">
                                     <button onclick="addServiceItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getInventoryListContentHTML() {
+            const inventoryHTML = state.inventoryList.map((item, index) => getInventoryRowHTML(item, index)).join('');
+            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+
+            return `
+                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                                <th class="p-3 font-bold uppercase tracking-wider">Ítem / Repuesto</th>
+                                <th class="p-3 font-bold uppercase tracking-wider text-center">Stock</th>
+                                <th class="p-3 font-bold uppercase tracking-wider text-right">Valor Un.</th>
+                                <th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            ${inventoryHTML || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`}
+                        </tbody>
+                        <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
+                            <tr>
+                                <td colspan="2" class="p-3 text-right font-black text-sm uppercase">Valor Total:</td>
+                                <td class="p-3 text-right font-black text-green-600 dark:text-green-400 text-lg" id="inventory-total">
+                                    $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
+                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
+                                </td>
+                                <td class="p-3"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">
+                                    <input type="text" id="new-inv-product" placeholder="Nuevo ítem..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-inv-qty').focus()">
+                                </td>
+                                <td class="p-3">
+                                    <input type="number" id="new-inv-qty" placeholder="Stock" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') document.getElementById('new-inv-price').focus()">
+                                </td>
+                                <td class="p-3">
+                                    <input type="number" id="new-inv-price" placeholder="Valor" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addInventoryItem()">
+                                </td>
+                                <td class="p-3 text-center">
+                                    <button onclick="addInventoryItem()" class="bg-green-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-green-700 transition shadow-sm">
                                         <i class="fa-solid fa-plus text-xs"></i>
                                     </button>
                                 </td>
@@ -1717,139 +1883,127 @@
                 closeConfirmModal();
                 const tbody = document.getElementById('shopping-table-body');
                 if (tbody) {
-                    tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                    tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
                 }
+                updateShoppingTotal();
                 showToast("Lista limpia", "fa-eraser");
             });
         }
         
-        // --- FUNCIÓN LOCAL PARA CAMBIAR TABS EN VISTA COMPRAS (MEJORA DE FLUIDEZ) ---
         function switchShopTab(tab) {
             state.activeShopTab = tab;
             saveData(); 
 
-            const isItems = tab === 'items';
-            const itemsContent = document.getElementById('shop-content-items');
-            const servicesContent = document.getElementById('shop-content-services');
-            const itemsBtn = document.getElementById('shop-tab-items');
-            const servicesBtn = document.getElementById('shop-tab-services');
-            
-            // FIX #2.1: Elementos para el botón de Compartir
-            const shareBtnContainer = document.getElementById('share-btn-container');
-
+            const tabs = ['items', 'services', 'inventory'];
             const inactiveClass = 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
             const activeClass = 'bg-red-600 text-white shadow-md';
             
-            // Update Button Classes
-            const updateBtnClasses = (btn, isActive) => {
-                let classes = btn.className.split(' ').filter(c => !c.startsWith('bg-') && !c.startsWith('text-') && c !== 'shadow-md').join(' ');
-                btn.className = classes + ` transition flex-1 py-2 text-sm font-bold rounded flex items-center justify-center gap-2 ${isActive ? activeClass : inactiveClass}`;
-            };
-            updateBtnClasses(itemsBtn, isItems);
-            updateBtnClasses(servicesBtn, !isItems);
+            tabs.forEach(t => {
+                const content = document.getElementById(`shop-content-${t}`);
+                const btn = document.getElementById(`shop-tab-${t}`);
+                const isActive = (t === tab);
+                
+                if (btn) {
+                    let classes = btn.className.split(' ').filter(c => !c.startsWith('bg-') && !c.startsWith('text-') && c !== 'shadow-md').join(' ');
+                    btn.className = classes + ` transition flex-1 py-2 text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 ${isActive ? activeClass : inactiveClass}`;
+                }
+
+                if (content) {
+                    if (isActive) {
+                        content.classList.remove('tab-content-leave');
+                        content.classList.add('tab-content-enter');
+                        content.style.position = 'relative'; 
+                        content.style.display = 'block';
+                    } else {
+                        content.classList.remove('tab-content-enter');
+                        content.classList.add('tab-content-leave');
+                        setTimeout(() => { 
+                            if(state.activeShopTab !== t) { 
+                                content.style.display = 'none'; 
+                                content.style.position = 'absolute';
+                            }
+                        }, 300);
+                    }
+                }
+            });
             
-            // FIX #2.2: Actualizar el botón de compartir
+            const shareBtnContainer = document.getElementById('share-btn-container');
             if (shareBtnContainer) {
-                if (isItems) {
+                if (tab === 'items') {
+                    updateShoppingTotal();
                     shareBtnContainer.innerHTML = `
-                        <button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
-                            <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Lista</span>
+                        <button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
+                            <i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Lista</span>
                         </button>
-                        <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                            <i class="fa-solid fa-share-nodes text-red-400"></i> Compartir Productos
+                        <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Compartir Productos</span>
                         </button>`;
-                } else {
-                    updateServiceTotal(); // Asegurar que el total esté visible si se cambia a Servicios
+                } else if (tab === 'services') {
+                    updateServiceTotal(); 
                     shareBtnContainer.innerHTML = `
-                        <button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
-                            <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Servicios</span>
+                        <button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
+                            <i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Servicios</span>
                         </button>
-                        <button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                            <i class="fa-solid fa-share-nodes text-blue-400"></i> Compartir Servicios
+                        <button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes text-blue-400"></i> <span class="hidden sm:inline">Compartir Servicios</span>
+                        </button>`;
+                } else if (tab === 'inventory') {
+                    updateInventoryTotal();
+                    shareBtnContainer.innerHTML = `
+                        <button onclick="clearInventoryList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Inventario">
+                            <i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span>
+                        </button>
+                        <button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Compartir Inventario</span>
                         </button>`;
                 }
             }
-
-
-            // Apply transitions for smooth content swap (Opacity + Y-translation)
-            if (isItems) {
-                // Hide Services, Show Items
-                servicesContent.classList.remove('tab-content-enter');
-                servicesContent.classList.add('tab-content-leave');
-                itemsContent.classList.remove('tab-content-leave');
-                itemsContent.classList.add('tab-content-enter');
-
-                itemsContent.style.position = 'relative'; // Active content pushes height
-                itemsContent.style.display = 'block';
-
-                setTimeout(() => { 
-                    servicesContent.style.display = 'none'; 
-                    servicesContent.style.position = 'absolute'; // Hidden content collapses
-                }, 300); // Wait for transition to finish
-            } else {
-                // Hide Items, Show Services
-                itemsContent.classList.remove('tab-content-enter');
-                itemsContent.classList.add('tab-content-leave');
-                servicesContent.classList.remove('tab-content-leave');
-                servicesContent.classList.add('tab-content-enter');
-
-                servicesContent.style.position = 'relative'; 
-                servicesContent.style.display = 'block';
-
-                setTimeout(() => { 
-                    itemsContent.style.display = 'none'; 
-                    itemsContent.style.position = 'absolute';
-                }, 300);
-            }
         }
         
-        // --- FUNCIÓN PRINCIPAL DE VISTA DE COMPRAS CON TABS ---
         function getShoppingListHTML() {
             const isItems = state.activeShopTab === 'items';
-            const itemsActive = isItems ? 'bg-red-600 text-white shadow-md' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
-            const servicesActive = !isItems ? 'bg-red-600 text-white shadow-md' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
+            const isServices = state.activeShopTab === 'services';
+            const isInventory = state.activeShopTab === 'inventory';
+            
+            const activeClass = 'bg-red-600 text-white shadow-md';
+            const inactiveClass = 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
+
+            const itemsActive = isItems ? activeClass : inactiveClass;
+            const servicesActive = isServices ? activeClass : inactiveClass;
+            const inventoryActive = isInventory ? activeClass : inactiveClass;
 
             const itemsContent = getShoppingListContentHTML();
             const servicesContent = getServiceListContentHTML();
+            const inventoryContent = getInventoryListContentHTML();
 
-            // Determine initial classes for local tab switch (must be 'block' on initial render for correct height)
-            const itemsInitialClass = isItems 
-                ? 'tab-content-transition tab-content-enter relative block' 
-                : 'tab-content-transition tab-content-leave absolute hidden';
-            const servicesInitialClass = !isItems 
-                ? 'tab-content-transition tab-content-enter relative block' 
-                : 'tab-content-transition tab-content-leave absolute hidden';
+            const itemsInitialClass = isItems ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
+            const servicesInitialClass = isServices ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
+            const inventoryInitialClass = isInventory ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
             
-            // FIX #2: Generación inicial del botón de compartir
-            const shareButtonsHTML = isItems 
-                ? `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
-                     <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Lista</span>
-                   </button>
-                   <button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                     <i class="fa-solid fa-share-nodes text-red-400"></i> Compartir Productos
-                   </button>`
-                : `<button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-4 py-2 rounded text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista">
-                     <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Limpiar Servicios</span>
-                   </button>
-                   <button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                     <i class="fa-solid fa-share-nodes text-blue-400"></i> Compartir Servicios
-                   </button>`;
-
+            let shareButtonsHTML = '';
+            if (isItems) {
+                shareButtonsHTML = `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Lista</span></button><button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Compartir Productos</span></button>`;
+            } else if (isServices) {
+                shareButtonsHTML = `<button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Servicios</span></button><button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-blue-400"></i> <span class="hidden sm:inline">Compartir Servicios</span></button>`;
+            } else {
+                shareButtonsHTML = `<button onclick="clearInventoryList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Inventario"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span></button><button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Compartir Inventario</span></button>`;
+            }
 
             return `
                 <div class="pb-24 fade-enter">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
-                            <i class="fa-solid fa-cart-shopping text-red-600"></i> Gestión de Costos
+                            <i class="fa-solid fa-boxes-stacked text-red-600"></i> Gestión
                         </h2>
-                        <div class="flex gap-2" id="share-btn-container">
+                        <div class="flex gap-2 w-full sm:w-auto justify-end" id="share-btn-container">
                             ${shareButtonsHTML}
                         </div>
                     </div>
 
-                    <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner">
-                        <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="flex-1 py-2 text-sm font-bold rounded transition ${itemsActive} flex items-center justify-center gap-2"><i class="fa-solid fa-cart-arrow-down"></i> Productos (Lista de Compras)</button>
-                        <button onclick="setActiveShopTab('services')" id="shop-tab-services" class="flex-1 py-2 text-sm font-bold rounded transition ${servicesActive} flex items-center justify-center gap-2"><i class="fa-solid fa-tags"></i> Servicios (Costos)</button>
+                    <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner gap-1">
+                        <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${itemsActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-cart-arrow-down hidden sm:inline"></i> Compras</button>
+                        <button onclick="setActiveShopTab('services')" id="shop-tab-services" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${servicesActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-tags hidden sm:inline"></i> Servicios</button>
+                        <button onclick="setActiveShopTab('inventory')" id="shop-tab-inventory" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${inventoryActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-box-open hidden sm:inline"></i> Inventario</button>
                     </div>
 
                     <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
@@ -1874,26 +2028,23 @@
                         <div id="shop-content-services" class="${servicesInitialClass}">
                             ${servicesContent}
                         </div>
+                        <div id="shop-content-inventory" class="${inventoryInitialClass}">
+                            ${inventoryContent}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        // Overwrite the original setActiveShopTab to check if elements are present and switch locally
         function setActiveShopTab(tab) {
             if (state.view === 'shopping_list' && document.getElementById('shop-tab-items')) {
-                // Si ya estamos en la vista de compras y los elementos del tab están renderizados,
-                // realizamos un cambio de tab local con transición CSS.
                 switchShopTab(tab);
             } else {
-                // En caso contrario, o si es la primera vez que entramos a la vista,
-                // realizamos un render completo de la vista (comportamiento original).
                 state.activeShopTab = tab;
                 renderView('shopping_list');
             }
         }
 
-        // --- FUNCIÓN DE GENERACIÓN DE PDF COMPARTIBLE (REFACTORIZADA) ---
         async function generateCleanPDF(contentHTML, title, fileName) {
             showToast("Generando PDF...", "fa-spinner fa-spin");
 
@@ -1901,7 +2052,7 @@
             tempContainer.style.position = 'fixed';
             tempContainer.style.left = '-9999px';
             tempContainer.style.top = '0';
-            tempContainer.style.width = '595px'; // Ancho A4
+            tempContainer.style.width = '595px'; 
             tempContainer.style.backgroundColor = '#ffffff';
             tempContainer.style.zIndex = '-1';
             tempContainer.innerHTML = contentHTML;
@@ -1941,7 +2092,6 @@
             } catch (err) {
                 console.error("Error al generar/compartir PDF:", err);
                 showToast("Error al generar PDF", "fa-triangle-exclamation");
-                // Fallback de descarga simple en caso de error crítico
                 try {
                     const { jsPDF } = window.jspdf;
                     const fallbackDoc = new jsPDF();
@@ -1961,12 +2111,22 @@
                 return;
             }
 
-            const listItemsHTML = state.shoppingList.map((item) => `
+            const subtotal = state.shoppingList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+            const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const ivaDisplay = `$${iva.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const subtotalDisplay = `$${subtotal.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+
+            const listItemsHTML = state.shoppingList.map((item) => {
+                const sub = (parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1);
+                return `
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.product}</td>
-                    <td style="padding: 10px 15px; color: #333; text-align: right;">${item.qty}</td>
+                    <td style="padding: 10px 15px; color: #333; text-align: center;">${item.qty}</td>
+                    <td style="padding: 10px 15px; color: #dc2626; font-weight: 700; text-align: right; width: 120px;">$${sub.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
                 </tr>
-            `).join('');
+            `}).join('');
 
             const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
             const noteText = state.shopNote ? `
@@ -1983,13 +2143,22 @@
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
                         <thead>
                             <tr style="background-color: #dc2626; color: white; font-weight: 700;">
-                                <th style="padding: 10px 15px; text-align: left;">Producto</th>
-                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Cantidad</th>
+                                <th style="padding: 10px 15px; text-align: left;">Producto / Repuesto</th>
+                                <th style="padding: 10px 15px; text-align: center; width: 80px;">Cant.</th>
+                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${listItemsHTML}
                         </tbody>
+                        <tfoot>
+                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
+                                <td colspan="2" style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL (+IVA)</td>
+                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}
+                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA (19%): ${ivaDisplay}</div>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                     
                     ${noteText}
@@ -2006,8 +2175,13 @@
                 return;
             }
             
-            const total = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
             const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const ivaDisplay = `$${iva.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const subtotalDisplay = `$${subtotal.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            
             const listItemsHTML = state.serviceList.map((item) => `
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.service}</td>
@@ -2041,8 +2215,10 @@
                         </tbody>
                         <tfoot>
                              <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL</td>
-                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}</td>
+                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL (+IVA)</td>
+                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}
+                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA (19%): ${ivaDisplay}</div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
@@ -2055,12 +2231,77 @@
             await generateCleanPDF(contentHTML, title, fileName);
         }
 
+        async function downloadInventoryPDF() {
+            if (state.inventoryList.length === 0) {
+                showToast("El inventario está vacío", "fa-triangle-exclamation");
+                return;
+            }
+            
+            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+            const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const ivaDisplay = `$${iva.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const subtotalDisplay = `$${subtotal.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            
+            const listItemsHTML = state.inventoryList.map((item) => {
+                const sub = (parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0);
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.product}</td>
+                    <td style="padding: 10px 15px; color: #333; text-align: center;">${item.qty}</td>
+                    <td style="padding: 10px 15px; color: #16a34a; font-weight: 700; text-align: right; width: 120px;">$${sub.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
+                </tr>
+            `}).join('');
+
+            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
+            const noteText = state.shopNote ? `
+                <div style="margin-top: 30px;">
+                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
+                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
+                </div>` : '';
+
+            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Inventario') || "Reporte de Inventario";
+
+            const contentHTML = `
+                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
+                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">${title}</h1>
+                    ${addressText}
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <thead>
+                            <tr style="background-color: #16a34a; color: white; font-weight: 700;">
+                                <th style="padding: 10px 15px; text-align: left;">Ítem / Repuesto</th>
+                                <th style="padding: 10px 15px; text-align: center; width: 80px;">Stock</th>
+                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${listItemsHTML}
+                        </tbody>
+                        <tfoot>
+                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
+                                <td colspan="2" style="padding: 10px 15px; text-align: right; font-size: 16px;">VALOR TOTAL (+IVA)</td>
+                                <td style="padding: 10px 15px; color: #16a34a; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}
+                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA (19%): ${ivaDisplay}</div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    ${noteText}
+                </div>
+            `;
+            
+            const fileName = `Inventario_${new Date().toISOString().slice(0,10)}.pdf`;
+            await generateCleanPDF(contentHTML, title, fileName);
+        }
+
         function performContentSwap(viewName) {
             const container = document.getElementById('app-container');
             state.view = viewName; 
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
-            // Usamos una clase wrapper para identificar el contenido principal que se reemplaza
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
             if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; 
             let contentHTML = '';
@@ -2087,21 +2328,25 @@
                 updateImagePreview();
             } 
             if (viewName === 'shopping_list') {
-                 // Inicializar el total de servicios al cargar la vista
+                updateShoppingTotal();
                 updateServiceTotal(); 
+                updateInventoryTotal();
                 
-                // FIX #2.3: Configuración inicial de visibilidad para permitir la animación
                 const itemsContent = document.getElementById('shop-content-items');
                 const servicesContent = document.getElementById('shop-content-services');
+                const inventoryContent = document.getElementById('shop-content-inventory');
                 
-                if (state.activeShopTab === 'items') {
-                    if(servicesContent) { servicesContent.style.display = 'none'; servicesContent.style.position = 'absolute'; }
-                    if(itemsContent) { itemsContent.style.display = 'block'; itemsContent.style.position = 'relative'; }
-                } else {
-                    if(itemsContent) { itemsContent.style.display = 'none'; itemsContent.style.position = 'absolute'; }
-                    if(servicesContent) { servicesContent.style.display = 'block'; servicesContent.style.position = 'relative'; }
+                if(itemsContent) { itemsContent.style.display = 'none'; itemsContent.style.position = 'absolute'; }
+                if(servicesContent) { servicesContent.style.display = 'none'; servicesContent.style.position = 'absolute'; }
+                if(inventoryContent) { inventoryContent.style.display = 'none'; inventoryContent.style.position = 'absolute'; }
+                
+                if (state.activeShopTab === 'items' && itemsContent) {
+                    itemsContent.style.display = 'block'; itemsContent.style.position = 'relative'; 
+                } else if (state.activeShopTab === 'services' && servicesContent) {
+                    servicesContent.style.display = 'block'; servicesContent.style.position = 'relative'; 
+                } else if (state.activeShopTab === 'inventory' && inventoryContent) {
+                    inventoryContent.style.display = 'block'; inventoryContent.style.position = 'relative'; 
                 }
-
             }
             saveData();
         }
@@ -2110,9 +2355,7 @@
             const container = document.getElementById('app-container');
             const currentWrapper = container.querySelector('.app-view-wrapper');
 
-            // 1. Si hay contenido previo, iniciamos el fade-out
             if (currentWrapper && state.view !== null) {
-                // Prevenimos que el contenido entrante se muestre si es la misma vista
                 if (state.view === viewName) {
                     performContentSwap(viewName);
                     return;
@@ -2121,12 +2364,10 @@
                 currentWrapper.classList.remove('fade-enter');
                 currentWrapper.classList.add('fade-leave');
                 
-                // 2. Esperamos la duración del fade-out (200ms) para realizar el swap
                 setTimeout(() => {
                     performContentSwap(viewName);
                 }, 200); 
             } else {
-                // 3. Primer renderizado o no hay contenido previo, hacemos swap inmediatamente
                 performContentSwap(viewName);
             }
         }

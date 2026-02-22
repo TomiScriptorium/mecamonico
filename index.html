@@ -2486,14 +2486,22 @@
             // 1. Órdenes / Taller
             (state.patients || []).forEach(p => {
                 if (p.name.toLowerCase().includes(term) || p.room.toLowerCase().includes(term) || p.dx.toLowerCase().includes(term)) {
-                    results.push({ type: 'Vehículo', title: `${p.name} (${p.room})`, desc: p.dx, icon: 'fa-car-side', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30', action: () => { renderView('work_orders'); setTimeout(() => highlightCard(`wo-card-${p.id}`), 400); } });
+                    results.push({ type: 'Vehículo', title: `${p.name} (${p.room})`, desc: p.dx, icon: 'fa-car-side', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30', 
+                    action: () => { 
+                        renderView('work_orders'); 
+                        setTimeout(() => highlightElement(`wo-card-${p.id}`), 500); 
+                    } });
                 }
             });
 
             // 2. Inventario
-            (state.inventoryList || []).forEach(i => {
+            (state.inventoryList || []).forEach((i, idx) => {
                 if (i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term)) || (i.category && i.category.toLowerCase().includes(term))) {
-                    results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | SKU: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', action: () => { setActiveShopTab('inventory'); } });
+                    results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | SKU: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', 
+                    action: () => { 
+                        setActiveShopTab('inventory'); 
+                        setTimeout(() => highlightElement(`inventory-row-${idx}`), 500); 
+                    } });
                 }
             });
 
@@ -2502,28 +2510,50 @@
                 if (n.text.toLowerCase().includes(term)) {
                     let preview = n.text.replace(/\n/g, ' ');
                     if(preview.length > 40) preview = preview.substring(0, 40) + '...';
-                    results.push({ type: 'Apunte', title: preview, desc: 'Bitácora Técnica', icon: 'fa-book-open', color: 'text-yellow-600 dark:text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30', action: () => { renderView('notes'); setTimeout(() => highlightCard(`note-${n.id}`), 400); } });
+                    results.push({ type: 'Apunte', title: preview, desc: 'Bitácora Técnica', icon: 'fa-book-open', color: 'text-yellow-600 dark:text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30', 
+                    action: () => { 
+                        state.currentFolderId = 'all'; // Forzamos ir a la vista general de notas
+                        renderView('notes'); 
+                        setTimeout(() => highlightElement(`note-${n.id}`), 500); 
+                    } });
                 }
             });
 
             // 4. Manuales PDF
             (state.pdfs || []).forEach(p => {
                 if (p.title.toLowerCase().includes(term)) {
-                    results.push({ type: 'Manual', title: p.title, desc: 'Documentación PDF', icon: 'fa-file-pdf', color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-900/30', action: () => { setInfoTab('pdf'); } });
+                    results.push({ type: 'Manual', title: p.title, desc: 'Documentación PDF', icon: 'fa-file-pdf', color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-900/30', 
+                    action: () => { 
+                        state.activeInfoTab = 'pdf'; // Forzamos la vista de PDF
+                        if(state.view !== 'links') renderView('links');
+                        else setInfoTab('pdf');
+                        // Abrimos directamente el PDF
+                        setTimeout(() => openPdfReader(p.id), 500); 
+                    } });
                 }
             });
 
             // 5. Enlaces
             (state.links || []).forEach(l => {
                 if (l.title.toLowerCase().includes(term) || l.url.toLowerCase().includes(term)) {
-                    results.push({ type: 'Recurso Web', title: l.title, desc: l.url, icon: 'fa-link', color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30', action: () => { setInfoTab('web'); } });
+                    results.push({ type: 'Recurso Web', title: l.title, desc: l.url, icon: 'fa-link', color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30', 
+                    action: () => { 
+                        state.activeInfoTab = 'web';
+                        if(state.view !== 'links') renderView('links');
+                        else setInfoTab('web');
+                        setTimeout(() => highlightElement(`link-${l.id}`), 500); 
+                    } });
                 }
             });
 
             // 6. Tareas Pendientes
             (state.todos || []).forEach(t => {
                 if (t.text.toLowerCase().includes(term)) {
-                    results.push({ type: 'Tarea', title: t.text, desc: t.done ? 'Completada' : 'Pendiente', icon: 'fa-clipboard-check', color: 'text-neutral-500', bg: 'bg-neutral-200 dark:bg-neutral-700', action: () => { renderView('todo'); } });
+                    results.push({ type: 'Tarea', title: t.text, desc: t.done ? 'Completada' : 'Pendiente', icon: 'fa-clipboard-check', color: 'text-neutral-500', bg: 'bg-neutral-200 dark:bg-neutral-700', 
+                    action: () => { 
+                        renderView('todo'); 
+                        setTimeout(() => highlightElement(`todo-${t.id}`), 500); 
+                    } });
                 }
             });
 
@@ -2582,15 +2612,26 @@
             }
         }
 
-        function highlightCard(id) {
+        function highlightElement(id) {
             const el = document.getElementById(id);
             if(el) {
                 el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                // Transición visual temporal para indicar el resultado encontrado
-                el.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20', 'transition-all', 'duration-500');
-                setTimeout(() => {
-                    el.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20');
-                }, 1500);
+                
+                // Las filas de tabla (TR) necesitan un resaltado de color de fondo, no bordes
+                const isRow = el.tagName.toLowerCase() === 'tr';
+                
+                if (isRow) {
+                    el.classList.add('bg-red-100', 'dark:bg-red-900/50', 'transition-colors', 'duration-500');
+                    setTimeout(() => {
+                        el.classList.remove('bg-red-100', 'dark:bg-red-900/50');
+                    }, 1500);
+                } else {
+                    // Tarjetas genéricas usan el anillo de enfoque normal
+                    el.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20', 'transition-all', 'duration-500');
+                    setTimeout(() => {
+                        el.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20');
+                    }, 1500);
+                }
             }
         }
 

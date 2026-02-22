@@ -227,12 +227,15 @@
             </div>
         </div>
         
-        <!-- BUSCADOR UNIVERSAL (Móvil Expandible - Ahora como Overlay Flotante) -->
-        <div id="mobile-search-container" class="hidden absolute top-full left-0 w-full px-4 py-3 bg-neutral-900/95 backdrop-blur-md z-[70] border-b border-neutral-800 md:hidden shadow-2xl">
-            <div class="relative">
-                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                <input type="text" id="mobile-search-input" placeholder="Buscar en todo el sistema..." class="w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 outline-none transition shadow-inner" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
-                <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
+        <!-- BUSCADOR UNIVERSAL (Móvil Expandible - Ahora como Overlay Flotante Fijo) -->
+        <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-neutral-900/95 backdrop-blur-md z-[100] border-b border-neutral-800 md:hidden shadow-2xl">
+            <div class="flex items-center gap-2 p-3">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                    <input type="text" id="mobile-search-input" placeholder="Buscar en la app..." class="w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-[16px] text-white focus:ring-2 focus:ring-red-500 outline-none transition shadow-inner" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
+                    <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
+                </div>
+                <button onclick="toggleMobileSearch()" class="text-neutral-400 hover:text-white shrink-0 px-2 py-1 flex items-center justify-center"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
         </div>
     </header>
@@ -2551,10 +2554,12 @@
                 const inputEl = document.getElementById(`${mode}-search-input`);
                 if (inputEl) {
                     inputEl.value = '';
-                    inputEl.blur(); // Quita el foco para ocultar el teclado en móviles
+                    inputEl.blur(); // Ocultar el teclado en móviles
                 }
                 document.getElementById(`${mode}-search-results`).classList.add('hidden');
-                if(mode === 'mobile') toggleMobileSearch();
+                if(mode === 'mobile') {
+                    document.getElementById('mobile-search-container').classList.add('hidden');
+                }
                 action();
             }
         }
@@ -2572,6 +2577,8 @@
             container.classList.toggle('hidden');
             if (!container.classList.contains('hidden')) {
                 setTimeout(() => document.getElementById('mobile-search-input').focus(), 50);
+            } else {
+                document.getElementById('mobile-search-input').blur();
             }
         }
 

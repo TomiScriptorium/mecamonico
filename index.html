@@ -1586,9 +1586,14 @@
 
         function getInventoryRowHTML(item, index) {
             const price = parseFloat(item.price) || 0;
+            const salePrice = parseFloat(item.salePrice) || 0;
             const qty = parseFloat(item.qty) || 0;
             const minQty = parseFloat(item.minQty) || 0;
-            const total = price * qty;
+            const soldQty = parseFloat(item.soldQty) || 0;
+            
+            const totalCost = price * qty;
+            const realProfit = soldQty * (salePrice - price);
+            
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
 
@@ -1602,41 +1607,59 @@
             }
 
             return `
-                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter group">
-                    <td class="p-3">
+                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition duration-300 item-enter group">
+                    <td class="p-3 w-[30%]">
                         <div class="flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-mono mb-1"><i class="fa-solid fa-barcode mr-1"></i>${sku} <span class="mx-1">&bull;</span> <i class="fa-solid fa-tag mr-1"></i>${category}</span>
                             <input type="text" value="${item.product}" onchange="updateInventoryItem(${index}, 'product', this.value)" class="bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200 text-sm w-full focus:text-green-600 transition-colors" placeholder="Nombre del Ítem">
                         </div>
                     </td>
-                    <td class="p-3 text-center align-middle">
+                    <td class="p-3 text-center align-middle w-[15%]">
                         <div class="flex flex-col items-center justify-center">
                             <input type="number" value="${qty}" onchange="updateInventoryItem(${index}, 'qty', this.value)" class="w-16 bg-neutral-100 dark:bg-neutral-800 outline-none font-black text-center text-neutral-700 dark:text-neutral-200 rounded p-1 focus:ring-2 focus:ring-green-500 transition" min="0">
                             ${statusBadge}
                         </div>
                     </td>
-                    <td class="p-3 text-right align-middle">
-                        <div class="flex flex-col items-end">
-                            <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-24 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
-                            <span class="text-xs text-green-600 dark:text-green-400 font-black mt-1 tracking-tight">Total: $${total.toLocaleString('es-CL')}</span>
+                    <td class="p-3 align-middle w-[20%]">
+                        <div class="flex flex-col gap-1 items-end pr-2">
+                            <div class="flex items-center justify-between w-full max-w-[120px]">
+                                <span class="text-[10px] text-neutral-400 font-bold uppercase">Costo:</span>
+                                <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
+                            </div>
+                            <div class="flex items-center justify-between w-full max-w-[120px]">
+                                <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
+                                <input type="number" value="${salePrice}" onchange="updateInventoryItem(${index}, 'salePrice', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                            </div>
                         </div>
                     </td>
-                    <td class="p-3 w-10 text-center align-middle">
-                        <button onclick="deleteInventoryItem(${index})" class="w-8 h-8 rounded-full text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-50 group-hover:opacity-100"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-3 align-middle w-[20%]">
+                        <div class="flex flex-col gap-1 items-end">
+                            <div class="flex items-center justify-between w-full max-w-[120px]">
+                                <span class="text-[10px] text-neutral-400 font-bold uppercase" title="Unidades Vendidas">Vendidos:</span>
+                                <input type="number" value="${soldQty}" onchange="updateInventoryItem(${index}, 'soldQty', this.value)" class="w-16 bg-transparent outline-none font-bold text-right text-purple-600 dark:text-purple-400 text-sm focus:border-b border-purple-500 transition" min="0">
+                            </div>
+                            <span class="text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 w-[15%] text-center align-middle">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="sellInventoryItem(${index})" class="w-8 h-8 rounded bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition shadow-sm flex items-center justify-center opacity-80 group-hover:opacity-100 active:scale-95" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-sm"></i></button>
+                            <button onclick="deleteInventoryItem(${index})" class="w-8 h-8 rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-30 group-hover:opacity-100 flex items-center justify-center active:scale-95"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
                     </td>
                 </tr>
             `;
         }
 
         function updateInventoryItem(index, field, value) {
-            if (field === 'price' || field === 'qty' || field === 'minQty') {
+            if (field === 'price' || field === 'salePrice' || field === 'qty' || field === 'minQty' || field === 'soldQty') {
                 state.inventoryList[index][field] = parseFloat(value) || 0;
             } else {
                 state.inventoryList[index][field] = value;
             }
             saveData();
             
-            // Re-render specifically this row to update badges correctly
+            // Re-render specifically this row to maintain fluidity (no full page refresh)
             const row = document.getElementById(`inventory-row-${index}`);
             if(row) {
                 row.outerHTML = getInventoryRowHTML(state.inventoryList[index], index);
@@ -1644,10 +1667,38 @@
             updateInventoryTotal();
         }
 
+        function sellInventoryItem(index) {
+            const item = state.inventoryList[index];
+            if (parseFloat(item.qty) > 0) {
+                item.qty = (parseFloat(item.qty) || 0) - 1;
+                item.soldQty = (parseFloat(item.soldQty) || 0) + 1;
+                saveData();
+                
+                // Actualización quirúrgica de la fila
+                const row = document.getElementById(`inventory-row-${index}`);
+                if (row) {
+                    row.outerHTML = getInventoryRowHTML(item, index);
+                    // Brillo verde temporal indicando venta exitosa
+                    const newRow = document.getElementById(`inventory-row-${index}`);
+                    if (newRow) {
+                        newRow.classList.add('bg-green-100', 'dark:bg-green-900/50');
+                        setTimeout(() => newRow.classList.remove('bg-green-100', 'dark:bg-green-900/50'), 400);
+                    }
+                }
+                updateInventoryTotal();
+                showToast("Venta registrada", "fa-hand-holding-dollar");
+            } else {
+                showToast("Sin stock para vender", "fa-triangle-exclamation");
+            }
+        }
+
         function deleteInventoryItem(index) {
             state.inventoryList.splice(index, 1);
             saveData();
-            document.getElementById('inventory-table-body').innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
+            const tbody = document.getElementById('inventory-table-body');
+            if (tbody) {
+                tbody.innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="5" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
+            }
             updateInventoryTotal();
         }
         
@@ -1658,6 +1709,7 @@
             const qtyInput = document.getElementById('new-inv-qty');
             const minInput = document.getElementById('new-inv-min');
             const priceInput = document.getElementById('new-inv-price');
+            const salePriceInput = document.getElementById('new-inv-sale-price');
 
             const sku = skuInput.value.trim() || 'N/A';
             const product = prodInput.value.trim();
@@ -1665,6 +1717,7 @@
             const qty = parseFloat(qtyInput.value) || 0;
             const minQty = parseFloat(minInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
+            const salePrice = parseFloat(salePriceInput.value) || 0;
 
             if (!product) { 
                 showToast("Falta nombre del producto", "fa-triangle-exclamation"); 
@@ -1672,30 +1725,62 @@
                 return; 
             }
 
-            const newItem = { sku, product, category, qty, minQty, price };
+            const newItem = { sku, product, category, qty, minQty, price, salePrice, soldQty: 0 };
             state.inventoryList.unshift(newItem); // Agregamos al inicio
             saveData();
             
-            // Re-renderizamos toda la vista para actualizar el Dashboard y la tabla
-            document.getElementById('shop-content-inventory').innerHTML = getInventoryListContentHTML();
+            // Actualización fluida sin recargar todo el contenedor
+            const tbody = document.getElementById('inventory-table-body');
+            if (tbody) {
+                const emptyMsg = document.getElementById('empty-inventory-msg');
+                if (emptyMsg) emptyMsg.remove();
+                tbody.innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('');
+            }
+            
+            updateInventoryTotal();
+            
+            // Limpiar inputs
+            skuInput.value = '';
+            prodInput.value = '';
+            qtyInput.value = '';
+            priceInput.value = '';
+            salePriceInput.value = '';
+            prodInput.focus();
             
             showToast("Ítem Registrado", "fa-check");
         }
 
         function updateInventoryTotal() {
-            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
-            const iva = Math.round(subtotal * 0.19);
-            const total = subtotal + iva;
+            const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
             
-            // Actualizar KPIs si existen en la vista
+            // La ganancia real ahora se basa solo en lo que sí se vendió (soldQty)
+            const totalProfit = state.inventoryList.reduce((sum, item) => {
+                const p = parseFloat(item.price) || 0;
+                const sp = parseFloat(item.salePrice) || 0;
+                const sq = parseFloat(item.soldQty) || 0;
+                return sum + (sq * (sp - p));
+            }, 0);
+            
+            // Update UI fluidly via innerText
             const kpiItems = document.getElementById('inv-kpi-items');
             if(kpiItems) kpiItems.innerText = state.inventoryList.length;
             
             const kpiAlerts = document.getElementById('inv-kpi-alerts');
             if(kpiAlerts) kpiAlerts.innerText = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
             
-            const kpiValue = document.getElementById('inv-kpi-value');
-            if(kpiValue) kpiValue.innerText = `$${total.toLocaleString('es-CL')}`;
+            const kpiCost = document.getElementById('inv-kpi-cost');
+            if(kpiCost) {
+                kpiCost.innerText = `$${totalCost.toLocaleString('es-CL')}`;
+                kpiCost.title = `$${totalCost.toLocaleString('es-CL')}`;
+            }
+
+            const kpiProfit = document.getElementById('inv-kpi-profit');
+            if(kpiProfit) {
+                kpiProfit.innerText = `$${totalProfit.toLocaleString('es-CL')}`;
+                kpiProfit.title = `$${totalProfit.toLocaleString('es-CL')}`;
+                if (totalProfit < 0) kpiProfit.className = "text-lg sm:text-xl font-black text-red-500 truncate max-w-[100px] sm:max-w-full leading-none";
+                else kpiProfit.className = "text-lg sm:text-xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none";
+            }
         }
 
         function clearInventoryList() {
@@ -1704,7 +1789,12 @@
                 state.inventoryList = [];
                 saveData();
                 closeConfirmModal();
-                document.getElementById('shop-content-inventory').innerHTML = getInventoryListContentHTML();
+                
+                const tbody = document.getElementById('inventory-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr id="empty-inventory-msg"><td colspan="5" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
+                }
+                updateInventoryTotal();
                 showToast("Inventario limpio", "fa-eraser");
             });
         }
@@ -1809,9 +1899,14 @@
 
         function getInventoryListContentHTML() {
             const inventoryHTML = state.inventoryList.map((item, index) => getInventoryRowHTML(item, index)).join('');
-            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
-            const iva = Math.round(subtotal * 0.19);
-            const total = subtotal + iva;
+            
+            const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            const totalProfit = state.inventoryList.reduce((sum, item) => {
+                const p = parseFloat(item.price) || 0;
+                const sp = parseFloat(item.salePrice) || 0;
+                const sq = parseFloat(item.soldQty) || 0;
+                return sum + (sq * (sp - p));
+            }, 0);
             
             const totalItems = state.inventoryList.length;
             const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
@@ -1819,27 +1914,34 @@
             return `
                 <div class="fade-enter">
                     <!-- KPI Dashboard -->
-                    <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                         <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-neutral-500 flex justify-between items-center group">
                             <div>
                                 <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Catálogo</p>
-                                <p class="text-2xl sm:text-3xl font-black text-neutral-800 dark:text-neutral-100 leading-none" id="inv-kpi-items">${totalItems}</p>
+                                <p class="text-xl sm:text-2xl font-black text-neutral-800 dark:text-neutral-100 leading-none" id="inv-kpi-items">${totalItems}</p>
                             </div>
-                            <i class="fa-solid fa-boxes-stacked text-2xl sm:text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
+                            <i class="fa-solid fa-boxes-stacked text-2xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
                         </div>
                         <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-yellow-500 flex justify-between items-center group">
                             <div>
-                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alertas</p>
-                                <p class="text-2xl sm:text-3xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-300 dark:text-neutral-700'} leading-none" id="inv-kpi-alerts">${lowStockCount}</p>
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alertas Stock</p>
+                                <p class="text-xl sm:text-2xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-300 dark:text-neutral-700'} leading-none" id="inv-kpi-alerts">${lowStockCount}</p>
                             </div>
-                            <i class="fa-solid fa-triangle-exclamation text-2xl sm:text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
+                            <i class="fa-solid fa-triangle-exclamation text-2xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 flex justify-between items-center group overflow-hidden">
+                            <div class="z-10 relative">
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Valor del stock en bodega">Inversión Actual</p>
+                                <p class="text-lg sm:text-xl font-black text-blue-600 truncate max-w-[100px] sm:max-w-full leading-none" id="inv-kpi-cost" title="$${totalCost.toLocaleString('es-CL')}">$${totalCost.toLocaleString('es-CL')}</p>
+                            </div>
+                            <i class="fa-solid fa-money-bill-trend-up text-3xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
                         </div>
                         <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-green-500 flex justify-between items-center group overflow-hidden">
                             <div class="z-10 relative">
-                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Valorizado</p>
-                                <p class="text-lg sm:text-2xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none" id="inv-kpi-value" title="$${total.toLocaleString('es-CL')}">$${total.toLocaleString('es-CL')}</p>
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Ganancias generadas por unidades vendidas">Ganancia Real</p>
+                                <p class="text-lg sm:text-xl font-black ${totalProfit >= 0 ? 'text-green-600' : 'text-red-500'} truncate max-w-[100px] sm:max-w-full leading-none" id="inv-kpi-profit" title="$${totalProfit.toLocaleString('es-CL')}">$${totalProfit.toLocaleString('es-CL')}</p>
                             </div>
-                            <i class="fa-solid fa-sack-dollar text-3xl sm:text-4xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
+                            <i class="fa-solid fa-sack-dollar text-3xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
                         </div>
                     </div>
 
@@ -1853,9 +1955,9 @@
                                 <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">SKU/Cód.</label>
                                 <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
                             </div>
-                            <div class="lg:col-span-3">
+                            <div class="lg:col-span-2">
                                 <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
-                                <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro de Aceite XZ">
+                                <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro Aceite">
                             </div>
                             <div class="lg:col-span-2">
                                 <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Categoría</label>
@@ -1867,7 +1969,7 @@
                                     <option value="Otros">Otros</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-3 lg:col-span-2">
+                            <div class="grid grid-cols-2 gap-2 lg:col-span-2">
                                 <div>
                                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Stock</label>
                                     <input type="number" id="new-inv-qty" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="0" min="0">
@@ -1877,9 +1979,15 @@
                                     <input type="number" id="new-inv-min" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="1" min="0">
                                 </div>
                             </div>
-                            <div class="lg:col-span-2">
-                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Unit.</label>
-                                <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
+                            <div class="grid grid-cols-2 gap-2 lg:col-span-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Un.</label>
+                                    <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Venta Un.</label>
+                                    <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
+                                </div>
                             </div>
                             <div class="lg:col-span-1 sm:col-span-2 lg:mt-0 mt-2">
                                 <button onclick="addInventoryItem()" class="w-full h-full min-h-[42px] bg-green-600 hover:bg-green-700 text-white font-bold rounded transition shadow-md text-sm flex items-center justify-center" title="Guardar"><i class="fa-solid fa-save"></i></button>
@@ -1898,14 +2006,15 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                    <th class="p-3 font-bold uppercase tracking-wider w-[40%]">Ítem / Detalle</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-center w-[20%]">Disponibilidad</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[30%]">Valores</th>
-                                    <th class="p-3 w-[10%]"></th>
+                                    <th class="p-3 font-bold uppercase tracking-wider w-[30%]">Ítem / Detalle</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-center w-[15%]">Stock</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[20%]">Precios</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[20%]">Ventas / Ganancia</th>
+                                    <th class="p-3 w-[15%]"></th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-table-body">
-                                ${inventoryHTML || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`}
+                                ${inventoryHTML || `<tr id="empty-inventory-msg"><td colspan="5" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -2285,25 +2394,31 @@
                 return;
             }
             
-            const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
-            const iva = Math.round(subtotal * 0.19);
-            const total = subtotal + iva;
-            const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
-            const ivaDisplay = `$${iva.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
-            const subtotalDisplay = `$${subtotal.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
+            const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            
+            const totalProfit = state.inventoryList.reduce((sum, item) => {
+                const p = parseFloat(item.price) || 0;
+                const sp = parseFloat(item.salePrice) || 0;
+                const sq = parseFloat(item.soldQty) || 0;
+                return sum + (sq * (sp - p));
+            }, 0);
             
             const listItemsHTML = state.inventoryList.map((item) => {
-                const sub = (parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0);
+                const cost = parseFloat(item.price) || 0;
+                const sale = parseFloat(item.salePrice) || 0;
+                const sq = parseFloat(item.soldQty) || 0;
+                const profit = sq * (sale - cost);
+                
                 const sku = item.sku || '---';
-                const cat = item.category || '---';
                 return `
-                <tr style="border-bottom: 1px solid #eee; font-size: 11px;">
-                    <td style="padding: 8px 10px; color: #666; font-family: monospace; width: 15%;">${sku}</td>
-                    <td style="padding: 8px 10px; color: #333; font-weight: bold; width: 30%;">${item.product}</td>
-                    <td style="padding: 8px 10px; color: #666; width: 15%;">${cat}</td>
-                    <td style="padding: 8px 10px; color: #333; text-align: center; width: 10%; font-weight: bold;">${item.qty}</td>
-                    <td style="padding: 8px 10px; color: #666; text-align: right; width: 15%;">$${(parseFloat(item.price)||0).toLocaleString('es-CL')}</td>
-                    <td style="padding: 8px 10px; color: #16a34a; font-weight: 700; text-align: right; width: 15%;">$${sub.toLocaleString('es-CL')}</td>
+                <tr style="border-bottom: 1px solid #eee; font-size: 10px;">
+                    <td style="padding: 6px 8px; color: #666; font-family: monospace; width: 12%;">${sku}</td>
+                    <td style="padding: 6px 8px; color: #333; font-weight: bold; width: 30%;">${item.product}</td>
+                    <td style="padding: 6px 8px; color: #333; text-align: center; width: 8%; font-weight: bold;">${item.qty}</td>
+                    <td style="padding: 6px 8px; color: #2563eb; text-align: center; width: 8%; font-weight: bold;">${sq}</td>
+                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${cost.toLocaleString('es-CL')}</td>
+                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${sale.toLocaleString('es-CL')}</td>
+                    <td style="padding: 6px 8px; color: ${profit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: bold; text-align: right; width: 14%;">$${profit.toLocaleString('es-CL')}</td>
                 </tr>
             `}).join('');
 
@@ -2314,7 +2429,7 @@
                     <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
                 </div>` : '';
 
-            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Bodega') || "Reporte de Bodega e Inventario";
+            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Bodega') || "Reporte de Bodega e Ventas";
 
             const contentHTML = `
                 <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
@@ -2324,20 +2439,21 @@
                             ${addressText}
                         </div>
                         <div style="text-align: right; color: #666;">
-                            <p style="margin: 0; font-size: 12px; font-weight: bold;">Total Ítems: ${state.inventoryList.length}</p>
+                            <p style="margin: 0; font-size: 12px; font-weight: bold;">Total Ítems en Catálogo: ${state.inventoryList.length}</p>
                             <p style="margin: 5px 0 0 0; font-size: 12px;">Fecha: ${new Date().toLocaleDateString()}</p>
                         </div>
                     </div>
                     
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
                         <thead>
-                            <tr style="background-color: #16a34a; color: white; font-weight: 700; font-size: 12px;">
-                                <th style="padding: 8px 10px; text-align: left;">SKU</th>
-                                <th style="padding: 8px 10px; text-align: left;">Producto</th>
-                                <th style="padding: 8px 10px; text-align: left;">Categoría</th>
-                                <th style="padding: 8px 10px; text-align: center;">Stock</th>
-                                <th style="padding: 8px 10px; text-align: right;">Costo Un.</th>
-                                <th style="padding: 8px 10px; text-align: right;">Costo Total</th>
+                            <tr style="background-color: #16a34a; color: white; font-weight: 700; font-size: 11px;">
+                                <th style="padding: 8px; text-align: left;">SKU</th>
+                                <th style="padding: 8px; text-align: left;">Producto</th>
+                                <th style="padding: 8px; text-align: center;">Stock</th>
+                                <th style="padding: 8px; text-align: center;">Ventas</th>
+                                <th style="padding: 8px; text-align: right;">Costo Un.</th>
+                                <th style="padding: 8px; text-align: right;">Venta Un.</th>
+                                <th style="padding: 8px; text-align: right;">Ganancia Real</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2345,10 +2461,14 @@
                         </tbody>
                         <tfoot>
                              <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td colspan="4"></td>
-                                <td style="padding: 10px 15px; text-align: right; font-size: 14px;">VALOR TOTAL (+IVA)</td>
-                                <td style="padding: 10px 15px; color: #16a34a; font-weight: 900; text-align: right; font-size: 16px;">${totalDisplay}
-                                    <div style="font-size: 9px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA: ${ivaDisplay}</div>
+                                <td colspan="3"></td>
+                                <td colspan="2" style="padding: 10px; text-align: right; font-size: 12px; color: #666;">
+                                    Inversión Estancada:<br>
+                                    <span style="color:#000;">Ganancia Obtenida:</span>
+                                </td>
+                                <td colspan="2" style="padding: 10px; text-align: right; font-size: 14px;">
+                                    <span style="color: #2563eb;">$${totalCost.toLocaleString('es-CL')}</span><br>
+                                    <span style="color: ${totalProfit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: 900;">$${totalProfit.toLocaleString('es-CL')}</span>
                                 </td>
                             </tr>
                         </tfoot>

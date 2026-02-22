@@ -208,7 +208,7 @@
             <!-- BUSCADOR UNIVERSAL (Escritorio) -->
             <div class="flex-1 relative hidden md:block max-w-xl">
                 <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                <input type="text" id="desktop-search-input" placeholder="Buscar pacientes, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
+                <input type="text" id="desktop-search-input" placeholder="Buscar vehículos, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
                 <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
 
@@ -788,7 +788,7 @@
         
         function showConfirmModal(title, message, actionBtnText, onConfirm) { const modal = document.getElementById('confirm-modal'); modal.querySelector('h3').innerText = title; document.getElementById('confirm-message').innerText = message; const btn = document.getElementById('confirm-btn-action'); btn.innerText = actionBtnText; btn.onclick = onConfirm; document.body.classList.add('modal-open'); modal.classList.remove('hidden'); }
         function closeConfirmModal() { document.body.classList.remove('modal-open'); document.getElementById('confirm-modal').classList.add('hidden'); }
-        function confirmDelete(type, id) { let msg = "Esta acción es definitiva."; if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; if(type === 'note') msg = "¿Eliminar esta anotación?"; if(type === 'link') msg = "¿Eliminar este recurso?"; showConfirmModal("¿Estás seguro?", msg, "Eliminar", function() { if (type === 'todo') deleteTodo(id); else if (type === 'note') deleteNote(id); else if (type === 'link') deleteLink(id); closeConfirmModal(); }); }
+        function confirmDelete(type, id) { let msg = "Esta acción es definitiva."; if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; if(type === 'note') msg = "¿Eliminar esta anotación?"; if(type === 'link') msg = "¿Eliminar este recurso?"; showConfirmModal("¿Estás seguro?", msg, "Eliminar", function() { if (type === 'todo') deleteTodo(id); else if (type === 'note') deleteLink(id); closeConfirmModal(); }); }
 
         function getDashboardHTML() {
             const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; let shift = state.shifts[dateKey]; let isNextShift = false; let nextDateStr = "";

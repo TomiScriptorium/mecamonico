@@ -2667,12 +2667,12 @@
             });
 
             // 2. Inventario
-            (state.inventoryList || []).forEach((i, idx) => {
+            (state.inventoryList || []).forEach(i => {
                 if (i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term)) || (i.category && i.category.toLowerCase().includes(term))) {
                     results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | SKU: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', 
                     action: () => { 
                         setActiveShopTab('inventory'); 
-                        setTimeout(() => highlightElement(`inventory-row-${idx}`), 500); 
+                        setTimeout(() => highlightElement(`inventory-row-${i.id}`), 500); 
                     } });
                 }
             });
@@ -2793,9 +2793,9 @@
                 const isRow = el.tagName.toLowerCase() === 'tr';
                 
                 if (isRow) {
-                    el.classList.add('bg-red-100', 'dark:bg-red-900/50', 'transition-colors', 'duration-500');
+                    el.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'transition-colors', 'duration-500');
                     setTimeout(() => {
-                        el.classList.remove('bg-red-100', 'dark:bg-red-900/50');
+                        el.classList.remove('bg-blue-100', 'dark:bg-blue-900/50');
                     }, 1500);
                 } else {
                     // Tarjetas genéricas usan el anillo de enfoque normal

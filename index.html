@@ -159,6 +159,11 @@
         .tab-content-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
         .tab-content-enter { opacity: 1; transform: translateY(0); }
         .tab-content-leave { opacity: 0; transform: translateY(10px); }
+
+        /* Estilo para el scroll del buscador */
+        .search-scroll::-webkit-scrollbar { width: 6px; }
+        .search-scroll::-webkit-scrollbar-track { background: transparent; }
+        .search-scroll::-webkit-scrollbar-thumb { background-color: #525252; border-radius: 10px; }
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
@@ -178,20 +183,33 @@
     </div>
 
     <!-- Header -->
-    <header class="bg-neutral-900 text-white pt-safe shadow-lg z-20 shrink-0 relative overflow-hidden border-b-4 border-red-600">
-        <div class="p-4 flex justify-between items-center relative z-10">
-            <div class="flex items-center gap-3">
+    <header class="bg-neutral-900 text-white pt-safe shadow-lg z-20 shrink-0 relative overflow-visible border-b-4 border-red-600">
+        <div class="p-4 flex justify-between items-center relative z-20 gap-3 sm:gap-6">
+            <!-- LOGO -->
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <div class="bg-red-700 p-2 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform" onclick="renderView('dashboard')" title="Ir a Inicio">
                     <i class="fa-solid fa-car text-xl text-white"></i>
                 </div>
-                <div class="cursor-pointer group" onclick="openAppTitleModal()" title="Editar Encabezado">
-                    <h1 class="text-2xl font-bold flex items-center gap-2 group-hover:text-red-400 transition-colors">
+                <div class="cursor-pointer group hidden sm:block" onclick="openAppTitleModal()" title="Editar Encabezado">
+                    <h1 class="text-xl lg:text-2xl font-bold flex items-center gap-2 group-hover:text-red-400 transition-colors">
                         <span id="header-app-title">Mecamonico</span> <i class="fa-solid fa-wrench wrench-anim text-red-500 text-sm"></i>
                     </h1>
-                    <p id="header-app-subtitle" class="text-xs text-neutral-400 font-bold group-hover:text-neutral-300 transition-colors">Gestión de Taller & Estudio</p>
+                    <p id="header-app-subtitle" class="text-[10px] lg:text-xs text-neutral-400 font-bold group-hover:text-neutral-300 transition-colors whitespace-nowrap">Gestión de Taller & Estudio</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+
+            <!-- BUSCADOR UNIVERSAL (Escritorio) -->
+            <div class="flex-1 relative hidden md:block max-w-xl">
+                <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                <input type="text" id="desktop-search-input" placeholder="Buscar pacientes, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
+                <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-50 hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
+            </div>
+
+            <!-- CONTROLES DERECHA -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="toggleMobileSearch()" class="md:hidden text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-9 h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
+                    <i class="fa-solid fa-search"></i>
+                </button>
                 <button onclick="toggleDarkMode()" class="text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-9 h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
@@ -199,6 +217,15 @@
                 <button onclick="openBackupModal()" class="text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-3 py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5">
                     <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
                 </button>
+            </div>
+        </div>
+        
+        <!-- BUSCADOR UNIVERSAL (Móvil Expandible) -->
+        <div id="mobile-search-container" class="hidden px-4 pb-4 bg-neutral-900 relative z-10 border-t border-neutral-800 md:hidden">
+            <div class="relative mt-3">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                <input type="text" id="mobile-search-input" placeholder="Buscar en todo el sistema..." class="w-full pl-10 pr-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-red-500 outline-none transition shadow-inner" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
+                <div id="mobile-search-results" class="absolute left-0 right-0 top-[105%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-50 hidden flex-col max-h-72 search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
         </div>
     </header>
@@ -583,6 +610,8 @@
                 const activeClass = 'flex-1 py-2 text-sm font-bold rounded transition bg-red-600 text-white shadow-md';
                 webBtn.className = inactiveClass; pdfBtn.className = inactiveClass;
                 if (tab === 'web') { webContent.classList.remove('hidden'); void webContent.offsetWidth; webContent.classList.add('fade-enter'); webBtn.className = activeClass; } else { pdfContent.classList.remove('hidden'); void pdfContent.offsetWidth; pdfContent.classList.add('fade-enter'); pdfBtn.className = activeClass; }
+                const searchEl = document.getElementById('info-search');
+                if (searchEl) { searchEl.value = ''; filterInfo(''); }
             } else { renderView('links'); }
         }
         
@@ -599,7 +628,7 @@
             return `<div><h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-toolbox text-red-600"></i> Información Técnica</h2><div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 shadow-inner">
                 <button id="tab-btn-web" onclick="setInfoTab('web')" class="flex-1 py-2 text-sm font-bold rounded transition ${isWeb ? activeClass : inactiveClass}">Enlaces Web</button>
                 <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
-            </div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
+            </div><div class="mb-4 relative"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="info-search" placeholder="Buscar manual o recurso..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInfo(this.value)"></div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
         }
         function createPdfHTML(pdf) { 
             return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
@@ -1223,8 +1252,8 @@
         function updateShiftTypeUI() { document.querySelectorAll('.shift-type-btn').forEach(btn => { btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); if (String(tempShiftType) === btn.dataset.type) { btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); btn.classList.remove('text-neutral-500', 'bg-white'); } }); }
         function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
         function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
-        
-        function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-images" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Fotos</label><input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full h-auto min-h-0"><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
+
+        function getNotesHTML() { const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar" id="folders-container">${generateFoldersHTML()}</div>`; return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Bitácora Técnica</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all"><div class="absolute top-0 left-4 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-none mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-images" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Fotos</label><input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="lg:w-2/3 flex flex-col lg:h-full h-auto min-h-0"><div class="mb-4 relative shrink-0"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="notes-search" placeholder="Buscar en bitácora..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterNotes(this.value)"></div><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-0 hide-scrollbar"><div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">${generateNotesListHTML()}</div></div></div></div></div>`; }
         
         function generateFoldersHTML() { 
             return `<button onclick="changeFolder('all')" class="whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => {
@@ -1237,8 +1266,19 @@
             }).join('')}<button onclick="openFolderModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition"><i class="fa-solid fa-plus text-xs"></i></button>`; 
         }
 
-        function generateNotesListHTML() { let filteredNotes = state.notes || []; if (state.currentFolderId !== 'all') { filteredNotes = filteredNotes.filter(n => n.folderId === state.currentFolderId); } if (filteredNotes.length === 0) return `<div class="text-center py-10 opacity-40"><i class="fa-solid fa-file-signature text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin apuntes</p></div>`; return filteredNotes.map(n => createNoteHTML(n)).join(''); }
-        
+        function generateNotesListHTML(searchQuery = '') { 
+            let filteredNotes = state.notes || []; 
+            if (state.currentFolderId !== 'all') { 
+                filteredNotes = filteredNotes.filter(n => n.folderId === state.currentFolderId); 
+            } 
+            if (searchQuery) {
+                const term = searchQuery.toLowerCase();
+                filteredNotes = filteredNotes.filter(n => n.text.toLowerCase().includes(term));
+            }
+            if (filteredNotes.length === 0) return `<div class="text-center py-10 opacity-40 col-span-full"><i class="fa-solid fa-file-signature text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin apuntes</p></div>`; 
+            return filteredNotes.map(n => createNoteHTML(n)).join(''); 
+        }
+
         function createNoteHTML(note) { 
             let imagesHTML = '';
             if (note.images && note.images.length > 0) {
@@ -1265,105 +1305,13 @@
                 </div>
             </div>`; 
         }
-        
-        async function shareNote(id) {
-            const note = state.notes.find(n => n.id === id);
-            if (!note) return;
 
-            showToast("Generando PDF...", "fa-file-pdf");
-
-            const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'fixed';
-            tempContainer.style.left = '-9999px';
-            tempContainer.style.top = '0';
-            tempContainer.style.width = '595px'; 
-            tempContainer.style.backgroundColor = '#ffffff';
-            tempContainer.style.zIndex = '-1';
-            
-            let htmlContent = `
-                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000;">
-                    <div style="border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h1 style="margin: 0; font-size: 24px; color: #171717; font-weight: bold;">Mecamonico Nota</h1>
-                            <p style="margin: 0; font-size: 12px; color: #666;">Reporte Técnico</p>
-                        </div>
-                        <div style="font-size: 12px; color: #666;">${new Date().toLocaleDateString()}</div>
-                    </div>
-            `;
-
-            if (note.images && note.images.length > 0) {
-                htmlContent += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">`;
-                note.images.forEach(img => {
-                    htmlContent += `<img src="${img}" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd;">`;
-                });
-                htmlContent += `</div>`;
-            } else if (note.image) {
-                htmlContent += `<div style="margin-bottom: 20px; text-align: center;"><img src="${note.image}" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
-            }
-
-            htmlContent += `<div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #333;">${note.text}</div></div>`;
-
-            tempContainer.innerHTML = htmlContent;
-            document.body.appendChild(tempContainer);
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                const canvas = await html2canvas(tempContainer, { 
-                    scale: 1.5,
-                    useCORS: true, 
-                    logging: false,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff'
-                });
-                
-                const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                const imgProps = pdf.getImageProperties(imgData);
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                
-                const pdfBlob = pdf.output('blob');
-                const file = new File([pdfBlob], `Mecamonico_Nota_${id}.pdf`, { type: 'application/pdf' });
-
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ 
-                        files: [file], 
-                        title: 'Nota Técnica', 
-                        text: 'Adjunto reporte técnico de Mecamonico.' 
-                    });
-                    showToast("PDF Compartido", "fa-share-nodes");
-                } else {
-                    throw new Error("Sharing not supported, forcing download");
-                }
-            } catch (err) {
-                console.warn("Share falló, iniciando descarga manual.", err);
-                try {
-                    const { jsPDF } = window.jspdf;
-                    const canvas = await html2canvas(tempContainer, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
-                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                    const imgProps = pdf.getImageProperties(imgData);
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(`Mecamonico_Nota_${id}.pdf`);
-                    showToast("PDF Descargado", "fa-download");
-                    
-                } catch (innerErr) {
-                    console.error("Error crítico PDF:", innerErr);
-                    showToast("Error al generar PDF", "fa-triangle-exclamation");
-                }
-            } finally {
-                if(document.body.contains(tempContainer)) {
-                    document.body.removeChild(tempContainer);
-                }
-            }
+        function changeFolder(folderId) { 
+            state.currentFolderId = folderId; 
+            document.getElementById('folders-container').innerHTML = generateFoldersHTML(); 
+            const searchEl = document.getElementById('notes-search');
+            document.getElementById('notes-list').innerHTML = generateNotesListHTML(searchEl ? searchEl.value : ''); 
         }
-
-        function changeFolder(folderId) { state.currentFolderId = folderId; document.getElementById('folders-container').innerHTML = generateFoldersHTML(); document.getElementById('notes-list').innerHTML = generateNotesListHTML(); }
         
         function startEditNote(id) { 
             state.editingNoteId = id; 
@@ -1624,97 +1572,129 @@
             });
         }
         
+        // --- FUNCIONES DE INVENTARIO (INVENTORY) ---
+
         function getInventoryRowHTML(item, index) {
             const price = parseFloat(item.price) || 0;
             const qty = parseFloat(item.qty) || 0;
+            const minQty = parseFloat(item.minQty) || 0;
+            const total = price * qty;
+            const sku = item.sku || 'N/A';
+            const category = item.category || 'Sin categoría';
+
+            let statusBadge = '';
+            if (qty <= 0) {
+                statusBadge = `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-red-200">AGOTADO</span>`;
+            } else if (qty <= minQty) {
+                statusBadge = `<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-yellow-200">BAJO STOCK</span>`;
+            } else {
+                statusBadge = `<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-green-200">ÓPTIMO</span>`;
+            }
+
             return `
-                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter group">
                     <td class="p-3">
-                        <input type="text" value="${item.product}" onchange="updateInventoryItem(${index}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Ítem / Repuesto">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-neutral-400 font-mono mb-1"><i class="fa-solid fa-barcode mr-1"></i>${sku} <span class="mx-1">&bull;</span> <i class="fa-solid fa-tag mr-1"></i>${category}</span>
+                            <input type="text" value="${item.product}" onchange="updateInventoryItem(${index}, 'product', this.value)" class="bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200 text-sm w-full focus:text-green-600 transition-colors" placeholder="Nombre del Ítem">
+                        </div>
                     </td>
-                    <td class="p-3 w-20">
-                        <input type="number" value="${qty}" onchange="updateInventoryItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Stock" min="0">
+                    <td class="p-3 text-center align-middle">
+                        <div class="flex flex-col items-center justify-center">
+                            <input type="number" value="${qty}" onchange="updateInventoryItem(${index}, 'qty', this.value)" class="w-16 bg-neutral-100 dark:bg-neutral-800 outline-none font-black text-center text-neutral-700 dark:text-neutral-200 rounded p-1 focus:ring-2 focus:ring-green-500 transition" min="0">
+                            ${statusBadge}
+                        </div>
                     </td>
-                    <td class="p-3 w-28">
-                        <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400" placeholder="Valor Un." min="0">
+                    <td class="p-3 text-right align-middle">
+                        <div class="flex flex-col items-end">
+                            <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-24 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                            <span class="text-xs text-green-600 dark:text-green-400 font-black mt-1 tracking-tight">Total: $${total.toLocaleString('es-CL')}</span>
+                        </div>
                     </td>
-                    <td class="p-3 w-10 text-center">
-                        <button onclick="deleteInventoryItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-3 w-10 text-center align-middle">
+                        <button onclick="deleteInventoryItem(${index})" class="w-8 h-8 rounded-full text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-50 group-hover:opacity-100"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `;
         }
 
         function updateInventoryItem(index, field, value) {
-            if (field === 'price' || field === 'qty') {
+            if (field === 'price' || field === 'qty' || field === 'minQty') {
                 state.inventoryList[index][field] = parseFloat(value) || 0;
             } else {
                 state.inventoryList[index][field] = value;
             }
             saveData();
+            
+            // Re-render specifically this row to update badges correctly
+            const row = document.getElementById(`inventory-row-${index}`);
+            if(row) {
+                row.outerHTML = getInventoryRowHTML(state.inventoryList[index], index);
+            }
             updateInventoryTotal();
         }
 
         function deleteInventoryItem(index) {
             state.inventoryList.splice(index, 1);
             saveData();
-            document.getElementById('inventory-table-body').innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`;
+            document.getElementById('inventory-table-body').innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
             updateInventoryTotal();
         }
         
         function addInventoryItem() {
+            const skuInput = document.getElementById('new-inv-sku');
             const prodInput = document.getElementById('new-inv-product');
+            const catInput = document.getElementById('new-inv-category');
             const qtyInput = document.getElementById('new-inv-qty');
+            const minInput = document.getElementById('new-inv-min');
             const priceInput = document.getElementById('new-inv-price');
+
+            const sku = skuInput.value.trim() || 'N/A';
             const product = prodInput.value.trim();
+            const category = catInput.value;
             const qty = parseFloat(qtyInput.value) || 0;
+            const minQty = parseFloat(minInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
 
-            if (!product) return;
-
-            const newItem = { product, qty, price };
-            state.inventoryList.push(newItem);
-            saveData();
-            
-            const tbody = document.getElementById('inventory-table-body');
-            if (tbody) {
-                const emptyMsg = document.getElementById('empty-inventory-msg');
-                if (emptyMsg) emptyMsg.remove();
-                
-                const newIndex = state.inventoryList.length - 1;
-                tbody.insertAdjacentHTML('beforeend', getInventoryRowHTML(newItem, newIndex));
+            if (!product) { 
+                showToast("Falta nombre del producto", "fa-triangle-exclamation"); 
+                prodInput.focus();
+                return; 
             }
 
-            prodInput.value = '';
-            qtyInput.value = '';
-            priceInput.value = '';
-            prodInput.focus();
+            const newItem = { sku, product, category, qty, minQty, price };
+            state.inventoryList.unshift(newItem); // Agregamos al inicio
+            saveData();
             
-            showToast("Ítem registrado", "fa-box-open");
-            updateInventoryTotal();
+            // Re-renderizamos toda la vista para actualizar el Dashboard y la tabla
+            document.getElementById('shop-content-inventory').innerHTML = getInventoryListContentHTML();
+            
+            showToast("Ítem Registrado", "fa-check");
         }
 
         function updateInventoryTotal() {
             const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
-            const totalEl = document.getElementById('inventory-total');
-            if (totalEl) {
-                totalEl.innerHTML = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}<div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>`;
-            }
+            
+            // Actualizar KPIs si existen en la vista
+            const kpiItems = document.getElementById('inv-kpi-items');
+            if(kpiItems) kpiItems.innerText = state.inventoryList.length;
+            
+            const kpiAlerts = document.getElementById('inv-kpi-alerts');
+            if(kpiAlerts) kpiAlerts.innerText = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
+            
+            const kpiValue = document.getElementById('inv-kpi-value');
+            if(kpiValue) kpiValue.innerText = `$${total.toLocaleString('es-CL')}`;
         }
 
         function clearInventoryList() {
             if (state.inventoryList.length === 0) return;
-            showConfirmModal("¿Limpiar Inventario?", "Se borrarán todos los ítems registrados.", "Limpiar Todo", function() {
+            showConfirmModal("¿Limpiar Inventario?", "Se borrarán permanentemente todos los ítems registrados.", "Limpiar Todo", function() {
                 state.inventoryList = [];
                 saveData();
                 closeConfirmModal();
-                const tbody = document.getElementById('inventory-table-body');
-                if (tbody) {
-                    tbody.innerHTML = `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`;
-                }
-                updateInventoryTotal();
+                document.getElementById('shop-content-inventory').innerHTML = getInventoryListContentHTML();
                 showToast("Inventario limpio", "fa-eraser");
             });
         }
@@ -1822,48 +1802,103 @@
             const subtotal = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
+            
+            const totalItems = state.inventoryList.length;
+            const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
 
             return `
-                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                <th class="p-3 font-bold uppercase tracking-wider">Ítem / Repuesto</th>
-                                <th class="p-3 font-bold uppercase tracking-wider text-center">Stock</th>
-                                <th class="p-3 font-bold uppercase tracking-wider text-right">Valor Un.</th>
-                                <th class="p-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventory-table-body">
-                            ${inventoryHTML || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">El inventario está vacío</td></tr>`}
-                        </tbody>
-                        <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
-                            <tr>
-                                <td colspan="2" class="p-3 text-right font-black text-sm uppercase">Valor Total:</td>
-                                <td class="p-3 text-right font-black text-green-600 dark:text-green-400 text-lg" id="inventory-total">
-                                    $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
-                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
-                                </td>
-                                <td class="p-3"></td>
-                            </tr>
-                            <tr>
-                                <td class="p-3">
-                                    <input type="text" id="new-inv-product" placeholder="Nuevo ítem..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-inv-qty').focus()">
-                                </td>
-                                <td class="p-3">
-                                    <input type="number" id="new-inv-qty" placeholder="Stock" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') document.getElementById('new-inv-price').focus()">
-                                </td>
-                                <td class="p-3">
-                                    <input type="number" id="new-inv-price" placeholder="Valor" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addInventoryItem()">
-                                </td>
-                                <td class="p-3 text-center">
-                                    <button onclick="addInventoryItem()" class="bg-green-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-green-700 transition shadow-sm">
-                                        <i class="fa-solid fa-plus text-xs"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                <div class="fade-enter">
+                    <!-- KPI Dashboard -->
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-neutral-500 flex justify-between items-center group">
+                            <div>
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Catálogo</p>
+                                <p class="text-2xl sm:text-3xl font-black text-neutral-800 dark:text-neutral-100 leading-none" id="inv-kpi-items">${totalItems}</p>
+                            </div>
+                            <i class="fa-solid fa-boxes-stacked text-2xl sm:text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-yellow-500 flex justify-between items-center group">
+                            <div>
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alertas</p>
+                                <p class="text-2xl sm:text-3xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-300 dark:text-neutral-700'} leading-none" id="inv-kpi-alerts">${lowStockCount}</p>
+                            </div>
+                            <i class="fa-solid fa-triangle-exclamation text-2xl sm:text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-green-500 flex justify-between items-center group overflow-hidden">
+                            <div class="z-10 relative">
+                                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Valorizado</p>
+                                <p class="text-lg sm:text-2xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none" id="inv-kpi-value" title="$${total.toLocaleString('es-CL')}">$${total.toLocaleString('es-CL')}</p>
+                            </div>
+                            <i class="fa-solid fa-sack-dollar text-3xl sm:text-4xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Add Item Form -->
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">
+                        <div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-b border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-green-600"></i> <h3 class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Ingreso a Bodega</h3>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+                            <div class="lg:col-span-2">
+                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">SKU/Cód.</label>
+                                <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
+                            </div>
+                            <div class="lg:col-span-3">
+                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
+                                <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro de Aceite XZ">
+                            </div>
+                            <div class="lg:col-span-2">
+                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Categoría</label>
+                                <select id="new-inv-category" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 dark:text-white transition-colors">
+                                    <option value="Repuestos">Repuestos</option>
+                                    <option value="Insumos">Insumos</option>
+                                    <option value="Herramientas">Herramientas</option>
+                                    <option value="Fluidos">Fluidos</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 lg:col-span-2">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Stock</label>
+                                    <input type="number" id="new-inv-qty" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="0" min="0">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Alerta de Stock Bajo">Mín.</label>
+                                    <input type="number" id="new-inv-min" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="1" min="0">
+                                </div>
+                            </div>
+                            <div class="lg:col-span-2">
+                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Unit.</label>
+                                <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
+                            </div>
+                            <div class="lg:col-span-1 sm:col-span-2 lg:mt-0 mt-2">
+                                <button onclick="addInventoryItem()" class="w-full h-full min-h-[42px] bg-green-600 hover:bg-green-700 text-white font-bold rounded transition shadow-md text-sm flex items-center justify-center" title="Guardar"><i class="fa-solid fa-save"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buscador de Inventario -->
+                    <div class="mb-4 relative">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                        <input type="text" id="inventory-search" placeholder="Buscar por SKU, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
+                    </div>
+
+                    <!-- Inventory Table -->
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                                    <th class="p-3 font-bold uppercase tracking-wider w-[40%]">Ítem / Detalle</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-center w-[20%]">Disponibilidad</th>
+                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[30%]">Valores</th>
+                                    <th class="p-3 w-[10%]"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body">
+                                ${inventoryHTML || `<tr id="empty-inventory-msg"><td colspan="4" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             `;
         }
@@ -1926,6 +1961,9 @@
                     }
                 }
             });
+
+            const searchEl = document.getElementById('inventory-search');
+            if (searchEl) { searchEl.value = ''; filterInventory(''); }
             
             const shareBtnContainer = document.getElementById('share-btn-container');
             if (shareBtnContainer) {
@@ -2246,11 +2284,16 @@
             
             const listItemsHTML = state.inventoryList.map((item) => {
                 const sub = (parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0);
+                const sku = item.sku || '---';
+                const cat = item.category || '---';
                 return `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.product}</td>
-                    <td style="padding: 10px 15px; color: #333; text-align: center;">${item.qty}</td>
-                    <td style="padding: 10px 15px; color: #16a34a; font-weight: 700; text-align: right; width: 120px;">$${sub.toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
+                <tr style="border-bottom: 1px solid #eee; font-size: 11px;">
+                    <td style="padding: 8px 10px; color: #666; font-family: monospace; width: 15%;">${sku}</td>
+                    <td style="padding: 8px 10px; color: #333; font-weight: bold; width: 30%;">${item.product}</td>
+                    <td style="padding: 8px 10px; color: #666; width: 15%;">${cat}</td>
+                    <td style="padding: 8px 10px; color: #333; text-align: center; width: 10%; font-weight: bold;">${item.qty}</td>
+                    <td style="padding: 8px 10px; color: #666; text-align: right; width: 15%;">$${(parseFloat(item.price)||0).toLocaleString('es-CL')}</td>
+                    <td style="padding: 8px 10px; color: #16a34a; font-weight: 700; text-align: right; width: 15%;">$${sub.toLocaleString('es-CL')}</td>
                 </tr>
             `}).join('');
 
@@ -2261,19 +2304,30 @@
                     <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
                 </div>` : '';
 
-            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Inventario') || "Reporte de Inventario";
+            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Bodega') || "Reporte de Bodega e Inventario";
 
             const contentHTML = `
                 <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
-                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">${title}</h1>
-                    ${addressText}
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #16a34a; padding-bottom: 10px; margin-bottom: 20px;">
+                        <div>
+                            <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0; color: #171717;">${title}</h1>
+                            ${addressText}
+                        </div>
+                        <div style="text-align: right; color: #666;">
+                            <p style="margin: 0; font-size: 12px; font-weight: bold;">Total Ítems: ${state.inventoryList.length}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 12px;">Fecha: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
                     
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
                         <thead>
-                            <tr style="background-color: #16a34a; color: white; font-weight: 700;">
-                                <th style="padding: 10px 15px; text-align: left;">Ítem / Repuesto</th>
-                                <th style="padding: 10px 15px; text-align: center; width: 80px;">Stock</th>
-                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Valor Total</th>
+                            <tr style="background-color: #16a34a; color: white; font-weight: 700; font-size: 12px;">
+                                <th style="padding: 8px 10px; text-align: left;">SKU</th>
+                                <th style="padding: 8px 10px; text-align: left;">Producto</th>
+                                <th style="padding: 8px 10px; text-align: left;">Categoría</th>
+                                <th style="padding: 8px 10px; text-align: center;">Stock</th>
+                                <th style="padding: 8px 10px; text-align: right;">Costo Un.</th>
+                                <th style="padding: 8px 10px; text-align: right;">Costo Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2281,9 +2335,10 @@
                         </tbody>
                         <tfoot>
                              <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td colspan="2" style="padding: 10px 15px; text-align: right; font-size: 16px;">VALOR TOTAL (+IVA)</td>
-                                <td style="padding: 10px 15px; color: #16a34a; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}
-                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA (19%): ${ivaDisplay}</div>
+                                <td colspan="4"></td>
+                                <td style="padding: 10px 15px; text-align: right; font-size: 14px;">VALOR TOTAL (+IVA)</td>
+                                <td style="padding: 10px 15px; color: #16a34a; font-weight: 900; text-align: right; font-size: 16px;">${totalDisplay}
+                                    <div style="font-size: 9px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA: ${ivaDisplay}</div>
                                 </td>
                             </tr>
                         </tfoot>
@@ -2293,7 +2348,7 @@
                 </div>
             `;
             
-            const fileName = `Inventario_${new Date().toISOString().slice(0,10)}.pdf`;
+            const fileName = `Inventario_Bodega_${new Date().toISOString().slice(0,10)}.pdf`;
             await generateCleanPDF(contentHTML, title, fileName);
         }
 
@@ -2369,6 +2424,155 @@
                 }, 200); 
             } else {
                 performContentSwap(viewName);
+            }
+        }
+
+        function filterInventory(query) {
+            const term = query.toLowerCase();
+            const tbody = document.getElementById('inventory-table-body');
+            if (!tbody) return;
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                if (tr.id === 'empty-inventory-msg') return;
+                
+                // Recolectar todo el texto visual y los values de los inputs (Para buscar por SKU, Nombre, Categoría)
+                let rowText = tr.innerText.toLowerCase();
+                tr.querySelectorAll('input[type="text"]').forEach(inp => {
+                    rowText += ' ' + inp.value.toLowerCase();
+                });
+                
+                tr.style.display = rowText.includes(term) ? '' : 'none';
+            });
+        }
+        
+        function filterNotes(query) {
+            document.getElementById('notes-list').innerHTML = generateNotesListHTML(query);
+        }
+        
+        function filterInfo(query) {
+            const term = query.toLowerCase();
+            const isWeb = state.activeInfoTab === 'web';
+            const listId = isWeb ? 'links-list' : 'pdfs-list';
+            const list = document.getElementById(listId);
+            if (!list) return;
+            Array.from(list.children).forEach(child => {
+                if (child.classList.contains('opacity-40')) return; 
+                const text = child.innerText.toLowerCase();
+                child.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+
+        // --- SISTEMA DE BÚSQUEDA UNIVERSAL ---
+        window.globalSearchActions = [];
+
+        function handleUniversalSearch(query, mode) {
+            const resultsContainer = document.getElementById(`${mode}-search-results`);
+            if (!query || query.trim().length < 2) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+            const term = query.toLowerCase().trim();
+            let results = [];
+
+            // 1. Órdenes / Taller
+            (state.patients || []).forEach(p => {
+                if (p.name.toLowerCase().includes(term) || p.room.toLowerCase().includes(term) || p.dx.toLowerCase().includes(term)) {
+                    results.push({ type: 'Vehículo', title: `${p.name} (${p.room})`, desc: p.dx, icon: 'fa-car-side', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30', action: () => { renderView('work_orders'); setTimeout(() => highlightCard(`wo-card-${p.id}`), 400); } });
+                }
+            });
+
+            // 2. Inventario
+            (state.inventoryList || []).forEach(i => {
+                if (i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term)) || (i.category && i.category.toLowerCase().includes(term))) {
+                    results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | SKU: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', action: () => { setActiveShopTab('inventory'); } });
+                }
+            });
+
+            // 3. Bitácora / Apuntes
+            (state.notes || []).forEach(n => {
+                if (n.text.toLowerCase().includes(term)) {
+                    let preview = n.text.replace(/\n/g, ' ');
+                    if(preview.length > 40) preview = preview.substring(0, 40) + '...';
+                    results.push({ type: 'Apunte', title: preview, desc: 'Bitácora Técnica', icon: 'fa-book-open', color: 'text-yellow-600 dark:text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30', action: () => { renderView('notes'); setTimeout(() => highlightCard(`note-${n.id}`), 400); } });
+                }
+            });
+
+            // 4. Manuales PDF
+            (state.pdfs || []).forEach(p => {
+                if (p.title.toLowerCase().includes(term)) {
+                    results.push({ type: 'Manual', title: p.title, desc: 'Documentación PDF', icon: 'fa-file-pdf', color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-900/30', action: () => { setInfoTab('pdf'); } });
+                }
+            });
+
+            // 5. Enlaces
+            (state.links || []).forEach(l => {
+                if (l.title.toLowerCase().includes(term) || l.url.toLowerCase().includes(term)) {
+                    results.push({ type: 'Recurso Web', title: l.title, desc: l.url, icon: 'fa-link', color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30', action: () => { setInfoTab('web'); } });
+                }
+            });
+
+            // 6. Tareas Pendientes
+            (state.todos || []).forEach(t => {
+                if (t.text.toLowerCase().includes(term)) {
+                    results.push({ type: 'Tarea', title: t.text, desc: t.done ? 'Completada' : 'Pendiente', icon: 'fa-clipboard-check', color: 'text-neutral-500', bg: 'bg-neutral-200 dark:bg-neutral-700', action: () => { renderView('todo'); } });
+                }
+            });
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `<div class="p-5 text-sm font-bold text-neutral-400 dark:text-neutral-500 text-center"><i class="fa-solid fa-magnifying-glass-minus mb-2 text-2xl opacity-50 block"></i> No hay resultados para "${query}"</div>`;
+            } else {
+                window.globalSearchActions = results.slice(0, 15); // Limitar a 15 resultados para no saturar
+                resultsContainer.innerHTML = window.globalSearchActions.map((r, idx) => `
+                    <div class="p-3 border-b border-neutral-100 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 cursor-pointer flex items-center gap-3 transition" onmousedown="executeGlobalSearch(${idx}, '${mode}')">
+                        <div class="w-10 h-10 rounded-lg ${r.bg} flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid ${r.icon} ${r.color} text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline mb-0.5">
+                                <p class="text-[9px] font-black uppercase tracking-wider ${r.color} opacity-90">${r.type}</p>
+                            </div>
+                            <p class="text-sm font-bold truncate leading-tight">${r.title}</p>
+                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">${r.desc}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-neutral-300 dark:text-neutral-600 text-xs shrink-0"></i>
+                    </div>
+                `).join('');
+            }
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function executeGlobalSearch(index, mode) {
+            if (window.globalSearchActions && window.globalSearchActions[index]) {
+                const action = window.globalSearchActions[index].action;
+                document.getElementById(`${mode}-search-input`).value = '';
+                document.getElementById(`${mode}-search-results`).classList.add('hidden');
+                if(mode === 'mobile') toggleMobileSearch();
+                action();
+            }
+        }
+
+        function hideUniversalSearch(mode) {
+            // Un pequeño delay para permitir que el onmousedown de las tarjetas se ejecute antes de ocultarlas
+            setTimeout(() => {
+                const el = document.getElementById(`${mode}-search-results`);
+                if(el) el.classList.add('hidden');
+            }, 200);
+        }
+
+        function toggleMobileSearch() {
+            const container = document.getElementById('mobile-search-container');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                setTimeout(() => document.getElementById('mobile-search-input').focus(), 50);
+            }
+        }
+
+        function highlightCard(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                // Transición visual temporal para indicar el resultado encontrado
+                el.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20', 'transition-all', 'duration-500');
+                setTimeout(() => {
+                    el.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20');
+                }, 1500);
             }
         }
 

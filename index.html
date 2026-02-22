@@ -442,11 +442,18 @@
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     
                     if (!saved.shoppingList) saved.shoppingList = [];
+                    else saved.shoppingList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
+
                     if (!saved.shopAddress) saved.shopAddress = '';
                     if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
                     if (!saved.shopNote) saved.shopNote = '';
+                    
                     if (!saved.serviceList) saved.serviceList = []; 
+                    else saved.serviceList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
+
                     if (!saved.inventoryList) saved.inventoryList = []; 
+                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
+
                     if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
                     saved.notes = saved.notes.map(n => {
@@ -1414,41 +1421,53 @@
         function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
         
-        function getShoppingRowHTML(item, index) {
+        function getShoppingRowHTML(item) {
             const price = parseFloat(item.price) || 0;
             const qty = parseFloat(item.qty) || 1;
             return `
-                <tr id="shop-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                <tr id="shop-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
                     <td class="p-3">
-                        <input type="text" value="${item.product}" onchange="updateShoppingItem(${index}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
+                        <input type="text" value="${item.product}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
                     </td>
                     <td class="p-3 w-20">
-                        <input type="number" value="${qty}" onchange="updateShoppingItem(${index}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant." min="1">
+                        <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant." min="1">
                     </td>
                     <td class="p-3 w-28">
-                        <input type="number" value="${price}" onchange="updateShoppingItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio Un." min="0">
+                        <input type="number" value="${price}" oninput="updateShoppingItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio Un." min="0">
                     </td>
                     <td class="p-3 w-10 text-center">
-                        <button onclick="deleteShoppingItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="deleteShoppingItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `;
         }
 
-        function updateShoppingItem(index, field, value) {
+        function updateShoppingItem(id, field, value) {
+            const item = state.shoppingList.find(i => i.id === id);
+            if (!item) return;
             if (field === 'price' || field === 'qty') {
-                state.shoppingList[index][field] = parseFloat(value) || 0;
+                item[field] = parseFloat(value) || 0;
             } else {
-                state.shoppingList[index][field] = value;
+                item[field] = value;
             }
             saveData();
             updateShoppingTotal();
         }
 
-        function deleteShoppingItem(index) {
-            state.shoppingList.splice(index, 1);
+        function deleteShoppingItem(id) {
+            state.shoppingList = state.shoppingList.filter(i => i.id !== id);
             saveData();
-            document.getElementById('shopping-table-body').innerHTML = state.shoppingList.map((item, idx) => getShoppingRowHTML(item, idx)).join('') || `<tr id="empty-shop-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+            const row = document.getElementById(`shop-row-${id}`);
+            if (row) {
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    row.remove();
+                    const tbody = document.getElementById('shopping-table-body');
+                    if (tbody && tbody.children.length === 0) {
+                        tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="4" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                    }
+                }, 300);
+            }
             updateShoppingTotal();
         }
         
@@ -1462,7 +1481,7 @@
 
             if (!product) return;
 
-            const newItem = { product, qty, price };
+            const newItem = { id: Date.now() + Math.random(), product, qty, price };
             state.shoppingList.push(newItem);
             saveData();
             
@@ -1470,9 +1489,7 @@
             if (tbody) {
                 const emptyMsg = document.getElementById('empty-shop-msg');
                 if (emptyMsg) emptyMsg.remove();
-                
-                const newIndex = state.shoppingList.length - 1;
-                tbody.insertAdjacentHTML('beforeend', getShoppingRowHTML(newItem, newIndex));
+                tbody.insertAdjacentHTML('beforeend', getShoppingRowHTML(newItem));
             }
 
             prodInput.value = '';
@@ -1494,37 +1511,49 @@
             }
         }
 
-        function getServiceRowHTML(item, index) {
+        function getServiceRowHTML(item) {
             const price = parseFloat(item.price) || 0;
             return `
-                <tr id="service-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
+                <tr id="service-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
                     <td class="p-3">
-                        <input type="text" value="${item.service}" onchange="updateServiceItem(${index}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
+                        <input type="text" value="${item.service}" oninput="updateServiceItem(${item.id}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
                     </td>
                     <td class="p-3 w-32">
-                        <input type="number" value="${price}" onchange="updateServiceItem(${index}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
+                        <input type="number" value="${price}" oninput="updateServiceItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
                     </td>
                     <td class="p-3 w-10 text-center">
-                        <button onclick="deleteServiceItem(${index})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="deleteServiceItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `;
         }
 
-        function updateServiceItem(index, field, value) {
+        function updateServiceItem(id, field, value) {
+            const item = state.serviceList.find(i => i.id === id);
+            if (!item) return;
             if (field === 'price') {
-                state.serviceList[index][field] = parseFloat(value) || 0;
+                item[field] = parseFloat(value) || 0;
             } else {
-                state.serviceList[index][field] = value;
+                item[field] = value;
             }
             saveData();
             updateServiceTotal();
         }
 
-        function deleteServiceItem(index) {
-            state.serviceList.splice(index, 1);
+        function deleteServiceItem(id) {
+            state.serviceList = state.serviceList.filter(i => i.id !== id);
             saveData();
-            document.getElementById('service-table-body').innerHTML = state.serviceList.map((item, idx) => getServiceRowHTML(item, idx)).join('') || `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
+            const row = document.getElementById(`service-row-${id}`);
+            if (row) {
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    row.remove();
+                    const tbody = document.getElementById('service-table-body');
+                    if (tbody && tbody.children.length === 0) {
+                        tbody.innerHTML = `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-400 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
+                    }
+                }, 300);
+            }
             updateServiceTotal();
         }
         
@@ -1536,7 +1565,7 @@
 
             if (!service) return;
 
-            const newItem = { service, price };
+            const newItem = { id: Date.now() + Math.random(), service, price };
             state.serviceList.push(newItem);
             saveData();
             
@@ -1544,9 +1573,7 @@
             if (tbody) {
                 const emptyMsg = document.getElementById('empty-service-msg');
                 if (emptyMsg) emptyMsg.remove();
-                
-                const newIndex = state.serviceList.length - 1;
-                tbody.insertAdjacentHTML('beforeend', getServiceRowHTML(newItem, newIndex));
+                tbody.insertAdjacentHTML('beforeend', getServiceRowHTML(newItem));
             }
 
             serviceInput.value = '';
@@ -1583,52 +1610,49 @@
         }
         
         // --- FUNCIONES DE INVENTARIO (INVENTORY) ---
+        function getStatusBadgeHTML(qty, minQty) {
+            if (qty <= 0) return `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-red-200">AGOTADO</span>`;
+            if (qty <= minQty) return `<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-yellow-200">BAJO STOCK</span>`;
+            return `<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-green-200">ÓPTIMO</span>`;
+        }
 
-        function getInventoryRowHTML(item, index) {
+        function getInventoryRowHTML(item) {
             const price = parseFloat(item.price) || 0;
             const salePrice = parseFloat(item.salePrice) || 0;
             const qty = parseFloat(item.qty) || 0;
             const minQty = parseFloat(item.minQty) || 0;
             const soldQty = parseFloat(item.soldQty) || 0;
             
-            const totalCost = price * qty;
             const realProfit = soldQty * (salePrice - price);
             
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
 
-            let statusBadge = '';
-            if (qty <= 0) {
-                statusBadge = `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-red-200">AGOTADO</span>`;
-            } else if (qty <= minQty) {
-                statusBadge = `<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-yellow-200">BAJO STOCK</span>`;
-            } else {
-                statusBadge = `<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider mt-1 border border-green-200">ÓPTIMO</span>`;
-            }
+            const badgeHTML = getStatusBadgeHTML(qty, minQty);
 
             return `
-                <tr id="inventory-row-${index}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition duration-300 item-enter group">
+                <tr id="inventory-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition duration-300 item-enter group">
                     <td class="p-3 w-[30%]">
                         <div class="flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-mono mb-1"><i class="fa-solid fa-barcode mr-1"></i>${sku} <span class="mx-1">&bull;</span> <i class="fa-solid fa-tag mr-1"></i>${category}</span>
-                            <input type="text" value="${item.product}" onchange="updateInventoryItem(${index}, 'product', this.value)" class="bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200 text-sm w-full focus:text-green-600 transition-colors" placeholder="Nombre del Ítem">
+                            <input type="text" value="${item.product}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200 text-sm w-full focus:text-green-600 transition-colors" placeholder="Nombre del Ítem">
                         </div>
                     </td>
                     <td class="p-3 text-center align-middle w-[15%]">
                         <div class="flex flex-col items-center justify-center">
-                            <input type="number" value="${qty}" onchange="updateInventoryItem(${index}, 'qty', this.value)" class="w-16 bg-neutral-100 dark:bg-neutral-800 outline-none font-black text-center text-neutral-700 dark:text-neutral-200 rounded p-1 focus:ring-2 focus:ring-green-500 transition" min="0">
-                            ${statusBadge}
+                            <input type="number" value="${qty}" oninput="updateInventoryItem(${item.id}, 'qty', this.value)" class="qty-input w-16 bg-neutral-100 dark:bg-neutral-800 outline-none font-black text-center text-neutral-700 dark:text-neutral-200 rounded p-1 focus:ring-2 focus:ring-green-500 transition" min="0">
+                            <div class="status-badge-container">${badgeHTML}</div>
                         </div>
                     </td>
                     <td class="p-3 align-middle w-[20%]">
                         <div class="flex flex-col gap-1 items-end pr-2">
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase">Costo:</span>
-                                <input type="number" value="${price}" onchange="updateInventoryItem(${index}, 'price', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
+                                <input type="number" value="${price}" oninput="updateInventoryItem(${item.id}, 'price', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
                             </div>
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
-                                <input type="number" value="${salePrice}" onchange="updateInventoryItem(${index}, 'salePrice', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                                <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
                             </div>
                         </div>
                     </td>
@@ -1636,54 +1660,76 @@
                         <div class="flex flex-col gap-1 items-end">
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase" title="Unidades Vendidas">Vendidos:</span>
-                                <input type="number" value="${soldQty}" onchange="updateInventoryItem(${index}, 'soldQty', this.value)" class="w-16 bg-transparent outline-none font-bold text-right text-purple-600 dark:text-purple-400 text-sm focus:border-b border-purple-500 transition" min="0">
+                                <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-16 bg-transparent outline-none font-bold text-right text-purple-600 dark:text-purple-400 text-sm focus:border-b border-purple-500 transition" min="0">
                             </div>
-                            <span class="text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
+                            <span class="profit-text text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
                         </div>
                     </td>
                     <td class="p-3 w-[15%] text-center align-middle">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="sellInventoryItem(${index})" class="w-8 h-8 rounded bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition shadow-sm flex items-center justify-center opacity-80 group-hover:opacity-100 active:scale-95" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-sm"></i></button>
-                            <button onclick="deleteInventoryItem(${index})" class="w-8 h-8 rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-30 group-hover:opacity-100 flex items-center justify-center active:scale-95"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="sellInventoryItem(${item.id})" class="w-8 h-8 rounded bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition shadow-sm flex items-center justify-center opacity-80 group-hover:opacity-100 active:scale-95" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-sm"></i></button>
+                            <button onclick="deleteInventoryItem(${item.id})" class="w-8 h-8 rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-30 group-hover:opacity-100 flex items-center justify-center active:scale-95"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </td>
                 </tr>
             `;
         }
 
-        function updateInventoryItem(index, field, value) {
+        function updateInventoryItem(id, field, value) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item) return;
             if (field === 'price' || field === 'salePrice' || field === 'qty' || field === 'minQty' || field === 'soldQty') {
-                state.inventoryList[index][field] = parseFloat(value) || 0;
+                item[field] = parseFloat(value) || 0;
             } else {
-                state.inventoryList[index][field] = value;
+                item[field] = value;
             }
             saveData();
             
-            // Re-render specifically this row to maintain fluidity (no full page refresh)
-            const row = document.getElementById(`inventory-row-${index}`);
+            // Actualización de DOM quirúrgica sin reemplazar el row completo (foco no se pierde)
+            const row = document.getElementById(`inventory-row-${id}`);
             if(row) {
-                row.outerHTML = getInventoryRowHTML(state.inventoryList[index], index);
+                const badgeContainer = row.querySelector('.status-badge-container');
+                if (badgeContainer) badgeContainer.innerHTML = getStatusBadgeHTML(item.qty, item.minQty);
+
+                const profitEl = row.querySelector('.profit-text');
+                if (profitEl) {
+                    const profit = (parseFloat(item.soldQty)||0) * ((parseFloat(item.salePrice)||0) - (parseFloat(item.price)||0));
+                    profitEl.innerText = `Ganan: $${profit.toLocaleString('es-CL')}`;
+                    profitEl.className = `profit-text text-xs ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight`;
+                }
             }
             updateInventoryTotal();
         }
 
-        function sellInventoryItem(index) {
-            const item = state.inventoryList[index];
+        function sellInventoryItem(id) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item) return;
             if (parseFloat(item.qty) > 0) {
                 item.qty = (parseFloat(item.qty) || 0) - 1;
                 item.soldQty = (parseFloat(item.soldQty) || 0) + 1;
                 saveData();
                 
-                // Actualización quirúrgica de la fila
-                const row = document.getElementById(`inventory-row-${index}`);
+                const row = document.getElementById(`inventory-row-${id}`);
                 if (row) {
-                    row.outerHTML = getInventoryRowHTML(item, index);
-                    // Brillo verde temporal indicando venta exitosa
-                    const newRow = document.getElementById(`inventory-row-${index}`);
-                    if (newRow) {
-                        newRow.classList.add('bg-green-100', 'dark:bg-green-900/50');
-                        setTimeout(() => newRow.classList.remove('bg-green-100', 'dark:bg-green-900/50'), 400);
+                    // Update input values directly
+                    const qtyInput = row.querySelector('.qty-input');
+                    if(qtyInput) qtyInput.value = item.qty;
+                    
+                    const soldInput = row.querySelector('.sold-input');
+                    if(soldInput) soldInput.value = item.soldQty;
+
+                    const badgeContainer = row.querySelector('.status-badge-container');
+                    if (badgeContainer) badgeContainer.innerHTML = getStatusBadgeHTML(item.qty, item.minQty);
+
+                    const profitEl = row.querySelector('.profit-text');
+                    if (profitEl) {
+                        const profit = item.soldQty * (item.salePrice - item.price);
+                        profitEl.innerText = `Ganan: $${profit.toLocaleString('es-CL')}`;
+                        profitEl.className = `profit-text text-xs ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight`;
                     }
+
+                    row.classList.add('bg-green-100', 'dark:bg-green-900/50');
+                    setTimeout(() => row.classList.remove('bg-green-100', 'dark:bg-green-900/50'), 400);
                 }
                 updateInventoryTotal();
                 showToast("Venta registrada", "fa-hand-holding-dollar");
@@ -1692,12 +1738,19 @@
             }
         }
 
-        function deleteInventoryItem(index) {
-            state.inventoryList.splice(index, 1);
+        function deleteInventoryItem(id) {
+            state.inventoryList = state.inventoryList.filter(i => i.id !== id);
             saveData();
-            const tbody = document.getElementById('inventory-table-body');
-            if (tbody) {
-                tbody.innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('') || `<tr id="empty-inventory-msg"><td colspan="5" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
+            const row = document.getElementById(`inventory-row-${id}`);
+            if (row) {
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    row.remove();
+                    const tbody = document.getElementById('inventory-table-body');
+                    if (tbody && tbody.children.length === 0) {
+                        tbody.innerHTML = `<tr id="empty-inventory-msg"><td colspan="5" class="text-center py-12"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-300 dark:text-neutral-600"></i></div><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Inventario Vacío</p><p class="text-xs text-neutral-400 mt-1">Registra tus repuestos e insumos.</p></td></tr>`;
+                    }
+                }, 300);
             }
             updateInventoryTotal();
         }
@@ -1725,16 +1778,15 @@
                 return; 
             }
 
-            const newItem = { sku, product, category, qty, minQty, price, salePrice, soldQty: 0 };
-            state.inventoryList.unshift(newItem); // Agregamos al inicio
+            const newItem = { id: Date.now() + Math.random(), sku, product, category, qty, minQty, price, salePrice, soldQty: 0 };
+            state.inventoryList.unshift(newItem); 
             saveData();
             
-            // Actualización fluida sin recargar todo el contenedor
             const tbody = document.getElementById('inventory-table-body');
             if (tbody) {
                 const emptyMsg = document.getElementById('empty-inventory-msg');
                 if (emptyMsg) emptyMsg.remove();
-                tbody.innerHTML = state.inventoryList.map((item, idx) => getInventoryRowHTML(item, idx)).join('');
+                tbody.insertAdjacentHTML('afterbegin', getInventoryRowHTML(newItem));
             }
             
             updateInventoryTotal();
@@ -1800,7 +1852,7 @@
         }
 
         function getShoppingListContentHTML() {
-            const itemsHTML = state.shoppingList.map((item, index) => getShoppingRowHTML(item, index)).join('');
+            const itemsHTML = state.shoppingList.map((item) => getShoppingRowHTML(item)).join('');
             const subtotal = state.shoppingList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
@@ -1851,7 +1903,7 @@
         }
 
         function getServiceListContentHTML() {
-            const servicesHTML = state.serviceList.map((item, index) => getServiceRowHTML(item, index)).join('');
+            const servicesHTML = state.serviceList.map((item) => getServiceRowHTML(item)).join('');
             const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
@@ -1898,7 +1950,7 @@
         }
 
         function getInventoryListContentHTML() {
-            const inventoryHTML = state.inventoryList.map((item, index) => getInventoryRowHTML(item, index)).join('');
+            const inventoryHTML = state.inventoryList.map((item) => getInventoryRowHTML(item)).join('');
             
             const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
             const totalProfit = state.inventoryList.reduce((sum, item) => {

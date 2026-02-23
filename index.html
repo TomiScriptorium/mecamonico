@@ -401,14 +401,16 @@
     <div id="finance-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] border border-neutral-300 dark:border-neutral-700 fade-enter">
             <!-- Header Nav -->
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center relative">
-                <button onclick="changeFinanceMonth(-1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-left text-sm"></i></button>
-                <div class="text-center">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Resumen Financiero</p>
-                    <h3 id="finance-month-title" class="text-lg font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-tight">Cargando...</h3>
+            <div class="bg-neutral-100 dark:bg-neutral-800 p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center relative">
+                <div class="flex gap-1.5 relative z-10">
+                    <button onclick="changeFinanceMonth(-1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-left text-sm"></i></button>
+                    <button onclick="changeFinanceMonth(1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-right text-sm"></i></button>
                 </div>
-                <button onclick="changeFinanceMonth(1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-right text-sm"></i></button>
-                <button onclick="closeFinanceModal()" class="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition border-2 border-white dark:border-neutral-900"><i class="fa-solid fa-xmark"></i></button>
+                <div class="text-center absolute left-1/2 transform -translate-x-1/2 w-[50%] pointer-events-none">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Resumen Financiero</p>
+                    <h3 id="finance-month-title" class="text-lg font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-tight pointer-events-auto">Cargando...</h3>
+                </div>
+                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition relative z-10"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <!-- KPIs -->
@@ -936,24 +938,23 @@
             const profitColor = dailyProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
             const profitBg = dailyProfit >= 0 ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30';
             
-            let financeWidgetHTML = '';
-            if (state.showFinanceWidget) {
-                financeWidgetHTML = `
+            const displayClass = state.showFinanceWidget ? 'flex' : 'hidden';
+
+            const financeWidgetHTML = `
                 <!-- Widget Balance -->
-                <div class="flex items-center justify-between p-2.5 rounded-lg border transition shadow-sm group ${profitBg} relative mt-3">
-                    <div class="flex items-center gap-2.5 ${profitColor} cursor-pointer w-full" onclick="openFinanceModal()" title="Ver historial y resumen mensual">
-                        <div class="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center shadow-sm group-hover:scale-105 transition shrink-0"><i class="fa-solid fa-wallet text-xl"></i></div>
-                        <div>
+                <div id="finance-widget-container" class="${displayClass} items-center justify-between p-2.5 rounded-lg border transition-all duration-300 shadow-sm group ${profitBg} relative mt-3">
+                    <div class="flex items-center gap-2.5 cursor-pointer w-full" onclick="openFinanceModal()" title="Ver historial y resumen mensual">
+                        <div id="finance-widget-icon-bg" class="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center shadow-sm group-hover:scale-105 transition shrink-0 ${profitColor}"><i class="fa-solid fa-wallet text-xl"></i></div>
+                        <div class="${profitColor}" id="finance-widget-text-color">
                             <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 leading-none mb-1 text-neutral-500 dark:text-neutral-400">Balance Hoy</p>
                             <p class="text-[11px] font-bold leading-none hover:underline opacity-90"><i class="fa-solid fa-chart-line mr-1"></i>Ver Resumen Mensual</p>
                         </div>
                     </div>
                     <div class="flex flex-col items-end shrink-0 pl-2">
                         <button onclick="hideFinanceWidgetDirectly(event)" class="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-red-500 transition rounded hover:bg-black/5 dark:hover:bg-white/5" title="Ocultar Balance"><i class="fa-solid fa-eye-slash text-xs"></i></button>
-                        <span class="text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5">${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}</span>
+                        <span id="finance-widget-amount" class="text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5">${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}</span>
                     </div>
                 </div>`;
-            }
 
             const profileImageSrc = state.userProfileImage || 'https://placehold.co/64x64/dc2626/ffffff?text=MEC'; const displayUserName = state.userName || 'Usuario'; const displayUserTitle = state.userTitle || 'Estudiante'; const patientsListContent = generatePatientsHTML();
             
@@ -961,7 +962,7 @@
             
             <!-- Tarjeta de Perfil + Balance Diario -->
             <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0">
-                <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-neutral-100 dark:border-neutral-800 pb-2' : ''}">
+                <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-neutral-100 dark:border-neutral-800 pb-2' : ''}" id="profile-card-header">
                     <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://placehold.co/64x64/dc2626/ffffff?text=MEC'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
                     <div class="flex-1">
                         <p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p>
@@ -2936,6 +2937,58 @@
         }
 
         // --- SISTEMA FINANCIERO (MODAL) ---
+        function updateDashboardFinanceDOM() {
+            const container = document.getElementById('finance-widget-container');
+            const header = document.getElementById('profile-card-header');
+            if (!container) return; // Si no está en el dashboard ignora
+
+            if (!state.showFinanceWidget) {
+                container.classList.remove('flex');
+                container.classList.add('hidden');
+                if(header) header.className = "flex items-center gap-4"; // Quita el borde inferior
+                return;
+            } else {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+                if(header) header.className = "flex items-center gap-4 border-b border-neutral-100 dark:border-neutral-800 pb-2";
+            }
+
+            const today = new Date(); 
+            const year = today.getFullYear(); 
+            const month = String(today.getMonth() + 1).padStart(2, '0'); 
+            const day = String(today.getDate()).padStart(2, '0'); 
+            const dateKey = `${year}-${month}-${day}`;
+
+            const dailyTxs = (state.transactions || []).filter(t => t.date === dateKey);
+            const dailyIncome = dailyTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const dailyExpense = dailyTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const dailyProfit = dailyIncome - dailyExpense;
+            const signStr = dailyProfit < 0 ? '-' : (dailyProfit > 0 ? '+' : '');
+
+            const isPositive = dailyProfit >= 0;
+            const profitColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+            
+            const baseClass = "items-center justify-between p-2.5 rounded-lg border transition-all duration-300 shadow-sm group relative mt-3";
+            const bgClass = isPositive ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30';
+            container.className = `flex ${baseClass} ${bgClass}`;
+
+            const amountEl = document.getElementById('finance-widget-amount');
+            if (amountEl) {
+                amountEl.innerText = `${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}`;
+                amountEl.className = `text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5`;
+            }
+
+            const iconBg = document.getElementById('finance-widget-icon-bg');
+            if (iconBg) {
+                iconBg.className = `w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center shadow-sm group-hover:scale-105 transition shrink-0 ${profitColor}`;
+            }
+            
+            const textColor = document.getElementById('finance-widget-text-color');
+            if (textColor) {
+                textColor.className = profitColor;
+            }
+        }
+
         function openFinanceModal() {
             currentFinanceDate = new Date();
             const y = currentFinanceDate.getFullYear();
@@ -2952,7 +3005,7 @@
         function closeFinanceModal() {
             document.body.classList.remove('modal-open');
             document.getElementById('finance-modal').classList.add('hidden');
-            if (state.view === 'dashboard') renderView('dashboard'); // Refresh balance
+            updateDashboardFinanceDOM();
         }
 
         function changeFinanceMonth(delta) {
@@ -3086,14 +3139,14 @@
         function toggleFinanceSetting(checked) {
             state.showFinanceWidget = checked;
             saveData();
-            if(state.view === 'dashboard') renderView('dashboard');
+            updateDashboardFinanceDOM();
         }
 
         function hideFinanceWidgetDirectly(event) {
             event.stopPropagation(); // Evita que se abra el modal
             state.showFinanceWidget = false;
             saveData();
-            if(state.view === 'dashboard') renderView('dashboard');
+            updateDashboardFinanceDOM();
             showToast("Balance oculto. Actívalo en Configuración.", "fa-eye-slash");
         }
 

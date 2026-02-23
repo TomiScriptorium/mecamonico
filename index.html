@@ -1426,17 +1426,17 @@
             const qty = parseFloat(item.qty) || 1;
             return `
                 <tr id="shop-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
-                    <td class="p-3">
+                    <td class="p-2 sm:p-3 min-w-[150px]">
                         <input type="text" value="${item.product}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
                     </td>
-                    <td class="p-3 w-20">
+                    <td class="p-2 sm:p-3 w-20 min-w-[70px]">
                         <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant." min="1">
                     </td>
-                    <td class="p-3 w-28">
+                    <td class="p-2 sm:p-3 w-28 min-w-[90px]">
                         <input type="number" value="${price}" oninput="updateShoppingItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio Un." min="0">
                     </td>
-                    <td class="p-3 w-10 text-center">
-                        <button onclick="deleteShoppingItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-2 sm:p-3 w-10 text-center min-w-[50px]">
+                        <button onclick="deleteShoppingItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `;
@@ -1515,14 +1515,14 @@
             const price = parseFloat(item.price) || 0;
             return `
                 <tr id="service-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
-                    <td class="p-3">
+                    <td class="p-2 sm:p-3 min-w-[180px]">
                         <input type="text" value="${item.service}" oninput="updateServiceItem(${item.id}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
                     </td>
-                    <td class="p-3 w-32">
+                    <td class="p-2 sm:p-3 w-32 min-w-[100px]">
                         <input type="number" value="${price}" oninput="updateServiceItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
                     </td>
-                    <td class="p-3 w-10 text-center">
-                        <button onclick="deleteServiceItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-2 sm:p-3 w-10 text-center min-w-[50px]">
+                        <button onclick="deleteServiceItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `;
@@ -1632,43 +1632,43 @@
 
             return `
                 <tr id="inventory-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition duration-300 item-enter group">
-                    <td class="p-3 w-[30%]">
+                    <td class="p-2 sm:p-3 lg:w-[30%] min-w-[180px]">
                         <div class="flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-mono mb-1"><i class="fa-solid fa-barcode mr-1"></i>${sku} <span class="mx-1">&bull;</span> <i class="fa-solid fa-tag mr-1"></i>${category}</span>
                             <input type="text" value="${item.product}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200 text-sm w-full focus:text-green-600 transition-colors" placeholder="Nombre del Ítem">
                         </div>
                     </td>
-                    <td class="p-3 text-center align-middle w-[15%]">
+                    <td class="p-2 sm:p-3 text-center align-middle lg:w-[15%] min-w-[90px]">
                         <div class="flex flex-col items-center justify-center">
                             <input type="number" value="${qty}" oninput="updateInventoryItem(${item.id}, 'qty', this.value)" class="qty-input w-16 bg-neutral-100 dark:bg-neutral-800 outline-none font-black text-center text-neutral-700 dark:text-neutral-200 rounded p-1 focus:ring-2 focus:ring-green-500 transition" min="0">
                             <div class="status-badge-container">${badgeHTML}</div>
                         </div>
                     </td>
-                    <td class="p-3 align-middle w-[20%]">
+                    <td class="p-2 sm:p-3 align-middle lg:w-[20%] min-w-[120px]">
                         <div class="flex flex-col gap-1 items-end pr-2">
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase">Costo:</span>
-                                <input type="number" value="${price}" oninput="updateInventoryItem(${item.id}, 'price', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
+                                <input type="number" value="${price}" oninput="updateInventoryItem(${item.id}, 'price', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
                             </div>
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
-                                <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                                <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
                             </div>
                         </div>
                     </td>
-                    <td class="p-3 align-middle w-[20%]">
+                    <td class="p-2 sm:p-3 align-middle lg:w-[20%] min-w-[130px]">
                         <div class="flex flex-col gap-1 items-end">
                             <div class="flex items-center justify-between w-full max-w-[120px]">
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase" title="Unidades Vendidas">Vendidos:</span>
                                 <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-16 bg-transparent outline-none font-bold text-right text-purple-600 dark:text-purple-400 text-sm focus:border-b border-purple-500 transition" min="0">
                             </div>
-                            <span class="profit-text text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
+                            <span class="profit-text text-[11px] sm:text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
                         </div>
                     </td>
-                    <td class="p-3 w-[15%] text-center align-middle">
-                        <div class="flex items-center justify-end gap-2">
-                            <button onclick="sellInventoryItem(${item.id})" class="w-8 h-8 rounded bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition shadow-sm flex items-center justify-center opacity-80 group-hover:opacity-100 active:scale-95" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-sm"></i></button>
-                            <button onclick="deleteInventoryItem(${item.id})" class="w-8 h-8 rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-30 group-hover:opacity-100 flex items-center justify-center active:scale-95"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-2 sm:p-3 lg:w-[15%] min-w-[80px] text-center align-middle">
+                        <div class="flex items-center justify-end gap-1.5 sm:gap-2">
+                            <button onclick="sellInventoryItem(${item.id})" class="w-7 h-7 sm:w-8 sm:h-8 rounded bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition shadow-sm flex items-center justify-center opacity-80 group-hover:opacity-100 active:scale-95" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-[10px] sm:text-sm"></i></button>
+                            <button onclick="deleteInventoryItem(${item.id})" class="w-7 h-7 sm:w-8 sm:h-8 rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 hover:text-red-500 transition opacity-30 group-hover:opacity-100 flex items-center justify-center active:scale-95"><i class="fa-solid fa-trash-can text-[10px] sm:text-sm"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -1858,14 +1858,14 @@
             const total = subtotal + iva;
 
             return `
-                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-x-auto hide-scrollbar">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                <th class="p-3 font-bold uppercase tracking-wider">Producto / Repuesto</th>
-                                <th class="p-3 font-bold uppercase tracking-wider text-center">Cant.</th>
-                                <th class="p-3 font-bold uppercase tracking-wider text-right">Precio Un.</th>
-                                <th class="p-3"></th>
+                                <th class="p-2 sm:p-3 font-bold uppercase tracking-wider min-w-[150px]">Producto / Repuesto</th>
+                                <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-center min-w-[70px]">Cant.</th>
+                                <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right min-w-[90px]">Precio Un.</th>
+                                <th class="p-2 sm:p-3 min-w-[50px]"></th>
                             </tr>
                         </thead>
                         <tbody id="shopping-table-body">
@@ -1873,25 +1873,25 @@
                         </tbody>
                         <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
                             <tr>
-                                <td colspan="2" class="p-3 text-right font-black text-sm uppercase">Total Calculado:</td>
-                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="shopping-total">
+                                <td colspan="2" class="p-2 sm:p-3 text-right font-black text-xs sm:text-sm uppercase">Total Calculado:</td>
+                                <td class="p-2 sm:p-3 text-right font-black text-red-600 dark:text-red-400 text-base sm:text-lg" id="shopping-total">
                                     $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
-                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
+                                    <div class="text-[9px] sm:text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
                                 </td>
-                                <td class="p-3"></td>
+                                <td class="p-2 sm:p-3"></td>
                             </tr>
                             <tr>
-                                <td class="p-3">
-                                    <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
+                                <td class="p-2 sm:p-3">
+                                    <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full min-w-[130px] bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
                                 </td>
-                                <td class="p-3">
-                                    <input type="number" id="new-item-qty" placeholder="1" class="w-full bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="1" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-price').focus()">
+                                <td class="p-2 sm:p-3">
+                                    <input type="number" id="new-item-qty" placeholder="1" class="w-full min-w-[50px] bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="1" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-price').focus()">
                                 </td>
-                                <td class="p-3">
-                                    <input type="number" id="new-item-price" placeholder="Valor" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addShoppingItem()">
+                                <td class="p-2 sm:p-3">
+                                    <input type="number" id="new-item-price" placeholder="Valor" class="w-full min-w-[70px] bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addShoppingItem()">
                                 </td>
-                                <td class="p-3 text-center">
-                                    <button onclick="addShoppingItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                <td class="p-2 sm:p-3 text-center">
+                                    <button onclick="addShoppingItem()" class="bg-red-600 text-white w-7 h-7 sm:w-8 sm:h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm mx-auto">
                                         <i class="fa-solid fa-plus text-xs"></i>
                                     </button>
                                 </td>
@@ -1909,13 +1909,13 @@
             const total = subtotal + iva;
             
             return `
-                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-x-auto hide-scrollbar">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                <th class="p-3 font-bold uppercase tracking-wider">Servicio / Mano de Obra</th>
-                                <th class="p-3 font-bold uppercase tracking-wider text-right">Precio</th>
-                                <th class="p-3"></th>
+                                <th class="p-2 sm:p-3 font-bold uppercase tracking-wider min-w-[180px]">Servicio / Mano de Obra</th>
+                                <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right min-w-[100px]">Precio</th>
+                                <th class="p-2 sm:p-3 min-w-[50px]"></th>
                             </tr>
                         </thead>
                         <tbody id="service-table-body">
@@ -1923,22 +1923,22 @@
                         </tbody>
                         <tfoot class="bg-neutral-50 dark:bg-neutral-800/30">
                             <tr>
-                                <td class="p-3 text-right font-black text-sm uppercase">Costo Total:</td>
-                                <td class="p-3 text-right font-black text-red-600 dark:text-red-400 text-lg" id="service-total">
+                                <td class="p-2 sm:p-3 text-right font-black text-xs sm:text-sm uppercase">Costo Total:</td>
+                                <td class="p-2 sm:p-3 text-right font-black text-red-600 dark:text-red-400 text-base sm:text-lg" id="service-total">
                                     $${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}
-                                    <div class="text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
+                                    <div class="text-[9px] sm:text-[10px] text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>
                                 </td>
-                                <td class="p-3"></td>
+                                <td class="p-2 sm:p-3"></td>
                             </tr>
                             <tr>
-                                <td class="p-3">
-                                    <input type="text" id="new-service-desc" placeholder="Agregar servicio..." class="w-full bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-service-price').focus()">
+                                <td class="p-2 sm:p-3">
+                                    <input type="text" id="new-service-desc" placeholder="Agregar servicio..." class="w-full min-w-[160px] bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-service-price').focus()">
                                 </td>
-                                <td class="p-3">
-                                    <input type="number" id="new-service-price" placeholder="0" class="w-full bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addServiceItem()">
+                                <td class="p-2 sm:p-3">
+                                    <input type="number" id="new-service-price" placeholder="0" class="w-full min-w-[80px] bg-transparent outline-none text-sm font-bold text-right text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="0" onkeypress="if(event.key === 'Enter') addServiceItem()">
                                 </td>
-                                <td class="p-3 text-center">
-                                    <button onclick="addServiceItem()" class="bg-red-600 text-white w-8 h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm">
+                                <td class="p-2 sm:p-3 text-center">
+                                    <button onclick="addServiceItem()" class="bg-red-600 text-white w-7 h-7 sm:w-8 sm:h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm mx-auto">
                                         <i class="fa-solid fa-plus text-xs"></i>
                                     </button>
                                 </td>
@@ -2054,15 +2054,15 @@
                     </div>
 
                     <!-- Inventory Table -->
-                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden">
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                                    <th class="p-3 font-bold uppercase tracking-wider w-[30%]">Ítem / Detalle</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-center w-[15%]">Stock</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[20%]">Precios</th>
-                                    <th class="p-3 font-bold uppercase tracking-wider text-right w-[20%]">Ventas / Ganancia</th>
-                                    <th class="p-3 w-[15%]"></th>
+                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider lg:w-[30%] min-w-[180px]">Ítem / Detalle</th>
+                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-center lg:w-[15%] min-w-[90px]">Stock</th>
+                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right lg:w-[20%] min-w-[120px]">Precios</th>
+                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right lg:w-[20%] min-w-[130px]">Ventas / Ganancia</th>
+                                    <th class="p-2 sm:p-3 lg:w-[15%] min-w-[80px]"></th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-table-body">
@@ -2779,35 +2779,30 @@
             container.classList.toggle('hidden');
             if (!container.classList.contains('hidden')) {
                 setTimeout(() => document.getElementById('mobile-search-input').focus(), 50);
-            } else {
-                document.getElementById('mobile-search-input').blur();
             }
         }
 
         function highlightElement(id) {
             const el = document.getElementById(id);
-            if(el) {
-                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
-                // Las filas de tabla (TR) necesitan un resaltado de color de fondo, no bordes
-                const isRow = el.tagName.toLowerCase() === 'tr';
+                // Efecto visual de resaltado
+                const originalBg = el.style.backgroundColor;
+                const originalTransition = el.style.transition;
                 
-                if (isRow) {
-                    el.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'transition-colors', 'duration-500');
-                    setTimeout(() => {
-                        el.classList.remove('bg-blue-100', 'dark:bg-blue-900/50');
-                    }, 1500);
-                } else {
-                    // Tarjetas genéricas usan el anillo de enfoque normal
-                    el.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20', 'transition-all', 'duration-500');
-                    setTimeout(() => {
-                        el.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'scale-[1.01]', 'z-20');
-                    }, 1500);
-                }
+                el.style.transition = 'all 0.5s ease';
+                el.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900');
+                
+                setTimeout(() => {
+                    el.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900');
+                    setTimeout(() => { el.style.transition = originalTransition; }, 500);
+                }, 2000);
             }
         }
 
-        init();
+        // Inicializar la aplicación
+        window.onload = init;
     </script>
 </body>
 </html>

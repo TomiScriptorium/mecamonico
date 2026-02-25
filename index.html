@@ -416,7 +416,24 @@
             </div>
         </div>
     </div>
-    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label><button onclick="exportDataToClipboard()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-copy"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">JSON Texto</h4><p class="text-xs text-neutral-400">Portapapeles (Rápido)</p></div></button></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
+    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label></div>
+    <div class="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sincronización Rápida
+                </h4>
+                <div class="flex flex-col gap-3">
+                    <button onclick="uploadToCloud()" class="w-full py-2.5 bg-blue-600 text-white rounded font-bold text-sm shadow-md hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-share-from-square"></i> Generar Código de Envío
+                    </button>
+                    <div class="flex gap-2">
+                        <input type="text" id="sync-code-input" placeholder="Pega el código aquí..." class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold text-center outline-none focus:ring-2 focus:ring-blue-500 font-mono text-neutral-700 dark:text-neutral-200">
+                        <button onclick="downloadFromCloud()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 rounded font-bold text-sm hover:bg-neutral-600 transition shadow active:scale-95">
+                            <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Bajar
+                        </button>
+                    </div>
+                </div>
+            </div>
+    <div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-neutral-900 z-[90] flex flex-col animate-fade-in outline-none" tabindex="0">
         <div class="bg-neutral-800 text-white pt-safe px-4 pb-3 flex justify-between items-center shadow-lg shrink-0 z-20 relative border-b border-neutral-600">
             <h3 id="pdf-reader-title" class="text-lg font-bold truncate max-w-[60%] flex items-center font-mono text-red-500"><i class="fa-solid fa-file-pdf mr-2 text-white"></i> Manual</h3>
@@ -804,7 +821,7 @@
         function closeBackupModal() { document.getElementById('backup-modal').classList.add('hidden'); document.getElementById('backup-file-input').value = ''; }
         async function downloadBackupFile() { try { showToast("Comprimiendo...", "fa-spinner fa-spin"); const zip = new JSZip(); const dataStr = JSON.stringify(state, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast("Backup Descargado", "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
         async function importBackupFromFile(input) { const file = input.files[0]; if (!file) return; try { showToast("Analizando ZIP...", "fa-spinner fa-spin"); const zip = await JSZip.loadAsync(file); const dataFile = zip.file("mecamonico_data.json"); if (!dataFile) throw new Error("ZIP inválido."); const content = await dataFile.async("string"); const data = JSON.parse(content); if (data && (data.todos || data.notes || data.shifts)) { showConfirmModal("Restaurar desde ZIP", "Se reemplazará toda la información actual.", "Restaurar", function() { state = { ...state, ...data, currentDate: new Date() }; saveData(); closeConfirmModal(); closeBackupModal(); state.view = null; renderView('dashboard'); showToast("Datos restaurados", "fa-check-double"); }); } else { showToast("Datos corruptos", "fa-triangle-exclamation"); } } catch (err) { showToast("Error: Archivo inválido", "fa-bug"); } input.value = ''; }
-        function exportDataToClipboard() { const textArea = document.createElement("textarea"); textArea.value = JSON.stringify(state); textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.select(); try { if(document.execCommand('copy')) showToast("JSON copiado", "fa-clipboard-check"); else showToast("Error al copiar", "fa-times"); } catch (err) { showToast("Error al copiar", "fa-times"); } document.body.removeChild(textArea); }
+    
         
         function triggerPdfInput() { document.getElementById('pdf-input-file').click(); }
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); 
@@ -3345,6 +3362,78 @@
             });
         }
 
+        
+        // --- SISTEMA DE NUBE TEMPORAL (OPTIMIZADO) ---
+        async function uploadToCloud() {
+            try {
+                showToast("Subiendo a la nube...", "fa-spinner fa-spin");
+                
+                // 1. Limpiamos datos de vista para aligerar la carga
+                const dataToSync = { ...state };
+                delete dataToSync.currentDate;
+                delete dataToSync.view;
+                
+                // 2. Subimos a la API
+                const response = await fetch('https://jsonblob.com/api/jsonBlob', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(dataToSync)
+                });
+                
+                if (!response.ok) throw new Error("Fallo en el servidor");
+                
+                // 3. Extraemos el código
+                const location = response.headers.get('Location');
+                const syncCode = location.split('/').pop();
+                
+                // 4. Mostramos confirmación y copiamos
+                showConfirmModal("Sincronización Lista", `Tu código es:\n${syncCode}\n(Válido por algunas horas)`, "Copiar y Cerrar", () => {
+                    navigator.clipboard.writeText(syncCode);
+                    showToast("Código copiado al portapapeles", "fa-copy");
+                    closeConfirmModal();
+                });
+            } catch (e) {
+                console.error(e);
+                showToast("Error de conexión", "fa-wifi");
+            }
+        }
+
+        async function downloadFromCloud() {
+            const codeEl = document.getElementById('sync-code-input');
+            const code = codeEl.value.trim();
+            if (!code) return showToast("Ingresa un código válido", "fa-keyboard");
+
+            showConfirmModal("¿Reemplazar Datos?", "Esto sobreescribirá el taller actual con los datos descargados de la nube.", "Descargar e Instalar", async () => {
+                try {
+                    showToast("Descargando...", "fa-spinner fa-spin");
+                    const response = await fetch(`https://jsonblob.com/api/jsonBlob/${code}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    if (!response.ok) throw new Error("Código no encontrado");
+                    
+                    const remoteData = await response.json();
+                    
+                    // Validación de seguridad: Comprobar que sea un archivo de Mecamonico
+                    if (remoteData && (remoteData.patients || remoteData.inventoryList)) {
+                        state = { ...state, ...remoteData, currentDate: new Date() };
+                        await saveData();
+                        
+                        closeConfirmModal();
+                        closeBackupModal();
+                        codeEl.value = ''; // Limpiar input
+                        renderView('dashboard');
+                        showToast("Taller Sincronizado Exitosamente", "fa-check-double");
+                    } else {
+                        throw new Error("Datos corruptos");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast("Código inválido o expirado", "fa-times");
+                    closeConfirmModal();
+                }
+            });
+        }
         // Inicializar la aplicación
         // --- SISTEMA DE HISTORIAL DE ÓRDENES ---
         function openHistoryModal() {

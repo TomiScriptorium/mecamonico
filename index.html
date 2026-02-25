@@ -3636,12 +3636,11 @@
         async function syncToCloud() {
             if (!currentUser) return; 
             try {
-                // Aligeramos los datos (dejamos imágenes grandes en local para que la subida sea instantánea)
+                // Aligeramos los datos pero AHORA SÍ enviamos la foto de perfil
                 const dataToSync = { ...state };
                 delete dataToSync.currentDate;
                 delete dataToSync.view;
                 delete dataToSync.pdfs; 
-                delete dataToSync.userProfileImage; 
                 
                 await miSupabase.from('taller_data').upsert({ 
                     id: currentUser.id, 
@@ -3653,22 +3652,20 @@
             }
         }
 
-        async function syncFromCloud() {
+        async function syncFromCloud(silent = false) {
             if (!currentUser) return;
             try {
-                showToast("Sincronizando nube...", "fa-spinner fa-spin");
+                if (!silent) showToast("Sincronizando nube...", "fa-spinner fa-spin");
                 const { data, error } = await miSupabase.from('taller_data').select('datos').eq('id', currentUser.id).single();
                 
-                if (error && error.code !== 'PGRST116') throw error; // PGRST116 significa "Sin datos aún"
+                if (error && error.code !== 'PGRST116') throw error; 
                 
                 if (data && data.datos) {
                     // Rescatar archivos pesados locales
                     const currentPdfs = state.pdfs || [];
-                    const currentProfileImg = state.userProfileImage;
                     
                     state = { ...state, ...data.datos, currentDate: new Date() };
                     state.pdfs = currentPdfs;
-                    if(currentProfileImg && !state.userProfileImage) state.userProfileImage = currentProfileImg;
                     
                     // Guardar en el dispositivo actual
                     const toSave = { ...state }; 
@@ -3676,11 +3673,10 @@
                     await idbKeyval.set(APP_KEY, toSave);
                     
                     renderView(state.view || 'dashboard');
-                    showToast("Taller Actualizado", "fa-cloud-arrow-down");
+                    if (!silent) showToast("Taller Actualizado", "fa-cloud-arrow-down");
                 } else {
-                    // Si es cuenta nueva y la nube está vacía, subimos lo que ya tienes
                     syncToCloud();
-                    showToast("Nube iniciada", "fa-cloud-arrow-up");
+                    if (!silent) showToast("Nube iniciada", "fa-cloud-arrow-up");
                 }
             } catch (e) {
                 console.error("Error bajando de nube:", e);
@@ -3699,6 +3695,18 @@
             }
         });
 
+        // Sensor: Descargar datos automáticamente cuando la app vuelve a primer plano
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && currentUser) {
+                syncFromCloud(true); // Se descarga en silencio
+            }
+        });
+
+        // Sensor: Descargar datos cuando el celular recupera la conexión a internet
+        window.addEventListener('online', () => {
+            if (currentUser) syncFromCloud(true); // Se descarga en silencio
+        });
+        
         window.onload = init;
     </script>
 </body>

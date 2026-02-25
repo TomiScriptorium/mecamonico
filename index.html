@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-    <script src="https://unpkg.com/html5-qrcode"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -2244,13 +2243,8 @@
                         </div>
                         <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
                             <div class="lg:col-span-2">
-                            <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">SKU/Cód.</label>
-                                <div class="flex gap-2">
-                                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Escanear...">
-                                    <button onclick="toggleBarcodeScanner('new-inv-sku')" class="w-10 h-10 bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Escanear Código">
-                                        <i class="fa-solid fa-barcode"></i>
-                                    </button>
-                                </div>
+                                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">SKU/Cód.</label>
+                                <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
                             </div>
                             <div class="lg:col-span-2">
                                 <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
@@ -2293,15 +2287,9 @@
                     </div>
 
                     <!-- Buscador de Inventario -->
-                    <div class="mb-4 flex gap-2 relative">
-                        <div class="relative flex-1">
-                            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                            <input type="text" id="inventory-search" placeholder="Buscar repuesto o escanear SKU..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
-                        </div>
-                        <button onclick="toggleBarcodeScanner('inventory-search')" class="w-[46px] h-[46px] bg-green-600 text-white rounded flex items-center justify-center hover:bg-green-700 transition shadow-sm shrink-0" title="Buscar por Escáner">
-                            <i class="fa-solid fa-barcode text-xl"></i>
-                        </button>
-                        <div id="qr-reader" class="hidden absolute top-[110%] right-0 w-full sm:w-[350px] z-[60] rounded-lg shadow-2xl border-2 border-green-500 bg-black overflow-hidden"></div>
+                    <div class="mb-4 relative">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                        <input type="text" id="inventory-search" placeholder="Buscar por SKU, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
                     </div>
 
                     <!-- Inventory Table -->
@@ -3221,80 +3209,6 @@
             showToast("Registro eliminado", "fa-trash");
         }
 
-        // --- SISTEMA DE ESCÁNER DE CÓDIGOS DE BARRAS ---
-        let html5QrcodeScanner = null;
-
-        function toggleBarcodeScanner(targetInputId) {
-            const readerDiv = document.getElementById('qr-reader');
-            
-            // Si la cámara ya está encendida, la apagamos
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                    readerDiv.classList.add('hidden');
-                }).catch(err => console.error("Error al detener", err));
-                return;
-            }
-
-            // Mostramos el contenedor e iniciamos
-            readerDiv.classList.remove('hidden');
-            html5QrcodeScanner = new Html5Qrcode("qr-reader");
-            
-            const config = { fps: 10, qrbox: { width: 250, height: 100 } };
-            
-            html5QrcodeScanner.start(
-                { facingMode: "environment" }, // Cámara trasera
-                config,
-                (decodedText) => {
-                    // ¡Éxito al leer!
-                    const targetInput = document.getElementById(targetInputId);
-                    if(targetInput) {
-                        targetInput.value = decodedText;
-                        // Si estábamos buscando, filtramos automáticamente la tabla
-                        if(targetInputId === 'inventory-search') {
-                            filterInventory(decodedText);
-                        }
-                    }
-                    
-                    playBeep(); // Suena el pitido
-                    showToast("Código detectado", "fa-barcode");
-                    
-                    // Apagamos la cámara
-                    html5QrcodeScanner.stop().then(() => {
-                        html5QrcodeScanner.clear();
-                        html5QrcodeScanner = null;
-                        readerDiv.classList.add('hidden');
-                        
-                        // Si estábamos agregando repuesto, pasamos al nombre del producto
-                        if(targetInputId === 'new-inv-sku') {
-                            document.getElementById('new-inv-product').focus(); 
-                        }
-                    });
-                },
-                (errorMessage) => { /* Ignoramos errores de búsqueda continua */ }
-            ).catch((err) => {
-                showToast("Permiso de cámara denegado", "fa-camera");
-                readerDiv.classList.add('hidden');
-                console.error(err);
-            });
-        }
-
-        function playBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                osc.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime); 
-                gainNode.gain.setValueAtTime(0.1, ctx.currentTime); 
-                osc.start();
-                osc.stop(ctx.currentTime + 0.1); 
-            } catch(e) { console.log("Audio no soportado"); }
-        }
-        
         // --- SISTEMA DE CONFIGURACIÓN GLOBAL ---
         const moduleNames = {
             'dashboard': { icon: 'fa-warehouse', name: 'Inicio', locked: true }, // Nunca se oculta

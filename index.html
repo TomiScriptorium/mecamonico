@@ -211,8 +211,6 @@
         .mouse-drag.dragging { cursor: grabbing; }
         .mouse-drag.dragging * { user-select: none; }
     </style>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
 
@@ -262,8 +260,8 @@
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
                 </button>
-                <button onclick="handleCloudLogin()" id="cloud-auth-btn" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5 transition-colors" title="Cuenta en la Nube">
-                    <i class="fa-solid fa-cloud text-blue-500" id="cloud-icon"></i> <span class="hidden sm:inline" id="cloud-text">Conectar</span>
+                <button onclick="openBackupModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
+                    <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
                 <button onclick="openSettingsModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
@@ -466,22 +464,6 @@
         <div class="bg-neutral-800 h-safe-bottom shrink-0 pb-safe"></div>
     </div>
 
-<div id="login-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-blue-500 relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-red-500 transition"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-2 flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-500"></i> Nube Mecamonico</h3>
-            <p class="text-xs text-neutral-500 mb-4">Ingresa con correo y contraseña</p>
-            <div class="space-y-3 mb-4">
-                <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded outline-none focus:ring-2 focus:ring-blue-500 font-bold dark:text-white text-sm">
-                <input type="password" id="login-password" placeholder="Contraseña (mín 6 caracteres)" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded outline-none focus:ring-2 focus:ring-blue-500 font-bold dark:text-white text-sm">
-            </div>
-            <div class="flex flex-col gap-2">
-                <button onclick="loginWithPassword()" class="w-full bg-blue-600 text-white font-bold rounded py-2.5 shadow hover:bg-blue-700 transition active:scale-95 text-sm">Iniciar Sesión</button>
-                <button onclick="registerWithPassword()" class="w-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold rounded py-2.5 shadow-sm hover:bg-neutral-300 dark:hover:bg-neutral-700 transition active:scale-95 text-sm">Crear Cuenta Nueva</button>
-            </div>
-        </div>
-    </div>
-
     <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-3 rounded-full shadow-xl opacity-0 transition-all duration-300 pointer-events-none z-[80] flex items-center gap-3 text-sm font-bold translate-y-4 border border-neutral-600">
         <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-xs text-white"><i class="fa-solid fa-check"></i></div>
         <span id="toast-msg">Notificación</span>
@@ -580,12 +562,6 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN DE SUPABASE ---
-        const supabaseUrl = 'https://hvzzgymodvfspdkauvjq.supabase.co';
-        const supabaseKey = 'sb_publishable_u8c_NoMZ0ftdyBbNnlo4Cw_jnrdxeP1';
-        const miSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        let currentUser = null;
-
         const APP_KEY = 'mecamonico_data_v1'; 
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
@@ -677,13 +653,7 @@
 
         async function saveData() {
             const toSave = { ...state }; delete toSave.currentDate; delete toSave.editingNoteId; 
-            try { 
-                await idbKeyval.set(APP_KEY, toSave); 
-                // Si hay sesión activa, subir a la nube en segundo plano
-                if (currentUser) syncToCloud();
-            } catch (e) { 
-                showToast("Error al guardar", "fa-triangle-exclamation"); 
-            }
+            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { showToast("Error al guardar", "fa-triangle-exclamation"); }
         }
 
         function toggleDarkMode() {
@@ -3539,174 +3509,6 @@
                 showToast("Vehículo restaurado al Taller", "fa-rotate-left");
             }
         }
-
-        // --- SISTEMA DE AUTENTICACIÓN SUPABASE (CORREO Y CONTRASEÑA) ---
-        function updateCloudButton() {
-            const btnText = document.getElementById('cloud-text');
-            const icon = document.getElementById('cloud-icon');
-            if (!btnText || !icon) return;
-
-            if (currentUser) {
-                btnText.innerText = "Nube Activa";
-                icon.className = "fa-solid fa-cloud text-green-500";
-            } else {
-                btnText.innerText = "Conectar";
-                icon.className = "fa-solid fa-cloud text-blue-500";
-            }
-        }
-
-        function handleCloudLogin() {
-            if (currentUser) {
-                showConfirmModal("¿Cerrar Sesión?", "Se desconectará tu usuario de este dispositivo.", "Salir", () => {
-                    // 1. Cerramos la ventana y mostramos aviso instantáneamente
-                    closeConfirmModal();
-                    showToast("Saliendo...", "fa-door-open");
-                    
-                    // 2. DESTRUCCIÓN LOCAL INMEDIATA: Borramos todo rastro de Supabase en tu navegador
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('sb-') || key.includes('supabase')) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                    
-                    // 3. Desconectamos la interfaz y el botón al instante
-                    currentUser = null;
-                    updateCloudButton();
-                    
-                    // 4. Le avisamos al servidor de fondo (sin el "await" para que no congele nada)
-                    miSupabase.auth.signOut().catch(e => console.log("Servidor ignorado"));
-                    
-                    // 5. Forzamos una recarga de la página limpia en medio segundo
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                });
-            } else {
-                openLoginModal();
-            }
-        }
-
-        function openLoginModal() {
-            document.getElementById('login-email').value = '';
-            document.getElementById('login-password').value = '';
-            document.body.classList.add('modal-open');
-            document.getElementById('login-modal').classList.remove('hidden');
-        }
-
-        function closeLoginModal() {
-            document.body.classList.remove('modal-open');
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-
-        async function loginWithPassword() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            if (!email || !password) return showToast("Llena ambos campos", "fa-times");
-            
-            showToast("Conectando...", "fa-spinner fa-spin");
-            const { data, error } = await miSupabase.auth.signInWithPassword({ email, password });
-            
-            if (error) {
-                showToast("Datos incorrectos", "fa-triangle-exclamation");
-                console.error(error);
-            } else {
-                closeLoginModal();
-                showToast("¡Nube Conectada!", "fa-cloud");
-            }
-        }
-
-        async function registerWithPassword() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            if (!email || password.length < 6) return showToast("Contraseña muy corta (mínimo 6)", "fa-times");
-            
-            showToast("Creando cuenta...", "fa-spinner fa-spin");
-            const { data, error } = await miSupabase.auth.signUp({ email, password });
-            
-            if (error) {
-                showToast("Error al crear. Quizás ya existe.", "fa-triangle-exclamation");
-                console.error(error);
-            } else {
-                closeLoginModal();
-                showToast("¡Cuenta Creada y Conectada!", "fa-check");
-            }
-        }
-
-        // --- MOTOR DE SINCRONIZACIÓN SUPABASE ---
-        async function syncToCloud() {
-            if (!currentUser) return; 
-            try {
-                // Aligeramos los datos pero AHORA SÍ enviamos la foto de perfil
-                const dataToSync = { ...state };
-                delete dataToSync.currentDate;
-                delete dataToSync.view;
-                delete dataToSync.pdfs; 
-                
-                await miSupabase.from('taller_data').upsert({ 
-                    id: currentUser.id, 
-                    datos: dataToSync,
-                    actualizado_en: new Date().toISOString()
-                });
-            } catch (e) {
-                console.error("Error subiendo a nube:", e);
-            }
-        }
-
-        async function syncFromCloud(silent = false) {
-            if (!currentUser) return;
-            try {
-                if (!silent) showToast("Sincronizando nube...", "fa-spinner fa-spin");
-                const { data, error } = await miSupabase.from('taller_data').select('datos').eq('id', currentUser.id).single();
-                
-                if (error && error.code !== 'PGRST116') throw error; 
-                
-                if (data && data.datos) {
-                    // Rescatar archivos pesados locales
-                    const currentPdfs = state.pdfs || [];
-                    
-                    state = { ...state, ...data.datos, currentDate: new Date() };
-                    state.pdfs = currentPdfs;
-                    
-                    // Guardar en el dispositivo actual
-                    const toSave = { ...state }; 
-                    delete toSave.currentDate; delete toSave.editingNoteId; 
-                    await idbKeyval.set(APP_KEY, toSave);
-                    
-                    renderView(state.view || 'dashboard');
-                    if (!silent) showToast("Taller Actualizado", "fa-cloud-arrow-down");
-                } else {
-                    syncToCloud();
-                    if (!silent) showToast("Nube iniciada", "fa-cloud-arrow-up");
-                }
-            } catch (e) {
-                console.error("Error bajando de nube:", e);
-            }
-        }
-
-        // Escuchar cambios en la sesión al cargar
-        miSupabase.auth.onAuthStateChange(async (event, session) => {
-            const prevUser = currentUser;
-            currentUser = session ? session.user : null;
-            updateCloudButton();
-            
-            // Si acabamos de entrar a la cuenta, bajar los datos
-            if (currentUser && (!prevUser || prevUser.id !== currentUser.id)) {
-                await syncFromCloud();
-            }
-        });
-
-        // Sensor: Descargar datos automáticamente cuando la app vuelve a primer plano
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && currentUser) {
-                syncFromCloud(true); // Se descarga en silencio
-            }
-        });
-
-        // Sensor: Descargar datos cuando el celular recupera la conexión a internet
-        window.addEventListener('online', () => {
-            if (currentUser) syncFromCloud(true); // Se descarga en silencio
-        });
-        
         window.onload = init;
     </script>
 </body>

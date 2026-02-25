@@ -211,6 +211,8 @@
         .mouse-drag.dragging { cursor: grabbing; }
         .mouse-drag.dragging * { user-select: none; }
     </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
 
@@ -260,8 +262,8 @@
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
                 </button>
-                <button onclick="openBackupModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
-                    <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
+                <button onclick="handleCloudLogin()" id="cloud-auth-btn" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5 transition-colors" title="Cuenta en la Nube">
+                    <i class="fa-solid fa-cloud text-blue-500" id="cloud-icon"></i> <span class="hidden sm:inline" id="cloud-text">Conectar</span>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
                 <button onclick="openSettingsModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
@@ -562,6 +564,12 @@
     </div>
 
     <script>
+        // --- CONFIGURACIÓN DE SUPABASE ---
+        const supabaseUrl = 'https://hvzzgymodvfspdkauvjq.supabase.co';
+        const supabaseKey = 'sb_publishable_u8c_NoMZ0ftdyBbNlo4Cw_jnrdxeP1';
+        const miSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let currentUser = null;
+
         const APP_KEY = 'mecamonico_data_v1'; 
         let state = {
             view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
@@ -3509,6 +3517,55 @@
                 showToast("Vehículo restaurado al Taller", "fa-rotate-left");
             }
         }
+
+        // --- SISTEMA DE AUTENTICACIÓN SUPABASE ---
+        function updateCloudButton() {
+            const btnText = document.getElementById('cloud-text');
+            const icon = document.getElementById('cloud-icon');
+            if (!btnText || !icon) return;
+
+            if (currentUser) {
+                btnText.innerText = "Nube Activa";
+                icon.className = "fa-solid fa-cloud text-green-500";
+            } else {
+                btnText.innerText = "Conectar";
+                icon.className = "fa-solid fa-cloud text-blue-500";
+            }
+        }
+
+        async function handleCloudLogin() {
+            if (currentUser) {
+                showConfirmModal("¿Cerrar Sesión?", "Se desconectará tu usuario de este dispositivo.", "Salir", async () => {
+                    await miSupabase.auth.signOut();
+                    currentUser = null;
+                    updateCloudButton();
+                    closeConfirmModal();
+                    showToast("Sesión cerrada", "fa-user-slash");
+                });
+            } else {
+                const email = prompt("Ingresa tu correo para entrar al taller (Se enviará un link mágico):");
+                if (!email || !email.includes('@')) return showToast("Correo no válido", "fa-times");
+                
+                showToast("Enviando acceso...", "fa-spinner fa-spin");
+                const { error } = await miSupabase.auth.signInWithOtp({ 
+                    email: email,
+                    options: { emailRedirectTo: window.location.href }
+                });
+                
+                if (error) {
+                    showToast("Error al enviar", "fa-triangle-exclamation");
+                    console.error(error);
+                } else {
+                    showConfirmModal("¡Enviado!", "Revisa tu correo. Haz clic en el enlace para entrar.", "Entendido", closeConfirmModal);
+                }
+            }
+        }
+
+        // Escuchar cambios en la sesión
+        miSupabase.auth.onAuthStateChange((event, session) => {
+            currentUser = session ? session.user : null;
+            updateCloudButton();
+        });
         window.onload = init;
     </script>
 </body>

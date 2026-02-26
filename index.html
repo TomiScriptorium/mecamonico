@@ -1097,10 +1097,12 @@
         }
 
         function createPatientTaskHTML(t, patientId) { 
+            const priceHTML = t.price ? `<span class="text-xs font-bold text-red-500 w-16 text-right shrink-0">$${t.price.toLocaleString('es-CL')}</span>` : `<span class="text-xs text-neutral-300 w-16 text-right shrink-0">-</span>`;
             return `<div id="patient-task-${t.id}" class="flex items-center gap-2 group/task mb-1 item-enter">
                 <button onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" class="text-sm ${t.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition"><i class="fa-${t.done ? 'solid' : 'regular'} fa-square-check"></i></button>
-                <span id="txt-ptask-${t.id}" class="text-sm flex-1 ${t.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'}">${t.text}</span>
-                <button onclick="deletePatientTask(${patientId}, ${t.id})" class="text-neutral-200 dark:text-neutral-700 hover:text-red-400 opacity-0 group-hover/task:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button>
+                <span id="txt-ptask-${t.id}" class="text-sm flex-1 truncate ${t.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'}">${t.text}</span>
+                ${priceHTML}
+                <button onclick="deletePatientTask(${patientId}, ${t.id})" class="text-neutral-200 dark:text-neutral-700 hover:text-red-400 opacity-0 group-hover/task:opacity-100 transition shrink-0"><i class="fa-solid fa-xmark"></i></button>
             </div>`; 
         }
 
@@ -1198,14 +1200,19 @@
         }
 
         function createWorkOrderCardHTML(p) {
-            const total = p.tasks.length;
+            const totalTasks = p.tasks.length;
             const done = p.tasks.filter(t => t.done).length;
-            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            const pct = totalTasks === 0 ? 0 : Math.round((done / totalTasks) * 100);
+            
+            // Calculadora de Totales
+            const subtotal = p.tasks.reduce((sum, t) => sum + (parseFloat(t.price) || 0), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
             
             let progressColor = 'bg-blue-600';
             let borderColor = 'border-l-blue-600';
-            if (pct === 100 && total > 0) { progressColor = 'bg-green-500'; borderColor = 'border-l-green-500'; }
-            else if (total === 0) { progressColor = 'bg-neutral-400'; borderColor = 'border-l-neutral-400'; }
+            if (pct === 100 && totalTasks > 0) { progressColor = 'bg-green-500'; borderColor = 'border-l-green-500'; }
+            else if (totalTasks === 0) { progressColor = 'bg-neutral-400'; borderColor = 'border-l-neutral-400'; }
 
             const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join('');
 
@@ -1233,17 +1240,23 @@
                     </div>
                     <div class="p-4 flex-1 flex flex-col min-h-[150px]">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Tareas (${done}/${total})</span>
-                            <span class="text-xs font-bold ${pct === 100 && total > 0 ? 'text-green-500' : 'text-blue-500'}">${pct}%</span>
+                            <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Detalles (${done}/${totalTasks})</span>
+                            <span class="text-xs font-bold ${pct === 100 && totalTasks > 0 ? 'text-green-500' : 'text-blue-500'}">${pct}%</span>
                         </div>
                         <div class="flex-1 overflow-y-auto hide-scrollbar max-h-[200px] space-y-1 mb-3" id="wo-tasks-${p.id}">
-                            ${tasksHTML.length ? tasksHTML : '<p class="text-center text-xs text-neutral-300 italic py-4">Sin tareas registradas</p>'}
+                            ${tasksHTML.length ? tasksHTML : '<p class="text-center text-xs text-neutral-300 italic py-4">Sin repuestos o servicios</p>'}
                         </div>
                         <div class="mt-auto pt-2 border-t border-dashed border-neutral-200 dark:border-neutral-700">
-                            <div class="flex items-center gap-2">
-                                <input type="text" id="new-task-input-${p.id}-lg" placeholder="+ Tarea rápida..." class="bg-transparent text-sm outline-none w-full placeholder-neutral-400 dark:placeholder-neutral-600 focus:placeholder-blue-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
+                            <div class="flex justify-between items-end mb-3">
+                                <div class="text-[10px] text-neutral-500 font-bold uppercase">Sub: $${subtotal.toLocaleString('es-CL')} | IVA: $${iva.toLocaleString('es-CL')}</div>
+                                <div class="text-sm font-black text-red-600 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded border border-red-100 dark:border-red-900">Total: $${total.toLocaleString('es-CL')}</div>
+                            </div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <input type="text" id="new-task-input-${p.id}-lg" placeholder="+ Detalle/Servicio..." class="bg-transparent text-sm outline-none flex-1 placeholder-neutral-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') document.getElementById('new-task-price-${p.id}-lg').focus()">
+                                <input type="number" id="new-task-price-${p.id}-lg" placeholder="$ Valor" class="w-20 bg-transparent text-sm outline-none placeholder-neutral-400 text-right text-red-500 font-bold" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
                                 <button onclick="addPatientTaskWrapper(${p.id})" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-paper-plane"></i></button>
                             </div>
+                            <button onclick="downloadWorkOrderPDF(${p.id})" class="w-full bg-neutral-800 dark:bg-neutral-800 text-white text-xs py-2 rounded font-bold hover:bg-neutral-700 transition shadow flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Cotización / OT PDF</button>
                         </div>
                     </div>
                 </div>`;
@@ -1251,26 +1264,32 @@
 
         function addPatientTaskWrapper(patientId) {
             const inputLg = document.getElementById(`new-task-input-${patientId}-lg`);
+            const priceLg = document.getElementById(`new-task-price-${patientId}-lg`);
+            
             if (inputLg && inputLg.value.trim()) {
                 const text = inputLg.value.trim();
+                const price = priceLg ? (parseFloat(priceLg.value) || 0) : 0;
                 const patient = state.patients.find(p => p.id === patientId);
+                
                 if(patient) {
-                    const newTask = { id: Date.now(), text, done: false };
+                    const newTask = { id: Date.now(), text, price, done: false };
                     patient.tasks.push(newTask);
                     saveData();
-                    const tasksContainer = document.getElementById(`wo-tasks-${patientId}`);
-                    if(tasksContainer) {
-                        const emptyMsg = tasksContainer.querySelector('p.italic');
-                        if(emptyMsg) emptyMsg.remove();
-                        tasksContainer.insertAdjacentHTML('beforeend', createPatientTaskHTML(newTask, patientId));
-                        tasksContainer.scrollTop = tasksContainer.scrollHeight;
+                    
+                    if(state.view === 'work_orders') {
+                        const oldCard = document.getElementById(`wo-card-${patientId}`);
+                        if(oldCard) oldCard.outerHTML = createWorkOrderCardHTML(patient);
+                        setTimeout(() => {
+                            const newInp = document.getElementById(`new-task-input-${patientId}-lg`);
+                            if(newInp) newInp.focus();
+                        }, 50);
+                    } else {
+                        const tasksContainer = document.getElementById(`patient-tasks-${patientId}`); 
+                        if(tasksContainer) tasksContainer.insertAdjacentHTML('beforeend', createPatientTaskHTML(newTask, patientId)); 
                     }
-                    updateCardProgress(patientId);
-                    inputLg.value = '';
-                    inputLg.focus();
                 }
             } else {
-                addPatientTask(patientId);
+                addPatientTask(patientId); 
             }
         }
 
@@ -2434,31 +2453,25 @@
         
         function getShoppingListHTML() {
             const isItems = state.activeShopTab === 'items';
-            const isServices = state.activeShopTab === 'services';
             const isInventory = state.activeShopTab === 'inventory';
             
             const activeClass = 'bg-red-600 text-white shadow-md';
             const inactiveClass = 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200';
 
             const itemsActive = isItems ? activeClass : inactiveClass;
-            const servicesActive = isServices ? activeClass : inactiveClass;
             const inventoryActive = isInventory ? activeClass : inactiveClass;
 
             const itemsContent = getShoppingListContentHTML();
-            const servicesContent = getServiceListContentHTML();
             const inventoryContent = getInventoryListContentHTML();
 
             const itemsInitialClass = isItems ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
-            const servicesInitialClass = isServices ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
             const inventoryInitialClass = isInventory ? 'tab-content-transition tab-content-enter relative block' : 'tab-content-transition tab-content-leave absolute hidden';
             
             let shareButtonsHTML = '';
             if (isItems) {
-                shareButtonsHTML = `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Lista</span></button><button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Compartir Productos</span></button>`;
-            } else if (isServices) {
-                shareButtonsHTML = `<button onclick="clearServiceList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Servicios</span></button><button onclick="downloadServicePDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-blue-400"></i> <span class="hidden sm:inline">Compartir Servicios</span></button>`;
+                shareButtonsHTML = `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Compras</span></button><button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Exportar Compras</span></button>`;
             } else {
-                shareButtonsHTML = `<button onclick="clearInventoryList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Inventario"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span></button><button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Compartir Inventario</span></button>`;
+                shareButtonsHTML = `<button onclick="clearInventoryList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Inventario"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span></button><button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Exportar Inventario</span></button>`;
             }
 
             return `
@@ -2474,7 +2487,6 @@
 
                     <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner gap-1">
                         <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${itemsActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-cart-arrow-down hidden sm:inline"></i> Compras</button>
-                        <button onclick="setActiveShopTab('services')" id="shop-tab-services" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${servicesActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-tags hidden sm:inline"></i> Servicios</button>
                         <button onclick="setActiveShopTab('inventory')" id="shop-tab-inventory" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${inventoryActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-box-open hidden sm:inline"></i> Inventario</button>
                     </div>
 
@@ -2496,9 +2508,6 @@
                     <div id="shop-content-wrapper" class="relative"> 
                         <div id="shop-content-items" class="${itemsInitialClass}">
                             ${itemsContent}
-                        </div>
-                        <div id="shop-content-services" class="${servicesInitialClass}">
-                            ${servicesContent}
                         </div>
                         <div id="shop-content-inventory" class="${inventoryInitialClass}">
                             ${inventoryContent}
@@ -2797,6 +2806,78 @@
             await generateCleanPDF(contentHTML, title, fileName);
         }
 
+        async function downloadWorkOrderPDF(patientId) {
+            const p = state.patients.find(x => x.id === patientId);
+            if (!p) return;
+            
+            if (p.tasks.length === 0) {
+                showToast("Agrega servicios a la orden primero", "fa-triangle-exclamation");
+                return;
+            }
+
+            const subtotal = p.tasks.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            const iva = Math.round(subtotal * 0.19);
+            const total = subtotal + iva;
+            
+            const listItemsHTML = p.tasks.map((item) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">
+                        <span style="font-size: 10px; color: ${item.done ? '#16a34a' : '#999'}; margin-right: 5px;">[${item.done ? 'LISTO' : 'PEND.'}]</span> 
+                        ${item.text}
+                    </td>
+                    <td style="padding: 10px 15px; color: #dc2626; font-weight: 700; text-align: right; width: 120px;">$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}</td>
+                </tr>
+            `).join('');
+
+            const shopData = state.appTitle || "Mecamonico Taller";
+            const addressText = state.shopAddress ? `<p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
+
+            const contentHTML = `
+                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div>
+                            <h1 style="font-size: 32px; font-weight: 900; margin: 0; color: #171717;">${shopData}</h1>
+                            ${addressText}
+                        </div>
+                        <div style="text-align: right;">
+                            <h2 style="margin: 0; font-size: 20px; color: #dc2626;">COTIZACIÓN / O.T.</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Fecha: ${new Date().toLocaleDateString('es-CL')}</p>
+                        </div>
+                    </div>
+
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Cliente / Modelo:</strong> ${p.name}</p>
+                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Patente:</strong> ${p.room}</p>
+                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Contacto:</strong> ${p.contact || '---'}</p>
+                        <p style="margin: 0; font-size: 14px; color: #dc2626;"><strong>Falla Inicial / Diagnóstico:</strong> ${p.dx}</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <thead>
+                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
+                                <th style="padding: 10px 15px; text-align: left;">Detalle de Servicio / Repuesto</th>
+                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${listItemsHTML}
+                        </tbody>
+                        <tfoot>
+                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
+                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL (+IVA)</td>
+                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">$${total.toLocaleString('es-CL')}
+                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Sub: $${subtotal.toLocaleString('es-CL')} | IVA: $${iva.toLocaleString('es-CL')}</div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+            
+            const fileName = `Cotizacion_${p.room.replace(/[^a-zA-Z0-9]/g, '')}_${new Date().toISOString().slice(0,10)}.pdf`;
+            await generateCleanPDF(contentHTML, `Cotización ${p.room}`, fileName);
+        }
+        
         function performContentSwap(viewName) {
             const container = document.getElementById('app-container');
             state.view = viewName; 

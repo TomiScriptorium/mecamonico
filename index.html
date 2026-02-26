@@ -1010,7 +1010,19 @@
         
         function showConfirmModal(title, message, actionBtnText, onConfirm) { const modal = document.getElementById('confirm-modal'); modal.querySelector('h3').innerText = title; document.getElementById('confirm-message').innerText = message; const btn = document.getElementById('confirm-btn-action'); btn.innerText = actionBtnText; btn.onclick = onConfirm; document.body.classList.add('modal-open'); modal.classList.remove('hidden'); }
         function closeConfirmModal() { document.body.classList.remove('modal-open'); document.getElementById('confirm-modal').classList.add('hidden'); }
-        function confirmDelete(type, id) { let msg = "Esta acción es definitiva."; if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; if(type === 'note') msg = "¿Eliminar esta anotación?"; if(type === 'link') msg = "¿Eliminar este recurso?"; showConfirmModal("¿Estás seguro?", msg, "Eliminar", function() { if (type === 'todo') deleteTodo(id); else if (type === 'note') deleteLink(id); closeConfirmModal(); }); }
+        function confirmDelete(type, id) { 
+            let msg = "Esta acción es definitiva."; 
+            if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; 
+            if(type === 'note') msg = "¿Eliminar esta anotación?"; 
+            if(type === 'link') msg = "¿Eliminar este recurso?"; 
+            
+            showConfirmModal("¿Estás seguro?", msg, "Eliminar", function() { 
+                if (type === 'todo') deleteTodo(id); 
+                else if (type === 'note') deleteNote(id); 
+                else if (type === 'link') deleteLink(id); 
+                closeConfirmModal(); 
+            }); 
+        }
 
         function getDashboardHTML() {
             const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; let shift = state.shifts[dateKey]; let isNextShift = false; let nextDateStr = "";
@@ -2971,6 +2983,43 @@
             await generateCleanPDF(contentHTML, `Cotización ${p.room}`, fileName);
         }
         
+        async function shareNote(noteId) {
+            const note = state.notes.find(n => n.id === noteId);
+            if (!note) {
+                showToast("No se encontró el apunte", "fa-triangle-exclamation");
+                return;
+            }
+
+            const textContent = note.text || '';
+            const formattedText = textContent.replace(/\n/g, '<br>');
+
+            let imagesHTML = '';
+            if (note.images && note.images.length > 0) {
+                imagesHTML = `<div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center;">` +
+                    note.images.map(img => `<img src="${img}" style="max-width: 100%; max-height: 400px; border-radius: 4px; object-fit: contain;">`).join('') +
+                    `</div>`;
+            } else if (note.image) { 
+                imagesHTML = `<div style="margin-top: 20px; text-align: center;">
+                    <img src="${note.image}" style="max-width: 100%; max-height: 400px; border-radius: 4px; object-fit: contain;">
+                </div>`;
+            }
+
+            // Diseño puramente en blanco: Sin títulos, sin fechas, sin bordes.
+            const contentHTML = `
+                <div style="padding: 40px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #171717; line-height: 1.6;">
+                    <div style="font-size: 15px; text-align: justify; color: #333;">
+                        ${formattedText}
+                    </div>
+                    ${imagesHTML}
+                </div>
+            `;
+
+            const safeTitle = textContent.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `Apunte_${safeTitle || 'SinTitulo'}_${new Date().toISOString().slice(0,10)}.pdf`;
+            
+            await generateCleanPDF(contentHTML, "Apunte de Bitácora", fileName);
+        }
+
         function performContentSwap(viewName) {
             const container = document.getElementById('app-container');
             state.view = viewName; 

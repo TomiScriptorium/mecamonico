@@ -2579,6 +2579,7 @@
             document.body.appendChild(tempContainer);
 
             try {
+                // Pequeña pausa para asegurar que el navegador cargó las fuentes
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
                 const canvas = await html2canvas(tempContainer, { 
@@ -2601,25 +2602,42 @@
                 const pdfBlob = doc.output('blob');
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+                let shared = false;
+                
+                // 1. Intentamos usar la función de Compartir Nativa
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: title, text: title });
-                    showToast("Documento Compartido", "fa-share-nodes");
-                } else {
-                    doc.save(fileName);
+                    try {
+                        // Lo metemos en un try-catch independiente porque Android suele bloquearlo por timeout
+                        await navigator.share({ files: [file], title: title, text: "Te comparto este documento." });
+                        shared = true;
+                        showToast("Documento Compartido", "fa-share-nodes");
+                    } catch (shareErr) {
+                        console.log("Share API bloqueado por Android, forzando descarga de respaldo...");
+                    }
+                } 
+                
+                // 2. Fallback de emergencia: Si Android bloqueó el "Compartir", forzamos la descarga local (PWA Safe)
+                if (!shared) {
+                    const url = URL.createObjectURL(pdfBlob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 500);
                     showToast("PDF Descargado", "fa-download");
                 }
 
             } catch (err) {
-                console.error("Error al generar/compartir PDF:", err);
-                showToast("Error al generar PDF", "fa-triangle-exclamation");
-                try {
-                    const { jsPDF } = window.jspdf;
-                    const fallbackDoc = new jsPDF();
-                    fallbackDoc.text(`${title} (Error)`, 10, 10);
-                    fallbackDoc.save(fileName.replace('.pdf', '_Simple.pdf'));
-                } catch(e) {}
+                console.error("Error al generar PDF:", err);
+                showToast("Error crítico al generar PDF", "fa-triangle-exclamation");
             } finally {
-                if(document.body.contains(tempContainer)) {
+                if (document.body.contains(tempContainer)) {
                     document.body.removeChild(tempContainer);
                 }
             }

@@ -2579,7 +2579,7 @@
             document.body.appendChild(tempContainer);
 
             try {
-                // Pequeña pausa para asegurar que el navegador cargó las fuentes
+                // Pausa para asegurar que carguen los estilos
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
                 const canvas = await html2canvas(tempContainer, { 
@@ -2602,36 +2602,72 @@
                 const pdfBlob = doc.output('blob');
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                let shared = false;
-                
-                // 1. Intentamos usar la función de Compartir Nativa
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        // Lo metemos en un try-catch independiente porque Android suele bloquearlo por timeout
-                        await navigator.share({ files: [file], title: title, text: "Te comparto este documento." });
-                        shared = true;
-                        showToast("Documento Compartido", "fa-share-nodes");
-                    } catch (shareErr) {
-                        console.log("Share API bloqueado por Android, forzando descarga de respaldo...");
-                    }
-                } 
-                
-                // 2. Fallback de emergencia: Si Android bloqueó el "Compartir", forzamos la descarga local (PWA Safe)
-                if (!shared) {
-                    const url = URL.createObjectURL(pdfBlob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
+                // Solución Definitiva Android: Convertimos el blob a Base64 para una descarga/lectura 100% segura
+                const reader = new FileReader();
+                reader.readAsDataURL(pdfBlob);
+                reader.onloadend = function() {
+                    const base64data = reader.result;
                     
-                    setTimeout(() => {
+                    // Ocultamos el toast de "Generando..." mostrando uno invisible
+                    showToast("¡Procesado!", "fa-check");
+
+                    // Creamos el menú puente interactivo
+                    const modalId = 'pdf-action-' + Date.now();
+                    const modalHtml = `
+                        <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
+                            <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
+                                <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                                <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50">
+                                    <i class="fa-solid fa-file-pdf text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
+                                <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
+                                <div class="flex flex-col gap-3">
+                                    <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Archivo
+                                    </button>
+                                    <button id="btn-down-${modalId}" class="w-full px-5 py-3.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-neutral-700 active:scale-95 transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-download text-lg"></i> Guardar en Teléfono
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    
+                    const modalEl = document.getElementById(modalId);
+                    
+                    // Acción: COMPARTIR (Ahora el dedo del usuario autoriza a Android instantáneamente)
+                    document.getElementById(`btn-share-${modalId}`).onclick = async () => {
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({ files: [file], title: title, text: "Cotización / Detalle adjunto." });
+                                modalEl.remove();
+                            } catch (e) {
+                                console.log("Compartir cancelado");
+                            }
+                        } else {
+                            showToast("Tu dispositivo no soporta compartir", "fa-triangle-exclamation");
+                        }
+                    };
+                    
+                    // Acción: DESCARGAR (Usando Base64 para que la App Web de Android no lo bloquee)
+                    document.getElementById(`btn-down-${modalId}`).onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = base64data;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
                         document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }, 500);
-                    showToast("PDF Descargado", "fa-download");
-                }
+                        modalEl.remove();
+                        showToast("Descarga exitosa", "fa-download");
+                    };
+                    
+                    // Acción: CERRAR
+                    document.getElementById(`btn-close-top-${modalId}`).onclick = () => {
+                        modalEl.remove();
+                    };
+                };
 
             } catch (err) {
                 console.error("Error al generar PDF:", err);

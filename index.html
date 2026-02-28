@@ -365,6 +365,10 @@
 
     <!-- Otros modales -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 text-center border-t-4 border-red-500"><div class="w-14 h-14 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">¿Confirmar?</h3><p id="confirm-message" class="text-sm text-neutral-500 dark:text-neutral-400 mb-6 font-mono">Esta acción es irreversible.</p><div class="flex justify-center gap-3"><button onclick="closeConfirmModal()" class="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded font-bold text-sm">Cancelar</button><button id="confirm-btn-action" class="px-5 py-2 bg-red-600 text-white rounded font-bold text-sm shadow-md">Confirmar</button></div></div></div>
+    <div id="image-modal" class="hidden fixed inset-0 bg-neutral-900/95 z-[100] flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onclick="closeImageModal()">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-neutral-800/50 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition backdrop-blur-md z-10 shadow-lg"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <img id="modal-image-content" src="" class="max-w-full max-h-[90vh] object-contain rounded shadow-2xl fade-enter" onclick="event.stopPropagation()">
+    </div>
     <div id="folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-red-600"></i> Nueva Sección</h3><input type="text" id="new-folder-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Ej: Motores, Electricidad..."><div class="flex justify-end gap-3"><button onclick="closeFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="createFolder()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Crear</button></div></div></div>
     <div id="rename-pdf-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-purple-600 fade-enter">
@@ -1088,6 +1092,20 @@
         
         function showConfirmModal(title, message, actionBtnText, onConfirm) { const modal = document.getElementById('confirm-modal'); modal.querySelector('h3').innerText = title; document.getElementById('confirm-message').innerText = message; const btn = document.getElementById('confirm-btn-action'); btn.innerText = actionBtnText; btn.onclick = onConfirm; document.body.classList.add('modal-open'); modal.classList.remove('hidden'); }
         function closeConfirmModal() { document.body.classList.remove('modal-open'); document.getElementById('confirm-modal').classList.add('hidden'); }
+        function openImagePreviewModal(src) {
+            const modal = document.getElementById('image-modal');
+            const img = document.getElementById('modal-image-content');
+            img.src = src;
+            document.body.classList.add('modal-open');
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            document.body.classList.remove('modal-open');
+            modal.classList.add('hidden');
+            setTimeout(() => { document.getElementById('modal-image-content').src = ''; }, 200);
+        }
         function confirmDelete(type, id) { 
             let msg = "Esta acción es definitiva."; 
             if(type === 'todo') msg = "¿Finalizar o borrar tarea?"; 
@@ -1735,10 +1753,10 @@
             let imagesHTML = '';
             if (note.images && note.images.length > 0) {
                 imagesHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-3 hide-scrollbar snap-x mouse-drag">
-                    ${note.images.map(src => `<img src="${src}" class="flex-shrink-0 h-40 w-auto rounded border border-neutral-200 dark:border-neutral-700 snap-center object-cover">`).join('')}
+                    ${note.images.map(src => `<img src="${src}" onclick="openImagePreviewModal(this.src)" class="flex-shrink-0 h-40 w-auto rounded border border-neutral-200 dark:border-neutral-700 snap-center object-cover cursor-pointer hover:opacity-80 transition shadow-sm">`).join('')}
                 </div>`;
             } else if (note.image) {
-                imagesHTML = `<img src="${note.image}" class="w-full h-auto rounded mb-3 border border-neutral-200 dark:border-neutral-700">`;
+                imagesHTML = `<img src="${note.image}" onclick="openImagePreviewModal(this.src)" class="w-full h-auto rounded mb-3 border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:opacity-80 transition shadow-sm">`;
             }
 
             const folderName = (state.folders || []).find(f => f.id === note.folderId)?.name || 'General'; 
@@ -2058,7 +2076,9 @@
             const minQty = parseFloat(item.minQty) || 0;
             const soldQty = parseFloat(item.soldQty) || 0;
             
-            const realProfit = soldQty * (salePrice - price);
+            const priceGross = Math.round(price * 1.19);
+            const salePriceGross = Math.round(salePrice * 1.19);
+            const realProfit = Math.round(soldQty * (salePriceGross - priceGross));
             
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
@@ -2081,13 +2101,19 @@
                     </td>
                     <td class="p-2 sm:p-3 align-middle lg:w-[20%] min-w-[120px]">
                         <div class="flex flex-col gap-1 items-end pr-2">
-                            <div class="flex items-center justify-between w-full max-w-[120px]">
-                                <span class="text-[10px] text-neutral-400 font-bold uppercase">Costo:</span>
-                                <input type="number" value="${price}" oninput="updateInventoryItem(${item.id}, 'price', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
+                            <div class="w-full max-w-[120px]">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-neutral-400 font-bold uppercase">Costo:</span>
+                                    <input type="number" value="${price}" oninput="updateInventoryItem(${item.id}, 'price', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-neutral-500 dark:text-neutral-400 text-sm focus:border-b border-blue-500 transition" min="0" placeholder="$0">
+                                </div>
+                                <p class="iva-costo text-[9px] text-neutral-400 text-right mt-0.5" title="Costo con IVA (19%)">c/IVA: $${priceGross.toLocaleString('es-CL')}</p>
                             </div>
-                            <div class="flex items-center justify-between w-full max-w-[120px]">
-                                <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
-                                <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                            <div class="w-full max-w-[120px]">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
+                                    <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
+                                </div>
+                                <p class="iva-venta text-[9px] text-neutral-400 text-right mt-0.5" title="Venta con IVA (19%)">c/IVA: $${salePriceGross.toLocaleString('es-CL')}</p>
                             </div>
                         </div>
                     </td>
@@ -2097,7 +2123,7 @@
                                 <span class="text-[10px] text-neutral-400 font-bold uppercase" title="Unidades Vendidas">Vendidos:</span>
                                 <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-16 bg-transparent outline-none font-bold text-right text-purple-600 dark:text-purple-400 text-sm focus:border-b border-purple-500 transition" min="0">
                             </div>
-                            <span class="profit-text text-[11px] sm:text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
+                            <span class="profit-text text-[11px] sm:text-xs ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight" title="Ganancia Real Acumulada (con IVA)">Ganan: $${realProfit.toLocaleString('es-CL')}</span>
                         </div>
                     </td>
                     <td class="p-2 sm:p-3 lg:w-[15%] min-w-[80px] text-center align-middle">
@@ -2120,18 +2146,26 @@
             }
             saveData();
             
-            // Actualización de DOM quirúrgica sin reemplazar el row completo (foco no se pierde)
             const row = document.getElementById(`inventory-row-${id}`);
             if(row) {
                 const badgeContainer = row.querySelector('.status-badge-container');
                 if (badgeContainer) badgeContainer.innerHTML = getStatusBadgeHTML(item.qty, item.minQty);
 
+                const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+                const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+
                 const profitEl = row.querySelector('.profit-text');
                 if (profitEl) {
-                    const profit = (parseFloat(item.soldQty)||0) * ((parseFloat(item.salePrice)||0) - (parseFloat(item.price)||0));
+                    const profit = Math.round((parseFloat(item.soldQty)||0) * (salePriceGross - priceGross));
                     profitEl.innerText = `Ganan: $${profit.toLocaleString('es-CL')}`;
                     profitEl.className = `profit-text text-xs ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight`;
                 }
+
+                const ivaTextCosto = row.querySelector('.iva-costo');
+                if (ivaTextCosto) ivaTextCosto.innerText = `c/IVA: $${priceGross.toLocaleString('es-CL')}`;
+                
+                const ivaTextVenta = row.querySelector('.iva-venta');
+                if (ivaTextVenta) ivaTextVenta.innerText = `c/IVA: $${salePriceGross.toLocaleString('es-CL')}`;
             }
             updateInventoryTotal();
         }
@@ -2146,7 +2180,6 @@
                 
                 const row = document.getElementById(`inventory-row-${id}`);
                 if (row) {
-                    // Update input values directly
                     const qtyInput = row.querySelector('.qty-input');
                     if(qtyInput) qtyInput.value = item.qty;
                     
@@ -2158,7 +2191,9 @@
 
                     const profitEl = row.querySelector('.profit-text');
                     if (profitEl) {
-                        const profit = item.soldQty * (item.salePrice - item.price);
+                        const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+                        const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+                        const profit = Math.round(item.soldQty * (salePriceGross - priceGross));
                         profitEl.innerText = `Ganan: $${profit.toLocaleString('es-CL')}`;
                         profitEl.className = `profit-text text-xs ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black mt-1 tracking-tight`;
                     }
@@ -2238,15 +2273,35 @@
         }
 
         function updateInventoryTotal() {
-            const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
             
-            // La ganancia real ahora se basa solo en lo que sí se vendió (soldQty)
             const totalProfit = state.inventoryList.reduce((sum, item) => {
-                const p = parseFloat(item.price) || 0;
-                const sp = parseFloat(item.salePrice) || 0;
+                const pGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+                const spGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
-                return sum + (sq * (sp - p));
+                return sum + (sq * (spGross - pGross));
             }, 0);
+            
+            const kpiItems = document.getElementById('inv-kpi-items');
+            if(kpiItems) kpiItems.innerText = state.inventoryList.length;
+            
+            const kpiAlerts = document.getElementById('inv-kpi-alerts');
+            if(kpiAlerts) kpiAlerts.innerText = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
+            
+            const kpiCost = document.getElementById('inv-kpi-cost');
+            if(kpiCost) {
+                kpiCost.innerText = `$${totalCost.toLocaleString('es-CL')}`;
+                kpiCost.title = `$${totalCost.toLocaleString('es-CL')}`;
+            }
+
+            const kpiProfit = document.getElementById('inv-kpi-profit');
+            if(kpiProfit) {
+                kpiProfit.innerText = `$${totalProfit.toLocaleString('es-CL')}`;
+                kpiProfit.title = `$${totalProfit.toLocaleString('es-CL')}`;
+                if (totalProfit < 0) kpiProfit.className = "text-lg sm:text-xl font-black text-red-500 truncate max-w-[100px] sm:max-w-full leading-none";
+                else kpiProfit.className = "text-lg sm:text-xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none";
+            }
+        }
             
             // Update UI fluidly via innerText
             const kpiItems = document.getElementById('inv-kpi-items');
@@ -2268,7 +2323,6 @@
                 if (totalProfit < 0) kpiProfit.className = "text-lg sm:text-xl font-black text-red-500 truncate max-w-[100px] sm:max-w-full leading-none";
                 else kpiProfit.className = "text-lg sm:text-xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none";
             }
-        }
 
         function clearInventoryList() {
             if (state.inventoryList.length === 0) return;
@@ -2468,11 +2522,11 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2 lg:col-span-3">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Un.</label>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Un. (Neto)</label>
                                     <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Venta Un.</label>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Venta Un. (Neto)</label>
                                     <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
                                 </div>
                             </div>
@@ -2495,7 +2549,7 @@
                                 <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
                                     <th class="p-2 sm:p-3 font-bold uppercase tracking-wider lg:w-[30%] min-w-[180px]">Ítem / Detalle</th>
                                     <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-center lg:w-[15%] min-w-[90px]">Stock</th>
-                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right lg:w-[20%] min-w-[120px]">Precios</th>
+                                    <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right lg:w-[20%] min-w-[120px]">Precios (Neto)</th>
                                     <th class="p-2 sm:p-3 font-bold uppercase tracking-wider text-right lg:w-[20%] min-w-[130px]">Ventas / Ganancia</th>
                                     <th class="p-2 sm:p-3 lg:w-[15%] min-w-[80px]"></th>
                                 </tr>
@@ -2925,20 +2979,22 @@
                 return;
             }
             
-            const totalCost = state.inventoryList.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)), 0);
+            // Calculamos el costo total y ganancia total agregando el 19% de IVA a los cálculos
+            const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
             
             const totalProfit = state.inventoryList.reduce((sum, item) => {
-                const p = parseFloat(item.price) || 0;
-                const sp = parseFloat(item.salePrice) || 0;
+                const p = Math.round((parseFloat(item.price) || 0) * 1.19);
+                const sp = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
                 return sum + (sq * (sp - p));
             }, 0);
             
+            // Generamos las filas de la tabla con el IVA incluido en los precios mostrados
             const listItemsHTML = state.inventoryList.map((item) => {
-                const cost = parseFloat(item.price) || 0;
-                const sale = parseFloat(item.salePrice) || 0;
+                const costGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+                const saleGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
-                const profit = sq * (sale - cost);
+                const profit = sq * (saleGross - costGross);
                 
                 const sku = item.sku || '---';
                 return `
@@ -2947,8 +3003,8 @@
                     <td style="padding: 6px 8px; color: #333; font-weight: bold; width: 30%;">${item.product}</td>
                     <td style="padding: 6px 8px; color: #333; text-align: center; width: 8%; font-weight: bold;">${item.qty}</td>
                     <td style="padding: 6px 8px; color: #2563eb; text-align: center; width: 8%; font-weight: bold;">${sq}</td>
-                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${cost.toLocaleString('es-CL')}</td>
-                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${sale.toLocaleString('es-CL')}</td>
+                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${costGross.toLocaleString('es-CL')}</td>
+                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${saleGross.toLocaleString('es-CL')}</td>
                     <td style="padding: 6px 8px; color: ${profit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: bold; text-align: right; width: 14%;">$${profit.toLocaleString('es-CL')}</td>
                 </tr>
             `}).join('');
@@ -2982,8 +3038,8 @@
                                 <th style="padding: 8px; text-align: left;">Producto</th>
                                 <th style="padding: 8px; text-align: center;">Stock</th>
                                 <th style="padding: 8px; text-align: center;">Ventas</th>
-                                <th style="padding: 8px; text-align: right;">Costo Un.</th>
-                                <th style="padding: 8px; text-align: right;">Venta Un.</th>
+                                <th style="padding: 8px; text-align: right;">Costo (+IVA)</th>
+                                <th style="padding: 8px; text-align: right;">Venta (+IVA)</th>
                                 <th style="padding: 8px; text-align: right;">Ganancia Real</th>
                             </tr>
                         </thead>

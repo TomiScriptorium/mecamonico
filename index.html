@@ -2653,8 +2653,8 @@
                 const isActive = (t === tab);
                 
                 if (btn) {
-                    let classes = btn.className.split(' ').filter(c => !c.startsWith('bg-') && !c.startsWith('text-') && c !== 'shadow-md').join(' ');
-                    btn.className = classes + ` transition flex-1 py-2 text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 ${isActive ? activeClass : inactiveClass}`;
+                    // SOLUCIÓN: Sobrescribimos la clase completa en lugar de filtrarla. Así evitamos que los colores "dark:" se queden pegados.
+                    btn.className = `transition flex-1 py-2 text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 ${isActive ? activeClass : inactiveClass}`;
                 }
 
                 if (content) {
@@ -2706,7 +2706,7 @@
                             <i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span>
                         </button>
                         <button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2">
-                            <i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Compartir Inventario</span>
+                            <i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Exportar Inventario</span>
                         </button>`;
                 }
             }
@@ -2730,8 +2730,10 @@
             
             let shareButtonsHTML = '';
             if (isItems) {
-                shareButtonsHTML = `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Compras</span></button><button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Exportar Compras</span></button>`;
+                // SOLUCIÓN: Modificado a "Compartir Productos"
+                shareButtonsHTML = `<button onclick="clearShoppingList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Lista"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Lista</span></button><button onclick="downloadShoppingPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> <span class="hidden sm:inline">Compartir Productos</span></button>`;
             } else {
+                // SOLUCIÓN: Modificado a "Exportar Inventario"
                 shareButtonsHTML = `<button onclick="clearInventoryList()" class="bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold hover:bg-red-500 hover:text-white transition flex items-center gap-2" title="Limpiar Inventario"><i class="fa-solid fa-eraser"></i> <span class="hidden md:inline">Limpiar Inventario</span></button><button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2"><i class="fa-solid fa-share-nodes text-green-400"></i> <span class="hidden sm:inline">Exportar Inventario</span></button>`;
             }
 
@@ -2747,8 +2749,8 @@
                     </div>
 
                     <div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-6 shadow-inner gap-1">
-                        <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${itemsActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-cart-arrow-down hidden sm:inline"></i> Compras</button>
-                        <button onclick="setActiveShopTab('inventory')" id="shop-tab-inventory" class="flex-1 py-2 text-[10px] sm:text-xs font-bold rounded transition ${inventoryActive} flex items-center justify-center gap-1.5"><i class="fa-solid fa-box-open hidden sm:inline"></i> Inventario</button>
+                        <button onclick="setActiveShopTab('items')" id="shop-tab-items" class="transition flex-1 py-2 text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 ${itemsActive}"><i class="fa-solid fa-cart-arrow-down hidden sm:inline"></i> Compras</button>
+                        <button onclick="setActiveShopTab('inventory')" id="shop-tab-inventory" class="transition flex-1 py-2 text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 ${inventoryActive}"><i class="fa-solid fa-box-open hidden sm:inline"></i> Inventario</button>
                     </div>
 
                     <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden mb-6">

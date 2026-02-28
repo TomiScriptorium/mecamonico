@@ -557,45 +557,51 @@
 
     <!-- Modal Configuración -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-6 border border-neutral-300 dark:border-neutral-700 fade-enter relative">
-            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm md:max-w-3xl p-6 border border-neutral-300 dark:border-neutral-700 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
             
             <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-gear text-neutral-500"></i> Configuración</h3>
-            <div class="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-palette"></i> Tema Visual</h4>
-                <div class="flex gap-4 justify-center py-2">
-                    <button onclick="setAppTheme('rojo')" class="w-8 h-8 rounded-full bg-[#dc2626] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-rojo" title="Rojo"></button>
-                    <button onclick="setAppTheme('azul')" class="w-8 h-8 rounded-full bg-[#2563eb] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-azul" title="Azul"></button>
-                    <button onclick="setAppTheme('verde')" class="w-8 h-8 rounded-full bg-[#16a34a] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-verde" title="Verde"></button>
-                    <button onclick="setAppTheme('naranja')" class="w-8 h-8 rounded-full bg-[#ea580c] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-naranja" title="Naranja"></button>
-                    <button onclick="setAppTheme('morado')" class="w-8 h-8 rounded-full bg-[#9333ea] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-morado" title="Morado"></button>
-                </div>
-            </div>
             
-            <!-- Toggle Finanzas -->
-            <div class="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                <label class="flex items-center justify-between cursor-pointer">
-                    <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-2"><i class="fa-solid fa-wallet text-green-500 w-4 text-center"></i> Balance Diario</span>
-                    <input type="checkbox" id="toggle-finance-widget" onchange="toggleFinanceSetting(this.checked)" class="w-5 h-5 accent-red-600 cursor-pointer">
-                </label>
-                <p class="text-[10px] text-neutral-500 mt-1 ml-6">Muestra tus ganancias en la pestaña de Inicio.</p>
-            </div>
+            <div class="flex flex-col md:flex-row gap-6">
+                
+                <div class="flex-1 space-y-5">
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-palette"></i> Tema Visual</h4>
+                        <div class="flex gap-4 justify-center py-2">
+                            <button onclick="setAppTheme('rojo')" class="w-8 h-8 rounded-full bg-[#dc2626] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-rojo" title="Rojo"></button>
+                            <button onclick="setAppTheme('azul')" class="w-8 h-8 rounded-full bg-[#2563eb] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-azul" title="Azul"></button>
+                            <button onclick="setAppTheme('verde')" class="w-8 h-8 rounded-full bg-[#16a34a] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-verde" title="Verde"></button>
+                            <button onclick="setAppTheme('naranja')" class="w-8 h-8 rounded-full bg-[#ea580c] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-naranja" title="Naranja"></button>
+                            <button onclick="setAppTheme('morado')" class="w-8 h-8 rounded-full bg-[#9333ea] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-morado" title="Morado"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-2"><i class="fa-solid fa-wallet text-green-500 w-4 text-center"></i> Balance Diario</span>
+                            <input type="checkbox" id="toggle-finance-widget" onchange="toggleFinanceSetting(this.checked)" class="w-5 h-5 accent-red-600 cursor-pointer">
+                        </label>
+                        <p class="text-[10px] text-neutral-500 mt-1 ml-6">Muestra tus ganancias en la pestaña de Inicio.</p>
+                    </div>
 
-            <div class="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Calidad de PDFs Generados</h4>
-                <select id="pdf-quality-select" onchange="updatePdfQuality(this.value)" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition cursor-pointer">
-                    <option value="low">Baja (Menor peso, ideal para WhatsApp)</option>
-                    <option value="medium">Normal (Balanceado)</option>
-                    <option value="high">Alta (Máxima nitidez, ideal para imprimir)</option>
-                </select>
-            </div>
-
-            <!-- Toggles Módulos -->
-            <div>
-                <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 pl-1">Visibilidad de Módulos</h4>
-                <div class="space-y-2" id="modules-settings-list">
-                    <!-- Generado por JS -->
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Calidad de PDFs</h4>
+                        <select id="pdf-quality-select" onchange="updatePdfQuality(this.value)" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition cursor-pointer">
+                            <option value="low">Baja (Para WhatsApp)</option>
+                            <option value="medium">Normal (Balanceado)</option>
+                            <option value="high">Alta (Para imprimir)</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="flex-1 border-t md:border-t-0 md:border-l border-neutral-200 dark:border-neutral-700 pt-5 md:pt-0 md:pl-6">
+                    <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1 pl-1">Visibilidad de Módulos</h4>
+                    <p class="text-[10px] text-neutral-500 mb-4 pl-1">Activa o desactiva las herramientas.</p>
+                    
+                    <div class="grid grid-cols-1 gap-2" id="modules-settings-list">
+                        </div>
+                </div>
+                
             </div>
         </div>
     </div>

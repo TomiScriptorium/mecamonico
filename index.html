@@ -581,6 +581,15 @@
                 <p class="text-[10px] text-neutral-500 mt-1 ml-6">Muestra tus ganancias en la pestaña de Inicio.</p>
             </div>
 
+            <div class="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Calidad de PDFs Generados</h4>
+                <select id="pdf-quality-select" onchange="updatePdfQuality(this.value)" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition cursor-pointer">
+                    <option value="low">Baja (Menor peso, ideal para WhatsApp)</option>
+                    <option value="medium">Normal (Balanceado)</option>
+                    <option value="high">Alta (Máxima nitidez, ideal para imprimir)</option>
+                </select>
+            </div>
+
             <!-- Toggles Módulos -->
             <div>
                 <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 pl-1">Visibilidad de Módulos</h4>
@@ -2796,16 +2805,22 @@
             try {
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
+                // Configuramos los parámetros según la elección del usuario
+                let pdfScale = 2;
+                let pdfCompress = 0.8;
+                let pdfSpeed = 'MEDIUM';
+                if (state.pdfQuality === 'low') { pdfScale = 1.5; pdfCompress = 0.6; pdfSpeed = 'FAST'; }
+                if (state.pdfQuality === 'high') { pdfScale = 3; pdfCompress = 0.95; pdfSpeed = 'SLOW'; }
+
                 const canvas = await html2canvas(tempContainer, { 
-                    scale: 3, // Solución 3: AUMENTAMOS LA RESOLUCIÓN AL DOBLE (HD)
+                    scale: pdfScale, 
                     useCORS: true, 
                     logging: false,
                     allowTaint: true,
                     backgroundColor: '#ffffff'
                 });
                 
-                // Solución 4: Usar formato PNG sin pérdida de calidad en lugar de JPEG
-                const imgData = canvas.toDataURL('image/png'); 
+                const imgData = canvas.toDataURL('image/jpeg', pdfCompress); 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
                 const imgProps = doc.getImageProperties(imgData);
@@ -2816,15 +2831,13 @@
                 let heightLeft = imgHeightInMM;
                 let position = 0;
                 
-                // Imprime la primera página
-                doc.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightInMM);
+                doc.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMM, undefined, pdfSpeed);
                 heightLeft -= pageHeight;
                 
-                // Si sobra contenido, añade páginas nuevas y sube la imagen (position negativa)
                 while (heightLeft > 0) {
                     position = position - pageHeight;
                     doc.addPage();
-                    doc.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightInMM);
+                    doc.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMM, undefined, pdfSpeed);
                     heightLeft -= pageHeight;
                 }
                 
@@ -3188,41 +3201,111 @@
         
         async function shareNote(noteId) {
             const note = state.notes.find(n => n.id === noteId);
-            if (!note) {
-                showToast("No se encontró el apunte", "fa-triangle-exclamation");
-                return;
-            }
+            if (!note) return;
 
-            const textContent = note.text || '';
-            const formattedText = textContent.replace(/\n/g, '<br>');
+            showToast("Armando PDF HD...", "fa-spinner fa-spin");
 
-            // SOLUCIÓN PDF: Forzamos diseño vertical para PDF para que html2canvas capture todo y el paginado funcione
-            let imagesHTML = '';
-            if (note.images && note.images.length > 0) {
-                // Contenedor flex en columna (vertical)
-                imagesHTML = `<div style="margin-top: 25px; display: flex; flex-direction: column; gap: 15px; align-items: center;">` +
-                    note.images.map(img => `<img src="${img}" style="max-width: 90%; max-height: 400px; border-radius: 4px; object-fit: contain; border: 1px solid #ddd;">`).join('') +
-                    `</div>`;
-            } else if (note.image) { 
-                imagesHTML = `<div style="margin-top: 25px; text-align: center;">
-                    <img src="${note.image}" style="max-width: 90%; max-height: 400px; border-radius: 4px; object-fit: contain; border: 1px solid #ddd;">
-                </div>`;
-            }
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 20;
+                let currentY = margin;
 
-            // Diseño puramente en blanco: Sin títulos, sin fechas, sin bordes.
-            const contentHTML = `
-                <div style="padding: 40px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #171717; line-height: 1.6;">
-                    <div style="font-size: 15px; text-align: justify; color: #333;">
-                        ${formattedText}
-                    </div>
-                    ${imagesHTML}
-                </div>
-            `;
+                // Texto puro (Se separa en líneas automáticamente para que no se salga de la hoja)
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(30, 30, 30);
+                const textLines = doc.splitTextToSize(note.text || '', pageWidth - margin * 2);
+                
+                if (note.text) {
+                    for (let i = 0; i < textLines.length; i++) {
+                        if (currentY > pageHeight - margin) {
+                            doc.addPage();
+                            currentY = margin;
+                        }
+                        doc.text(textLines[i], margin, currentY);
+                        currentY += 6; 
+                    }
+                    currentY += 5; // Espacio extra entre el texto y la primera foto
+                }
 
-            const safeTitle = textContent.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '_');
-            const fileName = `Apunte_${safeTitle || 'SinTitulo'}_${new Date().toISOString().slice(0,10)}.pdf`;
-            
-            await generateCleanPDF(contentHTML, "Apunte de Bitácora", fileName);
+                // Procesamiento inteligente de Imágenes (Evita cortes y reduce peso)
+                let imagesToProcess = note.images && note.images.length > 0 ? note.images : (note.image ? [note.image] : []);
+
+                for (let i = 0; i < imagesToProcess.length; i++) {
+                    const base64Img = imagesToProcess[i];
+                    const imgProps = doc.getImageProperties(base64Img);
+                    
+                    const maxWidth = pageWidth - margin * 2;
+                    const maxHeight = 120; // Altura máxima para no saturar la hoja
+                    
+                    let finalWidth = imgProps.width;
+                    let finalHeight = imgProps.height;
+                    const ratio = finalWidth / finalHeight;
+
+                    if (finalWidth > maxWidth) { finalWidth = maxWidth; finalHeight = finalWidth / ratio; }
+                    if (finalHeight > maxHeight) { finalHeight = maxHeight; finalWidth = finalHeight * ratio; }
+
+                    // Si la foto no cabe en lo que queda de hoja, saltamos a la siguiente ANTES de pegarla
+                    if (currentY + finalHeight > pageHeight - margin) {
+                        doc.addPage();
+                        currentY = margin;
+                    }
+
+                    const xPos = (pageWidth - finalWidth) / 2; // Centrar imagen
+                    
+                    // Ajustar compresión según configuración
+                    let pdfSpeed = 'MEDIUM';
+                    if (state.pdfQuality === 'low') pdfSpeed = 'FAST';
+                    if (state.pdfQuality === 'high') pdfSpeed = 'SLOW';
+
+                    // Inyectar en formato JPEG
+                    doc.addImage(base64Img, 'JPEG', xPos, currentY, finalWidth, finalHeight, undefined, pdfSpeed);
+                    currentY += finalHeight + 15; 
+                }
+
+                // Generar y Descargar
+                const safeTitle = (note.text || '').substring(0, 15).replace(/[^a-zA-Z0-9]/g, '_');
+                const fileName = `Apunte_${safeTitle || 'Tecnico'}_${new Date().toISOString().slice(0,10)}.pdf`;
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+                const reader = new FileReader();
+                reader.readAsDataURL(pdfBlob);
+                reader.onloadend = function() {
+                    showToast("¡Documento Listo!", "fa-check");
+                    const base64data = reader.result;
+                    const modalId = 'pdf-action-' + Date.now();
+                    const modalHtml = `
+                        <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
+                            <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
+                                <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                                <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50"><i class="fa-solid fa-file-pdf text-3xl"></i></div>
+                                <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
+                                <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
+                                <div class="flex flex-col gap-3">
+                                    <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes text-lg"></i> Compartir Archivo</button>
+                                    <button id="btn-down-${modalId}" class="w-full px-5 py-3.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-neutral-700 active:scale-95 transition flex items-center justify-center gap-2"><i class="fa-solid fa-download text-lg"></i> Guardar en Dispositivo</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    
+                    document.getElementById(`btn-share-${modalId}`).onclick = async () => {
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try { await navigator.share({ files: [file], title: "Apunte Técnico", text: "Adjunto documento técnico." }); document.getElementById(modalId).remove(); } catch (e) {}
+                        } else { showToast("Tu dispositivo no soporta compartir", "fa-triangle-exclamation"); }
+                    };
+                    document.getElementById(`btn-down-${modalId}`).onclick = () => {
+                        const a = document.createElement('a'); a.href = base64data; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); document.getElementById(modalId).remove(); showToast("Descarga exitosa", "fa-download");
+                    };
+                    document.getElementById(`btn-close-top-${modalId}`).onclick = () => document.getElementById(modalId).remove();
+                };
+
+            } catch (err) { console.error(err); showToast("Error crítico al generar", "fa-bug"); }
         }
 
         function performContentSwap(viewName) {
@@ -3713,8 +3796,9 @@
 
         function openSettingsModal() {
             document.getElementById('toggle-finance-widget').checked = state.showFinanceWidget;
+            // Cargar la configuración de calidad (por defecto 'medium')
+            document.getElementById('pdf-quality-select').value = state.pdfQuality || 'medium';
             
-            // Resaltar botón de tema actual
             updateThemeButtonsUI(state.appTheme || localStorage.getItem('mech_theme') || 'rojo');
 
             const list = document.getElementById('modules-settings-list');
@@ -3732,6 +3816,13 @@
         function closeSettingsModal() {
             document.body.classList.remove('modal-open');
             document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        // Nueva función para guardar la calidad
+        function updatePdfQuality(val) {
+            state.pdfQuality = val;
+            saveData();
+            showToast("Calidad PDF actualizada", "fa-check");
         }
 
         function toggleFinanceSetting(checked) {

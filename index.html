@@ -788,20 +788,27 @@
         }
 
         async function saveData() {
-            const toSave = { ...state }; delete toSave.currentDate; delete toSave.editingNoteId; 
+            // 1. Inyectamos el Sello de Tiempo
+            state.last_updated = Date.now(); 
             
-            // 1. Guardado Inmediato Local (Como siempre, para que sea ultra rápido)
-            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { showToast("Error memoria local", "fa-triangle-exclamation"); }
+            const toSave = { ...state }; 
+            delete toSave.currentDate; 
+            delete toSave.editingNoteId; 
             
-            // 2. Sincronización en Segundo Plano a la Nube
+            // 2. Guardado Inmediato Local
+            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { console.error(e); }
+            
+            // 3. Sincronización a la Nube Segura
             if (supabaseClient && currentUser) {
-                supabaseClient.from('user_data').upsert({
+                const { error } = await supabaseClient.from('user_data').upsert({
                     user_id: currentUser.id,
                     app_data: toSave,
                     updated_at: new Date().toISOString()
-                }).then(({error}) => {
-                    if(error) console.warn("Error sincronizando nube:", error);
-                });
+                }, { onConflict: 'user_id' }); // Obliga a reemplazar si ya existe
+                
+                if (error) {
+                    console.warn("Fallo subida a nube, se reintentará luego:", error.message);
+                }
             }
         }
 
@@ -4158,27 +4165,36 @@
 
         async function syncFromCloud() {
             if (!supabaseClient || !currentUser) return;
-            showToast("Sincronizando Taller...", "fa-rotate fa-spin");
+            showToast("Verificando Nube...", "fa-rotate fa-spin");
             try {
                 const { data, error } = await supabaseClient.from('user_data').select('app_data').eq('user_id', currentUser.id).single();
                 
                 if (data && data.app_data) {
-                    // Hay datos en la nube, los inyectamos a tu pantalla
                     const cloudData = data.app_data;
-                    state = { ...state, ...cloudData, currentDate: new Date() };
-                    await idbKeyval.set(APP_KEY, cloudData); // Los guardamos localmente también
-                    
-                    applyTheme();
-                    updateHeaderUI();
-                    updateNavVisibility();
-                    renderView(state.view || 'dashboard');
-                    showToast("Sincronizado", "fa-cloud-arrow-down");
+                    const localTime = state.last_updated || 0;
+                    const cloudTime = cloudData.last_updated || 0;
+
+                    // Batalla de Tiempos: Si la nube es más nueva, descargamos.
+                    if (cloudTime >= localTime) {
+                        state = { ...state, ...cloudData, currentDate: new Date() };
+                        await idbKeyval.set(APP_KEY, state); 
+                        
+                        applyTheme();
+                        updateHeaderUI();
+                        updateNavVisibility();
+                        renderView(state.view || 'dashboard');
+                        showToast("Sincronizado con la Nube", "fa-cloud-arrow-down");
+                    } else {
+                        // Si el celular es más nuevo, obligamos a subir los datos!
+                        showToast("Rescatando datos locales...", "fa-cloud-arrow-up");
+                        saveData(); 
+                    }
                 } else {
-                    // Es una cuenta nueva sin datos, subimos los de demostración
+                    // Cuenta sin datos en la nube
                     saveData(); 
                 }
             } catch (e) {
-                console.warn("No se encontraron datos previos, usando local.", e);
+                console.warn("Error leyendo nube, usando memoria local.");
             }
         }
 

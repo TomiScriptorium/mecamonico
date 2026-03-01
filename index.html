@@ -691,38 +691,8 @@
         let currentFinanceDate = new Date();
 
         const idbKeyval = {
-            async get(key) { 
-                return new Promise((resolve, reject) => { 
-                    const request = indexedDB.open('mecamonico-db', 1); 
-                    request.onupgradeneeded = () => request.result.createObjectStore('store'); 
-                    request.onerror = () => reject(request.error); 
-                    request.onsuccess = () => { 
-                        const db = request.result; 
-                        const tx = db.transaction('store', 'readonly'); 
-                        const store = tx.objectStore('store'); 
-                        const req = store.get(key); 
-                        req.onsuccess = () => resolve(req.result); 
-                        req.onerror = () => reject(req.error); 
-                        tx.oncomplete = () => db.close(); // <- Clave para que no se congele al recargar
-                    }; 
-                }); 
-            },
-            async set(key, val) { 
-                return new Promise((resolve, reject) => { 
-                    const request = indexedDB.open('mecamonico-db', 1); 
-                    request.onupgradeneeded = () => request.result.createObjectStore('store'); 
-                    request.onerror = () => reject(request.error); 
-                    request.onsuccess = () => { 
-                        const db = request.result; 
-                        const tx = db.transaction('store', 'readwrite'); 
-                        const store = tx.objectStore('store'); 
-                        const req = store.put(val, key); 
-                        req.onsuccess = () => resolve(); 
-                        req.onerror = () => reject(req.error); 
-                        tx.oncomplete = () => db.close(); // <- Clave para que no se congele
-                    }; 
-                }); 
-            }
+            async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
+            async set(key, val) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.put(val, key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); }
         };
 
         async function init() {
@@ -3491,7 +3461,7 @@
                     inventoryContent.style.display = 'block'; inventoryContent.style.position = 'relative'; 
                 }
             }
-            saveData();
+            
         }
 
         function renderView(viewName) {

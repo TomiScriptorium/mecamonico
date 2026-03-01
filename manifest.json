@@ -1,0 +1,23 @@
+{
+  "name": "Mecamonico Taller",
+  "short_name": "Mecamonico",
+  "description": "Gestión de Taller y Estudio Mecánico",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#dc2626",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "iconomecamonico.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "iconomecamonico.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

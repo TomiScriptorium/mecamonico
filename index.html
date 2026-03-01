@@ -691,42 +691,60 @@
         let currentFinanceDate = new Date();
 
         const idbKeyval = {
-            async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }; }); },
-            async set(key, val) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.put(val, key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); }; }); }
+            async get(key) { 
+                return new Promise((resolve, reject) => { 
+                    const request = indexedDB.open('mecamonico-db', 1); 
+                    request.onupgradeneeded = () => request.result.createObjectStore('store'); 
+                    request.onerror = () => reject(request.error); 
+                    request.onsuccess = () => { 
+                        const db = request.result; 
+                        const tx = db.transaction('store', 'readonly'); 
+                        const store = tx.objectStore('store'); 
+                        const req = store.get(key); 
+                        req.onsuccess = () => resolve(req.result); 
+                        req.onerror = () => reject(req.error); 
+                        tx.oncomplete = () => db.close(); // <- Clave para que no se congele al recargar
+                    }; 
+                }); 
+            },
+            async set(key, val) { 
+                return new Promise((resolve, reject) => { 
+                    const request = indexedDB.open('mecamonico-db', 1); 
+                    request.onupgradeneeded = () => request.result.createObjectStore('store'); 
+                    request.onerror = () => reject(request.error); 
+                    request.onsuccess = () => { 
+                        const db = request.result; 
+                        const tx = db.transaction('store', 'readwrite'); 
+                        const store = tx.objectStore('store'); 
+                        const req = store.put(val, key); 
+                        req.onsuccess = () => resolve(); 
+                        req.onerror = () => reject(req.error); 
+                        tx.oncomplete = () => db.close(); // <- Clave para que no se congele
+                    }; 
+                }); 
+            }
         };
 
         async function init() {
-            // 1. RENDERIZADO DE EMERGENCIA: Dibujamos la interfaz INMEDIATAMENTE
+            // 1. Dibujamos la interfaz INMEDIATAMENTE
             try {
-                applyTheme();
-                updateHeaderUI();
-                updateNavVisibility();
-                setupGlobalListeners();
-                state.view = null;
-                renderView('dashboard');
-            } catch(e) { console.error("Error en renderizado inicial:", e); }
+                applyTheme(); updateHeaderUI(); updateNavVisibility(); setupGlobalListeners();
+                state.view = null; renderView('dashboard');
+            } catch(e) {}
 
-            // 2. Inicializar Supabase protegiéndolo de bloqueos locales
+            // 2. Conectar Nube
             try {
                 if (window.supabase) supabaseClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
             } catch (err) { supabaseClient = null; }
 
-            // 3. Cargar datos con ANTI-CONGELAMIENTO
+            // 3. Cargar datos locales de forma segura (Sin tiempos límite destructivos)
             try {
-                const loadPromise = loadData();
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout DB")), 2000));
-                await Promise.race([loadPromise, timeoutPromise]);
-                
-                // Si cargó bien, refrescamos la pantalla con tus datos guardados
-                applyTheme();
-                updateHeaderUI();
-                updateNavVisibility();
+                await loadData();
+                applyTheme(); updateHeaderUI(); updateNavVisibility();
                 renderView(state.view || 'dashboard');
-            } catch (e) {
-                console.warn("Base de datos local congelada. Usando memoria limpia temporal.");
-            }
+            } catch (e) { console.error("Error cargando DB local:", e); }
 
-            // 4. Revisar sesión en la Nube
+            // 4. Iniciar sesión y sincronizar
             if (supabaseClient) {
                 try { await checkUserSession(); } catch (err) {}
             }
@@ -788,26 +806,22 @@
         }
 
         async function saveData() {
-            // 1. Inyectamos el Sello de Tiempo
             state.last_updated = Date.now(); 
-            
             const toSave = { ...state }; 
             delete toSave.currentDate; 
             delete toSave.editingNoteId; 
             
-            // 2. Guardado Inmediato Local
-            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { console.error(e); }
+            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { console.error("Error local:", e); }
             
-            // 3. Sincronización a la Nube Segura
             if (supabaseClient && currentUser) {
                 const { error } = await supabaseClient.from('user_data').upsert({
                     user_id: currentUser.id,
                     app_data: toSave,
                     updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id' }); // Obliga a reemplazar si ya existe
+                }, { onConflict: 'user_id' }); 
                 
                 if (error) {
-                    console.warn("Fallo subida a nube, se reintentará luego:", error.message);
+                    console.error("Error subida a nube:", error.message);
                 }
             }
         }
@@ -4169,32 +4183,39 @@
             try {
                 const { data, error } = await supabaseClient.from('user_data').select('app_data').eq('user_id', currentUser.id).single();
                 
-                if (data && data.app_data) {
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        // Si la cuenta es nueva y no tiene datos, la creamos en la nube
+                        saveData();
+                    } else {
+                        console.error("Error de conexión:", error);
+                    }
+                    return;
+                }
+
+                if (data && data.app_data && Object.keys(data.app_data).length > 0) {
                     const cloudData = data.app_data;
                     const localTime = state.last_updated || 0;
                     const cloudTime = cloudData.last_updated || 0;
 
-                    // Batalla de Tiempos: Si la nube es más nueva, descargamos.
-                    if (cloudTime >= localTime) {
+                    if (cloudTime > localTime) {
                         state = { ...state, ...cloudData, currentDate: new Date() };
                         await idbKeyval.set(APP_KEY, state); 
                         
-                        applyTheme();
-                        updateHeaderUI();
-                        updateNavVisibility();
+                        applyTheme(); updateHeaderUI(); updateNavVisibility();
                         renderView(state.view || 'dashboard');
-                        showToast("Sincronizado con la Nube", "fa-cloud-arrow-down");
-                    } else {
-                        // Si el celular es más nuevo, obligamos a subir los datos!
-                        showToast("Rescatando datos locales...", "fa-cloud-arrow-up");
+                        showToast("Taller Sincronizado", "fa-cloud-arrow-down");
+                    } else if (localTime > cloudTime) {
+                        showToast("Actualizando Nube...", "fa-cloud-arrow-up");
                         saveData(); 
+                    } else {
+                        // Tiempos exactos, no hacer nada para no interrumpir
                     }
                 } else {
-                    // Cuenta sin datos en la nube
                     saveData(); 
                 }
             } catch (e) {
-                console.warn("Error leyendo nube, usando memoria local.");
+                console.error("Fallo crítico en sincronización:", e);
             }
         }
 

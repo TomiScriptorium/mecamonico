@@ -789,7 +789,20 @@
 
         async function saveData() {
             const toSave = { ...state }; delete toSave.currentDate; delete toSave.editingNoteId; 
-            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { showToast("Error al guardar", "fa-triangle-exclamation"); }
+            
+            // 1. Guardado Inmediato Local (Como siempre, para que sea ultra rápido)
+            try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { showToast("Error memoria local", "fa-triangle-exclamation"); }
+            
+            // 2. Sincronización en Segundo Plano a la Nube
+            if (supabaseClient && currentUser) {
+                supabaseClient.from('user_data').upsert({
+                    user_id: currentUser.id,
+                    app_data: toSave,
+                    updated_at: new Date().toISOString()
+                }).then(({error}) => {
+                    if(error) console.warn("Error sincronizando nube:", error);
+                });
+            }
         }
 
         function toggleDarkMode() {
@@ -4143,6 +4156,32 @@
        // --- SISTEMA DE AUTENTICACIÓN (SUPABASE) ---
         let currentUser = null;
 
+        async function syncFromCloud() {
+            if (!supabaseClient || !currentUser) return;
+            showToast("Sincronizando Taller...", "fa-rotate fa-spin");
+            try {
+                const { data, error } = await supabaseClient.from('user_data').select('app_data').eq('user_id', currentUser.id).single();
+                
+                if (data && data.app_data) {
+                    // Hay datos en la nube, los inyectamos a tu pantalla
+                    const cloudData = data.app_data;
+                    state = { ...state, ...cloudData, currentDate: new Date() };
+                    await idbKeyval.set(APP_KEY, cloudData); // Los guardamos localmente también
+                    
+                    applyTheme();
+                    updateHeaderUI();
+                    updateNavVisibility();
+                    renderView(state.view || 'dashboard');
+                    showToast("Sincronizado", "fa-cloud-arrow-down");
+                } else {
+                    // Es una cuenta nueva sin datos, subimos los de demostración
+                    saveData(); 
+                }
+            } catch (e) {
+                console.warn("No se encontraron datos previos, usando local.", e);
+            }
+        }
+
         async function checkUserSession() {
             if (!supabaseClient) return;
             try {
@@ -4151,6 +4190,9 @@
                     currentUser = data.session.user;
                     const authScreen = document.getElementById('auth-screen');
                     if(authScreen) authScreen.classList.add('hidden');
+                    
+                    // Descargar todo al entrar!
+                    await syncFromCloud();
                 } else {
                     const authScreen = document.getElementById('auth-screen');
                     if(authScreen) authScreen.classList.remove('hidden');

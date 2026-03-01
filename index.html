@@ -696,31 +696,36 @@
         };
 
         async function init() {
-            // 1. Inicializar Supabase protegiéndolo de bloqueos locales (file://)
+            // 1. Inicializar Supabase protegiéndolo de fallos
             try {
                 if (window.supabase) {
                     supabase = window.supabase.createClient(_supabaseUrl, _supabaseKey);
                 }
             } catch (err) {
-                console.warn("Nube desconectada (Bloqueo local). Error:", err);
+                console.warn("Nube desconectada", err);
                 supabase = null;
             }
 
-            // 2. Cargar los datos visuales de la app (SIEMPRE debe ejecutarse)
+            // 2. Cargar datos locales y RENDERIZAR PANTALLA (A prueba de balas)
             try {
                 await loadData();
-                applyTheme();
-                updateHeaderUI();
-                updateNavVisibility();
-                setupGlobalListeners();
-                state.view = null; 
-                renderView('dashboard');
-            } catch (e) { 
-                console.error("Error cargando base de datos local:", e); 
-                renderView('dashboard'); // Forzamos mostrar la app aunque algo falle
+            } catch (e) {
+                console.error("Error en base de datos local, cargando vacío:", e);
+            } finally {
+                // Esto asegura que la pantalla SIEMPRE se dibuje, haya error o no
+                try {
+                    applyTheme();
+                    updateHeaderUI();
+                    updateNavVisibility();
+                    setupGlobalListeners();
+                    state.view = null;
+                    renderView('dashboard');
+                } catch(renderErr) {
+                    console.error("Error renderizando:", renderErr);
+                }
             }
-            
-            // 3. Revisar sesión en la Nube (Solo si la conexión tuvo éxito)
+
+            // 3. Revisar sesión en la Nube
             if (supabase) {
                 try {
                     await checkUserSession();
@@ -4142,19 +4147,19 @@
         let currentUser = null;
 
         async function checkUserSession() {
-            if (!supabase) return; 
+            if (!supabase) return;
             try {
-                // Sacamos los datos de forma segura para evitar crasheos si no hay internet
                 const { data, error } = await supabase.auth.getSession();
-                
                 if (data && data.session) {
                     currentUser = data.session.user;
-                    document.getElementById('auth-screen').classList.add('hidden');
+                    const authScreen = document.getElementById('auth-screen');
+                    if(authScreen) authScreen.classList.add('hidden');
                 } else {
-                    document.getElementById('auth-screen').classList.remove('hidden');
+                    const authScreen = document.getElementById('auth-screen');
+                    if(authScreen) authScreen.classList.remove('hidden');
                 }
             } catch (e) {
-                console.warn("Modo local activo. Sesión no verificada.", e);
+                console.warn("Modo local activo.", e);
             }
         }
 
@@ -4163,15 +4168,18 @@
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showToast("Ingresa correo y contraseña", "fa-triangle-exclamation");
-            
+
             showToast("Creando cuenta...", "fa-spinner fa-spin");
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            
-            if (error) {
-                showToast(error.message, "fa-circle-xmark");
-            } else {
-                showToast("Cuenta creada exitosamente", "fa-check");
-                checkUserSession();
+            try {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) {
+                    showToast(error.message, "fa-circle-xmark");
+                } else {
+                    showToast("Cuenta creada exitosamente", "fa-check");
+                    checkUserSession();
+                }
+            } catch(e) {
+                showToast("Error de conexión", "fa-wifi");
             }
         }
 
@@ -4180,32 +4188,55 @@
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showToast("Ingresa correo y contraseña", "fa-triangle-exclamation");
-            
+
             showToast("Iniciando...", "fa-spinner fa-spin");
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            
-            if (error) {
-                showToast("Credenciales inválidas", "fa-circle-xmark");
-            } else {
-                showToast("¡Bienvenido a la Nube!", "fa-cloud");
-                checkUserSession();
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    showToast("Credenciales inválidas", "fa-circle-xmark");
+                } else {
+                    showToast("¡Bienvenido a la Nube!", "fa-cloud");
+                    checkUserSession();
+                }
+            } catch(e) {
+                showToast("Error de conexión", "fa-wifi");
             }
         }
 
         async function logoutUser() {
             if (!supabase) return;
             showToast("Cerrando sesión...", "fa-spinner fa-spin");
-            await supabase.auth.signOut();
+            try {
+                await supabase.auth.signOut();
+            } catch(e) {}
             currentUser = null;
             closeSettingsModal();
             document.getElementById('auth-email').value = '';
             document.getElementById('auth-password').value = '';
-            document.getElementById('auth-screen').classList.remove('hidden');
+            const authScreen = document.getElementById('auth-screen');
+            if(authScreen) authScreen.classList.remove('hidden');
         }
 
         function continueOffline() {
-            document.getElementById('auth-screen').classList.add('hidden');
+            const authScreen = document.getElementById('auth-screen');
+            if(authScreen) authScreen.classList.add('hidden');
             showToast("Modo Local Activo (Sin Sincronizar)", "fa-wifi");
+        }
+
+        // --- DESTRUCTOR DE CACHÉ FANTASMA (PWA FIX) ---
+        if ('caches' in window) {
+            caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister(); // Destruye el trabajador fantasma
+                }
+            });
+            // Re-registra uno nuevo y limpio
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
         }
         
         window.onload = init;

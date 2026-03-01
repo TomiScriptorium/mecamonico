@@ -671,7 +671,7 @@
         // --- INICIALIZACIÓN DE SUPABASE ---
         const _supabaseUrl = 'https://hvzzgymodvfspdkauvjq.supabase.co'; 
         const _supabaseKey = 'sb_publishable_u8c_NoMZ0ftdyBbNnlo4Cw_jnrdxeP1';
-        let supabase = null; // Lo dejamos vacío temporalmente para que no falle
+        let supabaseClient = null; // CAMBIO: Nuevo nombre para evitar choque
         // ----------------------------------
         
         let state = {
@@ -696,42 +696,39 @@
         };
 
         async function init() {
-            // 1. Inicializar Supabase protegiéndolo de fallos
+            // 1. RENDERIZADO DE EMERGENCIA: Dibujamos la interfaz INMEDIATAMENTE
             try {
-                if (window.supabase) {
-                    supabase = window.supabase.createClient(_supabaseUrl, _supabaseKey);
-                }
-            } catch (err) {
-                console.warn("Nube desconectada", err);
-                supabase = null;
-            }
+                applyTheme();
+                updateHeaderUI();
+                updateNavVisibility();
+                setupGlobalListeners();
+                state.view = null;
+                renderView('dashboard');
+            } catch(e) { console.error("Error en renderizado inicial:", e); }
 
-            // 2. Cargar datos locales y RENDERIZAR PANTALLA (A prueba de balas)
+            // 2. Inicializar Supabase protegiéndolo de bloqueos locales
             try {
-                await loadData();
+                if (window.supabase) supabaseClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
+            } catch (err) { supabaseClient = null; }
+
+            // 3. Cargar datos con ANTI-CONGELAMIENTO
+            try {
+                const loadPromise = loadData();
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout DB")), 2000));
+                await Promise.race([loadPromise, timeoutPromise]);
+                
+                // Si cargó bien, refrescamos la pantalla con tus datos guardados
+                applyTheme();
+                updateHeaderUI();
+                updateNavVisibility();
+                renderView(state.view || 'dashboard');
             } catch (e) {
-                console.error("Error en base de datos local, cargando vacío:", e);
-            } finally {
-                // Esto asegura que la pantalla SIEMPRE se dibuje, haya error o no
-                try {
-                    applyTheme();
-                    updateHeaderUI();
-                    updateNavVisibility();
-                    setupGlobalListeners();
-                    state.view = null;
-                    renderView('dashboard');
-                } catch(renderErr) {
-                    console.error("Error renderizando:", renderErr);
-                }
+                console.warn("Base de datos local congelada. Usando memoria limpia temporal.");
             }
 
-            // 3. Revisar sesión en la Nube
-            if (supabase) {
-                try {
-                    await checkUserSession();
-                } catch (err) {
-                    console.warn("Error validando sesión:", err);
-                }
+            // 4. Revisar sesión en la Nube
+            if (supabaseClient) {
+                try { await checkUserSession(); } catch (err) {}
             }
         }
 
@@ -4147,9 +4144,9 @@
         let currentUser = null;
 
         async function checkUserSession() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             try {
-                const { data, error } = await supabase.auth.getSession();
+                const { data, error } = await supabaseClient.auth.getSession();
                 if (data && data.session) {
                     currentUser = data.session.user;
                     const authScreen = document.getElementById('auth-screen');
@@ -4164,14 +4161,14 @@
         }
 
         async function registerUser() {
-            if (!supabase) return showToast("Sin conexión al servidor", "fa-wifi");
+            if (!supabaseClient) return showToast("Sin conexión al servidor", "fa-wifi");
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showToast("Ingresa correo y contraseña", "fa-triangle-exclamation");
 
             showToast("Creando cuenta...", "fa-spinner fa-spin");
             try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
                 if (error) {
                     showToast(error.message, "fa-circle-xmark");
                 } else {
@@ -4184,14 +4181,14 @@
         }
 
         async function loginUser() {
-            if (!supabase) return showToast("Sin conexión al servidor", "fa-wifi");
+            if (!supabaseClient) return showToast("Sin conexión al servidor", "fa-wifi");
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showToast("Ingresa correo y contraseña", "fa-triangle-exclamation");
 
             showToast("Iniciando...", "fa-spinner fa-spin");
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) {
                     showToast("Credenciales inválidas", "fa-circle-xmark");
                 } else {
@@ -4204,10 +4201,10 @@
         }
 
         async function logoutUser() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             showToast("Cerrando sesión...", "fa-spinner fa-spin");
             try {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
             } catch(e) {}
             currentUser = null;
             closeSettingsModal();

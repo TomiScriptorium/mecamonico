@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mecamonico</title>
+    <link rel="manifest" href="manifest.json">
     
     <!-- --- CONFIGURACIÓN DE ICONOS --- -->
     <link rel="icon" type="image/png" href="iconomecamonico.png">
@@ -4052,6 +4053,19 @@
                 showToast("Registro eliminado", "fa-trash");
             });
         }
+        // Iniciar PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('PWA Lista y registrada con éxito');
+                })
+                .catch(err => {
+                    console.log('Error al registrar PWA: ', err);
+                });
+            });
+        }
+        
         window.onload = init;
     </script>
 </body>

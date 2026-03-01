@@ -696,25 +696,47 @@
         };
 
         async function init() {
-            // 1. Dibujamos la interfaz INMEDIATAMENTE
-            try {
-                applyTheme(); updateHeaderUI(); updateNavVisibility(); setupGlobalListeners();
-                state.view = null; renderView('dashboard');
-            } catch(e) {}
+            // 0. LÓGICA DE NAVEGACIÓN (Diferenciar F5 de Abrir App desde cero)
+            let initialView = sessionStorage.getItem('currentView');
+            if (!initialView) {
+                initialView = 'dashboard'; // Si no hay sesión (se cerró la app), fuerza el Inicio
+                sessionStorage.setItem('currentView', initialView);
+            }
 
-            // 2. Conectar Nube
+            // 1. RENDERIZADO DE EMERGENCIA: Dibujamos la interfaz INMEDIATAMENTE
+            try {
+                applyTheme();
+                updateHeaderUI();
+                updateNavVisibility();
+                setupGlobalListeners();
+                state.view = initialView;
+                renderView(initialView);
+            } catch(e) { console.error("Error en renderizado inicial:", e); }
+
+            // 2. Inicializar Supabase protegiéndolo de bloqueos locales
             try {
                 if (window.supabase) supabaseClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
             } catch (err) { supabaseClient = null; }
 
-            // 3. Cargar datos locales de forma segura (Sin tiempos límite destructivos)
+            // 3. Cargar datos con ANTI-CONGELAMIENTO
             try {
-                await loadData();
-                applyTheme(); updateHeaderUI(); updateNavVisibility();
-                renderView(state.view || 'dashboard');
-            } catch (e) { console.error("Error cargando DB local:", e); }
+                const loadPromise = loadData();
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout DB")), 2000));
+                await Promise.race([loadPromise, timeoutPromise]);
+                
+                // Mantenemos la vista actual para que la base de datos no nos obligue a saltar de pantalla
+                state.view = initialView;
 
-            // 4. Iniciar sesión y sincronizar
+                // Si cargó bien, refrescamos la pantalla con tus datos guardados
+                applyTheme();
+                updateHeaderUI();
+                updateNavVisibility();
+                renderView(initialView);
+            } catch (e) {
+                console.warn("Base de datos local congelada. Usando memoria limpia temporal.");
+            }
+
+            // 4. Revisar sesión en la Nube
             if (supabaseClient) {
                 try { await checkUserSession(); } catch (err) {}
             }
@@ -3413,8 +3435,9 @@
         function performContentSwap(viewName) {
             const container = document.getElementById('app-container');
             state.view = viewName; 
+            sessionStorage.setItem('currentView', viewName); // <-- NUEVO: Memoria de Sesión (Diferencia F5 de Cerrar App)
             state.editingNoteId = null; 
-            document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); }); 
+            document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
             if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; 
             let contentHTML = '';
@@ -4172,8 +4195,12 @@
                         state = { ...state, ...cloudData, currentDate: new Date() };
                         await idbKeyval.set(APP_KEY, state); 
                         
+                        // <-- Bloquear salto de pantalla al descargar nube -->
+                        const activeView = sessionStorage.getItem('currentView') || 'dashboard';
+                        state.view = activeView;
+                        
                         applyTheme(); updateHeaderUI(); updateNavVisibility();
-                        renderView(state.view || 'dashboard');
+                        renderView(activeView);
                         showToast("Taller Sincronizado", "fa-cloud-arrow-down");
                     } else if (localTime > cloudTime) {
                         showToast("Actualizando Nube...", "fa-cloud-arrow-up");

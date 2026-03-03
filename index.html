@@ -489,7 +489,7 @@
                 <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Modelo / Cliente">
                 <input type="tel" id="patient-contact" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Teléfono / Whatsapp">
                 <div class="flex gap-3">
-                    <input type="text" id="patient-room" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold text-center dark:text-white" placeholder="Patente">
+                    <input type="text" id="patient-room" oninput="this.value = this.value.toUpperCase()" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold text-center dark:text-white uppercase" placeholder="Patente">
                     <input type="text" id="patient-dx" class="w-2/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Falla / Servicio">
                 </div>
             </div>
@@ -1472,7 +1472,7 @@
                 <div class="flex justify-between items-start mb-2">
                     <div>
                         <div class="flex gap-2 mb-1">
-                            <span class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-car mr-1"></i> ${p.room}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i> ${p.room}</span>
                         </div>
                         <div class="flex items-center">
                             <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${p.name}</h4>
@@ -1580,7 +1580,7 @@
             return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded shadow-sm hover:shadow-lg transition-all duration-300 border border-neutral-300 dark:border-neutral-700 border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${p.name.toLowerCase()} ${p.room.toLowerCase()}">
                     <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
                         <div>
-                            <span class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm">${p.room}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${p.room}</span>
                             <div class="flex items-center">
                                 <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${p.name}</h4>
                             </div>
@@ -1704,7 +1704,7 @@
         function createPatient() { 
             const name = document.getElementById('patient-name').value.trim(); 
             const contact = document.getElementById('patient-contact').value.trim(); 
-            const room = document.getElementById('patient-room').value.trim(); 
+            const room = document.getElementById('patient-room').value.trim().toUpperCase(); 
             const dx = document.getElementById('patient-dx').value.trim(); 
             if (!name) return; 
             
@@ -1741,7 +1741,19 @@
             showToast("Vehículo Ingresado", "fa-check"); 
         }
 
-        function deletePatient(id) { 
+        function editPatientRoom(id) {
+            const patient = state.patients.find(p => p.id === id);
+            if (!patient) return;
+            const newRoom = prompt("Corrige o edita la patente:", patient.room);
+            if (newRoom !== null && newRoom.trim() !== "") {
+                patient.room = newRoom.trim().toUpperCase();
+                saveData();
+                renderView(state.view); // Refresca la pantalla
+                showToast("Patente actualizada", "fa-pen");
+            }
+        }
+
+        function deletePatient(id) {
             showConfirmModal("¿Archivar Orden?", "El vehículo pasará al historial.", "Archivar", () => { 
                 const p = state.patients.find(x => x.id === id); 
                 if (p) { p.status = 'archivada'; p.archiveDate = new Date().toISOString(); }
@@ -3554,14 +3566,36 @@
             const term = query.toLowerCase().trim();
             let results = [];
 
-            // 1. Órdenes / Taller
+            // 1. Órdenes / Taller e Historial
             (state.patients || []).forEach(p => {
                 if (p.name.toLowerCase().includes(term) || p.room.toLowerCase().includes(term) || p.dx.toLowerCase().includes(term)) {
-                    results.push({ type: 'Vehículo', title: `${p.name} (${p.room})`, desc: p.dx, icon: 'fa-car-side', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30', 
-                    action: () => { 
-                        renderView('work_orders'); 
-                        setTimeout(() => highlightElement(`wo-card-${p.id}`), 500); 
-                    } });
+                    const isArchived = p.status === 'archivada';
+                    results.push({ 
+                        type: isArchived ? 'Historial' : 'Vehículo', 
+                        title: `${p.name} (${p.room})`, 
+                        desc: isArchived ? `Archivado: ${p.dx}` : p.dx, 
+                        icon: isArchived ? 'fa-box-archive' : 'fa-car-side', 
+                        color: isArchived ? 'text-neutral-500' : 'text-blue-500', 
+                        bg: isArchived ? 'bg-neutral-200 dark:bg-neutral-700' : 'bg-blue-100 dark:bg-blue-900/30', 
+                        action: () => { 
+                            if (isArchived) {
+                                // <-- NUEVO: Viajamos al Taller por detrás sin que el usuario lo note
+                                if (state.view !== 'work_orders') renderView('work_orders'); 
+                                
+                                openHistoryModal(); // Abre la ventana del historial
+                                
+                                setTimeout(() => {
+                                    const searchInput = document.getElementById('history-search-input');
+                                    if(searchInput) searchInput.value = p.room;
+                                    renderHistoryList(p.room);
+                                    highlightElement(`history-card-${p.id}`);
+                                }, 150);
+                            } else {
+                                renderView('work_orders'); 
+                                setTimeout(() => highlightElement(`wo-card-${p.id}`), 500); 
+                            }
+                        }
+                    });
                 }
             });
 
@@ -4107,10 +4141,10 @@
                     : `<li class="text-sm text-neutral-400 italic">Sin detalles registrados</li>`;
                 
                 return `
-                <div class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 mb-3 shadow-sm hover:shadow transition">
+                <div id="history-card-${p.id}" class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 mb-3 shadow-sm hover:shadow transition">
                     <div class="flex justify-between items-start mb-3 border-b border-neutral-100 dark:border-neutral-700 pb-2">
                         <div>
-                            <span class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm">${p.room}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${p.room}</span>
                             <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100">${p.name}</h4>
                             <p class="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-0.5"><i class="fa-solid fa-calendar-check mr-1"></i> Archivado el ${dateStr}</p>
                         </div>

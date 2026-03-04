@@ -377,23 +377,47 @@
                  <h3 id="modal-date-title" class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Editar Fecha</h3>
                  <button onclick="closeModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
              </div>
-             <div class="p-6">
-                <label class="block text-sm font-bold text-neutral-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-tag"></i> Tipo de Evento:</label>
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-red-500 hover:text-red-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-wrench text-xl"></i> Práctica Taller</button>
-                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-blue-500 hover:text-blue-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-file-export text-xl"></i> Entrega Informe</button>
-                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-indigo-500 hover:text-indigo-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-file-signature text-xl"></i> Certamen</button>
-                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-yellow-500 hover:text-yellow-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-book text-xl"></i> Estudio/Teoría</button>
-                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-3 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-calendar-check text-xl"></i> Vehículo Agendado</button>
-                    <button onclick="setShiftType(null)" data-type="null" class="shift-type-btn p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 font-bold text-sm transition-all flex flex-col items-center gap-2 shadow-sm"><i class="fa-solid fa-eraser text-xl"></i> Limpiar</button>
+             <div class="p-5">
+                <label class="block text-sm font-bold text-neutral-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-tag"></i> Tipo de Evento:</label>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-red-500 hover:text-red-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-wrench text-lg"></i> Práctica</button>
+                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-blue-500 hover:text-blue-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-export text-lg"></i> Informe</button>
+                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-indigo-500 hover:text-indigo-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-signature text-lg"></i> Certamen</button>
+                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-yellow-500 hover:text-yellow-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-book text-lg"></i> Estudio</button>
+                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm col-span-2"><i class="fa-solid fa-calendar-check text-lg"></i> Vehículo Agendado</button>
+                    <button onclick="setShiftType(null)" data-type="null" class="hidden"></button>
                 </div>
-                <div class="space-y-4">
-                    <div class="bg-neutral-50 dark:bg-neutral-800 p-3 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-3"><i class="fa-regular fa-clock text-neutral-400"></i><input type="time" id="modal-event-time" class="bg-transparent w-full text-lg font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none"></div>
-                    <div class="bg-neutral-50 dark:bg-neutral-800 p-3 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-3"><i class="fa-solid fa-pen-to-square text-neutral-400"></i><input type="text" id="modal-note-input" class="bg-transparent w-full text-lg font-semibold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400" placeholder="Detalle técnico / Examen..."></div>
+                
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1">
+                            <i class="fa-regular fa-clock text-neutral-400"></i>
+                            <input type="time" id="modal-event-time" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none">
+                        </div>
+                        <div id="modal-plate-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1 hidden">
+                            <i class="fa-solid fa-car text-neutral-400"></i>
+                            <input type="text" id="modal-car-plate" oninput="this.value = this.value.toUpperCase()" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400 uppercase" placeholder="Patente">
+                        </div>
+                    </div>
+                    <div id="modal-client-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 hidden">
+                        <i class="fa-solid fa-user text-neutral-400"></i>
+                        <input type="text" id="modal-car-client" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400" placeholder="Nombre Cliente / Modelo">
+                    </div>
+                    <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-neutral-400"></i>
+                        <input type="text" id="modal-note-input" class="bg-transparent w-full text-sm font-semibold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400" placeholder="Servicio / Motivo...">
+                    </div>
                 </div>
-                <div class="flex justify-between items-center mt-6 gap-3">
-                    <button onclick="deleteCurrentShift()" class="px-4 py-3 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 rounded font-bold text-lg transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    <button onclick="saveShift()" class="flex-1 py-3 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 dark:hover:bg-neutral-600 shadow-lg transform active:scale-95 transition-all font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i> Guardar Ficha</button>
+
+                <div id="btn-send-to-workshop" class="hidden mt-4">
+                    <button onclick="sendAgendadoToWorkshop()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-share-from-square"></i> Mandar a Taller (Crear Orden)
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center mt-4 gap-2 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                    <button onclick="deleteCurrentShift()" class="w-10 h-10 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 rounded font-bold transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    <button onclick="saveShift()" class="flex-1 py-2.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 dark:hover:bg-neutral-600 shadow-lg transform active:scale-95 transition-all font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i> Guardar Ficha</button>
                 </div>
             </div>
         </div>
@@ -1322,9 +1346,28 @@
         }
 
         function getDashboardHTML() {
-            const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; let shift = state.shifts[dateKey]; let isNextShift = false; let nextDateStr = "";
-            if (!shift) { const futureDates = Object.keys(state.shifts).filter(date => date > dateKey).sort(); if (futureDates.length > 0) { const nextDateKey = futureDates[0]; shift = state.shifts[nextDateKey]; isNextShift = true; const [ny, nm, nd] = nextDateKey.split('-').map(Number); const dateObj = new Date(ny, nm - 1, nd); nextDateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); nextDateStr = nextDateStr.charAt(0).toUpperCase() + nextDateStr.slice(1); } }
-            let nextEvent = null; const sortedDates = Object.keys(state.shifts).sort(); for (const d of sortedDates) { if (d >= dateKey && state.shifts[d].eventTime && state.shifts[d].note) { nextEvent = { date: d, ...state.shifts[d] }; break; } }
+            const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; 
+            
+            // Adaptador para múltiples eventos en Inicio
+            let shiftData = state.shifts[dateKey]; let shift = Array.isArray(shiftData) ? shiftData[0] : shiftData; 
+            let isNextShift = false; let nextDateStr = "";
+            
+            if (!shift) { 
+                const futureDates = Object.keys(state.shifts).filter(date => date > dateKey).sort(); 
+                if (futureDates.length > 0) { 
+                    const nextDateKey = futureDates[0]; let nData = state.shifts[nextDateKey];
+                    shift = Array.isArray(nData) ? nData[0] : nData; isNextShift = true; 
+                    const [ny, nm, nd] = nextDateKey.split('-').map(Number); const dateObj = new Date(ny, nm - 1, nd); 
+                    nextDateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); nextDateStr = nextDateStr.charAt(0).toUpperCase() + nextDateStr.slice(1); 
+                } 
+            }
+            
+            let nextEvent = null; const sortedDates = Object.keys(state.shifts).sort(); 
+            for (const d of sortedDates) { 
+                let dShifts = state.shifts[d]; dShifts = Array.isArray(dShifts) ? dShifts : (dShifts ? [dShifts] : []);
+                for (const s of dShifts) { if (d >= dateKey && s.eventTime && s.note) { nextEvent = { date: d, ...s }; break; } }
+                if (nextEvent) break; 
+            }
             
             let reminderHTML = ''; 
             if (nextEvent) { 
@@ -1860,34 +1903,49 @@
         function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
         
         function getTurnarioHTML() { 
+            // Si no hay fecha seleccionada, usamos el día de hoy
+            if (!selectedDateKey) {
+                const today = state.currentDate || new Date();
+                selectedDateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            }
+
             const year = state.currentDate.getFullYear(); 
             const month = state.currentDate.getMonth(); 
             const firstDay = new Date(year, month, 1); 
             const lastDay = new Date(year, month + 1, 0); 
             const daysInMonth = lastDay.getDate(); 
-            
             let startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; 
 
             const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
             
-            let html = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; 
+            // 1. DIBUJAR CALENDARIO (Lado Izquierdo)
+            let calendarHTML = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; 
             
-            for (let i = 0; i < startingDay; i++) { html += `<div></div>`; } 
-            
+            for (let i = 0; i < startingDay; i++) { calendarHTML += `<div></div>`; } 
             for (let day = 1; day <= daysInMonth; day++) { 
                 const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; 
-                html += createDayCellHTML(dateKey, day); 
+                calendarHTML += createDayCellHTML(dateKey, day); 
             } 
             
-            html += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; 
+            calendarHTML += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; 
             
-            return html; 
+            // 2. OBTENER PANEL DE AGENDA (Lado Derecho)
+            let agendaHTML = getAgendaPanelHTML(selectedDateKey);
+
+            // 3. UNIR AMBOS
+            return `<div class="flex flex-col lg:flex-row gap-6 h-full pb-32 lg:pb-0 fade-enter max-w-6xl mx-auto">
+                        <div class="lg:w-7/12 shrink-0">${calendarHTML}</div>
+                        <div class="lg:w-5/12 flex flex-col shrink-0" id="agenda-panel">${agendaHTML}</div>
+                    </div>`; 
         }
 
         function createDayCellHTML(dateKey, day) { 
-            const shift = state.shifts[dateKey]; 
-            let bgClass = "bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; 
-            let content = `<span class="text-lg font-bold z-10 relative font-mono">${day}</span>`; 
+            let dayShifts = state.shifts[dateKey];
+            if (dayShifts && !Array.isArray(dayShifts)) { dayShifts = [dayShifts]; state.shifts[dateKey] = dayShifts; }
+            dayShifts = dayShifts || [];
+
+            let bgClass = "calendar-day-cell bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; 
+            let content = `<span class="text-lg font-bold z-10 relative font-mono pointer-events-none">${day}</span>`; 
             
             const [year, month, dayOfMonth] = dateKey.split('-').map(Number);
             const dateObj = new Date(year, month - 1, dayOfMonth);
@@ -1895,45 +1953,262 @@
 
             if (dayOfWeek >= 5) { bgClass += " text-red-500 dark:text-red-400"; }
             
-            if (shift) { 
-                if (shift.type === 'guardia') { 
-                    bgClass = "bg-red-500 text-white border-red-600 shadow-md"; 
-                } else if (shift.type === 'dia') { 
-                    bgClass = "bg-blue-600 text-white border-blue-700 shadow-md"; 
-                } else if (shift.type === 'noche') { 
-                    bgClass = "bg-indigo-600 text-white border-indigo-700 shadow-md"; 
-                } else if (shift.type === 'post') { 
-                    bgClass = "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; 
-                    content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50"></i>`; 
-                } else if (shift.type === 'libre') { 
-                    bgClass = "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; 
-                    content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50"></i>`; 
-                }
+            if (dayShifts.length > 0) { 
+                const shift = dayShifts[0]; // Toma color del evento principal
+                if (shift.type === 'guardia') bgClass = "calendar-day-cell bg-red-500 text-white border-red-600 shadow-md"; 
+                else if (shift.type === 'dia') bgClass = "calendar-day-cell bg-blue-600 text-white border-blue-700 shadow-md"; 
+                else if (shift.type === 'noche') bgClass = "calendar-day-cell bg-indigo-600 text-white border-indigo-700 shadow-md"; 
+                else if (shift.type === 'post') { bgClass = "calendar-day-cell bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50 pointer-events-none"></i>`; } 
+                else if (shift.type === 'libre') { bgClass = "calendar-day-cell bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50 pointer-events-none"></i>`; }
                 
-                if (shift.type === 'post' || shift.type === 'libre') {
-                } else if (shift.type !== null) {
-                    bgClass = bgClass.replace(' text-red-500 dark:text-red-400', '');
-                } else if (dayOfWeek >= 5) {
-                    bgClass = bgClass.replace('bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300', '');
-                    bgClass += " text-red-500 dark:text-red-400";
-                }
+                if (shift.type !== 'post' && shift.type !== 'libre' && shift.type !== null) bgClass = bgClass.replace(' text-red-500 dark:text-red-400', '');
             } 
             
             const todayKey = new Date().toISOString().split('T')[0]; 
-            if (dateKey === todayKey) { bgClass += " ring-2 ring-red-500 ring-offset-1 z-20"; } 
+            if (dateKey === selectedDateKey) { bgClass += " ring-4 ring-red-500 ring-offset-2 dark:ring-offset-neutral-900 z-30 scale-105 shadow-lg"; } 
+            else if (dateKey === todayKey) { bgClass += " ring-2 ring-red-500/50 ring-offset-1 z-20"; } 
             
             let dots = ""; 
-            if (shift && (shift.note || shift.eventTime)) { dots = `<div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border border-white dark:border-neutral-800"></div>`; } 
+            if (dayShifts.length > 0) { 
+                dots = `<div class="absolute top-1 right-1 flex gap-0.5 pointer-events-none">`;
+                for(let i=0; i<Math.min(dayShifts.length, 3); i++) { dots += `<div class="w-1.5 h-1.5 rounded-full bg-red-500 border border-white dark:border-neutral-800"></div>`; }
+                if(dayShifts.length > 3) dots += `<span class="text-[8px] font-black text-red-500 leading-none">+</span>`;
+                dots += `</div>`;
+            } 
             
-            return `<div onclick="openShiftModal('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-transform active:scale-90 ${bgClass}">${content}${dots}</div>`; 
+            return `<div data-date="${dateKey}" onclick="selectAgendaDay('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-all duration-200 active:scale-90 ${bgClass}">${content}${dots}</div>`; 
+        }
+
+        function selectAgendaDay(dateKey) {
+            selectedDateKey = dateKey;
+            
+            // 1. REEMPLAZO FLUIDO DEL PANEL DERECHO (Elimina el parpadeo de pantalla)
+            const panel = document.getElementById('agenda-panel');
+            if (panel) panel.innerHTML = getAgendaPanelHTML(dateKey);
+
+            // 2. MOVER EL ANILLO ROJO FLUIDAMENTE
+            document.querySelectorAll('.calendar-day-cell').forEach(cell => {
+                cell.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'z-30', 'scale-105', 'shadow-lg');
+                if (cell.dataset.date === dateKey) {
+                    cell.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'z-30', 'scale-105', 'shadow-lg');
+                }
+            });
+        }
+
+        function getAgendaPanelHTML(dateKey) {
+            let dayShifts = state.shifts[dateKey];
+            if (dayShifts && !Array.isArray(dayShifts)) dayShifts = [dayShifts];
+            dayShifts = dayShifts || [];
+
+            const [y, m, d] = dateKey.split('-');
+            const dateObj = new Date(y, m-1, d);
+            const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            let contentHTML = '';
+
+            if (dayShifts.length === 0) {
+                contentHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 opacity-50 text-center">
+                        <i class="fa-regular fa-calendar-xmark text-6xl mb-4 text-neutral-300 dark:text-neutral-600"></i>
+                        <p class="text-xl font-black text-neutral-500 dark:text-neutral-400 tracking-tight">Día Libre</p>
+                        <p class="text-sm mt-1 text-neutral-400">Sin vehículos ni eventos en agenda.</p>
+                    </div>
+                `;
+            } else {
+                contentHTML = `<div class="space-y-3 overflow-y-auto pr-1 hide-scrollbar">`;
+                dayShifts.forEach((shift, index) => {
+                    let icon = 'fa-calendar-check'; let color = 'text-blue-500'; let bg = 'bg-blue-50 dark:bg-blue-900/20'; let typeName = 'Evento';
+                    if (shift.type === 'guardia') { icon = 'fa-wrench'; color = 'text-red-500'; bg = 'bg-red-50 dark:bg-red-900/20'; typeName = 'Práctica Taller'; }
+                    else if (shift.type === 'dia') { icon = 'fa-file-export'; color = 'text-blue-500'; bg = 'bg-blue-50 dark:bg-blue-900/20'; typeName = 'Entrega Informe'; }
+                    else if (shift.type === 'noche') { icon = 'fa-file-signature'; color = 'text-indigo-500'; bg = 'bg-indigo-50 dark:bg-indigo-900/20'; typeName = 'Certamen'; }
+                    else if (shift.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; typeName = 'Estudio / Teoría'; }
+                    else if (shift.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-50 dark:bg-green-900/20'; typeName = 'Vehículo Agendado'; }
+
+                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-[10px] mr-1 opacity-50"></i>${shift.plate}</span>` : '';
+                    let clientHtml = shift.client ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-1.5"><i class="fa-solid fa-user text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.client}</p>` : '';
+                    let timeHtml = shift.eventTime ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3"><i class="fa-regular fa-clock text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.eventTime} hrs</p>` : '';
+
+                    const eventIdParam = shift.id ? `'${shift.id}'` : index;
+                    let workshopBtn = '';
+                    if (shift.type === 'libre') {
+                        workshopBtn = `
+                            <button onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="w-full mt-3 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm active:scale-95">
+                                <i class="fa-solid fa-share-from-square"></i> Ingresar a Taller (Crear O.T.)
+                            </button>
+                        `;
+                    }
+
+                    contentHTML += `
+                        <div class="bg-white dark:bg-neutral-900 p-5 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm relative overflow-hidden group">
+                            <div class="absolute top-2 right-2 flex gap-1 z-10">
+                                <button onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-blue-100 text-neutral-500 hover:text-blue-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-red-100 text-neutral-500 hover:text-red-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </div>
+                            <div class="absolute top-0 left-0 w-2 h-full ${bg.split(' ')[0].replace('bg-', 'bg-')}"></div>
+                            <div class="flex items-center gap-4 mb-4 pr-16">
+                                <div class="w-12 h-12 rounded-xl ${bg} ${color} flex items-center justify-center text-xl shrink-0 shadow-inner">
+                                    <i class="fa-solid ${icon}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-0.5">${typeName}</p>
+                                    <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 leading-tight truncate">${shift.note || 'Sin motivo'}</h4>
+                                </div>
+                            </div>
+                            <div class="pl-2 border-l-2 border-neutral-100 dark:border-neutral-800 ml-5">
+                                ${plateHtml}
+                                ${clientHtml}
+                                ${timeHtml}
+                            </div>
+                            ${workshopBtn}
+                        </div>
+                    `;
+                });
+                contentHTML += `</div>`;
+            }
+
+            return `
+                <div class="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-t-xl border border-neutral-300 dark:border-neutral-700 border-b-0 flex justify-between items-center shadow-inner shrink-0">
+                    <h3 class="font-bold text-neutral-800 dark:text-neutral-200 capitalize tracking-tight flex items-center gap-2"><i class="fa-regular fa-calendar-days text-red-500 text-lg"></i> ${dateTitle}</h3>
+                    <button onclick="openShiftModal('${dateKey}')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition shadow-sm flex items-center gap-1 active:scale-95">
+                        <i class="fa-solid fa-plus"></i> Añadir
+                    </button>
+                </div>
+                <div class="bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-b-xl border border-neutral-300 dark:border-neutral-700 shadow-sm flex-1 flex flex-col max-h-[600px]">
+                    ${contentHTML}
+                </div>
+            `;
         }
 
         function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
-        function openShiftModal(dateKey) { selectedDateKey = dateKey; const shift = state.shifts[dateKey]; const [y, m, d] = dateKey.split('-'); const dateObj = new Date(y, m-1, d); const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); document.getElementById('modal-date-title').innerText = dateTitle; document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; tempShiftType = shift ? shift.type : null; updateShiftTypeUI(); document.body.classList.add('modal-open'); document.getElementById('shift-modal').classList.remove('hidden'); }
+        let selectedEventId = null;
+
+        function openShiftModal(dateKey, eventId = null) { 
+            selectedDateKey = dateKey; 
+            selectedEventId = eventId;
+            
+            let dayShifts = state.shifts[dateKey];
+            if (dayShifts && !Array.isArray(dayShifts)) dayShifts = [dayShifts];
+            dayShifts = dayShifts || [];
+            
+            let shift = null;
+            if (eventId !== null) shift = dayShifts.find(s => s.id == eventId) || dayShifts[eventId];
+
+            const [y, m, d] = dateKey.split('-'); 
+            const dateObj = new Date(y, m-1, d); 
+            const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); 
+            
+            document.getElementById('modal-date-title').innerText = eventId !== null ? "Editar Evento" : "Añadir a " + dateTitle; 
+            document.getElementById('modal-note-input').value = shift ? (shift.note || '') : ''; 
+            document.getElementById('modal-event-time').value = shift ? (shift.eventTime || '') : ''; 
+            
+            const plateInput = document.getElementById('modal-car-plate');
+            const clientInput = document.getElementById('modal-car-client');
+            if(plateInput) plateInput.value = shift ? (shift.plate || '') : '';
+            if(clientInput) clientInput.value = shift ? (shift.client || '') : '';
+
+            tempShiftType = shift ? shift.type : null; 
+            updateShiftTypeUI(); 
+            
+            document.body.classList.add('modal-open'); 
+            document.getElementById('shift-modal').classList.remove('hidden'); 
+        }
+
         function setShiftType(type) { tempShiftType = type; updateShiftTypeUI(); }
-        function updateShiftTypeUI() { document.querySelectorAll('.shift-type-btn').forEach(btn => { btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); if (String(tempShiftType) === btn.dataset.type) { btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); btn.classList.remove('text-neutral-500', 'bg-white'); } }); }
+        function updateShiftTypeUI() { 
+            document.querySelectorAll('.shift-type-btn').forEach(btn => { 
+                btn.classList.remove('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); 
+                if (String(tempShiftType) === btn.dataset.type) { 
+                    btn.classList.add('ring-2', 'ring-red-500', 'bg-red-50', 'text-red-600', 'border-red-200'); 
+                    btn.classList.remove('text-neutral-500', 'bg-white'); 
+                } 
+            }); 
+            const plateCont = document.getElementById('modal-plate-container');
+            const clientCont = document.getElementById('modal-client-container');
+            if (tempShiftType === 'libre') {
+                if(plateCont) plateCont.classList.remove('hidden');
+                if(clientCont) clientCont.classList.remove('hidden');
+            } else {
+                if(plateCont) plateCont.classList.add('hidden');
+                if(clientCont) clientCont.classList.add('hidden');
+            }
+        }
         function closeModal() { document.body.classList.remove('modal-open'); document.getElementById('shift-modal').classList.add('hidden'); }
-        function saveShift() { const note = document.getElementById('modal-note-input').value.trim(); const eventTime = document.getElementById('modal-event-time').value; if (!tempShiftType && !note && !eventTime) { delete state.shifts[selectedDateKey]; } else { state.shifts[selectedDateKey] = { type: tempShiftType, note: note, eventTime: eventTime }; } saveData(); closeModal(); if (state.view === 'turnario') { renderView('turnario'); } else if (state.view === 'dashboard') { renderView('dashboard'); } showToast("Agenda Actualizada", "fa-check"); }
+
+        function saveShift() { 
+            const note = document.getElementById('modal-note-input').value.trim(); 
+            const eventTime = document.getElementById('modal-event-time').value; 
+            const plateInput = document.getElementById('modal-car-plate');
+            const clientInput = document.getElementById('modal-car-client');
+            const plate = plateInput && !plateInput.parentElement.classList.contains('hidden') ? plateInput.value.trim().toUpperCase() : '';
+            const client = clientInput && !clientInput.parentElement.classList.contains('hidden') ? clientInput.value.trim() : '';
+
+            if (!tempShiftType && !note && !eventTime) return;
+            
+            let dayShifts = state.shifts[selectedDateKey];
+            if (dayShifts && !Array.isArray(dayShifts)) dayShifts = [dayShifts];
+            if (!dayShifts) dayShifts = [];
+
+            if (selectedEventId !== null) {
+                let shiftIndex = dayShifts.findIndex(s => s.id == selectedEventId);
+                if (shiftIndex === -1) shiftIndex = selectedEventId; 
+                if (dayShifts[shiftIndex]) dayShifts[shiftIndex] = { ...dayShifts[shiftIndex], type: tempShiftType, note, eventTime, plate, client };
+            } else {
+                dayShifts.push({ id: Date.now(), type: tempShiftType, note, eventTime, plate, client });
+            }
+
+            state.shifts[selectedDateKey] = dayShifts; 
+            saveData(); 
+            closeModal(); 
+            
+            if (state.view === 'turnario') renderView('turnario'); // Recargar para mostrar nuevos puntos en la caja
+            else if (state.view === 'dashboard') renderView('dashboard'); 
+            
+            showToast("Agenda Actualizada", "fa-check"); 
+        }
+
+        function deleteSpecificShift(dateKey, eventId) {
+            let dayShifts = state.shifts[dateKey];
+            if (!dayShifts) return;
+            if (!Array.isArray(dayShifts)) dayShifts = [dayShifts];
+
+            dayShifts = dayShifts.filter((s, index) => s.id != eventId && index != eventId);
+            
+            if (dayShifts.length === 0) delete state.shifts[dateKey];
+            else state.shifts[dateKey] = dayShifts;
+            
+            saveData();
+            if (state.view === 'turnario') renderView('turnario');
+            else if (state.view === 'dashboard') renderView('dashboard'); 
+            showToast("Evento eliminado", "fa-trash");
+        }
+
+        function deleteCurrentShift() { 
+            if (selectedDateKey && selectedEventId !== null) {
+                deleteSpecificShift(selectedDateKey, selectedEventId);
+                closeModal();
+            } else closeModal(); 
+        }
+
+        function sendAgendadoToWorkshop(dateKey, eventId) {
+            let dayShifts = state.shifts[dateKey];
+            if (!dayShifts) return;
+            if (!Array.isArray(dayShifts)) dayShifts = [dayShifts];
+
+            let shift = dayShifts.find(s => s.id == eventId) || dayShifts[eventId];
+            if (!shift) return;
+
+            const name = shift.client || 'Cliente Agendado';
+            const room = shift.plate || '---';
+            const dx = shift.note || 'Servicio Agendado';
+            
+            const newPatient = { id: Date.now(), name: name, contact: '', room: room, dx: dx, tasks: [], status: 'activa', archiveDate: null };
+            state.patients.unshift(newPatient); 
+            deleteSpecificShift(dateKey, eventId);
+            
+            renderView('work_orders');
+            showToast("Vehículo enviado a Taller", "fa-share-from-square");
+            setTimeout(() => highlightElement(`wo-card-${newPatient.id}`), 500);
+        }
 
         function getNotesHTML() { 
             const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar mouse-drag" id="folders-container">${generateFoldersHTML()}</div>`; 
@@ -3451,7 +3726,7 @@
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
-            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto"; 
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
             let contentHTML = '';
             try { 
                 switch(viewName) { 

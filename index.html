@@ -670,6 +670,14 @@
                     </div>
 
                     <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-bell"></i> Notificaciones (Móvil/PC)</h4>
+                        <button onclick="requestNotificationPermission()" class="w-full p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-bold rounded text-sm hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-bell"></i> Activar Alertas de Agenda
+                        </button>
+                        <p class="text-[9px] text-neutral-500 mt-2 leading-tight text-center">Te avisará 15 minutos antes de un vehículo agendado (requiere dejar la app minimizada en segundo plano).</p>
+                    </div>
+
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
                         <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Cuenta en la Nube</h4>
                         <button onclick="logoutUser()" class="w-full p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-bold rounded text-sm hover:bg-red-100 transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-door-open"></i> Cerrar Sesión
@@ -1348,62 +1356,60 @@
         function getDashboardHTML() {
             const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; 
             
-            // Adaptador para múltiples eventos en Inicio
-            let shiftData = state.shifts[dateKey]; let shift = Array.isArray(shiftData) ? shiftData[0] : shiftData; 
-            let isNextShift = false; let nextDateStr = "";
-            
-            if (!shift) { 
-                const futureDates = Object.keys(state.shifts).filter(date => date > dateKey).sort(); 
-                if (futureDates.length > 0) { 
-                    const nextDateKey = futureDates[0]; let nData = state.shifts[nextDateKey];
-                    shift = Array.isArray(nData) ? nData[0] : nData; isNextShift = true; 
-                    const [ny, nm, nd] = nextDateKey.split('-').map(Number); const dateObj = new Date(ny, nm - 1, nd); 
-                    nextDateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); nextDateStr = nextDateStr.charAt(0).toUpperCase() + nextDateStr.slice(1); 
-                } 
-            }
-            
-            let nextEvent = null; const sortedDates = Object.keys(state.shifts).sort(); 
-            for (const d of sortedDates) { 
-                let dShifts = state.shifts[d]; dShifts = Array.isArray(dShifts) ? dShifts : (dShifts ? [dShifts] : []);
-                for (const s of dShifts) { if (d >= dateKey && s.eventTime && s.note) { nextEvent = { date: d, ...s }; break; } }
-                if (nextEvent) break; 
-            }
-            
+            // NUEVO SISTEMA DE RECORDATORIOS PROFESIONAL
             let reminderHTML = ''; 
-            if (nextEvent) { 
-                const [y, m, d] = nextEvent.date.split('-').map(Number); const isTodayEvent = nextEvent.date === dateKey; const eventDateStr = new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }); 
-                reminderHTML = `<div class="order-3 bg-gradient-to-r from-neutral-800 to-neutral-700 text-white p-4 rounded shadow-lg flex items-center gap-4 relative overflow-hidden shrink-0 border-l-4 border-yellow-500"><div class="bg-white/10 p-3 rounded backdrop-blur-sm"><i class="fa-solid fa-bell text-2xl text-yellow-400"></i></div><div class="flex-1 z-10"><p class="text-[10px] tracking-widest opacity-80 font-bold text-yellow-400">Recordatorio Taller</p><h4 class="font-bold text-xl leading-tight font-handwriting">${nextEvent.note}</h4><p class="text-sm mt-1 font-mono opacity-90"><i class="fa-regular fa-calendar mr-1"></i> ${isTodayEvent ? 'HOY' : eventDateStr} • ${nextEvent.eventTime}</p></div></div>`; 
-            }
+            let eventsToShow = []; let eventDateLabel = '';
             
+            if (state.shifts[dateKey] && (Array.isArray(state.shifts[dateKey]) ? state.shifts[dateKey].length > 0 : true)) {
+                eventsToShow = Array.isArray(state.shifts[dateKey]) ? state.shifts[dateKey] : [state.shifts[dateKey]];
+                eventDateLabel = 'HOY';
+            } else {
+                const futureDates = Object.keys(state.shifts).filter(d => d > dateKey).sort();
+                for (const d of futureDates) {
+                    if (state.shifts[d] && (Array.isArray(state.shifts[d]) ? state.shifts[d].length > 0 : true)) {
+                        eventsToShow = Array.isArray(state.shifts[d]) ? state.shifts[d] : [state.shifts[d]];
+                        const [ny, nm, nd] = d.split('-').map(Number); const dObj = new Date(ny, nm - 1, nd);
+                        eventDateLabel = dObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
+                        break;
+                    }
+                }
+            }
+
+            if (eventsToShow.length > 0) {
+                eventsToShow.sort((a, b) => (a.eventTime || '24:00').localeCompare(b.eventTime || '24:00'));
+                let eventsList = eventsToShow.map(ev => {
+                    let icon = 'fa-calendar-check'; let color = 'text-blue-500'; let bg = 'bg-blue-100 dark:bg-blue-900/30';
+                    if (ev.type === 'guardia') { icon = 'fa-wrench'; color = 'text-red-500'; bg = 'bg-red-100 dark:bg-red-900/30'; }
+                    else if (ev.type === 'dia') { icon = 'fa-file-export'; color = 'text-blue-500'; bg = 'bg-blue-100 dark:bg-blue-900/30'; }
+                    else if (ev.type === 'noche') { icon = 'fa-file-signature'; color = 'text-indigo-500'; bg = 'bg-indigo-100 dark:bg-indigo-900/30'; }
+                    else if (ev.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-100 dark:bg-yellow-900/30'; }
+                    else if (ev.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-100 dark:bg-green-900/30'; }
+
+                    let clientInfo = ev.client ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-2 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-user mr-1 text-neutral-400"></i> ${ev.client}</span>` : '';
+                    let plateInfo = ev.plate ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-1 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag mr-1 text-neutral-400"></i> ${ev.plate}</span>` : '';
+                    let timeInfo = ev.eventTime ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${ev.eventTime} hrs</p>` : '<p class="text-xs font-bold text-neutral-400 mt-1">Sin horario definido</p>';
+
+                    return `<div class="flex items-center gap-3 bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-2 hover:border-neutral-300 transition cursor-pointer" onclick="renderView('turnario')">
+                            <div class="w-10 h-10 rounded-xl ${bg} ${color} flex items-center justify-center shrink-0 shadow-inner"><i class="fa-solid ${icon} text-lg"></i></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-y-1"><p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate mr-1">${ev.note || 'Evento agendado'}</p>${plateInfo} ${clientInfo}</div>
+                                ${timeInfo}
+                            </div>
+                        </div>`;
+                }).join('');
+
+                reminderHTML = `<div class="order-2 bg-neutral-100 dark:bg-neutral-900/50 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700 shrink-0 shadow-inner">
+                        <div class="flex justify-between items-center mb-3 pl-1">
+                            <h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell text-yellow-500 text-sm"></i> Agenda: <span class="text-neutral-700 dark:text-neutral-300 capitalize">${eventDateLabel}</span></h3>
+                            <span class="text-[10px] font-bold bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded border border-yellow-200 dark:border-yellow-800 shadow-sm">${eventsToShow.length} ${eventsToShow.length === 1 ? 'registro' : 'registros'}</span>
+                        </div>
+                        <div class="max-h-[250px] overflow-y-auto hide-scrollbar pr-1">${eventsList}</div>
+                    </div>`;
+            }
+
             const pendingTodos = (state.todos || []).filter(t => !t.done);
             const activeCars = (state.patients || []).filter(p => p.status !== 'archivada').length;
             
-            let shiftCardClass = "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400"; let shiftText = "Sin asignación"; let shiftSubText = "Calendario libre"; let shiftIcon = "fa-calendar-minus"; let cardLabel = "Jornada de Hoy";
-            
-            if (shift) { 
-                if (shift.type === 'guardia') { 
-                    shiftCardClass = "bg-white dark:bg-neutral-900 border-red-500 text-red-600 border-l-4"; 
-                    shiftText = "TALLER PRÁCTICO"; shiftSubText = "Manos a la obra"; shiftIcon = "fa-wrench"; 
-                } 
-                else if (shift.type === 'dia') { 
-                    shiftCardClass = "bg-white dark:bg-neutral-900 border-blue-500 text-blue-600 border-l-4"; 
-                    shiftText = "ENTREGA INFORME"; shiftSubText = "Plazo Límite"; shiftIcon = "fa-file-export"; 
-                } 
-                else if (shift.type === 'noche') { 
-                    shiftCardClass = "bg-white dark:bg-neutral-900 border-indigo-500 text-indigo-600 border-l-4"; 
-                    shiftText = "CERTAMEN"; shiftSubText = "Evaluación"; shiftIcon = "fa-file-signature"; 
-                } 
-                else if (shift.type === 'post') { 
-                    shiftCardClass = "bg-white dark:bg-neutral-900 border-yellow-500 text-yellow-600 border-l-4"; 
-                    shiftText = "ESTUDIO / TEORÍA"; shiftSubText = "Repaso de manuales"; shiftIcon = "fa-book-open"; 
-                } 
-                else if (shift.type === 'libre') { 
-                    shiftCardClass = "bg-white dark:bg-neutral-900 border-green-500 text-green-600 border-l-4"; 
-                    shiftText = "VEHÍCULO AGENDADO"; shiftSubText = "Recepción Taller"; shiftIcon = "fa-calendar-check"; 
-                } 
-                if (isNextShift) { cardLabel = "Próxima Jornada"; shiftSubText = `El ${nextDateStr}`; } else { cardLabel = "Jornada de Hoy"; } 
-            } else { cardLabel = "Estado Actual"; }
-
             // Lógica Cálculo Balance Diario
             const dailyTxs = (state.transactions || []).filter(t => t.date === dateKey);
             const dailyIncome = dailyTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -1447,9 +1453,9 @@
                 ${financeWidgetHTML}
             </div>
             
-            <div onclick="renderView('turnario')" class="order-2 cursor-pointer relative overflow-hidden rounded border ${shiftCardClass.replace('bg-', 'border-').replace('text-', 'border-')} p-0 transition-transform active:scale-95 shadow-sm shrink-0"><div class="${shiftCardClass} p-6 relative z-10"><div class="flex justify-between items-start"><div><span class="text-xs font-bold tracking-widest opacity-70 mb-1 block text-neutral-400 dark:text-neutral-500">${cardLabel}</span><h3 class="text-3xl font-black tracking-tighter mb-1 text-neutral-800 dark:text-neutral-100">${shiftText}</h3><p class="text-sm font-bold opacity-80 flex items-center gap-1"><i class="fa-solid fa-circle-info text-xs"></i> ${shiftSubText}</p></div><div class="w-14 h-14 rounded bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shadow-inner text-neutral-400 dark:text-neutral-500"><i class="fa-solid ${shiftIcon} text-3xl"></i></div></div></div><div class="absolute -right-4 -bottom-8 opacity-5 pointer-events-none"><i class="fa-solid fa-gears text-9xl text-neutral-900"></i></div></div>${reminderHTML}
+            ${reminderHTML}
             
-            <div class="order-4 shrink-0 mt-2">
+            <div class="order-3 shrink-0 mt-2">
                 <h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Accesos Rápidos</h3>
                 <div class="grid grid-cols-4 gap-2 sm:gap-3">
                     <div onclick="renderView('work_orders'); setTimeout(() => openPatientModal(), 100);" class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:shadow-md transition group cursor-pointer text-center">
@@ -1474,7 +1480,7 @@
                 </div>
             </div>
 
-            <div class="order-5 grid grid-cols-2 gap-3 shrink-0 mt-2">
+            <div class="order-4 grid grid-cols-2 gap-3 shrink-0 mt-2">
                 <div onclick="renderView('work_orders')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer">
                     <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${activeCars}</div>
                     <span class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide uppercase">En Taller</span>
@@ -4621,6 +4627,78 @@
             });
         }
         
+        // --- SISTEMA DE NOTIFICACIONES DE AGENDA ---
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                showToast("Tu dispositivo no soporta notificaciones web", "fa-triangle-exclamation");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    showToast("Notificaciones activadas", "fa-bell");
+                    checkUpcomingEvents(); // Hacer el primer escaneo
+                } else {
+                    showToast("Permiso denegado por el usuario", "fa-bell-slash");
+                }
+            });
+        }
+
+        function checkUpcomingEvents() {
+            if (!("Notification" in window) || Notification.permission !== "granted") return;
+            
+            const now = new Date();
+            const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            
+            let dayShifts = state.shifts[dateKey];
+            if (!dayShifts) return;
+            if (!Array.isArray(dayShifts)) dayShifts = [dayShifts];
+
+            let modified = false;
+
+            dayShifts.forEach(shift => {
+                if (!shift.eventTime) return;
+                if (shift.notified) return; // Evitar que suene 100 veces
+
+                const [h, m] = shift.eventTime.split(':').map(Number);
+                const eventTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+                const diffMs = eventTime - now;
+                const diffMins = Math.floor(diffMs / 60000);
+
+                // Disparar si faltan exactamente 15 minutos (margen de 5 min por si el PC estaba suspendido)
+                if (diffMins <= 15 && diffMins >= 10) {
+                    const title = shift.plate ? `Mecamonico: ${shift.plate}` : "Alerta de Agenda";
+                    const options = {
+                        body: `A las ${shift.eventTime} hrs - ${shift.note || 'Vehículo agendado'}`,
+                        icon: "iconomecamonico.png", // Tu propio ícono
+                        badge: "iconomecamonico.png",
+                        vibrate: [200, 100, 200, 100, 200, 100, 400], // Patrón de vibración fuerte
+                        requireInteraction: true
+                    };
+                    
+                    // Usar Service Worker si está disponible (Mejor para móviles)
+                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(title, options);
+                        });
+                    } else {
+                        new Notification(title, options);
+                    }
+                    
+                    shift.notified = true;
+                    modified = true;
+                }
+            });
+
+            if (modified) {
+                state.shifts[dateKey] = dayShifts;
+                saveData(); // Guardar que ya se notificó
+            }
+        }
+
+        // El escáner revisará la agenda cada 1 minuto (60000 ms) silenciosamente
+        setInterval(checkUpcomingEvents, 60000);
+        setTimeout(checkUpcomingEvents, 3000); // Revisar al abrir la app
+
         window.onload = init;
     </script>
 </body>

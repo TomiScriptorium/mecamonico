@@ -667,18 +667,30 @@
                             <option value="medium">Normal (Balanceado)</option>
                             <option value="high">Alta (Para imprimir)</option>
                         </select>
-                    </div>
+                </div>
 
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
-                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-bell"></i> Notificaciones (Móvil/PC)</h4>
-                        <button onclick="requestNotificationPermission()" class="w-full p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-bold rounded text-sm hover:bg-blue-100 transition flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-bell"></i> Activar Alertas de Agenda
+                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
+                    <div class="flex justify-between items-center mb-3 pl-1">
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell"></i> Alertas de Agenda</h4>
+                        <span id="notif-status-badge" class="text-[9px] font-bold px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500">Desactivadas</span>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-2">
+                        <button id="btn-notif-toggle" onclick="requestNotificationPermission()" class="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-bold rounded text-sm hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-bell"></i> Activar
                         </button>
-                        <p class="text-[9px] text-neutral-500 mt-2 leading-tight text-center">Te avisará 15 minutos antes de un vehículo agendado (requiere dejar la app minimizada en segundo plano).</p>
+                        <select id="notif-time-select" onchange="updateNotifTime(this.value)" class="w-28 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 transition cursor-pointer" title="Minutos de anticipación">
+                            <option value="5">5 min</option>
+                            <option value="10">10 min</option>
+                            <option value="15">15 min</option>
+                            <option value="30">30 min</option>
+                            <option value="60">1 hora</option>
+                        </select>
                     </div>
-
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
-                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Cuenta en la Nube</h4>
+                    <p class="text-[9px] text-neutral-500 leading-tight text-center">Para móviles: Instala la app en la pantalla de inicio y déjala minimizada de fondo.</p>
+                </div>
+                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
+                    <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Cuenta en la Nube</h4>
                         <button onclick="logoutUser()" class="w-full p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-bold rounded text-sm hover:bg-red-100 transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-door-open"></i> Cerrar Sesión
                         </button>
@@ -4239,6 +4251,26 @@
             // Cargar la configuración de calidad (por defecto 'medium')
             document.getElementById('pdf-quality-select').value = state.pdfQuality || 'medium';
             
+            // Cargar estado de notificaciones
+            const notifSelect = document.getElementById('notif-time-select');
+            if (notifSelect) notifSelect.value = state.notifAdvance || 15;
+            
+            const notifBadge = document.getElementById('notif-status-badge');
+            const notifBtn = document.getElementById('btn-notif-toggle');
+            if (notifBadge && notifBtn && 'Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    notifBadge.innerText = 'ACTIVADAS';
+                    notifBadge.className = 'text-[9px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-700 border border-green-200 shadow-sm';
+                    notifBtn.innerHTML = '<i class="fa-solid fa-check"></i> Permitido';
+                    notifBtn.classList.replace('text-blue-600', 'text-green-600');
+                    notifBtn.classList.replace('border-blue-200', 'border-green-200');
+                    notifBtn.classList.replace('bg-blue-50', 'bg-green-50');
+                } else if (Notification.permission === 'denied') {
+                    notifBadge.innerText = 'BLOQUEADAS';
+                    notifBadge.className = 'text-[9px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200 shadow-sm';
+                }
+            }
+
             updateThemeButtonsUI(state.appTheme || localStorage.getItem('mech_theme') || 'rojo');
 
             const list = document.getElementById('modules-settings-list');
@@ -4627,18 +4659,33 @@
             });
         }
         
-        // --- SISTEMA DE NOTIFICACIONES DE AGENDA ---
+        // --- SISTEMA DE NOTIFICACIONES DE AGENDA MEJORADO ---
+        function updateNotifTime(val) {
+            state.notifAdvance = parseInt(val);
+            saveData();
+            showToast(`Avisará ${val} min antes`, "fa-clock");
+        }
+
         function requestNotificationPermission() {
             if (!("Notification" in window)) {
-                showToast("Tu dispositivo no soporta notificaciones web", "fa-triangle-exclamation");
+                showToast("Tu dispositivo no soporta alertas", "fa-triangle-exclamation");
                 return;
             }
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     showToast("Notificaciones activadas", "fa-bell");
-                    checkUpcomingEvents(); // Hacer el primer escaneo
+                    closeSettingsModal(); 
+                    setTimeout(openSettingsModal, 200); // Recarga para pintar de verde
+                    checkUpcomingEvents(); 
+                    
+                    // Disparar una notificación de prueba forzada para iOS/Android
+                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification("Mecamonico", { body: "Las alertas están configuradas.", icon: "iconomecamonico.png" });
+                        });
+                    }
                 } else {
-                    showToast("Permiso denegado por el usuario", "fa-bell-slash");
+                    showToast("Permiso denegado por el navegador", "fa-bell-slash");
                 }
             });
         }
@@ -4654,28 +4701,32 @@
             if (!Array.isArray(dayShifts)) dayShifts = [dayShifts];
 
             let modified = false;
+            const advanceMins = state.notifAdvance || 15; // Lee los minutos que elegiste
 
             dayShifts.forEach(shift => {
                 if (!shift.eventTime) return;
-                if (shift.notified) return; // Evitar que suene 100 veces
-
+                
                 const [h, m] = shift.eventTime.split(':').map(Number);
                 const eventTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
                 const diffMs = eventTime - now;
                 const diffMins = Math.floor(diffMs / 60000);
 
-                // Disparar si faltan exactamente 15 minutos (margen de 5 min por si el PC estaba suspendido)
-                if (diffMins <= 15 && diffMins >= 10) {
-                    const title = shift.plate ? `Mecamonico: ${shift.plate}` : "Alerta de Agenda";
+                // Disparar si estamos en el rango de tiempo
+                if (diffMins <= advanceMins && diffMins >= (advanceMins - 3)) {
+                    // Evitar que suene 10 veces por el mismo evento
+                    const notifId = `notified_${shift.id}_${shift.eventTime}`;
+                    if (shift.lastNotifId === notifId) return; 
+
+                    const title = shift.plate ? `Mecamonico: ${shift.plate}` : "Agenda Mecamonico";
                     const options = {
                         body: `A las ${shift.eventTime} hrs - ${shift.note || 'Vehículo agendado'}`,
-                        icon: "iconomecamonico.png", // Tu propio ícono
+                        icon: "iconomecamonico.png",
                         badge: "iconomecamonico.png",
-                        vibrate: [200, 100, 200, 100, 200, 100, 400], // Patrón de vibración fuerte
-                        requireInteraction: true
+                        vibrate: [300, 100, 300, 100, 300],
+                        requireInteraction: true,
+                        tag: notifId
                     };
                     
-                    // Usar Service Worker si está disponible (Mejor para móviles)
                     if (navigator.serviceWorker && navigator.serviceWorker.ready) {
                         navigator.serviceWorker.ready.then(reg => {
                             reg.showNotification(title, options);
@@ -4684,20 +4735,19 @@
                         new Notification(title, options);
                     }
                     
-                    shift.notified = true;
+                    shift.lastNotifId = notifId;
                     modified = true;
                 }
             });
 
             if (modified) {
                 state.shifts[dateKey] = dayShifts;
-                saveData(); // Guardar que ya se notificó
+                saveData(); 
             }
         }
 
-        // El escáner revisará la agenda cada 1 minuto (60000 ms) silenciosamente
-        setInterval(checkUpcomingEvents, 60000);
-        setTimeout(checkUpcomingEvents, 3000); // Revisar al abrir la app
+        setInterval(checkUpcomingEvents, 45000); // Revisar el reloj cada 45 segundos
+        setTimeout(checkUpcomingEvents, 3000);
 
         window.onload = init;
     </script>

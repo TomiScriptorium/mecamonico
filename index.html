@@ -4636,6 +4636,10 @@
 
         async function checkUserSession() {
             if (!supabaseClient) return;
+            
+            // Si ya tocaste "Continuar sin internet", la Nube se cancela y te deja en paz
+            if (sessionStorage.getItem('offlineMode') === 'true') return; 
+
             try {
                 const { data, error } = await supabaseClient.auth.getSession();
                 if (data && data.session) {
@@ -4722,6 +4726,13 @@
             document.getElementById('auth-password').value = '';
             const authScreen = document.getElementById('auth-screen');
             if(authScreen) authScreen.classList.remove('hidden');
+        }
+        
+        function continueOffline() {
+            sessionStorage.setItem('offlineMode', 'true'); // <-- El seguro anti-rebote
+            const authScreen = document.getElementById('auth-screen');
+            if(authScreen) authScreen.classList.add('hidden');
+            showToast("Modo Local Activo (Sin Sincronizar)", "fa-wifi");
         }
 
         // --- DESTRUCTOR DE CACHÉ FANTASMA (PWA FIX) ---

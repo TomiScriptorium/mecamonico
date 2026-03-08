@@ -4670,6 +4670,7 @@
                 if (error) {
                     showToast(error.message, "fa-circle-xmark");
                 } else {
+                    sessionStorage.removeItem('offlineMode'); // <-- ROMPE EL SEGURO LOCAL
                     showToast("Cuenta creada exitosamente", "fa-check");
                     checkUserSession();
                 }
@@ -4690,6 +4691,7 @@
                 if (error) {
                     showToast("Credenciales inválidas", "fa-circle-xmark");
                 } else {
+                    sessionStorage.removeItem('offlineMode'); // <-- ROMPE EL SEGURO LOCAL
                     showToast("¡Bienvenido a la Nube!", "fa-cloud");
                     checkUserSession();
                 }

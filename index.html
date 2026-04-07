@@ -733,8 +733,10 @@
         let supabaseClient = null; // CAMBIO: Nuevo nombre para evitar choque
         // ----------------------------------
         
+        let isSafeToSync = false; // SEGURO ANTI-SOBREESCRITURA CRÍTICO
         let state = {
-            view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [], 
+            owner_id: null,
+            view: 'dashboard', todos: [], notes: [], folders: [], links: [], pdfs: [], shifts: {}, patients: [],
             shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', 
             serviceList: [], inventoryList: [], transactions: [],
             activeShopTab: 'items', 
@@ -865,7 +867,8 @@
             
             try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { console.error("Error local:", e); }
             
-            if (supabaseClient && currentUser) {
+            // SOLO subimos si es seguro (evita que una cuenta sobreescriba a otra con datos vacíos)
+            if (supabaseClient && currentUser && isSafeToSync) {
                 const { error } = await supabaseClient.from('user_data').upsert({
                     user_id: currentUser.id,
                     app_data: toSave,
@@ -4596,24 +4599,38 @@
                 
                 if (error) {
                     if (error.code === 'PGRST116') {
-                        // Si la cuenta es nueva y no tiene datos, la creamos en la nube
+                        // Cuenta nueva, sin datos previos
+                        state.owner_id = currentUser.id;
+                        isSafeToSync = true;
                         saveData();
+                        showToast("Nube inicializada", "fa-cloud");
                     } else {
+                        // ERROR DE RED O CONEXIÓN
                         console.error("Error de conexión:", error);
+                        if (state.owner_id !== currentUser.id) {
+                            // Peligro: Cambio de cuenta y no hay internet para bajar sus datos.
+                            showToast("¡Atención! Sin internet para cargar esta cuenta.", "fa-triangle-exclamation");
+                            isSafeToSync = false; // Bloquea la subida para no sobreescribir la nube
+                        } else {
+                            // Mismo usuario, trabajando offline (Seguro usar la app)
+                            isSafeToSync = true; 
+                        }
                     }
                     return;
                 }
 
+                // DESCARGA EXITOSA
+                isSafeToSync = true;
                 if (data && data.app_data && Object.keys(data.app_data).length > 0) {
                     const cloudData = data.app_data;
                     const localTime = state.last_updated || 0;
                     const cloudTime = cloudData.last_updated || 0;
 
-                    if (cloudTime > localTime) {
-                        state = { ...state, ...cloudData, currentDate: new Date() };
+                    // Si la memoria local NO es de este usuario (cambio de cuenta), LA NUBE GANA SIEMPRE.
+                    if (state.owner_id !== currentUser.id || cloudTime > localTime) {
+                        state = { ...state, ...cloudData, currentDate: new Date(), owner_id: currentUser.id };
                         await idbKeyval.set(APP_KEY, state); 
                         
-                        // <-- Bloquear salto de pantalla al descargar nube -->
                         const activeView = sessionStorage.getItem('currentView') || 'dashboard';
                         state.view = activeView;
                         
@@ -4621,16 +4638,17 @@
                         renderView(activeView);
                         showToast("Taller Sincronizado", "fa-cloud-arrow-down");
                     } else if (localTime > cloudTime) {
+                        state.owner_id = currentUser.id;
                         showToast("Actualizando Nube...", "fa-cloud-arrow-up");
                         saveData(); 
-                    } else {
-                        // Tiempos exactos, no hacer nada para no interrumpir
                     }
                 } else {
+                    state.owner_id = currentUser.id;
                     saveData(); 
                 }
             } catch (e) {
                 console.error("Fallo crítico en sincronización:", e);
+                isSafeToSync = (state.owner_id === currentUser.id);
             }
         }
 
@@ -4710,7 +4728,9 @@
             
             // --- PARCHE CRÍTICO: LIMPIAR MEMORIA LOCAL AL SALIR ---
             // Esto evita que los datos de esta cuenta se pasen a la siguiente
+            isSafeToSync = false;
             state = {
+                owner_id: null,
                 view: 'dashboard', todos: [], notes: [], folders: [{id: 'general', name: 'General'}], links: [], pdfs: [], shifts: {}, patients: [], 
                 shoppingList: [], shopAddress: '', shopTitle: 'Lista de Compras', shopNote: '', 
                 serviceList: [], inventoryList: [], transactions: [], predefinedServices: [],

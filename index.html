@@ -639,7 +639,7 @@
             </div>
             <div class="flex gap-2 mb-4 shrink-0">
                 <input type="text" id="new-preset-name" placeholder="Ej: Cambio Aceite" class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition dark:text-white" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
-                <input type="number" id="new-preset-price" placeholder="$ Precio" class="w-24 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition text-right text-red-500 dark:text-red-400" onkeypress="if(event.key === 'Enter') addPredefinedService()">
+                <input type="number" id="new-preset-price" placeholder="$ Final (c/IVA)" title="Precio Final con IVA incluido" class="w-32 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition text-right text-red-500 dark:text-red-400" onkeypress="if(event.key === 'Enter') addPredefinedService()">
                 <button onclick="addPredefinedService()" class="bg-red-600 text-white px-4 rounded font-bold hover:bg-red-700 transition shadow-sm active:scale-95"><i class="fa-solid fa-plus"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto hide-scrollbar border border-neutral-200 dark:border-neutral-700 rounded bg-neutral-50/50 dark:bg-neutral-900/50 relative" id="price-list-container">
@@ -4791,13 +4791,18 @@
                 container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fa-solid fa-list-ul text-4xl mb-3 text-neutral-400"></i><p class="text-xs font-bold text-neutral-500">No hay servicios guardados</p></div>';
                 return;
             }
-            container.innerHTML = state.predefinedServices.sort((a,b)=>a.name.localeCompare(b.name)).map(s => `
+            container.innerHTML = state.predefinedServices.sort((a,b)=>a.name.localeCompare(b.name)).map(s => {
+                const netPrice = Math.round(s.price / 1.19); // Calcula el neto para mostrarlo
+                return `
                 <div class="flex justify-between items-center bg-white dark:bg-neutral-800 p-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition">
-                    <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 flex-1 truncate pr-2"><i class="fa-solid fa-wrench text-[10px] text-neutral-400 mr-2"></i>${s.name}</span>
-                    <span class="text-sm font-black text-red-600 dark:text-red-400 w-24 text-right pr-4">$${s.price.toLocaleString('es-CL')}</span>
+                    <div class="flex-1 min-w-0 pr-2">
+                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 block truncate"><i class="fa-solid fa-wrench text-[10px] text-neutral-400 mr-2"></i>${s.name}</span>
+                        <span class="text-[9px] text-neutral-400 font-mono block ml-5" title="Este valor irá a la O.T.">Neto a Orden: $${netPrice.toLocaleString('es-CL')}</span>
+                    </div>
+                    <span class="text-sm font-black text-red-600 dark:text-red-400 w-24 text-right pr-4" title="Precio Final con IVA">$${s.price.toLocaleString('es-CL')}</span>
                     <button onclick="deletePredefinedService(${s.id})" class="text-neutral-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition"><i class="fa-solid fa-trash-can text-sm"></i></button>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function addPredefinedService() {
@@ -4858,15 +4863,20 @@
                     return `
                     <div class="px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" onmousedown="selectServiceSuggestion(${patientId}, '${s.name.replace(/'/g, "\\'")}', ${s.price}, null)">
                         <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate pr-2"><i class="fa-solid fa-wrench text-[10px] text-blue-500 mr-2 opacity-70"></i>${s.name}</span>
-                        <span class="text-sm font-black text-blue-600 dark:text-blue-400">$${s.price.toLocaleString('es-CL')}</span>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-blue-600 dark:text-blue-400">$${s.price.toLocaleString('es-CL')}</span>
+                            <p class="text-[9px] text-neutral-400 font-bold leading-none mt-0.5">IVA INCLUIDO</p>
+                        </div>
                     </div>`;
                 } else {
                     const isOutOfStock = (parseFloat(s.qty) || 0) <= 0;
                     const stockColor = isOutOfStock ? 'text-red-500' : 'text-green-600';
                     const stockText = isOutOfStock ? 'Agotado' : `Stock: ${s.qty}`;
-                    // Si no hay stock, se pone rojo y no te deja seleccionarlo (o puedes quitar el cursor-not-allowed si quieres forzar ventas sin stock)
                     const pointerClass = isOutOfStock ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/30';
                     const clickAction = isOutOfStock ? '' : `onmousedown="selectServiceSuggestion(${patientId}, '${s.name.replace(/'/g, "\\'")}', ${s.price}, ${s.id})"`;
+                    
+                    // Mostramos el precio con IVA también para los repuestos de bodega
+                    const grossPrice = Math.round(s.price * 1.19);
 
                     return `
                     <div class="px-4 py-2.5 ${pointerClass} flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" ${clickAction}>
@@ -4874,7 +4884,10 @@
                             <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-[10px] text-green-500 mr-2 opacity-70"></i>${s.name}</span>
                             <span class="text-[9px] font-bold ${stockColor} uppercase tracking-wider ml-5">${stockText}</span>
                         </div>
-                        <span class="text-sm font-black text-green-600 dark:text-green-400">$${s.price.toLocaleString('es-CL')}</span>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-green-600 dark:text-green-400">$${grossPrice.toLocaleString('es-CL')}</span>
+                            <p class="text-[9px] text-neutral-400 font-bold leading-none mt-0.5">IVA INCLUIDO</p>
+                        </div>
                     </div>`;
                 }
             }).join('');
@@ -4892,8 +4905,16 @@
             const inputPrice = document.getElementById(`new-task-price-${patientId}-lg`);
             if(inputName && inputPrice) {
                 inputName.value = name;
-                inputPrice.value = price;
-                inputName.dataset.invId = invId ? invId : ''; // Le pegamos el ID invisible
+                
+                // --- MAGIA IVA --- 
+                // Si es del catálogo (no tiene invId), le extraemos el IVA para que el Taller se lo vuelva a sumar al final
+                if (!invId) {
+                    inputPrice.value = Math.round(price / 1.19);
+                } else {
+                    inputPrice.value = price; // El inventario ya viene en valor Neto de fábrica
+                }
+                
+                inputName.dataset.invId = invId ? invId : '';
                 inputPrice.focus(); 
             }
             hideServiceSuggestions(patientId);

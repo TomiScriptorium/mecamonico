@@ -2711,12 +2711,12 @@
                                 <p class="iva-costo text-[9px] text-neutral-400 text-right mt-0.5" title="Costo con IVA (19%)">c/IVA: $${priceGross.toLocaleString('es-CL')}</p>
                             </div>
                             <div class="w-full max-w-[120px]">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
-                                    <input type="number" value="${salePrice}" oninput="updateInventoryItem(${item.id}, 'salePrice', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0">
-                                </div>
-                                <p class="iva-venta text-[9px] text-neutral-400 text-right mt-0.5" title="Venta con IVA (19%)">c/IVA: $${salePriceGross.toLocaleString('es-CL')}</p>
-                            </div>
+                             <div class="flex items-center justify-between">
+                                 <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
+                                 <input type="number" value="${salePriceGross}" oninput="updateInventoryItem(${item.id}, 'salePriceGross', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0" title="Precio Final con IVA">
+                             </div>
+                             <p class="iva-venta text-[9px] text-neutral-400 text-right mt-0.5" title="Valor Neto (sin IVA)">Neto: $${price.toLocaleString('es-CL')}</p>
+                         </div>
                         </div>
                     </td>
                     <td class="p-2 sm:p-3 align-middle lg:w-[20%] min-w-[130px]">
@@ -2739,13 +2739,16 @@
         }
 
         function updateInventoryItem(id, field, value) {
-            const item = state.inventoryList.find(i => i.id === id);
-            if (!item) return;
-            if (field === 'price' || field === 'salePrice' || field === 'qty' || field === 'minQty' || field === 'soldQty') {
-                item[field] = parseFloat(value) || 0;
-            } else {
-                item[field] = value;
-            }
+         const item = state.inventoryList.find(i => i.id === id);
+         if (!item) return;
+
+         if (field === 'salePriceGross') {
+             item.salePrice = Math.round(parseFloat(value) / 1.19) || 0;
+         } else if (field === 'price' || field === 'salePrice' || field === 'qty' || field === 'minQty' || field === 'soldQty') {
+             item[field] = parseFloat(value) || 0;
+         } else {
+             item[field] = value;
+         }
             saveData();
             
             const row = document.getElementById(`inventory-row-${id}`);
@@ -2857,7 +2860,8 @@
             const qty = parseFloat(qtyInput.value) || 0;
             const minQty = parseFloat(minInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
-            const salePrice = parseFloat(salePriceInput.value) || 0;
+            const grossSalePrice = parseFloat(salePriceInput.value) || 0;
+            const salePrice = Math.round(grossSalePrice / 1.19); // Extraemos el IVA para guardarlo Neto internamente
 
             if (!product) { 
                 showToast("Falta nombre del producto", "fa-triangle-exclamation"); 
@@ -3108,7 +3112,7 @@
                                     <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Venta Un. (Neto)</label>
+                                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Lo que le cobras al cliente (incluye IVA)">Venta Un. (c/IVA)</label>
                                     <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
                                 </div>
                             </div>

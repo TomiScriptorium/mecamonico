@@ -1045,7 +1045,44 @@
         function openBackupModal() { document.getElementById('backup-modal').classList.remove('hidden'); }
         function closeBackupModal() { document.getElementById('backup-modal').classList.add('hidden'); document.getElementById('backup-file-input').value = ''; }
         async function downloadBackupFile() { try { showToast("Comprimiendo...", "fa-spinner fa-spin"); const zip = new JSZip(); const dataStr = JSON.stringify(state, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast("Backup Descargado", "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
-        async function importBackupFromFile(input) { const file = input.files[0]; if (!file) return; try { showToast("Analizando ZIP...", "fa-spinner fa-spin"); const zip = await JSZip.loadAsync(file); const dataFile = zip.file("mecamonico_data.json"); if (!dataFile) throw new Error("ZIP inválido."); const content = await dataFile.async("string"); const data = JSON.parse(content); if (data && (data.todos || data.notes || data.shifts)) { showConfirmModal("Restaurar desde ZIP", "Se reemplazará toda la información actual.", "Restaurar", function() { state = { ...state, ...data, currentDate: new Date() }; saveData(); closeConfirmModal(); closeBackupModal(); state.view = null; renderView('dashboard'); showToast("Datos restaurados", "fa-check-double"); }); } else { showToast("Datos corruptos", "fa-triangle-exclamation"); } } catch (err) { showToast("Error: Archivo inválido", "fa-bug"); } input.value = ''; }
+        async function importBackupFromFile(input) { 
+            const file = input.files[0]; 
+            if (!file) return; 
+            try { 
+                showToast("Analizando ZIP...", "fa-spinner fa-spin"); 
+                const zip = await JSZip.loadAsync(file); 
+                const dataFile = zip.file("mecamonico_data.json"); 
+                if (!dataFile) throw new Error("ZIP inválido."); 
+                const content = await dataFile.async("string"); 
+                const data = JSON.parse(content); 
+                
+                if (data && (data.todos || data.notes || data.shifts)) { 
+                    showConfirmModal("Restaurar desde ZIP", "Se reemplazará toda la información actual.", "Restaurar", function() { 
+                        state = { ...state, ...data, currentDate: new Date() }; 
+                        
+                        // --- PARCHE DE DUEÑO PARA RESPALDOS ---
+                        if (typeof currentUser !== 'undefined' && currentUser) {
+                            state.owner_id = currentUser.id;
+                        }
+                        state.last_updated = Date.now() + 5000; // Lo hace más "nuevo" que la nube
+                        isSafeToSync = true; // Destraba el bloqueo de seguridad
+                        // --------------------------------------
+                        
+                        saveData(); 
+                        closeConfirmModal(); 
+                        closeBackupModal(); 
+                        state.view = null; 
+                        renderView('dashboard'); 
+                        showToast("Datos restaurados", "fa-check-double"); 
+                    }); 
+                } else { 
+                    showToast("Datos corruptos", "fa-triangle-exclamation"); 
+                } 
+            } catch (err) { 
+                showToast("Error: Archivo inválido", "fa-bug"); 
+            } 
+            input.value = ''; 
+        }
         
         function triggerPdfInput() { document.getElementById('pdf-input-file').click(); }
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); 

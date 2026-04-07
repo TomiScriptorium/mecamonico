@@ -2715,7 +2715,7 @@
                                  <span class="text-[10px] text-neutral-400 font-bold uppercase">Venta:</span>
                                  <input type="number" value="${salePriceGross}" oninput="updateInventoryItem(${item.id}, 'salePriceGross', this.value)" class="w-16 sm:w-20 bg-transparent outline-none font-bold text-right text-green-600 dark:text-green-400 text-sm focus:border-b border-green-500 transition" min="0" placeholder="$0" title="Precio Final con IVA">
                              </div>
-                             <p class="iva-venta text-[9px] text-neutral-400 text-right mt-0.5" title="Valor Neto (sin IVA)">Neto: $${price.toLocaleString('es-CL')}</p>
+                             <p class="iva-venta text-[9px] text-neutral-400 text-right mt-0.5" title="Valor Neto (sin IVA)">Neto: $${salePrice.toLocaleString('es-CL')}</p>
                          </div>
                         </div>
                     </td>
@@ -2770,7 +2770,7 @@
                 if (ivaTextCosto) ivaTextCosto.innerText = `c/IVA: $${priceGross.toLocaleString('es-CL')}`;
                 
                 const ivaTextVenta = row.querySelector('.iva-venta');
-                if (ivaTextVenta) ivaTextVenta.innerText = `c/IVA: $${salePriceGross.toLocaleString('es-CL')}`;
+                if (ivaTextVenta) ivaTextVenta.innerText = `Neto: $${(parseFloat(item.salePrice) || 0).toLocaleString('es-CL')}`;
             }
             updateInventoryTotal();
         }

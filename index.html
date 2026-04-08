@@ -662,7 +662,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:col-span-2">
                     <div>
-                        <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Costo Un. (c/IVA)</label>
+                        <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Costo sin IVA">Costo Un. (Neto)</label>
                         <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
                     </div>
                     <div>
@@ -3036,12 +3036,11 @@
             const qty = parseFloat(qtyInput.value) || 0;
             const minQty = parseFloat(minInput.value) || 0;
             
-            // --- PARCHE IVA: Extraemos el IVA tanto del Costo como de la Venta ---
-            const grossPrice = parseFloat(priceInput.value) || 0;
-            const price = Math.round(grossPrice / 1.19); 
-            
-            const grossSalePrice = parseFloat(salePriceInput.value) || 0;
-            const salePrice = Math.round(grossSalePrice / 1.19);
+            // --- PARCHE IVA: El Costo entra NETO, la Venta entra CON IVA ---
+         const price = parseFloat(priceInput.value) || 0; // Se guarda directo como Neto
+
+         const grossSalePrice = parseFloat(salePriceInput.value) || 0;
+         const salePrice = Math.round(grossSalePrice / 1.19); // A la venta sí le sacamos el IVA
 
             if (!product) { 
                 showToast("Falta nombre del producto", "fa-triangle-exclamation"); 
@@ -3242,17 +3241,37 @@
     }
 
     function openAddInventoryModal() {
-        document.getElementById('new-inv-sku').value = '';
-        document.getElementById('new-inv-product').value = '';
-        document.getElementById('new-inv-qty').value = '';
-        document.getElementById('new-inv-min').value = '';
-        document.getElementById('new-inv-price').value = '';
-        document.getElementById('new-inv-sale-price').value = '';
-        
-        document.body.classList.add('modal-open');
-        document.getElementById('add-inventory-modal').classList.remove('hidden');
-        setTimeout(() => document.getElementById('new-inv-product').focus(), 100);
-    }
+         // Limpiar campos generales
+         document.getElementById('new-inv-sku').value = '';
+         document.getElementById('new-inv-product').value = '';
+         document.getElementById('new-inv-qty').value = '';
+         document.getElementById('new-inv-min').value = '';
+         document.getElementById('new-inv-price').value = '';
+         document.getElementById('new-inv-sale-price').value = '';
+
+         // Forzar categoría por defecto y mostrar los campos extra
+         const catSelect = document.getElementById('new-inv-category');
+         if (catSelect) {
+             catSelect.value = 'Pastillas de freno';
+             toggleCategoryFields('Pastillas de freno');
+         }
+
+         // Limpiar campos de pastillas por si quedaron sucios del ingreso anterior
+         const brakePos = document.getElementById('new-inv-brake-pos');
+         if(brakePos) brakePos.value = 'Delanteras';
+         const brakeLen = document.getElementById('new-inv-brake-len');
+         if(brakeLen) brakeLen.value = '';
+         const brakeHgt = document.getElementById('new-inv-brake-hgt');
+         if(brakeHgt) brakeHgt.value = '';
+         const brakeMod = document.getElementById('new-inv-brake-mod');
+         if(brakeMod) brakeMod.value = '';
+         const brakeNot = document.getElementById('new-inv-brake-not');
+         if(brakeNot) brakeNot.value = '';
+
+         document.body.classList.add('modal-open');
+         document.getElementById('add-inventory-modal').classList.remove('hidden');
+         setTimeout(() => document.getElementById('new-inv-product').focus(), 100);
+     }
 
     function closeAddInventoryModal() {
         document.body.classList.remove('modal-open');

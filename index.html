@@ -3079,19 +3079,19 @@
 
         return `
             <div class="pb-24 fade-enter">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6">
                     <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
                         <i class="fa-solid fa-boxes-stacked text-green-600"></i> Bodega Central
                     </h2>
-                    <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
-                        <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-4 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-cart-shopping text-red-500"></i> Lista de Compras
+                    <div class="grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full sm:w-auto">
+                        <button onclick="openShoppingModal()" class="col-span-1 sm:col-auto bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 sm:px-4 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95 order-2 sm:order-1">
+                            <i class="fa-solid fa-cart-shopping text-red-500"></i> <span class="hidden sm:inline">Lista de </span>Compras
                         </button>
-                        <button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2 active:scale-95">
+                        <button onclick="downloadInventoryPDF()" class="col-span-1 sm:col-auto bg-neutral-800 dark:bg-neutral-700 text-white px-3 sm:px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center justify-center gap-2 active:scale-95 order-3 sm:order-2">
                             <i class="fa-solid fa-file-pdf text-green-400"></i> Exportar
                         </button>
-                        <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-plus"></i> Ingresar Ítem
+                        <button onclick="openAddInventoryModal()" class="col-span-2 sm:col-auto bg-green-600 text-white px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 order-1 sm:order-3">
+                            <i class="fa-solid fa-plus"></i> Nuevo Ítem
                         </button>
                     </div>
                 </div>

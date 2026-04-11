@@ -5061,12 +5061,29 @@
             document.getElementById('inv-summary-modal').classList.add('hidden');
         }
         // --- VISOR DE INFORMACIÓN TÉCNICA EXTRA (EDITABLE) ---
+        
+        // Motor para editar datos de la Ficha Técnica
         function updateItemExtraData(id, field, value) {
             const item = state.inventoryList.find(i => i.id === id);
             if (item && item.extraData) {
                 item.extraData[field] = value;
                 saveData();
-                showToast("Dato actualizado", "fa-check");
+                showToast("Ficha actualizada", "fa-check");
+            }
+        }
+
+        // Motor para editar datos principales del producto desde el modal (ej: SKU)
+        function updateCoreItemData(id, field, value) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (item) {
+                item[field] = value.trim() || 'N/A';
+                saveData();
+                
+                // Actualiza visualmente la tarjeta de fondo al instante
+                const oldRow = document.getElementById(`inventory-row-${id}`);
+                if (oldRow) oldRow.outerHTML = getInventoryRowHTML(item);
+                
+                showToast("SKU actualizado", "fa-barcode");
             }
         }
 
@@ -5082,6 +5099,10 @@
                     <div class="mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3">
                         <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Pastillas de Freno (Modo Edición)</p>
                         <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-tight">${item.product}</h4>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">SKU / CÓD.</span>
+                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${item.sku === 'N/A' ? '' : item.sku}" placeholder="Sin SKU" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3 mb-4">

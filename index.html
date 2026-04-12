@@ -37,7 +37,10 @@
             cssVars += `  --theme-${weight}: ${rgb};\n`;
         }
         cssVars += `  --mech-primary: rgb(var(--theme-600));\n}\n`;
-        document.write('<style id="theme-vars">' + cssVars + '</style>');
+        const themeStyle = document.createElement('style');
+        themeStyle.id = 'theme-vars';
+        themeStyle.textContent = cssVars;
+        document.head.appendChild(themeStyle);
     </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,13 +102,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        :root {
-            --mech-primary: #dc2626;
-            --mech-dark: #171717;
-            --mech-steel: #a3a3a3;
-            --mech-bg: #f5f5f5;
-        }
-
         body {
             font-family: 'Roboto Condensed', sans-serif; 
             background-color: var(--mech-bg);
@@ -879,6 +875,17 @@
 
     <script>
         const APP_KEY = 'mecamonico_data_v1'; 
+
+        // --- SEGURIDAD: Escapar HTML para prevenir XSS ---
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
         // --- INICIALIZACIÓN DE SUPABASE ---
         const _supabaseUrl = 'https://hvzzgymodvfspdkauvjq.supabase.co'; 
@@ -1741,20 +1748,20 @@
             
             let contactBtn = '';
             if (p.contact) {
-                contactBtn = `<a href="tel:${p.contact}" class="ml-2 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200" title="Llamar: ${p.contact}"><i class="fa-solid fa-phone text-xs"></i></a>`;
+                contactBtn = `<a href="tel:${escapeHtml(p.contact)}" class="ml-2 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200" title="Llamar: ${escapeHtml(p.contact)}"><i class="fa-solid fa-phone text-xs"></i></a>`;
             }
 
             return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600">
                 <div class="flex justify-between items-start mb-2">
                     <div>
                         <div class="flex gap-2 mb-1">
-                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i> ${p.room}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i> ${escapeHtml(p.room)}</span>
                         </div>
                         <div class="flex items-center">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${p.name}</h4>
+                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${escapeHtml(p.name)}</h4>
                             ${contactBtn}
                         </div>
-                        <p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${p.dx}</p>
+                        <p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${escapeHtml(p.dx)}</p>
                     </div>
                     <button onclick="deletePatient(${p.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
                 </div>
@@ -1858,20 +1865,20 @@
 
             let contactDisplay = '';
             if (p.contact) {
-                contactDisplay = `<a href="tel:${p.contact}" class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded border border-green-200 dark:border-green-800 hover:bg-green-100 transition mt-1 w-fit">
-                    <i class="fa-solid fa-phone"></i> ${p.contact}
+                contactDisplay = `<a href="tel:${escapeHtml(p.contact)}" class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded border border-green-200 dark:border-green-800 hover:bg-green-100 transition mt-1 w-fit">
+                    <i class="fa-solid fa-phone"></i> ${escapeHtml(p.contact)}
                 </a>`;
             }
 
-            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded shadow-sm hover:shadow-lg transition-all duration-300 border border-neutral-300 dark:border-neutral-700 border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${p.name.toLowerCase()} ${p.room.toLowerCase()}">
+            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded shadow-sm hover:shadow-lg transition-all duration-300 border border-neutral-300 dark:border-neutral-700 border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
                     <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
                         <div>
-                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${p.room}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${escapeHtml(p.room)}</span>
                             <div class="flex items-center">
-                                <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${p.name}</h4>
+                                <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${escapeHtml(p.name)}</h4>
                             </div>
                             ${contactDisplay}
-                            <p class="text-sm font-bold text-neutral-500 dark:text-neutral-400 mt-1 truncate"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> ${p.dx}</p>
+                            <p class="text-sm font-bold text-neutral-500 dark:text-neutral-400 mt-1 truncate"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> ${escapeHtml(p.dx)}</p>
                         </div>
                         <button onclick="deletePatient(${p.id})" class="w-8 h-8 flex items-center justify-center rounded-full text-neutral-300 hover:bg-red-50 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
@@ -2539,9 +2546,9 @@
             return `<div id="note-${note.id}" class="work-order p-5 rounded item-enter group break-inside-avoid mb-4 relative transition-all duration-300 hover:shadow-lg border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-900 w-full overflow-hidden">
                 <div class="absolute top-3 right-3 opacity-10 group-hover:opacity-100 transition text-neutral-400 dark:text-neutral-600 text-2xl rotate-12 z-0"><i class="fa-solid fa-wrench"></i></div>
                 ${imagesHTML}
-                <p onclick="openPreviewNoteModal(${note.id})" title="Clic para ver completa" class="text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap break-all font-handwriting text-2xl leading-relaxed relative z-10 line-clamp-6 cursor-pointer hover:text-red-600 transition">${note.text}</p>
+                <p onclick="openPreviewNoteModal(${note.id})" title="Clic para ver completa" class="text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap break-all font-handwriting text-2xl leading-relaxed relative z-10 line-clamp-6 cursor-pointer hover:text-red-600 transition">${escapeHtml(note.text)}</p>
                 <div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-neutral-300 dark:border-neutral-700 relative z-10">
-                    <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 tracking-wider bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded border border-neutral-200 dark:border-neutral-700">${folderName}</span>
+                    <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 tracking-wider bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded border border-neutral-200 dark:border-neutral-700">${escapeHtml(folderName)}</span>
                     <div class="flex gap-1.5 opacity-60 group-hover:opacity-100 transition">
                         <button onclick="shareNote(${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-green-500 p-1 rounded hover:bg-green-50 dark:hover:bg-green-950/50" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
                         <button onclick="startEditNote(${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-blue-500 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/50" title="Editar"><i class="fa-solid fa-pen"></i></button>
@@ -2625,7 +2632,7 @@
         function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const el = document.getElementById(`note-${id}`); if(el) { el.classList.add('item-leave'); setTimeout(() => el.remove(), 300); } showToast("Nota eliminada", "fa-trash"); }
         
         function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
-        function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${todo.text}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
+        function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${escapeHtml(todo.text)}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
         
         function addTodo() { 
             const input = document.getElementById('new-todo'); 
@@ -2653,7 +2660,7 @@
             return `
                 <tr id="shop-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
                     <td class="p-2 sm:p-3 min-w-[150px]">
-                        <input type="text" value="${item.product}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
+                        <input type="text" value="${escapeHtml(item.product)}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
                     </td>
                     <td class="p-2 sm:p-3 w-20 min-w-[70px]">
                         <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-400" placeholder="Cant." min="1">
@@ -2724,7 +2731,7 @@
             return `
                 <tr id="service-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
                     <td class="p-2 sm:p-3 min-w-[180px]">
-                        <input type="text" value="${item.service}" oninput="updateServiceItem(${item.id}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
+                        <input type="text" value="${escapeHtml(item.service)}" oninput="updateServiceItem(${item.id}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
                     </td>
                     <td class="p-2 sm:p-3 w-32 min-w-[100px]">
                         <input type="number" value="${price}" oninput="updateServiceItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
@@ -2870,11 +2877,11 @@
                     <div class="flex justify-between items-start gap-2 border-b border-neutral-100 dark:border-neutral-700/50 pb-2 pl-2">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-[9px] font-mono bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 shadow-sm"><i class="fa-solid fa-barcode mr-1 opacity-50"></i>${sku}</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500"><i class="fa-solid fa-tag mr-1 opacity-50"></i>${category}</span>
+                                <span class="text-[9px] font-mono bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 shadow-sm"><i class="fa-solid fa-barcode mr-1 opacity-50"></i>${escapeHtml(sku)}</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500"><i class="fa-solid fa-tag mr-1 opacity-50"></i>${escapeHtml(category)}</span>
                                 ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="text-[9px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95 z-10 relative"><i class="fa-solid fa-circle-info mr-1"></i>+ Info</button>` : ''}
                             </div>
-                            <input type="text" value="${item.product.replace(/"/g, '&quot;')}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-black ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-base sm:text-lg transition-colors leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
+                            <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-black ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-base sm:text-lg transition-colors leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10">
                             <button onclick="toggleEditInv(${item.id})" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
@@ -4220,7 +4227,7 @@
                         <div class="flex items-center gap-3 w-[65%]">
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center border ${bgIcon} ${color} shrink-0"><i class="fa-solid ${icon} text-sm"></i></div>
                             <div class="min-w-0">
-                                <p class="text-sm font-bold text-neutral-800 dark:text-neutral-200 truncate pr-2">${t.concept}</p>
+                                <p class="text-sm font-bold text-neutral-800 dark:text-neutral-200 truncate pr-2">${escapeHtml(t.concept)}</p>
                                 <p class="text-[10px] font-mono text-neutral-400 dark:text-neutral-500 mt-0.5"><i class="fa-regular fa-calendar mr-1"></i>${dateStr}</p>
                             </div>
                         </div>
@@ -4522,15 +4529,15 @@
             container.innerHTML = archived.map(p => {
                 const dateStr = p.archiveDate ? new Date(p.archiveDate).toLocaleDateString('es-CL') : 'Fecha desconocida';
                 const tasksHtml = p.tasks && p.tasks.length > 0 
-                    ? p.tasks.map(t => `<li class="text-sm flex items-start gap-2 mb-1"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span class="text-neutral-600 dark:text-neutral-300">${t.text}</span></li>`).join('')
+                    ? p.tasks.map(t => `<li class="text-sm flex items-start gap-2 mb-1"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span class="text-neutral-600 dark:text-neutral-300">${escapeHtml(t.text)}</span></li>`).join('')
                     : `<li class="text-sm text-neutral-400 italic">Sin detalles registrados</li>`;
                 
                 return `
                 <div id="history-card-${p.id}" class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 mb-3 shadow-sm hover:shadow transition">
                     <div class="flex justify-between items-start mb-3 border-b border-neutral-100 dark:border-neutral-700 pb-2">
                         <div>
-                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${p.room}</span>
-                            <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100">${p.name}</h4>
+                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${escapeHtml(p.room)}</span>
+                            <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100">${escapeHtml(p.name)}</h4>
                             <p class="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-0.5"><i class="fa-solid fa-calendar-check mr-1"></i> Archivado el ${dateStr}</p>
                         </div>
                         <div class="flex gap-2">
@@ -4543,7 +4550,7 @@
                         </div>
                     </div>
                     <div>
-                        <p class="text-sm font-bold text-red-600 mb-2"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> Servicio inicial: ${p.dx}</p>
+                        <p class="text-sm font-bold text-red-600 mb-2"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> Servicio inicial: ${escapeHtml(p.dx)}</p>
                         <ul class="pl-1">
                             ${tasksHtml}
                         </ul>
@@ -5098,10 +5105,10 @@
                 htmlContent = `
                     <div class="mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3">
                         <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Pastillas de Freno (Modo Edición)</p>
-                        <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-tight">${item.product}</h4>
+                        <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-tight">${escapeHtml(item.product)}</h4>
                         <div class="flex items-center gap-2 mt-2">
                             <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">SKU / CÓD.</span>
-                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${item.sku === 'N/A' ? '' : item.sku}" placeholder="Sin SKU" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
+                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${escapeHtml(item.sku === 'N/A' ? '' : item.sku)}" placeholder="Sin SKU" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
                         </div>
                     </div>
                     
@@ -5126,12 +5133,12 @@
                     
                     <div class="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30 mb-3 flex flex-col">
                         <span class="text-[10px] text-blue-500 font-bold uppercase block mb-1"><i class="fa-solid fa-car-side"></i> Vehículos Compatibles</span>
-                        <textarea onchange="updateItemExtraData(${item.id}, 'mod', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-blue-200 dark:border-blue-800/50 focus:border-blue-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Ej: Toyota Yaris...">${d.mod || ''}</textarea>
+                        <textarea onchange="updateItemExtraData(${item.id}, 'mod', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-blue-200 dark:border-blue-800/50 focus:border-blue-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Ej: Toyota Yaris...">${escapeHtml(d.mod || '')}</textarea>
                     </div>
 
                     <div class="bg-yellow-50/50 dark:bg-yellow-900/10 p-3 rounded-lg border border-yellow-100 dark:border-yellow-800/30 flex flex-col">
                         <span class="text-[10px] text-yellow-600 font-bold uppercase block mb-1"><i class="fa-solid fa-sticky-note"></i> Nota</span>
-                        <textarea onchange="updateItemExtraData(${item.id}, 'not', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-yellow-200 dark:border-yellow-800/50 focus:border-yellow-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Observaciones extra...">${d.not || ''}</textarea>
+                        <textarea onchange="updateItemExtraData(${item.id}, 'not', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-yellow-200 dark:border-yellow-800/50 focus:border-yellow-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Observaciones extra...">${escapeHtml(d.not || '')}</textarea>
                     </div>
                 `;
             }

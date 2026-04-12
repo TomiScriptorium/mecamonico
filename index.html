@@ -208,6 +208,183 @@
         .mouse-drag { cursor: grab; }
         .mouse-drag.dragging { cursor: grabbing; }
         .mouse-drag.dragging * { user-select: none; }
+
+        /* =============================================
+           LAYOUT DE ESCRITORIO (sidebar)
+           ============================================= */
+        @media (min-width: 1024px) {
+
+            /* El body pasa a ser un grid con sidebar + contenido */
+            body {
+                display: grid !important;
+                grid-template-columns: 220px 1fr;
+                grid-template-rows: auto 1fr;
+                grid-template-areas:
+                    "sidebar header"
+                    "sidebar main";
+                height: 100dvh;
+                overflow: hidden;
+            }
+
+            /* Header ocupa solo el área de contenido */
+            body > header {
+                grid-area: header;
+                border-bottom: 1px solid #262626;
+                border-left: 1px solid #262626;
+                border-bottom-left-radius: 0;
+                border-left-width: 1px;
+            }
+
+            /* El main ocupa el resto */
+            #app-container {
+                grid-area: main;
+                padding: 1.5rem 2rem 2rem 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+
+            /* Sidebar fijo en el lado izquierdo */
+            #desktop-sidebar {
+                grid-area: sidebar;
+                display: flex !important;
+                flex-direction: column;
+                background: #111111;
+                border-right: 1px solid #262626;
+                overflow: hidden;
+                z-index: 40;
+            }
+
+            /* Ocultar la nav flotante de abajo en PC */
+            #mobile-nav-wrapper {
+                display: none !important;
+            }
+
+            /* Ocultar el buscador móvil */
+            #mobile-search-container {
+                display: none !important;
+            }
+
+            /* Botón de búsqueda móvil oculto en PC */
+            .mobile-search-btn {
+                display: none !important;
+            }
+        }
+
+        /* Logo del sidebar */
+        #sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 16px 14px;
+            border-bottom: 1px solid #262626;
+            cursor: pointer;
+        }
+        #sidebar-logo:hover .sidebar-title { color: rgb(var(--theme-400)); }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -0.03em;
+            transition: color 0.2s;
+            line-height: 1.1;
+        }
+        .sidebar-subtitle {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #525252;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Botones de navegación del sidebar */
+        .sidebar-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin: 2px 8px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #737373;
+            border: none;
+            background: transparent;
+            text-align: left;
+            width: calc(100% - 16px);
+            position: relative;
+        }
+        .sidebar-nav-btn:hover {
+            background: #1f1f1f;
+            color: #e5e5e5;
+        }
+        .sidebar-nav-btn.active {
+            background: rgba(var(--theme-600), 0.15);
+            color: rgb(var(--theme-400));
+        }
+        .sidebar-nav-btn.active i {
+            color: rgb(var(--theme-500));
+        }
+        .sidebar-nav-btn .sb-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            background: #1a1a1a;
+            transition: background 0.15s;
+        }
+        .sidebar-nav-btn:hover .sb-icon {
+            background: #2a2a2a;
+        }
+        .sidebar-nav-btn.active .sb-icon {
+            background: rgba(var(--theme-600), 0.25);
+        }
+
+        /* Footer del sidebar: acciones rápidas */
+        #sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid #1f1f1f;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .sidebar-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #525252;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar-action-btn:hover {
+            background: #1f1f1f;
+            color: #a3a3a3;
+        }
+
+        /* Scrollbar personalizado para el main en PC */
+        @media (min-width: 1024px) {
+            #app-container {
+                scrollbar-width: thin;
+                scrollbar-color: #404040 transparent;
+            }
+            #app-container::-webkit-scrollbar { width: 5px; }
+            #app-container::-webkit-scrollbar-track { background: transparent; }
+            #app-container::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
+        }
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
@@ -260,11 +437,68 @@
         <i class="fa-solid fa-wrench text-neutral-400 dark:text-neutral-600 absolute -bottom-10 left-[10%] text-[12rem] rotate-12 opacity-50"></i>
     </div>
 
-    <!-- Header -->
+    <!-- ========== SIDEBAR DE ESCRITORIO (solo visible en lg+) ========== -->
+    <aside id="desktop-sidebar" class="hidden">
+        <!-- Logo -->
+        <div id="sidebar-logo" onclick="renderView('dashboard')" title="Ir a Inicio">
+            <div style="background: rgb(var(--theme-700)); padding: 7px 9px; border-radius: 7px; border: 1px solid rgba(var(--theme-500),0.5); flex-shrink:0">
+                <i class="fa-solid fa-car" style="color:white; font-size:1rem;"></i>
+            </div>
+            <div>
+                <div class="sidebar-title" id="sidebar-app-title">Mecamonico <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.65rem;"></i></div>
+                <div class="sidebar-subtitle" id="sidebar-app-subtitle">Gestión de Taller</div>
+            </div>
+        </div>
+
+        <!-- Navegación -->
+        <nav style="padding: 10px 0; flex:1; overflow-y:auto;" class="hide-scrollbar">
+            <div style="padding: 4px 16px 6px; font-size:0.6rem; font-weight:800; color:#404040; text-transform:uppercase; letter-spacing:0.1em;">Módulos</div>
+
+            <button onclick="renderView('dashboard')" class="sidebar-nav-btn nav-btn" data-target="dashboard">
+                <span class="sb-icon"><i class="fa-solid fa-warehouse"></i></span> Inicio
+            </button>
+            <button onclick="renderView('work_orders')" class="sidebar-nav-btn nav-btn" data-target="work_orders">
+                <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span> Taller
+            </button>
+            <button onclick="renderView('shopping_list')" class="sidebar-nav-btn nav-btn" data-target="shopping_list">
+                <span class="sb-icon"><i class="fa-solid fa-boxes-stacked"></i></span> Gestión
+            </button>
+            <button onclick="renderView('todo')" class="sidebar-nav-btn nav-btn" data-target="todo">
+                <span class="sb-icon"><i class="fa-solid fa-clipboard-list"></i></span> Tareas
+            </button>
+            <button onclick="renderView('turnario')" class="sidebar-nav-btn nav-btn" data-target="turnario">
+                <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span> Calendario
+            </button>
+            <button onclick="renderView('notes')" class="sidebar-nav-btn nav-btn" data-target="notes">
+                <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span> Apuntes
+            </button>
+            <button onclick="renderView('links')" class="sidebar-nav-btn nav-btn" data-target="links">
+                <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span> Información
+            </button>
+        </nav>
+
+        <!-- Footer del sidebar -->
+        <div id="sidebar-footer">
+            <button onclick="toggleDarkMode()" class="sidebar-action-btn">
+                <i class="fa-solid fa-moon dark:hidden" style="width:14px; text-align:center;"></i>
+                <i class="fa-solid fa-sun hidden dark:inline" style="width:14px; text-align:center; color:#facc15;"></i>
+                <span>Modo Noche</span>
+            </button>
+            <button onclick="openBackupModal()" class="sidebar-action-btn">
+                <i class="fa-solid fa-database" style="width:14px; text-align:center; color:rgb(var(--theme-500));"></i>
+                <span>Base de Datos</span>
+            </button>
+            <button onclick="openSettingsModal()" class="sidebar-action-btn">
+                <i class="fa-solid fa-gear" style="width:14px; text-align:center;"></i>
+                <span>Configuración</span>
+            </button>
+        </div>
+    </aside>
+    <!-- ========== FIN SIDEBAR ========== -->
     <header class="bg-neutral-900 text-white pt-safe shadow-lg z-[60] shrink-0 relative overflow-visible border-b-4 border-red-600">
         <div class="p-3 sm:p-4 flex justify-between items-center relative z-20 gap-2 sm:gap-6">
             <!-- LOGO -->
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 lg:hidden">
                 <div class="bg-red-700 p-2 sm:p-2.5 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
                     <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
                 </div>
@@ -285,18 +519,18 @@
 
             <!-- CONTROLES DERECHA -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button onclick="toggleMobileSearch()" class="md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
+                <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
                     <i class="fa-solid fa-search"></i>
                 </button>
-                <button onclick="toggleDarkMode()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
+                <button onclick="toggleDarkMode()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
                 </button>
-                <button onclick="openBackupModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
+                <button onclick="openBackupModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
                     <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
-                <button onclick="openSettingsModal()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
+                <button onclick="openSettingsModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
@@ -316,10 +550,10 @@
     </header>
 
     <!-- Main Container -->
-    <main id="app-container" class="flex-1 overflow-y-auto p-4 pb-40 relative scroll-smooth hide-scrollbar z-10"></main>
+    <main id="app-container" class="flex-1 overflow-y-auto p-4 pb-40 lg:pb-8 relative scroll-smooth hide-scrollbar z-10"></main>
 
-    <!-- Nav Bar -->
-    <div class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
+    <!-- Nav Bar (solo móvil/tablet) -->
+    <div id="mobile-nav-wrapper" class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
         <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
             
             <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
@@ -365,8 +599,7 @@
             </button>
         </nav>
     </div>
-
-    <!-- Modales -->
+    <!-- Fin Nav Bar móvil -->
     <div id="shift-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-neutral-900 rounded-sm shadow-2xl w-full max-w-sm p-0 overflow-hidden transform transition-all scale-100 border-l-4 border-red-600">
              <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
@@ -1197,7 +1430,15 @@
         function closeTitleModal() { document.body.classList.remove('modal-open'); document.getElementById('title-modal').classList.add('hidden'); }
         function saveTitle() { const title = document.getElementById('new-user-title').value.trim(); if (title) { state.userTitle = title; saveData(); renderView('dashboard'); closeTitleModal(); showToast("Título actualizado", "fa-tag"); } }
 
-        function updateHeaderUI() { document.getElementById('header-app-title').innerText = state.appTitle || 'Mecamonico'; document.getElementById('header-app-subtitle').innerText = state.appSubtitle || 'Gestión de Taller & Estudio'; }
+        function updateHeaderUI() { 
+            document.getElementById('header-app-title').innerText = state.appTitle || 'Mecamonico'; 
+            document.getElementById('header-app-subtitle').innerText = state.appSubtitle || 'Gestión de Taller & Estudio';
+            // Sync sidebar titles
+            const sidebarTitle = document.getElementById('sidebar-app-title');
+            const sidebarSubtitle = document.getElementById('sidebar-app-subtitle');
+            if (sidebarTitle) sidebarTitle.childNodes[0].textContent = (state.appTitle || 'Mecamonico') + ' ';
+            if (sidebarSubtitle) sidebarSubtitle.innerText = state.appSubtitle || 'Gestión de Taller';
+        }
         function openAppTitleModal() { document.getElementById('new-app-title').value = state.appTitle || ''; document.getElementById('new-app-subtitle').value = state.appSubtitle || ''; document.body.classList.add('modal-open'); document.getElementById('app-title-modal').classList.remove('hidden'); document.getElementById('new-app-title').focus(); }
         function closeAppTitleModal() { document.body.classList.remove('modal-open'); document.getElementById('app-title-modal').classList.add('hidden'); }
         function saveAppTitle() { const t = document.getElementById('new-app-title').value.trim(); const s = document.getElementById('new-app-subtitle').value.trim(); if(t) state.appTitle = t; state.appSubtitle = s; saveData(); updateHeaderUI(); closeAppTitleModal(); showToast("Encabezado actualizado", "fa-check"); }

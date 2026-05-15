@@ -1038,7 +1038,12 @@
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-green-600 fade-enter">
             <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
                 <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-green-600"></i> Balance Histórico</h3>
-                <button onclick="closeInvReportModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <div class="flex items-center gap-2">
+                    <button onclick="downloadSalesPDF()" class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Exportar
+                    </button>
+                    <button onclick="closeInvReportModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
             <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0 bg-neutral-50 dark:bg-neutral-800/30 border-b border-neutral-200 dark:border-neutral-700" id="inv-report-kpis">
                 </div>
@@ -4582,6 +4587,77 @@
         function closeInvReportModal() {
             document.body.classList.remove('modal-open');
             document.getElementById('inv-report-modal').classList.add('hidden');
+        }
+
+        async function downloadSalesPDF() {
+            const vendidos = state.inventoryList.filter(item => (parseFloat(item.soldQty) || 0) > 0);
+            if (vendidos.length === 0) {
+                showToast("No hay ventas registradas", "fa-triangle-exclamation"); return;
+            }
+            showToast("Generando PDF...", "fa-spinner fa-spin");
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            
+            const title = "Balance Histórico de Ventas";
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(title, 14, 20);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text(`Taller: ${state.appTitle || 'Mecamonico'}`, 14, 27);
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 196, 20, { align: "right" });
+
+            let totalCostos = 0;
+            let totalIngresos = 0;
+            let totalGanancia = 0;
+
+            const tableData = vendidos.sort((a,b) => b.soldQty - a.soldQty).map(item => {
+                const cost = Math.round((parseFloat(item.price) || 0) * 1.19);
+                const sale = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+                const sq = parseFloat(item.soldQty) || 0;
+                
+                const costoTotal = cost * sq;
+                const ingresos = sale * sq;
+                const profit = (sale - cost) * sq;
+                
+                totalCostos += costoTotal;
+                totalIngresos += ingresos;
+                totalGanancia += profit;
+
+                return [
+                    item.sku || '---',
+                    item.product,
+                    sq.toString(),
+                    `$${costoTotal.toLocaleString('es-CL')}`,
+                    `$${ingresos.toLocaleString('es-CL')}`,
+                    `$${profit.toLocaleString('es-CL')}`
+                ];
+            });
+
+            doc.autoTable({
+                startY: 35,
+                head: [['SKU', 'Producto', 'Cant.', 'Costo (+IVA)', 'Ingreso Total', 'Ganancia Neta']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [22, 163, 74] }, 
+                columnStyles: { 
+                    2: { halign: 'center' }, 
+                    3: { halign: 'right' }, 
+                    4: { halign: 'right' }, 
+                    5: { halign: 'right', fontStyle: 'bold' } 
+                },
+                foot: [[
+                    { content: 'TOTALES', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `$${totalCostos.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `$${totalIngresos.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `$${totalGanancia.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold', textColor: [22, 163, 74] } }
+                ]],
+                footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] },
+                styles: { fontSize: 9 }
+            });
+
+            const fileName = `Ventas_Historicas_${new Date().toISOString().slice(0,10)}.pdf`;
+            showPdfModal(doc.output('blob'), fileName, title);
         }
 
         function renderInvReport() {

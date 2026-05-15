@@ -3587,266 +3587,171 @@
         document.getElementById('add-inventory-modal').classList.add('hidden');
     }
 
-        async function generateCleanPDF(contentHTML, title, fileName) {
-            showToast("Generando PDF...", "fa-spinner fa-spin");
-
-            const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'fixed';
-            tempContainer.style.left = '-9999px';
-            tempContainer.style.top = '0';
-            tempContainer.style.width = '800px'; // Solución 1: Lienzo más ancho para que no apriete ni corte las tablas
-            tempContainer.style.backgroundColor = '#ffffff';
-            tempContainer.style.zIndex = '-1';
-            tempContainer.innerHTML = contentHTML;
-            
-            // Solución 2: Parche automático para evitar que html2canvas rompa los bordes de las tablas
-            const tables = tempContainer.querySelectorAll('table');
-            tables.forEach(t => {
-                t.style.borderRadius = '0';
-                t.style.overflow = 'visible';
-            });
-
-            document.body.appendChild(tempContainer);
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // Configuramos los parámetros según la elección del usuario
-                let pdfScale = 2;
-                let pdfCompress = 0.8;
-                let pdfSpeed = 'MEDIUM';
-                if (state.pdfQuality === 'low') { pdfScale = 1.5; pdfCompress = 0.6; pdfSpeed = 'FAST'; }
-                if (state.pdfQuality === 'high') { pdfScale = 3; pdfCompress = 0.95; pdfSpeed = 'SLOW'; }
-
-                const canvas = await html2canvas(tempContainer, { 
-                    scale: pdfScale, 
-                    useCORS: true, 
-                    logging: false,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff'
-                });
-                
-                const imgData = canvas.toDataURL('image/jpeg', pdfCompress); 
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                const imgProps = doc.getImageProperties(imgData);
-                const pdfWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const imgHeightInMM = (imgProps.height * pdfWidth) / imgProps.width;
-                
-                let heightLeft = imgHeightInMM;
-                let position = 0;
-                
-                doc.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMM, undefined, pdfSpeed);
-                heightLeft -= pageHeight;
-                
-                while (heightLeft > 0) {
-                    position = position - pageHeight;
-                    doc.addPage();
-                    doc.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMM, undefined, pdfSpeed);
-                    heightLeft -= pageHeight;
-                }
-                
-                const pdfBlob = doc.output('blob');
+        // --- NUEVO SISTEMA DE RENDERIZADO NATIVO DE PDF ---
+        function showPdfModal(pdfBlob, fileName, title) {
+            const reader = new FileReader();
+            reader.readAsDataURL(pdfBlob);
+            reader.onloadend = function() {
+                const base64data = reader.result;
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                
+                showToast("¡Documento Listo!", "fa-check");
 
-                const reader = new FileReader();
-                reader.readAsDataURL(pdfBlob);
-                reader.onloadend = function() {
-                    const base64data = reader.result;
-                    
-                    showToast("¡Procesado!", "fa-check");
-
-                    const modalId = 'pdf-action-' + Date.now();
-                    const modalHtml = `
-                        <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
-                            <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
-                                <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-                                <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50">
-                                    <i class="fa-solid fa-file-pdf text-3xl"></i>
-                                </div>
-                                <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
-                                <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
-                                <div class="flex flex-col gap-3">
-                                    <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Archivo
-                                    </button>
-                                    <button id="btn-down-${modalId}" class="w-full px-5 py-3.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-neutral-700 active:scale-95 transition flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-download text-lg"></i> Guardar en Dispositivo
-                                    </button>
-                                </div>
+                const modalId = 'pdf-action-' + Date.now();
+                const modalHtml = `
+                    <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
+                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
+                            <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50">
+                                <i class="fa-solid fa-file-pdf text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
+                            <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
+                            <div class="flex flex-col gap-3">
+                                <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Archivo
+                                </button>
+                                <button id="btn-down-${modalId}" class="w-full px-5 py-3.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-neutral-700 active:scale-95 transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download text-lg"></i> Guardar en Dispositivo
+                                </button>
                             </div>
                         </div>
-                    `;
-                    document.body.insertAdjacentHTML('beforeend', modalHtml);
-                    
-                    const modalEl = document.getElementById(modalId);
-                    
-                    document.getElementById(`btn-share-${modalId}`).onclick = async () => {
-                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                            try {
-                                await navigator.share({ files: [file], title: title, text: "Documento adjunto." });
-                                modalEl.remove();
-                            } catch (e) {
-                                console.log("Compartir cancelado");
-                            }
-                        } else {
-                            showToast("Tu dispositivo no soporta compartir", "fa-triangle-exclamation");
-                        }
-                    };
-                    
-                    document.getElementById(`btn-down-${modalId}`).onclick = () => {
-                        const a = document.createElement('a');
-                        a.href = base64data;
-                        a.download = fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        modalEl.remove();
-                        showToast("Descarga exitosa", "fa-download");
-                    };
-                    
-                    document.getElementById(`btn-close-top-${modalId}`).onclick = () => {
-                        modalEl.remove();
-                    };
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                const modalEl = document.getElementById(modalId);
+                
+                document.getElementById(`btn-share-${modalId}`).onclick = async () => {
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({ files: [file], title: title, text: "Documento adjunto." });
+                            modalEl.remove();
+                        } catch (e) {}
+                    } else {
+                        showToast("Tu dispositivo no soporta compartir", "fa-triangle-exclamation");
+                    }
                 };
-
-            } catch (err) {
-                console.error("Error al generar PDF:", err);
-                showToast("Error crítico al generar PDF", "fa-triangle-exclamation");
-            } finally {
-                if (document.body.contains(tempContainer)) {
-                    document.body.removeChild(tempContainer);
-                }
-            }
+                
+                document.getElementById(`btn-down-${modalId}`).onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = base64data;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    modalEl.remove();
+                    showToast("Descarga exitosa", "fa-download");
+                };
+                
+                document.getElementById(`btn-close-top-${modalId}`).onclick = () => { modalEl.remove(); };
+            };
         }
 
         async function downloadShoppingPDF() {
             if (state.shoppingList.length === 0) {
-                showToast("Lista de productos vacía", "fa-triangle-exclamation");
-                return;
+                showToast("Lista de productos vacía", "fa-triangle-exclamation"); return;
+            }
+            showToast("Generando PDF...", "fa-spinner fa-spin");
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            
+            const title = state.shopTitle || "Lista de Compras";
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(title, 14, 20);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
+            
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 196, 20, { align: "right" });
+            doc.text(`Ítems: ${state.shoppingList.length}`, 196, 25, { align: "right" });
+
+            const tableData = state.shoppingList.map(item => [item.product, item.qty.toString()]);
+            
+            doc.autoTable({
+                startY: 35,
+                head: [['Producto / Repuesto', 'Cant.']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [220, 38, 38] }, 
+                columnStyles: { 1: { halign: 'center', cellWidth: 30 } },
+                styles: { font: 'helvetica', fontSize: 10 }
+            });
+
+            if (state.shopNote) {
+                let finalY = doc.lastAutoTable.finalY + 10;
+                doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+                doc.text("OBSERVACIONES:", 14, finalY);
+                doc.setFont("helvetica", "italic");
+                const splitNote = doc.splitTextToSize(state.shopNote, 180);
+                doc.text(splitNote, 14, finalY + 6);
             }
 
-            const listItemsHTML = state.shoppingList.map((item) => {
-                return `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.product}</td>
-                    <td style="padding: 10px 15px; color: #333; text-align: center; width: 100px;">${item.qty}</td>
-                </tr>
-            `}).join('');
-
-            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
-            const noteText = state.shopNote ? `
-                <div style="margin-top: 30px;">
-                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
-                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
-                </div>` : '';
-
-            const contentHTML = `
-                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-bottom: 25px;">
-                        <div>
-                            <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0; color: #171717;">${state.shopTitle || "Lista de Compras"}</h1>
-                            ${addressText}
-                        </div>
-                        <div style="text-align: right; color: #666; font-size: 12px; padding-top: 5px;">
-                            <p style="margin: 0;">Fecha: ${new Date().toLocaleDateString()}</p>
-                            <p style="margin: 3px 0 0 0;">Ítems: ${state.shoppingList.length}</p>
-                        </div>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-                        <thead>
-                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
-                                <th style="padding: 10px 15px; text-align: left;">Producto / Repuesto</th>
-                                <th style="padding: 10px 15px; text-align: center; width: 100px;">Cant.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${listItemsHTML}
-                        </tbody>
-                    </table>
-                    
-                    ${noteText}
-                </div>
-            `;
-            
             const fileName = `Lista_Compras_${new Date().toISOString().slice(0,10)}.pdf`;
-            await generateCleanPDF(contentHTML, state.shopTitle || "Lista de Compras", fileName);
+            showPdfModal(doc.output('blob'), fileName, title);
         }
 
         async function downloadServicePDF() {
             if (state.serviceList.length === 0) {
-                showToast("Lista de servicios vacía", "fa-triangle-exclamation");
-                return;
+                showToast("Lista de servicios vacía", "fa-triangle-exclamation"); return;
             }
+            showToast("Generando PDF...", "fa-spinner fa-spin");
             
             const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
-            const totalDisplay = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
-            const ivaDisplay = `$${iva.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
-            const subtotalDisplay = `$${subtotal.toLocaleString('es-CL', { minimumFractionDigits: 0 })}`;
             
-            const listItemsHTML = state.serviceList.map((item) => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">${item.service}</td>
-                    <td style="padding: 10px 15px; color: #dc2626; font-weight: 700; text-align: right; width: 120px;">$${(parseFloat(item.price) || 0).toLocaleString('es-CL', { minimumFractionDigits: 0 })}</td>
-                </tr>
-            `).join('');
-
-            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
-            const noteText = state.shopNote ? `
-                <div style="margin-top: 30px;">
-                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
-                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
-                </div>` : '';
-
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            
             const title = state.shopTitle.replace('Lista de Compras', 'Detalle de Servicios') || "Detalle de Servicios";
-
-            const contentHTML = `
-                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
-                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">${title}</h1>
-                    ${addressText}
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-                        <thead>
-                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
-                                <th style="padding: 10px 15px; text-align: left;">Servicio / Detalle</th>
-                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${listItemsHTML}
-                        </tbody>
-                        <tfoot>
-                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL (+IVA)</td>
-                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">${totalDisplay}
-                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Subtotal: ${subtotalDisplay} | IVA (19%): ${ivaDisplay}</div>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    
-                    ${noteText}
-                </div>
-            `;
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(title, 14, 20);
             
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
+            
+            const tableData = state.serviceList.map(item => [item.service, `$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}`]);
+            
+            doc.autoTable({
+                startY: 35,
+                head: [['Servicio / Detalle', 'Precio']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [220, 38, 38] },
+                columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
+                foot: [[
+                    { content: 'TOTAL (+IVA)', styles: { halign: 'right', fontStyle: 'bold' } }, 
+                    { content: `$${total.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold', textColor: [220, 38, 38] } }
+                ]],
+                footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 5;
+            doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(100,100,100);
+            doc.text(`Subtotal: $${subtotal.toLocaleString('es-CL')} | IVA (19%): $${iva.toLocaleString('es-CL')}`, 196, finalY, { align: "right" });
+
+            if (state.shopNote) {
+                finalY += 10;
+                doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0,0,0);
+                doc.text("OBSERVACIONES:", 14, finalY);
+                doc.setFont("helvetica", "italic");
+                const splitNote = doc.splitTextToSize(state.shopNote, 180);
+                doc.text(splitNote, 14, finalY + 6);
+            }
+
             const fileName = `Servicios_${new Date().toISOString().slice(0,10)}.pdf`;
-            await generateCleanPDF(contentHTML, title, fileName);
+            showPdfModal(doc.output('blob'), fileName, title);
         }
 
         async function downloadInventoryPDF() {
             if (state.inventoryList.length === 0) {
-                showToast("El inventario está vacío", "fa-triangle-exclamation");
-                return;
+                showToast("El inventario está vacío", "fa-triangle-exclamation"); return;
             }
+            showToast("Generando PDF...", "fa-spinner fa-spin");
             
-            // Calculamos el costo total y ganancia total agregando el 19% de IVA a los cálculos
-            // Calculamos Inversión Histórica para el PDF
             const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
-            
             const totalProfit = state.inventoryList.reduce((sum, item) => {
                 const p = Math.round((parseFloat(item.price) || 0) * 1.19);
                 const sp = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
@@ -3854,156 +3759,128 @@
                 return sum + (sq * (sp - p));
             }, 0);
             
-            // Generamos las filas de la tabla con el IVA incluido en los precios mostrados
-            const listItemsHTML = state.inventoryList.map((item) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' }); 
+            
+            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Bodega') || "Reporte de Bodega y Ventas";
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(title, 14, 20);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
+            
+            doc.text(`Ítems en Catálogo: ${state.inventoryList.length}`, 282, 20, { align: "right" });
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 282, 25, { align: "right" });
+
+            const tableData = state.inventoryList.map(item => {
                 const costGross = Math.round((parseFloat(item.price) || 0) * 1.19);
                 const saleGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
                 const profit = sq * (saleGross - costGross);
-                
-                const sku = item.sku || '---';
-                return `
-                <tr style="border-bottom: 1px solid #eee; font-size: 10px;">
-                    <td style="padding: 6px 8px; color: #666; font-family: monospace; width: 12%;">${sku}</td>
-                    <td style="padding: 6px 8px; color: #333; font-weight: bold; width: 30%;">${item.product}</td>
-                    <td style="padding: 6px 8px; color: #333; text-align: center; width: 8%; font-weight: bold;">${item.qty}</td>
-                    <td style="padding: 6px 8px; color: #2563eb; text-align: center; width: 8%; font-weight: bold;">${sq}</td>
-                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${costGross.toLocaleString('es-CL')}</td>
-                    <td style="padding: 6px 8px; color: #666; text-align: right; width: 14%;">$${saleGross.toLocaleString('es-CL')}</td>
-                    <td style="padding: 6px 8px; color: ${profit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: bold; text-align: right; width: 14%;">$${profit.toLocaleString('es-CL')}</td>
-                </tr>
-            `}).join('');
-
-            const addressText = state.shopAddress ? `<p style="margin: 5px 0 20px 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
-            const noteText = state.shopNote ? `
-                <div style="margin-top: 30px;">
-                    <strong style="font-size: 14px; color: #999; text-transform: uppercase;">OBSERVACIONES:</strong>
-                    <p style="margin-top: 5px; font-style: italic; font-size: 14px;">${state.shopNote}</p>
-                </div>` : '';
-
-            const title = state.shopTitle.replace('Lista de Compras', 'Reporte de Bodega') || "Reporte de Bodega e Ventas";
-
-            const contentHTML = `
-                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
-                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #16a34a; padding-bottom: 10px; margin-bottom: 20px;">
-                        <div>
-                            <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 5px 0; color: #171717;">${title}</h1>
-                            ${addressText}
-                        </div>
-                        <div style="text-align: right; color: #666;">
-                            <p style="margin: 0; font-size: 12px; font-weight: bold;">Total Ítems en Catálogo: ${state.inventoryList.length}</p>
-                            <p style="margin: 5px 0 0 0; font-size: 12px;">Fecha: ${new Date().toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-                        <thead>
-                            <tr style="background-color: #16a34a; color: white; font-weight: 700; font-size: 11px;">
-                                <th style="padding: 8px; text-align: left;">SKU</th>
-                                <th style="padding: 8px; text-align: left;">Producto</th>
-                                <th style="padding: 8px; text-align: center;">Stock</th>
-                                <th style="padding: 8px; text-align: center;">Ventas</th>
-                                <th style="padding: 8px; text-align: right;">Costo (+IVA)</th>
-                                <th style="padding: 8px; text-align: right;">Venta (+IVA)</th>
-                                <th style="padding: 8px; text-align: right;">Ganancia Real</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${listItemsHTML}
-                        </tbody>
-                        <tfoot>
-                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td colspan="3"></td>
-                                <td colspan="2" style="padding: 10px; text-align: right; font-size: 12px; color: #666;">
-                                    Inversión Estancada:<br>
-                                    <span style="color:#000;">Ganancia Obtenida:</span>
-                                </td>
-                                <td colspan="2" style="padding: 10px; text-align: right; font-size: 14px;">
-                                    <span style="color: #2563eb;">$${totalCost.toLocaleString('es-CL')}</span><br>
-                                    <span style="color: ${totalProfit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: 900;">$${totalProfit.toLocaleString('es-CL')}</span>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    
-                    ${noteText}
-                </div>
-            `;
+                return [
+                    item.sku || '---',
+                    item.product,
+                    item.qty.toString(),
+                    sq.toString(),
+                    `$${costGross.toLocaleString('es-CL')}`,
+                    `$${saleGross.toLocaleString('es-CL')}`,
+                    `$${profit.toLocaleString('es-CL')}`
+                ];
+            });
             
+            doc.autoTable({
+                startY: 35,
+                head: [['SKU', 'Producto', 'Stock', 'Ventas', 'Costo (+IVA)', 'Venta (+IVA)', 'Ganancia Real']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [22, 163, 74] },
+                columnStyles: { 
+                    2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right', fontStyle: 'bold' }
+                },
+                styles: { fontSize: 9 }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+            doc.text(`Inversión Estancada: $${totalCost.toLocaleString('es-CL')}`, 282, finalY, { align: "right" });
+            doc.setTextColor(totalProfit >= 0 ? 22 : 220, totalProfit >= 0 ? 163 : 38, totalProfit >= 0 ? 74 : 38);
+            doc.text(`Ganancia Obtenida: $${totalProfit.toLocaleString('es-CL')}`, 282, finalY + 6, { align: "right" });
+            doc.setTextColor(0,0,0);
+
+            if (state.shopNote) {
+                doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+                doc.text("OBSERVACIONES:", 14, finalY);
+                doc.setFont("helvetica", "italic");
+                const splitNote = doc.splitTextToSize(state.shopNote, 180);
+                doc.text(splitNote, 14, finalY + 6);
+            }
+
             const fileName = `Inventario_Bodega_${new Date().toISOString().slice(0,10)}.pdf`;
-            await generateCleanPDF(contentHTML, title, fileName);
+            showPdfModal(doc.output('blob'), fileName, title);
         }
 
         async function downloadWorkOrderPDF(patientId) {
             const p = state.patients.find(x => x.id === patientId);
             if (!p) return;
-            
             if (p.tasks.length === 0) {
-                showToast("Agrega servicios a la orden primero", "fa-triangle-exclamation");
-                return;
+                showToast("Agrega servicios a la orden primero", "fa-triangle-exclamation"); return;
             }
+            showToast("Generando PDF...", "fa-spinner fa-spin");
 
             const subtotal = p.tasks.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
             
-            const listItemsHTML = p.tasks.map((item) => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px 15px; color: #333; font-weight: 500;">
-                        <span style="font-size: 10px; color: ${item.done ? '#16a34a' : '#999'}; margin-right: 5px;">[${item.done ? 'LISTO' : 'PEND.'}]</span> 
-                        ${item.text}
-                    </td>
-                    <td style="padding: 10px 15px; color: #dc2626; font-weight: 700; text-align: right; width: 120px;">$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}</td>
-                </tr>
-            `).join('');
-
-            const shopData = state.appTitle || "Mecamonico Taller";
-            const addressText = state.shopAddress ? `<p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Dirección: ${state.shopAddress}</p>` : '';
-
-            const contentHTML = `
-                <div style="padding: 40px; font-family: 'Roboto Condensed', sans-serif; color: #000; line-height: 1.2;">
-                    <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 25px;">
-                        <div>
-                            <h1 style="font-size: 32px; font-weight: 900; margin: 0; color: #171717;">${shopData}</h1>
-                            ${addressText}
-                        </div>
-                        <div style="text-align: right;">
-                            <h2 style="margin: 0; font-size: 20px; color: #dc2626;">COTIZACIÓN / O.T.</h2>
-                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Fecha: ${new Date().toLocaleDateString('es-CL')}</p>
-                        </div>
-                    </div>
-
-                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Cliente / Modelo:</strong> ${p.name}</p>
-                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Patente:</strong> ${p.room}</p>
-                        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Contacto:</strong> ${p.contact || '---'}</p>
-                        <p style="margin: 0; font-size: 14px; color: #dc2626;"><strong>Falla Inicial / Diagnóstico:</strong> ${p.dx}</p>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-                        <thead>
-                            <tr style="background-color: #dc2626; color: white; font-weight: 700;">
-                                <th style="padding: 10px 15px; text-align: left;">Detalle de Servicio / Repuesto</th>
-                                <th style="padding: 10px 15px; text-align: right; width: 120px;">Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${listItemsHTML}
-                        </tbody>
-                        <tfoot>
-                             <tr style="background-color: #f0f0f0; font-weight: 700; border-top: 2px solid #ddd;">
-                                <td style="padding: 10px 15px; text-align: right; font-size: 16px;">TOTAL (+IVA)</td>
-                                <td style="padding: 10px 15px; color: #dc2626; font-weight: 900; text-align: right; font-size: 18px;">$${total.toLocaleString('es-CL')}
-                                    <div style="font-size: 10px; color: #666; font-weight: 400; margin-top: 2px;">Sub: $${subtotal.toLocaleString('es-CL')} | IVA: $${iva.toLocaleString('es-CL')}</div>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             
+            const shopData = state.appTitle || "Mecamonico Taller";
+            doc.setFont("helvetica", "bold"); doc.setFontSize(24);
+            doc.text(shopData, 14, 20);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
+            
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(220, 38, 38);
+            doc.text("COTIZACIÓN / O.T.", 196, 20, { align: "right" });
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 100, 100);
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 196, 26, { align: "right" });
+            doc.setTextColor(0,0,0);
+
+            // Caja Cliente
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(14, 32, 182, 35, 2, 2, 'F');
+            doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+            doc.text("Cliente / Modelo:", 18, 40); doc.setFont("helvetica", "normal"); doc.text(p.name, 52, 40);
+            doc.setFont("helvetica", "bold"); doc.text("Patente:", 18, 47); doc.setFont("helvetica", "normal"); doc.text(p.room, 38, 47);
+            doc.setFont("helvetica", "bold"); doc.text("Contacto:", 18, 54); doc.setFont("helvetica", "normal"); doc.text(p.contact || '---', 40, 54);
+            doc.setFont("helvetica", "bold"); doc.setTextColor(220, 38, 38);
+            doc.text("Falla Inicial / Diagnóstico:", 18, 61); doc.setFont("helvetica", "normal"); doc.text(p.dx, 68, 61);
+            doc.setTextColor(0,0,0);
+
+            const tableData = p.tasks.map(item => [`${item.done ? '[LISTO] ' : '[PEND.] '} ${item.text}`, `$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}`]);
+            
+            doc.autoTable({
+                startY: 75,
+                head: [['Detalle de Servicio / Repuesto', 'Valor']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [220, 38, 38] },
+                columnStyles: { 1: { halign: 'right', cellWidth: 35 } },
+                foot: [[
+                    { content: 'TOTAL (+IVA)', styles: { halign: 'right', fontStyle: 'bold', fontSize: 12 } }, 
+                    { content: `$${total.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold', fontSize: 14, textColor: [220, 38, 38] } }
+                ]],
+                footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] },
+                styles: { fontSize: 10 }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 6;
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100,100,100);
+            doc.text(`Subtotal: $${subtotal.toLocaleString('es-CL')} | IVA (19%): $${iva.toLocaleString('es-CL')}`, 196, finalY, { align: "right" });
+
             const fileName = `Cotizacion_${p.room.replace(/[^a-zA-Z0-9]/g, '')}_${new Date().toISOString().slice(0,10)}.pdf`;
-            await generateCleanPDF(contentHTML, `Cotización ${p.room}`, fileName);
+            showPdfModal(doc.output('blob'), fileName, `Cotización ${p.room}`);
         }
         
         async function shareNote(noteId) {

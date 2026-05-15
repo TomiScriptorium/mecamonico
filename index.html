@@ -218,11 +218,11 @@
             display: none;
         }
 
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             /* Resetear el flex-col del body y usar grid */
             body {
                 display: grid !important;
-                grid-template-columns: 240px 1fr;
+                grid-template-columns: 200px 1fr; /* <-- Barra más delgada y elegante */
                 grid-template-rows: 64px 1fr;
                 grid-template-areas:
                     "sidebar header"
@@ -244,15 +244,15 @@
             }
 
             #desktop-sidebar {
-                grid-area: sidebar;
-                display: flex !important;
-                flex-direction: column;
-                height: 100dvh;
-                background: #0f0f0f;
-                border-right: 1px solid #1f1f1f;
-                overflow: hidden;
-                z-index: 50;
-            }
+            grid-area: sidebar;
+            display: flex !important;
+            flex-direction: column;
+            height: 100dvh;
+            background: #121212;
+            border-right: 1px solid #262626;
+            overflow: hidden;
+            z-index: 50;
+        }
 
             /* Ocultar barra inferior en PC */
             #mobile-nav-wrapper { display: none !important; }
@@ -310,11 +310,11 @@
             text-overflow: ellipsis;
         }
         #sb-app-subtitle {
-            font-size: 0.58rem;
+            font-size: 0.55rem; /* Texto apenas más pequeño */
             font-weight: 700;
             color: #404040;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.05em; /* Letras un poco más juntas para que quepa bien */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -341,18 +341,18 @@
         .sb-nav-btn {
             display: flex;
             align-items: center;
-            gap: 10px;
-            width: calc(100% - 16px);
-            margin: 1px 8px;
-            padding: 9px 10px;
-            border-radius: 7px;
+            gap: 10px; /* Ícono y texto un poco más juntos */
+            width: calc(100% - 16px); /* Aprovecha mejor el ancho de la barra angosta */
+            margin: 2px 8px; /* Menos espacio muerto entre botones */
+            padding: 8px 12px; /* Botón más compacto y estilizado */
+            border-radius: 10px;
             border: none;
             background: transparent;
-            color: #525252;
-            font-size: 0.82rem;
+            color: #737373;
+            font-size: 0.8rem; /* Letra un toque más sutil */
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.15s, color 0.15s;
+            transition: all 0.2s ease;
             text-align: left;
             font-family: 'Roboto Condensed', sans-serif;
         }
@@ -365,14 +365,14 @@
             color: rgb(var(--theme-400));
         }
         .sb-nav-btn .sb-icon {
-            width: 30px;
-            height: 30px;
+            width: 26px; /* Cuadrito más delicado */
+            height: 26px;
             border-radius: 6px;
             background: #181818;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Ícono proporcional al nuevo tamaño */
             flex-shrink: 0;
             transition: background 0.15s;
         }
@@ -412,7 +412,7 @@
         .sb-action-btn i { width: 16px; text-align: center; }
 
         /* Scrollbar bonito para el main en PC */
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #app-container {
                 scrollbar-width: thin;
                 scrollbar-color: #333 transparent;
@@ -532,10 +532,10 @@
         </div>
     </aside>
     <!-- ========== FIN SIDEBAR ========== -->
-    <header class="bg-neutral-900 text-white pt-safe shadow-lg z-[60] shrink-0 relative overflow-visible border-b-4 border-red-600">
-        <div class="p-3 sm:p-4 flex justify-between items-center relative z-20 gap-2 sm:gap-6">
+    <header class="bg-neutral-900/95 md:backdrop-blur-md text-white pt-safe shadow-md md:shadow-sm z-[60] shrink-0 relative overflow-visible border-b-4 md:border-b border-red-600 md:border-neutral-800 transition-colors">
+        <div class="px-3 sm:px-4 h-[64px] flex justify-between items-center relative z-20 gap-2 sm:gap-6">
             <!-- LOGO -->
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 lg:hidden">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 md:hidden">
                 <div class="bg-red-700 p-2 sm:p-2.5 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
                     <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
                 </div>
@@ -548,14 +548,13 @@
             </div>
 
             <!-- BUSCADOR UNIVERSAL (Escritorio) -->
-            <div class="flex-1 relative hidden md:block max-w-xl">
+            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl hidden md:block z-10">
                 <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
                 <input type="text" id="desktop-search-input" placeholder="Buscar vehículos, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
                 <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
 
-            <!-- CONTROLES DERECHA -->
-            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto relative z-20">
                 <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -1965,25 +1964,25 @@
             
             <div class="order-3 shrink-0 mt-2">
                 <h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Accesos Rápidos</h3>
-                <div class="grid grid-cols-4 gap-2 sm:gap-3">
-                    <div onclick="renderView('work_orders'); setTimeout(() => openPatientModal(), 100);" class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition"><i class="fa-solid fa-car-side text-lg sm:text-xl"></i></div>
-                        <span class="text-[10px] sm:text-[11px] font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Nuevo<br>Vehículo</span>
+                <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+                    <div onclick="renderView('work_orders'); setTimeout(() => openPatientModal(), 100);" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition group cursor-pointer text-center">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition"><i class="fa-solid fa-car-side text-lg sm:text-2xl"></i></div>
+                        <span class="text-[10px] sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Nuevo<br>Vehículo</span>
                     </div>
                     
-                    <div onclick="setActiveShopTab('items')" class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-100 transition"><i class="fa-solid fa-cart-shopping text-lg sm:text-xl"></i></div>
-                        <span class="text-[10px] sm:text-[11px] font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Lista<br>Compras</span>
+                    <div onclick="setActiveShopTab('items')" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition group cursor-pointer text-center">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition"><i class="fa-solid fa-cart-shopping text-lg sm:text-2xl"></i></div>
+                        <span class="text-[10px] sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Lista<br>Compras</span>
                     </div>
                     
-                    <div onclick="renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)" class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-yellow-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-100 transition"><i class="fa-solid fa-pen-clip text-lg sm:text-xl"></i></div>
-                        <span class="text-[10px] sm:text-[11px] font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Escribir<br>Apunte</span>
+                    <div onclick="renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-yellow-500 dark:hover:border-yellow-500 hover:shadow-md transition group cursor-pointer text-center">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/40 transition"><i class="fa-solid fa-pen-clip text-lg sm:text-2xl"></i></div>
+                        <span class="text-[10px] sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Escribir<br>Apunte</span>
                     </div>
                     
-                    <div onclick="setInfoTab('pdf'); if(state.view !== 'links') renderView('links');" class="bg-white dark:bg-neutral-900 p-3 sm:p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-purple-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 transition"><i class="fa-solid fa-file-pdf text-lg sm:text-xl"></i></div>
-                        <span class="text-[10px] sm:text-[11px] font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Abrir<br>Manual</span>
+                    <div onclick="setInfoTab('pdf'); if(state.view !== 'links') renderView('links');" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-md transition group cursor-pointer text-center">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition"><i class="fa-solid fa-file-pdf text-lg sm:text-2xl"></i></div>
+                        <span class="text-[10px] sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Abrir<br>Manual</span>
                     </div>
                 </div>
             </div>
@@ -2150,7 +2149,7 @@
                 </a>`;
             }
 
-            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded shadow-sm hover:shadow-lg transition-all duration-300 border border-neutral-300 dark:border-neutral-700 border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
+            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-300 dark:border-neutral-700 md:dark:border-transparent border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
                     <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
                         <div>
                             <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${escapeHtml(p.room)}</span>

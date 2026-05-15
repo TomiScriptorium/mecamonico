@@ -2484,8 +2484,9 @@
 
             const year = state.currentDate.getFullYear(); 
             const month = state.currentDate.getMonth(); 
-            const firstDay = new Date(year, month, 1); 
-            const lastDay = new Date(year, month + 1, 0); 
+            // Usamos las 12:00 (mediodía) para evitar saltos por zona horaria de Chile
+            const firstDay = new Date(year, month, 1, 12, 0, 0); 
+            const lastDay = new Date(year, month + 1, 0, 12, 0, 0); 
             const daysInMonth = lastDay.getDate(); 
             let startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; 
 
@@ -2537,7 +2538,8 @@
                 if (shift.type !== 'post' && shift.type !== 'libre' && shift.type !== null) bgClass = bgClass.replace(' text-red-500 dark:text-red-400', '');
             } 
             
-            const todayKey = new Date().toISOString().split('T')[0]; 
+            const now = new Date();
+            const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             if (dateKey === selectedDateKey) { bgClass += " ring-4 ring-red-500 ring-offset-2 dark:ring-offset-neutral-900 z-30 scale-105 shadow-lg"; } 
             else if (dateKey === todayKey) { bgClass += " ring-2 ring-red-500/50 ring-offset-1 z-20"; } 
             
@@ -2652,7 +2654,19 @@
             `;
         }
 
-        function changeMonth(delta) { state.currentDate.setMonth(state.currentDate.getMonth() + delta); renderView('turnario'); }
+        function changeMonth(delta) { 
+            state.currentDate.setMonth(state.currentDate.getMonth() + delta); 
+            
+            const container = document.getElementById('app-container');
+            if (container) {
+                const wrapper = container.querySelector('.app-view-wrapper');
+                if (wrapper) {
+                    // Redibujamos el calendario pero ELIMINAMOS la clase 'fade-enter'
+                    // Esto corta de raíz la animación de opacidad, haciendo el cambio instantáneo
+                    wrapper.innerHTML = getTurnarioHTML().replace('fade-enter', '');
+                }
+            }
+        }
         let selectedEventId = null;
 
         function openShiftModal(dateKey, eventId = null) { 

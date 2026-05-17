@@ -412,14 +412,84 @@
         .sb-action-btn i { width: 16px; text-align: center; }
 
         /* Scrollbar bonito para el main en PC */
+
+        /* --- OPTIMIZACIÓN DE BARRA LATERAL (NORMAL Y CONTRAÍDA) --- */
         @media (min-width: 768px) {
-            #app-container {
-                scrollbar-width: thin;
-                scrollbar-color: #333 transparent;
+            body { 
+                transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             }
-            #app-container::-webkit-scrollbar { width: 4px; }
-            #app-container::-webkit-scrollbar-track { background: transparent; }
-            #app-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+            body.sidebar-collapsed { 
+                grid-template-columns: 80px 1fr !important; 
+            }
+            
+            /* Ajustes modo NORMAL */
+            .sb-nav-btn, .sb-action-btn {
+                font-size: 0.92rem !important;
+                gap: 14px !important;
+                padding: 10px 16px !important;
+            }
+            .sb-nav-btn .sb-icon, .sb-action-btn i {
+                font-size: 1.15rem !important;
+            }
+
+            /* --- MODO CONTRAÍDO --- */
+            
+            /* Ocultar títulos, textos de secciones y los textos de botones inferiores */
+            body.sidebar-collapsed #sidebar-title-area,
+            body.sidebar-collapsed .sb-section-label,
+            body.sidebar-collapsed .sb-action-btn span { 
+                display: none !important; 
+            }
+            
+            body.sidebar-collapsed #sidebar-logo-area { 
+                padding: 1.25rem 0 !important; 
+                justify-content: center !important; 
+            }
+            body.sidebar-collapsed #sidebar-logo-icon {
+                margin: 0 auto !important;
+            }
+            
+            /* CENTRADO PERFECTO DE ÍCONOS */
+            body.sidebar-collapsed .sb-nav-btn,
+            body.sidebar-collapsed .sb-action-btn {
+                font-size: 0 !important; 
+                gap: 0 !important; 
+                display: flex !important;
+                justify-content: center !important; 
+                align-items: center !important;     
+                width: 48px !important;
+                height: 48px !important;
+                padding: 0 !important;
+                margin: 5px auto !important;
+                border-radius: 12px !important;
+            }
+
+            /* --- SOLUCIÓN AL BUG DE MÓDULOS OCULTOS --- */
+            /* Esta regla asegura que los módulos que apagaste NO vuelvan a aparecer */
+            body.sidebar-collapsed .sb-nav-btn.hidden,
+            body.sidebar-collapsed .sb-action-btn.hidden,
+            body.sidebar-collapsed .sb-nav-btn[style*="display: none"],
+            body.sidebar-collapsed .sb-action-btn[style*="display: none"] {
+                display: none !important;
+            }
+            /* ------------------------------------------ */
+            
+            /* Restaurar tamaño solo para los íconos */
+            body.sidebar-collapsed .sb-nav-btn .sb-icon,
+            body.sidebar-collapsed .sb-action-btn i { 
+                font-size: 1.3rem !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+            }
+            
+            /* Girar flecha del botón */
+            body.sidebar-collapsed #toggle-sidebar-btn i { 
+                transform: rotate(180deg); 
+            }
+        }
+        
+        #toggle-sidebar-btn i { 
+            transition: transform 0.3s ease; 
         }
     </style>
 </head>
@@ -477,14 +547,18 @@
     <aside id="desktop-sidebar">
 
         <!-- Logo + Título clickeable -->
-        <div id="sidebar-logo-area">
-            <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio">
-                <i class="fa-solid fa-car" style="color:white; font-size:1rem;"></i>
+        <div id="sidebar-logo-area" class="relative flex items-center px-4 py-5 border-b border-neutral-200 dark:border-neutral-800" style="overflow: visible !important;">
+            <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio" class="cursor-pointer flex items-center justify-center transition-all">
+                <i class="fa-solid fa-car" style="color:white; font-size:1.15rem;"></i>
             </div>
-            <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller">
-                <div id="sb-app-title">Mecamonico <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.6rem;"></i></div>
-                <div id="sb-app-subtitle">Gestión de Taller & Estudio</div>
+            <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller" class="ml-3 cursor-pointer">
+                <div id="sb-app-title" class="font-bold text-white text-sm">Mecamonico <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.6rem;"></i></div>
+                <div id="sb-app-subtitle" class="text-xs text-neutral-400">Gestión de Taller & Estudio</div>
             </div>
+            
+            <button id="toggle-sidebar-btn" onclick="toggleSidebar()" class="absolute -right-2.5 top-6 w-5 h-5 bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-800 dark:hover:text-white shadow-sm z-50 transition-all duration-200 outline-none cursor-pointer" title="Contraer/Expandir menú">
+                <i class="fa-solid fa-angle-left text-[9px]"></i>
+            </button>
         </div>
 
         <!-- Navegación principal -->
@@ -5411,8 +5485,23 @@
             document.body.classList.remove('modal-open');
             document.getElementById('item-info-modal').classList.add('hidden');
         }
-        // --- FIN NUEVAS FUNCIONES ---
+        
+// --- FUNCIONES PARA LA BARRA LATERAL CONTRAÍBLE ---
+        function toggleSidebar() {
+            const body = document.body;
+            body.classList.toggle('sidebar-collapsed');
+            if (body.classList.contains('sidebar-collapsed')) {
+                localStorage.setItem('mech_sidebar_state', 'collapsed');
+            } else {
+                localStorage.setItem('mech_sidebar_state', 'expanded');
+            }
+        }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('mech_sidebar_state') === 'collapsed') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        });
         window.onload = init;
     </script>
 </body>

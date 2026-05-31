@@ -494,7 +494,7 @@
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
-<div id="auth-screen" class="hidden fixed inset-0 bg-neutral-950 z-[200] flex flex-col items-center justify-center p-4 fade-enter">
+<div id="auth-screen" class="fixed inset-0 bg-neutral-950 z-[200] flex flex-col items-center justify-center p-4 fade-enter">
         <div class="mb-8 text-center">
             <div class="w-20 h-20 bg-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-600/30">
                 <i class="fa-solid fa-car text-4xl text-white"></i>
@@ -2022,7 +2022,7 @@
                     </div>
                 </div>`;
 
-            const profileImageSrc = state.userProfileImage || 'https://placehold.co/64x64/dc2626/ffffff?text=MEC'; 
+            const profileImageSrc = state.userProfileImage || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="#dc2626"/><text x="32" y="40" text-anchor="middle" fill="#fff" font-size="28" font-family="sans-serif" font-weight="bold">MEC</text></svg>'); 
             const displayUserName = state.userName || 'Usuario'; 
             const displayUserTitle = state.userTitle || 'Estudiante'; 
             
@@ -2030,7 +2030,7 @@
             
             <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0">
                 <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-neutral-100 dark:border-neutral-800 pb-2' : ''}" id="profile-card-header">
-                    <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='https://placehold.co/64x64/dc2626/ffffff?text=MEC'"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
+                    <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
                     <div class="flex-1">
                         <p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p>
                         <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2>
@@ -2547,8 +2547,6 @@
             } 
         }
 
-        function deleteCurrentShift() { if (selectedDateKey) { delete state.shifts[selectedDateKey]; saveData(); closeModal(); if (state.view === 'turnario') renderView('turnario'); else renderView('dashboard'); showToast("Evento eliminado", "fa-trash"); } }
-        
         function getTurnarioHTML() { 
             // Si no hay fecha seleccionada, usamos el día de hoy
             if (!selectedDateKey) {
@@ -3624,6 +3622,11 @@
     }
 
     // --- LOGICA DE LOS NUEVOS MODALES ---
+    function setActiveShopTab(tab) {
+        state.activeShopTab = tab;
+        openShoppingModal();
+    }
+
     function openShoppingModal() {
         const itemsHTML = state.shoppingList.map((item) => getShoppingRowHTML(item)).join('');
         document.getElementById('shop-title').value = state.shopTitle || '';
@@ -5082,21 +5085,6 @@
             showToast("Modo Local Activo (Sin Sincronizar)", "fa-wifi");
         }
 
-        // --- DESTRUCTOR DE CACHÉ FANTASMA (PWA FIX) ---
-        if ('caches' in window) {
-            caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
-        }
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister(); // Destruye el trabajador fantasma
-                }
-            });
-            // Re-registra uno nuevo y limpio
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
-            });
-        }
         // --- SISTEMA CATÁLOGO DE PRECIOS ---
         function openPriceListModal() {
             renderPriceList();

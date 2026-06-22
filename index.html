@@ -2870,22 +2870,112 @@
         }
 
         function getNotesHTML() { 
-            const foldersHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-0 hide-scrollbar mouse-drag" id="folders-container">${generateFoldersHTML()}</div>`; 
+    return `
+    <div class="lg:h-full min-h-full flex flex-col fade-enter font-sans">
+        
+        <div class="mb-8 mt-2">
+            <h1 class="text-3xl lg:text-4xl font-black text-neutral-800 dark:text-neutral-100 tracking-tight flex items-center gap-3">
+                Apuntes del Taller <i class="fa-solid fa-wrench text-neutral-400"></i>
+            </h1>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 flex-1 items-start lg:overflow-hidden">
             
-            return `<div class="lg:h-full min-h-full flex flex-col"><div class="flex justify-between items-end mb-4 shrink-0"><h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter">Notas</h2><i class="fa-solid fa-wrench text-neutral-300 dark:text-neutral-700 text-2xl"></i></div><div class="flex flex-col lg:flex-row gap-6 flex-1 lg:overflow-hidden"><div class="lg:w-1/3 lg:min-w-[320px] shrink-0"><div id="note-editor" class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-400"></div><div class="flex justify-between items-center mb-3"><span id="editor-title" class="text-xs font-bold text-neutral-400 dark:text-neutral-500 tracking-widest">Nueva Entrada</span><button id="editor-cancel-btn" onclick="cancelEdit()" class="text-neutral-400 dark:text-neutral-500 hover:text-red-400 text-sm hidden font-bold"><i class="fa-solid fa-times"></i> Cancelar</button></div><textarea id="new-note-text" class="w-full p-2 border border-neutral-200 dark:border-neutral-700 rounded focus:ring-2 focus:ring-red-200 focus:border-red-300 dark:focus:ring-red-900 outline-none resize-y min-h-[150px] mb-3 font-handwriting text-2xl text-neutral-700 dark:text-neutral-200 bg-yellow-50/50 dark:bg-neutral-800 leading-relaxed placeholder-neutral-300 dark:placeholder-neutral-600 transition-all" rows="6" placeholder="Anotaciones técnicas..."></textarea><div id="image-preview-container" class="hidden mb-3 relative group w-fit"><img id="image-preview" src="" class="h-24 rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm"><button onclick="clearImageInput()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow"><i class="fa-solid fa-xmark text-xs"></i></button></div><div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-neutral-800"><label for="new-note-images" class="cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 transition flex items-center gap-2 text-xs font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-200 tracking-wide"><i class="fa-solid fa-camera"></i> Fotos</label><input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)"><button id="editor-save-btn" onclick="saveNote()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-6 py-2 rounded text-xs font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transform active:scale-95 transition-all shadow-lg tracking-wide"><i class="fa-solid fa-check mr-1"></i> Guardar</button></div></div><p class="hidden lg:block text-center text-xs text-neutral-400 dark:text-neutral-500 mt-4 italic"><i class="fa-solid fa-lightbulb text-yellow-500 dark:text-yellow-600/50 mr-1"></i> Selecciona una nota para editar.</p></div><div class="flex-1 min-w-0 flex flex-col lg:h-full h-auto"><div class="mb-4 relative shrink-0"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="notes-search" placeholder="Buscar en notas..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterNotes(this.value)"></div><div class="mb-4 shrink-0 bg-[#f5f5f5] dark:bg-neutral-950 sticky top-0 z-10 pb-2">${foldersHTML}</div><div class="flex-1 lg:overflow-y-auto pr-1 pb-28 lg:pb-4 hide-scrollbar"><div id="notes-list" class="columns-1 md:columns-2 xl:columns-3 gap-4">${generateNotesListHTML()}</div></div></div></div></div>`; 
-        }
+            <div class="w-full lg:w-1/5 shrink-0 flex flex-col gap-8 lg:overflow-y-auto hide-scrollbar pb-4">
+                
+                <div>
+                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3 flex items-center gap-2">Acciones rápidas 🔥</h3>
+                    <div class="flex flex-col gap-1.5">
+                        <button onclick="document.getElementById('new-note-text').focus()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-md text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                            <i class="fa-solid fa-file-pen text-purple-400"></i> Agregar nota
+                        </button>
+                        <button onclick="openFolderModal()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-md text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                            <i class="fa-solid fa-folder-plus text-blue-400"></i> Nueva sección
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3 flex items-center gap-2">Secciones 📖</h3>
+                    <div class="flex flex-col gap-0.5" id="folders-container">
+                        ${generateFoldersHTML()}
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-2/4 flex-1 flex flex-col h-full">
+                
+                <div class="flex justify-between items-center mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                    <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Resumen general 📚</h3>
+                    <div class="relative w-48 lg:w-64">
+                        <i class="fa-solid fa-search absolute left-2 top-1/2 transform -translate-y-1/2 text-neutral-400 text-xs"></i>
+                        <input type="text" id="notes-search" placeholder="Buscar apunte..." class="w-full pl-7 pr-3 py-1 bg-transparent outline-none text-sm text-neutral-800 dark:text-neutral-200 transition-colors font-medium placeholder-neutral-400" onkeyup="filterNotes(this.value)">
+                    </div>
+                </div>
+
+                <div class="flex-1 lg:overflow-y-auto hide-scrollbar pb-24 pr-2">
+                    <div id="notes-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
+                        ${generateNotesListHTML()}
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/4 shrink-0 lg:sticky lg:top-0 h-[400px] lg:h-[calc(100vh-180px)]">
+                <div id="note-editor" class="bg-[#f4f0eb] dark:bg-[#322f27] p-5 rounded-xl shadow-sm border border-[#e8e4df] dark:border-[#423e35] flex flex-col transition-all h-full" data-zen="false">
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-[#5c574c] dark:text-[#d4cebd] flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-600"></i> <span id="editor-title">Notas rápidas</span> 📝</h3>
+                        <div class="flex gap-3 items-center">
+                            <button onclick="toggleZenMode()" class="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition" title="Modo Enfoque"><i id="zen-icon" class="fa-solid fa-expand text-xs"></i></button>
+                            <button id="editor-cancel-btn" onclick="cancelEdit()" class="text-[#5c574c] dark:text-[#a8a395] hover:text-red-500 transition hidden"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                    
+                    <textarea id="new-note-text" class="flex-1 w-full bg-transparent border-none outline-none resize-none font-sans text-sm text-neutral-800 dark:text-[#e6e2d3] placeholder-[#a8a395] dark:placeholder-[#8f8a7a] leading-relaxed hide-scrollbar" placeholder="Escribe aquí tus notas rápidas, códigos, procedimientos..."></textarea>
+                    
+                    <div id="image-preview-container" class="hidden mt-3 relative w-full"></div>
+                    
+                    <div class="flex justify-between items-center mt-3 pt-3 border-t border-[#e8e4df] dark:border-[#423e35]">
+                        <label for="new-note-images" class="cursor-pointer text-[#8a8578] dark:text-[#a8a395] hover:text-neutral-900 dark:hover:text-white transition flex items-center gap-1.5 text-xs font-bold">
+                            <i class="fa-solid fa-image"></i> Adjuntar
+                        </label>
+                        <input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)">
+                        
+                        <button id="editor-save-btn" onclick="saveNote()" class="bg-[#3a3832] dark:bg-[#4a473f] text-[#f4f0eb] px-4 py-1.5 rounded-md text-xs font-bold hover:opacity-90 transition active:scale-95 shadow-sm">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>`; 
+}
         
         function generateFoldersHTML() { 
-            return `<button onclick="changeFolder('all')" class="shrink-0 whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border ${state.currentFolderId === 'all' ? 'bg-neutral-800 text-white border-neutral-800 shadow-md' : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400'}" data-id="all">Todo</button>${(state.folders || []).map(f => {
-                const isGeneral = f.id === 'general';
-                const deleteBtn = isGeneral ? '' : `<span onclick="event.stopPropagation(); deleteFolder('${f.id}')" class="ml-1 hover:text-red-300 text-white/50 cursor-pointer px-1 transition" title="Eliminar"><i class="fa-solid fa-xmark text-sm"></i></span>`;
-                const editBtn = isGeneral ? '' : `<span onclick="event.stopPropagation(); renameFolder('${f.id}')" class="ml-2 hover:text-blue-300 text-white/50 cursor-pointer px-1 transition" title="Renombrar"><i class="fa-solid fa-pen text-[10px]"></i></span>`;
-                const activeClass = "bg-red-600 text-white border-red-600 shadow-md";
-                const inactiveClass = "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-red-400";
-                
-                return `<button onclick="changeFolder('${f.id}')" class="shrink-0 whitespace-nowrap px-4 py-1.5 rounded text-xs font-bold transition-all border flex items-center ${state.currentFolderId === f.id ? activeClass : inactiveClass}" data-id="${f.id}">${f.name} ${state.currentFolderId === f.id ? editBtn + deleteBtn : ''}</button>`;
-            }).join('')}<button onclick="openFolderModal()" class="shrink-0 min-w-[32px] w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center border border-neutral-300 dark:border-neutral-700 transition shadow-sm"><i class="fa-solid fa-plus text-xs"></i></button><div class="shrink-0 w-6 h-1 pointer-events-none"></div>`; 
-        }
+    const allBtn = `<button onclick="changeFolder('all')" class="w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors flex items-center gap-2 ${state.currentFolderId === 'all' ? 'bg-neutral-200 dark:bg-neutral-800 font-bold text-neutral-900 dark:text-white' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/50 text-neutral-600 dark:text-neutral-400'}"><i class="fa-solid fa-layer-group text-neutral-400 w-4 text-center"></i> Todas</button>`;
+    
+    const folderBtns = (state.folders || []).map(f => {
+        const isGeneral = f.id === 'general';
+        const isActive = state.currentFolderId === f.id;
+        const activeClass = isActive ? 'bg-neutral-200 dark:bg-neutral-800 font-bold text-neutral-900 dark:text-white' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/50 text-neutral-600 dark:text-neutral-400';
+        
+        const editBtn = isGeneral ? '' : `<button onclick="event.stopPropagation(); renameFolder('${f.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-blue-500 transition"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
+        const delBtn = isGeneral ? '' : `<button onclick="event.stopPropagation(); deleteFolder('${f.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i class="fa-solid fa-xmark text-[10px]"></i></button>`;
+        
+        return `
+        <div class="group flex items-center justify-between w-full rounded-md ${activeClass}">
+            <button onclick="changeFolder('${f.id}')" class="flex-1 text-left px-3 py-1.5 text-sm flex items-center gap-2 truncate">
+                <i class="fa-solid fa-folder text-neutral-400 w-4 text-center"></i> ${escapeHtml(f.name)}
+            </button>
+            <div class="flex px-1 shrink-0">
+                ${editBtn}${delBtn}
+            </div>
+        </div>`;
+    }).join('');
+    
+    return allBtn + folderBtns;
+}
 
         function generateNotesListHTML(searchQuery = '') { 
             let filteredNotes = state.notes || []; 
@@ -2901,32 +2991,42 @@
         }
 
         function createNoteHTML(note) { 
-            let imagesHTML = '';
-            if (note.images && note.images.length > 0) {
-                imagesHTML = `<div class="flex overflow-x-auto gap-2 pb-2 mb-3 hide-scrollbar snap-x mouse-drag">
-                    ${note.images.map(src => `<img src="${src}" draggable="false" onclick="openImagePreviewModal(this.src)" class="flex-shrink-0 h-32 w-auto rounded border border-neutral-200 dark:border-neutral-700 snap-center object-cover cursor-pointer hover:opacity-80 transition shadow-sm">`).join('')}
-                </div>`;
-            } else if (note.image) {
-                imagesHTML = `<img src="${note.image}" draggable="false" onclick="openImagePreviewModal(this.src)" class="w-full h-auto rounded mb-3 border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:opacity-80 transition shadow-sm h-32 object-cover">`;
-            }
+    let imagesHTML = '';
+    // Si hay imagen, ocupa la parte superior completa
+    if (note.images && note.images.length > 0) {
+        imagesHTML = `<img src="${note.images[0]}" class="w-full h-32 object-cover border-b border-neutral-200 dark:border-[#2e2e2e]">`;
+    } else if (note.image) {
+        imagesHTML = `<img src="${note.image}" class="w-full h-32 object-cover border-b border-neutral-200 dark:border-[#2e2e2e]">`;
+    } else {
+        // Bloque decorativo sutil si no hay imagen
+        imagesHTML = `<div class="w-full h-10 bg-neutral-100 dark:bg-[#252525] border-b border-neutral-200 dark:border-[#2e2e2e]"></div>`;
+    }
 
-            const folderName = (state.folders || []).find(f => f.id === note.folderId)?.name || 'General'; 
-            
-            // SOLUCIÓN: Agregamos w-full, overflow-hidden al contenedor principal y usamos break-all en el texto.
-            return `<div id="note-${note.id}" class="work-order p-5 rounded item-enter group break-inside-avoid mb-4 relative transition-all duration-300 hover:shadow-lg border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-900 w-full overflow-hidden">
-                <div class="absolute top-3 right-3 opacity-10 group-hover:opacity-100 transition text-neutral-400 dark:text-neutral-600 text-2xl rotate-12 z-0"><i class="fa-solid fa-wrench"></i></div>
-                ${imagesHTML}
-                <p onclick="openPreviewNoteModal(${note.id})" title="Clic para ver completa" class="text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap break-all font-handwriting text-2xl leading-relaxed relative z-10 line-clamp-6 cursor-pointer hover:text-red-600 transition">${escapeHtml(note.text)}</p>
-                <div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-neutral-300 dark:border-neutral-700 relative z-10">
-                    <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 tracking-wider bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded border border-neutral-200 dark:border-neutral-700">${escapeHtml(folderName)}</span>
-                    <div class="flex gap-1.5 opacity-60 group-hover:opacity-100 transition">
-                        <button onclick="shareNote(${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-green-500 p-1 rounded hover:bg-green-50 dark:hover:bg-green-950/50" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
-                        <button onclick="startEditNote(${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-blue-500 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/50" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="confirmDelete('note', ${note.id})" class="text-neutral-400 dark:text-neutral-500 hover:text-red-500 p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/50" title="Borrar"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+    const folderName = (state.folders || []).find(f => f.id === note.folderId)?.name || 'General'; 
+    
+    return `
+    <div id="note-${note.id}" class="flex flex-col bg-white dark:bg-[#1f1f1f] rounded-lg shadow-sm border border-neutral-200 dark:border-[#333] hover:shadow-md hover:bg-neutral-50 dark:hover:bg-[#252525] transition-all cursor-pointer group overflow-hidden break-inside-avoid relative" onclick="openPreviewNoteModal(${note.id})">
+        
+        ${imagesHTML}
+        
+        <div class="p-3.5 flex flex-col flex-1">
+            <div class="flex items-start justify-between gap-2 mb-2">
+                <span class="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#2e2e2e] px-2 py-0.5 rounded-sm flex items-center gap-1"><i class="fa-solid fa-hashtag text-[8px] opacity-50"></i>${escapeHtml(folderName)}</span>
+                
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="event.stopPropagation(); startEditNote(${note.id})" class="w-6 h-6 rounded flex items-center justify-center text-neutral-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition" title="Editar"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                    <button onclick="event.stopPropagation(); shareNote(${note.id})" class="w-6 h-6 rounded flex items-center justify-center text-neutral-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition" title="Compartir"><i class="fa-solid fa-share-nodes text-[10px]"></i></button>
+                    <button onclick="event.stopPropagation(); confirmDelete('note', ${note.id})" class="w-6 h-6 rounded flex items-center justify-center text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition" title="Eliminar"><i class="fa-solid fa-trash text-[10px]"></i></button>
                 </div>
-            </div>`; 
-        }
+            </div>
+            
+            <p class="text-sm font-medium text-neutral-800 dark:text-[#d4d4d4] line-clamp-4 leading-relaxed font-sans mb-1">${escapeHtml(note.text)}</p>
+            
+            ${note.images && note.images.length > 1 ? `<p class="text-[10px] font-bold text-neutral-400 mt-auto pt-2"><i class="fa-solid fa-images mr-1"></i> +${note.images.length - 1} imágenes adjuntas</p>` : ''}
+        </div>
+    </div>`; 
+}
+
         function changeFolder(folderId) { 
             state.currentFolderId = folderId; 
             document.getElementById('folders-container').innerHTML = generateFoldersHTML(); 
@@ -2949,55 +3049,93 @@
             document.getElementById('note-editor').scrollIntoView({ behavior: 'smooth', block: 'center' }); 
         }
 
+        function toggleZenMode() {
+    const editor = document.getElementById('note-editor');
+    const textarea = document.getElementById('new-note-text');
+    const icon = document.getElementById('zen-icon');
+    const isZen = editor.getAttribute('data-zen') === 'true';
+
+    if (!isZen) {
+        editor.className = "fixed inset-0 z-[150] bg-white dark:bg-neutral-900 p-6 md:px-48 lg:px-64 md:py-16 flex flex-col h-screen border-0 shadow-none transition-all duration-300";
+        textarea.classList.replace('min-h-[150px]', 'flex-1');
+        textarea.classList.replace('text-base', 'text-lg');
+        textarea.classList.remove('resize-none');
+        icon.className = "fa-solid fa-compress";
+        editor.setAttribute('data-zen', 'true');
+        document.body.style.overflow = "hidden"; 
+    } else {
+        editor.className = "bg-white dark:bg-neutral-900 p-5 rounded-xl shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all duration-300 overflow-hidden";
+        textarea.classList.replace('flex-1', 'min-h-[150px]');
+        textarea.classList.replace('text-lg', 'text-base');
+        textarea.classList.add('resize-none');
+        icon.className = "fa-solid fa-expand";
+        editor.setAttribute('data-zen', 'false');
+        document.body.style.overflow = ""; 
+    }
+}
+
         function cancelEdit() { 
-            state.editingNoteId = null; 
-            document.getElementById('editor-title').innerText = "Nueva Entrada"; 
-            document.getElementById('editor-save-btn').innerHTML = `<i class="fa-solid fa-check mr-1"></i> Guardar`; 
-            document.getElementById('editor-cancel-btn').classList.add('hidden'); 
-            document.getElementById('new-note-text').value = ''; 
-            clearImageInput(); 
-        }
+    state.editingNoteId = null; 
+    document.getElementById('editor-title').innerText = "Nueva Entrada"; 
+    document.getElementById('editor-save-btn').innerHTML = `<i class="fa-solid fa-check mr-1"></i> Guardar`; 
+    document.getElementById('editor-cancel-btn').classList.add('hidden'); 
+    document.getElementById('new-note-text').value = ''; 
+    clearImageInput(); 
+
+    // Cierra el Modo Enfoque si estaba abierto
+    const editor = document.getElementById('note-editor');
+    if (editor && editor.getAttribute('data-zen') === 'true') {
+        toggleZenMode();
+    }
+}
 
         async function saveNote() { 
-            const textInput = document.getElementById('new-note-text'); 
-            const text = textInput.value.trim(); 
-            
-            if (!text && currentNoteImages.length === 0) return showToast("Nota vacía", "fa-pen"); 
-            
-            if (state.editingNoteId) { 
-                const noteIndex = state.notes.findIndex(n => n.id === state.editingNoteId); 
-                if (noteIndex > -1) { 
-                    state.notes[noteIndex].text = text; 
-                    state.notes[noteIndex].images = [...currentNoteImages];
-                    state.notes[noteIndex].image = currentNoteImages.length > 0 ? currentNoteImages[0] : null;
+    const textInput = document.getElementById('new-note-text'); 
+    const text = textInput.value.trim(); 
+    
+    if (!text && currentNoteImages.length === 0) return showToast("Nota vacía", "fa-pen"); 
+    
+    if (state.editingNoteId) { 
+        const noteIndex = state.notes.findIndex(n => n.id === state.editingNoteId); 
+        if (noteIndex > -1) { 
+            state.notes[noteIndex].text = text; 
+            state.notes[noteIndex].images = [...currentNoteImages];
+            state.notes[noteIndex].image = currentNoteImages.length > 0 ? currentNoteImages[0] : null;
 
-                    const oldEl = document.getElementById(`note-${state.editingNoteId}`);
-                    if (oldEl) oldEl.outerHTML = createNoteHTML(state.notes[noteIndex]);
-                } 
-                cancelEdit(); 
-                showToast("Registro actualizado", "fa-rotate"); 
-            } else { 
-                const targetFolder = state.currentFolderId === 'all' ? 'general' : state.currentFolderId; 
-                const newNote = { 
-                    id: Date.now(), 
-                    text, 
-                    images: [...currentNoteImages], 
-                    image: currentNoteImages.length > 0 ? currentNoteImages[0] : null,
-                    folderId: targetFolder 
-                }; 
-                state.notes.unshift(newNote); 
-                
-                const list = document.getElementById('notes-list');
-                const emptyMsg = list.querySelector('.text-center.opacity-40');
-                if(emptyMsg) emptyMsg.remove();
-                list.insertAdjacentHTML('afterbegin', createNoteHTML(newNote));
+            const oldEl = document.getElementById(`note-${state.editingNoteId}`);
+            if (oldEl) oldEl.outerHTML = createNoteHTML(state.notes[noteIndex]);
+        } 
+        cancelEdit(); 
+        showToast("Registro actualizado", "fa-rotate"); 
+    } else { 
+        const targetFolder = state.currentFolderId === 'all' ? 'general' : state.currentFolderId; 
+        const newNote = { 
+            id: Date.now(), 
+            text, 
+            images: [...currentNoteImages], 
+            image: currentNoteImages.length > 0 ? currentNoteImages[0] : null,
+            folderId: targetFolder 
+        }; 
+        state.notes.unshift(newNote); 
+        
+        const list = document.getElementById('notes-list');
+        const emptyMsg = list.querySelector('.text-center.opacity-40');
+        if(emptyMsg) emptyMsg.remove();
+        list.insertAdjacentHTML('afterbegin', createNoteHTML(newNote));
 
-                textInput.value = ''; 
-                clearImageInput(); 
-                showToast("Nota guardada", "fa-check"); 
-            } 
-            saveData(); 
-        }
+        textInput.value = ''; 
+        clearImageInput(); 
+        showToast("Nota guardada", "fa-check"); 
+    } 
+    
+    saveData(); 
+
+    // Cierra el Modo Enfoque si estaba abierto tras guardar
+    const editor = document.getElementById('note-editor');
+    if (editor && editor.getAttribute('data-zen') === 'true') {
+        toggleZenMode();
+    }
+}
 
         function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const el = document.getElementById(`note-${id}`); if(el) { el.classList.add('item-leave'); setTimeout(() => el.remove(), 300); } showToast("Nota eliminada", "fa-trash"); }
         

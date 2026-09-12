@@ -3915,6 +3915,12 @@
                         <span>Excel</span>
                     </button>
 
+                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
+                        <i class="fa-solid fa-file-import text-blue-500"></i>
+                        <span>Importar</span>
+                    </button>
+                    <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
+
                     <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
@@ -4293,9 +4299,28 @@
             showPdfModal(doc.output('blob'), fileName, title);
         }
 
-        // --- EXPORTACIÓN A EXCEL (.xlsx) — editable en Excel y Google Sheets ---
-        // Genera un libro con 2 hojas: el estado actual del inventario y el
-        // historial completo de ventas con fecha, cantidad y precio de cada una.
+        // --- EXPORTACIÓN / IMPORTACIÓN A EXCEL (.xlsx) — editable en Excel y Google Sheets ---
+        // Los nombres de columna se comparten entre exportar e importar para que
+        // ambos lados siempre lean/escriban exactamente lo mismo.
+        const INV_XLSX_HEADERS = {
+            id: 'ID (no editar)',
+            sku: 'SKU',
+            product: 'Producto',
+            category: 'Categoría',
+            qty: 'Stock Actual',
+            minQty: 'Stock Mínimo',
+            price: 'Costo Neto',
+            priceGross: 'Costo c/IVA (calculado)',
+            salePrice: 'Precio Venta Neto',
+            salePriceGross: 'Precio Venta c/IVA (calculado)',
+            margin: 'Margen % (calculado)',
+            soldQty: 'Unidades Vendidas (calculado)',
+            lastSale: 'Última Venta (calculado)',
+            profit: 'Ganancia Total (calculado)'
+        };
+
+        // Genera un libro con 3 hojas: el estado actual del inventario (editable y
+        // re-importable), el historial completo de ventas con fecha, y una guía rápida.
         function exportInventoryToExcel() {
             if (state.inventoryList.length === 0) {
                 showToast("El inventario está vacío", "fa-triangle-exclamation"); return;
@@ -4306,6 +4331,7 @@
             }
             showToast("Generando Excel...", "fa-spinner fa-spin");
             try {
+                const H = INV_XLSX_HEADERS;
                 const inventoryRows = getSortedInventoryList().map(item => {
                     const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
                     const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
@@ -4313,19 +4339,20 @@
                     const margin = salePriceGross > 0 ? Math.round(((salePriceGross - priceGross) / salePriceGross) * 100) : 0;
                     const profit = Math.round(soldQty * (salePriceGross - priceGross));
                     return {
-                        'SKU': item.sku || 'N/A',
-                        'Producto': item.product,
-                        'Categoría': item.category || 'Sin categoría',
-                        'Stock Actual': parseFloat(item.qty) || 0,
-                        'Stock Mínimo': parseFloat(item.minQty) || 0,
-                        'Costo Neto': Math.round(parseFloat(item.price) || 0),
-                        'Costo c/IVA': priceGross,
-                        'Precio Venta Neto': Math.round(parseFloat(item.salePrice) || 0),
-                        'Precio Venta c/IVA': salePriceGross,
-                        'Margen %': margin,
-                        'Unidades Vendidas': soldQty,
-                        'Última Venta': getLastSaleLabel(item),
-                        'Ganancia Total': profit
+                        [H.id]: item.id,
+                        [H.sku]: item.sku || 'N/A',
+                        [H.product]: item.product,
+                        [H.category]: item.category || 'Sin categoría',
+                        [H.qty]: parseFloat(item.qty) || 0,
+                        [H.minQty]: parseFloat(item.minQty) || 0,
+                        [H.price]: Math.round(parseFloat(item.price) || 0),
+                        [H.priceGross]: priceGross,
+                        [H.salePrice]: Math.round(parseFloat(item.salePrice) || 0),
+                        [H.salePriceGross]: salePriceGross,
+                        [H.margin]: margin,
+                        [H.soldQty]: soldQty,
+                        [H.lastSale]: getLastSaleLabel(item),
+                        [H.profit]: profit
                     };
                 });
 
@@ -4352,6 +4379,16 @@
                 const wsSales = XLSX.utils.json_to_sheet(wsSalesData);
                 XLSX.utils.book_append_sheet(wb, wsSales, 'Historial de Ventas');
 
+                const instructionsRows = [
+                    { 'Cómo editar este archivo': 'Puedes cambiar SKU, Producto, Categoría, Stock Actual, Stock Mínimo, Costo Neto y Precio Venta Neto en la hoja "Inventario".' },
+                    { 'Cómo editar este archivo': 'Las columnas que dicen "(calculado)" y la de ID no debes editarlas: la app las vuelve a calcular sola.' },
+                    { 'Cómo editar este archivo': 'Para AGREGAR un producto nuevo: escribe una fila nueva y deja vacía la columna ID (no editar).' },
+                    { 'Cómo editar este archivo': 'Si BORRAS una fila aquí, ese producto NO se elimina en la app (bórralo ahí manualmente si quieres).' },
+                    { 'Cómo editar este archivo': 'Luego ve a Bodega Central > Importar y sube este mismo archivo ya editado.' }
+                ];
+                const wsInstructions = XLSX.utils.json_to_sheet(instructionsRows);
+                XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instrucciones');
+
                 const safeShopName = (state.appTitle || 'Mecamonico').replace(/[^a-zA-Z0-9]/g, '_');
                 const fileName = `Inventario_${safeShopName}_${new Date().toISOString().slice(0,10)}.xlsx`;
                 XLSX.writeFile(wb, fileName);
@@ -4360,6 +4397,93 @@
                 console.error(e);
                 showToast("Error al generar el Excel", "fa-bug");
             }
+        }
+
+        function triggerInventoryImport() {
+            const input = document.getElementById('inventory-import-file');
+            if (input) input.click();
+        }
+
+        // Lee el Excel exportado (ya editado por el usuario) y arma un resumen de
+        // cambios: actualiza productos existentes por su ID interno y agrega como
+        // nuevos los que no tengan ID (filas nuevas escritas a mano en la planilla).
+        // No aplica nada hasta que el usuario confirma el resumen.
+        async function handleInventoryImportFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (typeof XLSX === 'undefined') {
+                showToast("No se pudo cargar el motor de Excel (revisa tu conexión)", "fa-triangle-exclamation");
+                input.value = '';
+                return;
+            }
+
+            try {
+                showToast("Leyendo Excel...", "fa-spinner fa-spin");
+                const buffer = await file.arrayBuffer();
+                const wb = XLSX.read(buffer, { type: 'array' });
+                const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('inventario')) || wb.SheetNames[0];
+                const sheet = wb.Sheets[sheetName];
+                if (!sheet) throw new Error('Sin hoja de inventario');
+
+                const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                const H = INV_XLSX_HEADERS;
+
+                const plannedUpdates = [];   // { item, data }
+                const plannedAdditions = []; // data
+
+                rows.forEach(row => {
+                    const product = String(row[H.product] || '').trim();
+                    if (!product) return; // fila vacía o sin nombre: se ignora
+
+                    const rawId = row[H.id];
+                    const id = (rawId !== undefined && rawId !== '') ? parseFloat(rawId) : null;
+                    const data = {
+                        sku: String(row[H.sku] || '').trim() || 'N/A',
+                        product: product,
+                        category: String(row[H.category] || 'Sin categoría').trim(),
+                        qty: parseFloat(row[H.qty]) || 0,
+                        minQty: parseFloat(row[H.minQty]) || 0,
+                        price: parseFloat(row[H.price]) || 0,
+                        salePrice: parseFloat(row[H.salePrice]) || 0
+                    };
+
+                    const existing = id !== null ? state.inventoryList.find(i => i.id === id) : null;
+                    if (existing) plannedUpdates.push({ item: existing, data });
+                    else plannedAdditions.push(data);
+                });
+
+                if (plannedUpdates.length === 0 && plannedAdditions.length === 0) {
+                    showToast("El archivo no tenía filas para importar", "fa-triangle-exclamation");
+                    input.value = '';
+                    return;
+                }
+
+                showConfirmModal(
+                    "¿Importar cambios del Excel?",
+                    `Se actualizarán ${plannedUpdates.length} producto(s) existente(s) y se agregarán ${plannedAdditions.length} producto(s) nuevo(s). Los productos que hayas borrado en el Excel NO se eliminarán aquí.`,
+                    "Importar",
+                    function() {
+                        plannedUpdates.forEach(({ item, data }) => Object.assign(item, data));
+                        plannedAdditions.forEach(data => {
+                            state.inventoryList.push({
+                                id: Date.now() + Math.random(),
+                                sku: data.sku, product: data.product, category: data.category,
+                                qty: data.qty, minQty: data.minQty, price: data.price, salePrice: data.salePrice,
+                                soldQty: 0, salesLog: [], image: null, extraData: null
+                            });
+                        });
+                        saveData();
+                        closeConfirmModal();
+                        if (state.view === 'shopping_list') renderView('shopping_list');
+                        showToast("Inventario actualizado desde Excel", "fa-check-double");
+                    }
+                );
+            } catch (e) {
+                console.error(e);
+                showToast("Error al leer el archivo. ¿Es un Excel exportado desde aquí?", "fa-bug");
+            }
+            input.value = '';
         }
 
         async function downloadWorkOrderPDF(patientId) {

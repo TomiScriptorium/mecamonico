@@ -1351,6 +1351,35 @@
             if (supabaseClient) {
                 try { await checkUserSession(); } catch (err) {}
             }
+
+            // 5. Correcciones únicas de datos antiguos (ya con los datos definitivos cargados)
+            try { migrateGtxBrandFromProductNames(); } catch (err) { console.error(err); }
+        }
+
+        // --- MIGRACIÓN ÚNICA: separar el prefijo "GTX" del nombre de las pastillas de freno ---
+        // Pasa "GTX" al campo Marca y lo saca del nombre del producto. Se marca con
+        // state.migratedGtxBrand para que corra una sola vez y no afecte a futuros
+        // productos que legítimamente se llamen "GTX algo".
+        function migrateGtxBrandFromProductNames() {
+            if (state.migratedGtxBrand) return;
+            let changed = false;
+            (state.inventoryList || []).forEach(item => {
+                const name = (item.product || '').trim();
+                if (item.category === 'Pastillas de freno' && /^gtx\b/i.test(name)) {
+                    const cleaned = name.replace(/^gtx[\s\-:,.]*/i, '').trim();
+                    if (cleaned) {
+                        item.product = cleaned;
+                        if (!item.brand) item.brand = 'GTX';
+                        changed = true;
+                    }
+                }
+            });
+            state.migratedGtxBrand = true;
+            if (changed) {
+                saveData();
+                if (state.view === 'shopping_list') renderView('shopping_list');
+                showToast("Nombres de pastillas GTX corregidos", "fa-broom");
+            }
         }
 
         async function loadData() {

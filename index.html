@@ -154,7 +154,19 @@
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
+
+        /* Quita las flechas nativas (feas e inconsistentes entre navegadores) de los
+           campos numéricos, para un look más limpio tipo hoja de cálculo */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
         /* --- CLASES DE TRANSICIÓN PARA FLUIDEZ GENERAL --- */
         .fade-enter { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         .fade-leave { animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }

@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
+         Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
+         pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -1235,6 +1239,23 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // Escapa texto para insertarlo dentro de un string JS de un solo comillado
+        // (ej: dentro de onclick="fn('...')"), evitando además el escape de atributo HTML.
+        function escapeJsAttr(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+        }
+
+        // --- SEGURIDAD: Solo permitimos esquemas http/https en enlaces guardados ---
+        // (evita ejecución de "javascript:" si un backup importado trae datos manipulados)
+        function sanitizeUrl(url) {
+            try {
+                const u = new URL(String(url), window.location.href);
+                if (u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+            } catch (e) {}
+            return '#';
+        }
+
         // --- INICIALIZACIÓN DE SUPABASE ---
         const _supabaseUrl = 'https://hvzzgymodvfspdkauvjq.supabase.co'; 
         const _supabaseKey = 'sb_publishable_u8c_NoMZ0ftdyBbNnlo4Cw_jnrdxeP1';
@@ -1334,8 +1355,8 @@
                     if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'];
                     
                     if (!saved.shoppingList) saved.shoppingList = [];
-                    if (!saved.predefinedServices) saved.predefinedServices = [];
                     else saved.shoppingList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
+                    if (!saved.predefinedServices) saved.predefinedServices = [];
 
                     if (!saved.shopAddress) saved.shopAddress = '';
                     if (!saved.shopTitle) saved.shopTitle = 'Lista de Compras';
@@ -1528,14 +1549,14 @@
             const modal = document.getElementById('pdf-reader-modal'); const title = document.getElementById('pdf-reader-title'); const loader = document.getElementById('pdf-loader');
             const oldCanvas = document.getElementById('the-canvas');
             if(oldCanvas) { const ctx = oldCanvas.getContext('2d'); ctx.clearRect(0, 0, oldCanvas.width, oldCanvas.height); oldCanvas.style.width = '100%'; }
-            title.innerHTML = `<i class="fa-solid fa-file-pdf mr-2 text-white"></i> <span class="truncate">${pdf.title}</span>`;
+            title.innerHTML = `<i class="fa-solid fa-file-pdf mr-2 text-white"></i> <span class="truncate">${escapeHtml(pdf.title)}</span>`;
             loader.classList.remove('hidden'); modal.classList.remove('hidden'); modal.focus(); currentZoom = 1.0; 
             try { const loadingTask = pdfjsLib.getDocument(pdf.data); pdfDoc = await loadingTask.promise; document.getElementById('pdf-page-count').textContent = pdfDoc.numPages; pageNum = 1; renderPage(pageNum); } catch (error) { console.error(error); showToast("Error al abrir PDF", "fa-bug"); closePdfReader(); }
         }
         function closePdfReader() { document.getElementById('pdf-reader-modal').classList.add('hidden'); if(renderTask) { renderTask.cancel(); renderTask = null; } pdfDoc = null; pageNum = 1; pageRendering = false; pageNumPending = null; }
 
         function showToast(msg, icon = 'fa-info-circle') { const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; toast.querySelector('div').innerHTML = `<i class="fa-solid ${icon}"></i>`; toast.classList.remove('opacity-0', 'translate-y-4'); toast.classList.add('translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); toast.classList.remove('translate-y-0'); }, 3000); }
-        async function updateProfileImage(input) { if (input.files && input.files[0]) { try { const base64 = await processImage(input.files[0]); state.userProfileImage = base64; state.userProfileImage = base64; saveData(); renderView('dashboard'); showToast("Foto actualizada", "fa-camera"); } catch (e) { showToast("Error al procesar imagen", "fa-triangle-exclamation"); } } }
+        async function updateProfileImage(input) { if (input.files && input.files[0]) { try { const base64 = await processImage(input.files[0]); state.userProfileImage = base64; saveData(); renderView('dashboard'); showToast("Foto actualizada", "fa-camera"); } catch (e) { showToast("Error al procesar imagen", "fa-triangle-exclamation"); } } }
         
         function openNameModal() { document.getElementById('new-user-name').value = state.userName || ''; document.body.classList.add('modal-open'); document.getElementById('name-modal').classList.remove('hidden'); document.getElementById('new-user-name').focus(); }
         function closeNameModal() { document.body.classList.remove('modal-open'); document.getElementById('name-modal').classList.add('hidden'); }
@@ -1681,14 +1702,14 @@
                 <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
             </div><div class="mb-4 relative"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="info-search" placeholder="Buscar manual o recurso..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInfo(this.value)"></div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
         }
-        function createPdfHTML(pdf) { 
-            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${pdf.title}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
+        function createPdfHTML(pdf) {
+            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${escapeHtml(pdf.title)}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
             <button onclick="event.stopPropagation(); renamePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
             <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
             <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; 
         }
         
-        function createLinkHTML(link) { const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${favicon}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${link.url}" target="_blank" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${link.title}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${link.url}</div></a>
+        function createLinkHTML(link) { const safeUrl = sanitizeUrl(link.url); const favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(safeUrl)}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${escapeHtml(favicon)}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${escapeHtml(link.title)}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${escapeHtml(link.url)}</div></a>
         <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
         <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
         
@@ -1971,14 +1992,14 @@
                     else if (ev.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-100 dark:bg-yellow-900/30'; }
                     else if (ev.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-100 dark:bg-green-900/30'; }
 
-                    let clientInfo = ev.client ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-2 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-user mr-1 text-neutral-400"></i> ${ev.client}</span>` : '';
-                    let plateInfo = ev.plate ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-1 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag mr-1 text-neutral-400"></i> ${ev.plate}</span>` : '';
+                    let clientInfo = ev.client ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-2 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-user mr-1 text-neutral-400"></i> ${escapeHtml(ev.client)}</span>` : '';
+                    let plateInfo = ev.plate ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-1 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag mr-1 text-neutral-400"></i> ${escapeHtml(ev.plate)}</span>` : '';
                     let timeInfo = ev.eventTime ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${ev.eventTime} hrs</p>` : '<p class="text-xs font-bold text-neutral-400 mt-1">Sin horario definido</p>';
 
                     return `<div class="flex items-center gap-3 bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-2 hover:border-neutral-300 transition cursor-pointer" onclick="renderView('turnario')">
                             <div class="w-10 h-10 rounded-xl ${bg} ${color} flex items-center justify-center shrink-0 shadow-inner"><i class="fa-solid ${icon} text-lg"></i></div>
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-y-1"><p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate mr-1">${ev.note || 'Evento agendado'}</p>${plateInfo} ${clientInfo}</div>
+                                <div class="flex items-center flex-wrap gap-y-1"><p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate mr-1">${escapeHtml(ev.note || 'Evento agendado')}</p>${plateInfo} ${clientInfo}</div>
                                 ${timeInfo}
                             </div>
                         </div>`;
@@ -2089,7 +2110,7 @@
                 
                 <div class="flex items-center flex-1 min-w-0 bg-transparent ${t.done ? 'text-neutral-400 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'} hover:bg-neutral-50 dark:hover:bg-neutral-800/30 rounded px-1 transition">
                     ${icon}
-                    <input type="text" id="txt-ptask-${t.id}" value="${t.text.replace(/"/g, '&quot;')}" onchange="updatePatientTask(${patientId}, ${t.id}, 'text', this.value)" class="text-sm bg-transparent outline-none w-full truncate" placeholder="Descripción...">
+                    <input type="text" id="txt-ptask-${t.id}" value="${escapeHtml(t.text)}" onchange="updatePatientTask(${patientId}, ${t.id}, 'text', this.value)" class="text-sm bg-transparent outline-none w-full truncate" placeholder="Descripción...">
                 </div>
                 
                 <div class="flex items-center shrink-0 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 rounded px-1 transition">
@@ -2671,8 +2692,8 @@
                     else if (shift.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; typeName = 'Estudio / Teoría'; }
                     else if (shift.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-50 dark:bg-green-900/20'; typeName = 'Vehículo Agendado'; }
 
-                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-[10px] mr-1 opacity-50"></i>${shift.plate}</span>` : '';
-                    let clientHtml = shift.client ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-1.5"><i class="fa-solid fa-user text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.client}</p>` : '';
+                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-[10px] mr-1 opacity-50"></i>${escapeHtml(shift.plate)}</span>` : '';
+                    let clientHtml = shift.client ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-1.5"><i class="fa-solid fa-user text-xs mr-2 opacity-50 text-neutral-400"></i> ${escapeHtml(shift.client)}</p>` : '';
                     let timeHtml = shift.eventTime ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3"><i class="fa-regular fa-clock text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.eventTime} hrs</p>` : '';
 
                     const eventIdParam = shift.id ? `'${shift.id}'` : index;
@@ -2698,7 +2719,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-0.5">${typeName}</p>
-                                    <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 leading-tight truncate">${shift.note || 'Sin motivo'}</h4>
+                                    <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 leading-tight truncate">${escapeHtml(shift.note || 'Sin motivo')}</h4>
                                 </div>
                             </div>
                             <div class="pl-2 border-l-2 border-neutral-100 dark:border-neutral-800 ml-5">
@@ -4425,7 +4446,7 @@
             });
 
             if (results.length === 0) {
-                resultsContainer.innerHTML = `<div class="p-5 text-sm font-bold text-neutral-400 dark:text-neutral-500 text-center"><i class="fa-solid fa-magnifying-glass-minus mb-2 text-2xl opacity-50 block"></i> No hay resultados para "${query}"</div>`;
+                resultsContainer.innerHTML = `<div class="p-5 text-sm font-bold text-neutral-400 dark:text-neutral-500 text-center"><i class="fa-solid fa-magnifying-glass-minus mb-2 text-2xl opacity-50 block"></i> No hay resultados para "${escapeHtml(query)}"</div>`;
             } else {
                 window.globalSearchActions = results.slice(0, 15); // Limitar a 15 resultados para no saturar
                 resultsContainer.innerHTML = window.globalSearchActions.map((r, idx) => `
@@ -4433,10 +4454,10 @@
                         <div class="w-10 h-10 rounded-lg ${r.bg} flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid ${r.icon} ${r.color} text-lg"></i></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-baseline mb-0.5">
-                                <p class="text-[9px] font-black uppercase tracking-wider ${r.color} opacity-90">${r.type}</p>
+                                <p class="text-[9px] font-black uppercase tracking-wider ${r.color} opacity-90">${escapeHtml(r.type)}</p>
                             </div>
-                            <p class="text-sm font-bold truncate leading-tight">${r.title}</p>
-                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">${r.desc}</p>
+                            <p class="text-sm font-bold truncate leading-tight">${escapeHtml(r.title)}</p>
+                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">${escapeHtml(r.desc)}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right text-neutral-300 dark:text-neutral-600 text-xs shrink-0"></i>
                     </div>
@@ -4940,8 +4961,8 @@
                 listContainer.innerHTML = vendidos.map(item => `
                     <div class="flex justify-between items-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded shadow-sm hover:shadow-md transition">
                         <div class="min-w-0 flex-1 pr-4">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 truncate text-sm">${item.product}</h4>
-                            <p class="text-[10px] text-neutral-500 font-mono mt-0.5"><i class="fa-solid fa-barcode mr-1"></i>${item.sku || 'N/A'}</p>
+                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 truncate text-sm">${escapeHtml(item.product)}</h4>
+                            <p class="text-[10px] text-neutral-500 font-mono mt-0.5"><i class="fa-solid fa-barcode mr-1"></i>${escapeHtml(item.sku || 'N/A')}</p>
                         </div>
                         <div class="text-right shrink-0">
                             <p class="text-sm font-black text-neutral-800 dark:text-neutral-200">${item.soldQty} <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Vendidos</span></p>
@@ -5247,7 +5268,7 @@
                 return `
                 <div class="flex justify-between items-center bg-white dark:bg-neutral-800 p-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition">
                     <div class="flex-1 min-w-0 pr-2">
-                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 block truncate"><i class="fa-solid fa-wrench text-[10px] text-neutral-400 mr-2"></i>${s.name}</span>
+                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 block truncate"><i class="fa-solid fa-wrench text-[10px] text-neutral-400 mr-2"></i>${escapeHtml(s.name)}</span>
                         <span class="text-[9px] text-neutral-400 font-mono block ml-5" title="Este valor irá a la O.T.">Neto a Orden: $${netPrice.toLocaleString('es-CL')}</span>
                     </div>
                     <span class="text-sm font-black text-red-600 dark:text-red-400 w-24 text-right pr-4" title="Precio Final con IVA">$${s.price.toLocaleString('es-CL')}</span>
@@ -5312,8 +5333,8 @@
             container.innerHTML = matches.slice(0, 15).map(s => {
                 if (s.type === 'service') {
                     return `
-                    <div class="px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" onmousedown="selectServiceSuggestion(${patientId}, '${s.name.replace(/'/g, "\\'")}', ${s.price}, null)">
-                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate pr-2"><i class="fa-solid fa-wrench text-[10px] text-blue-500 mr-2 opacity-70"></i>${s.name}</span>
+                    <div class="px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" onmousedown="selectServiceSuggestion(${patientId}, '${escapeJsAttr(s.name)}', ${s.price}, null)">
+                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate pr-2"><i class="fa-solid fa-wrench text-[10px] text-blue-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}</span>
                         <div class="text-right">
                             <span class="text-sm font-black text-blue-600 dark:text-blue-400">$${s.price.toLocaleString('es-CL')}</span>
                             <p class="text-[9px] text-neutral-400 font-bold leading-none mt-0.5">IVA INCLUIDO</p>
@@ -5324,15 +5345,15 @@
                     const stockColor = isOutOfStock ? 'text-red-500' : 'text-green-600';
                     const stockText = isOutOfStock ? 'Agotado' : `Stock: ${s.qty}`;
                     const pointerClass = isOutOfStock ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/30';
-                    const clickAction = isOutOfStock ? '' : `onmousedown="selectServiceSuggestion(${patientId}, '${s.name.replace(/'/g, "\\'")}', ${s.price}, ${s.id})"`;
-                    
+                    const clickAction = isOutOfStock ? '' : `onmousedown="selectServiceSuggestion(${patientId}, '${escapeJsAttr(s.name)}', ${s.price}, ${s.id})"`;
+
                     // Mostramos el precio con IVA también para los repuestos de bodega
                     const grossPrice = Math.round(s.price * 1.19);
 
                     return `
                     <div class="px-4 py-2.5 ${pointerClass} flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" ${clickAction}>
                         <div class="flex-1 min-w-0 pr-2 leading-tight">
-                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-[10px] text-green-500 mr-2 opacity-70"></i>${s.name}</span>
+                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-[10px] text-green-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}</span>
                             <span class="text-[9px] font-bold ${stockColor} uppercase tracking-wider ml-5">${stockText}</span>
                         </div>
                         <div class="text-right">
@@ -5570,9 +5591,9 @@
                         <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Dimensiones (L x A)</span>
                             <div class="flex items-center gap-1 mt-auto">
-                                <input type="number" onchange="updateItemExtraData(${item.id}, 'len', this.value)" value="${d.len || ''}" placeholder="L" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
+                                <input type="number" onchange="updateItemExtraData(${item.id}, 'len', this.value)" value="${escapeHtml(d.len || '')}" placeholder="L" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
                                 <span class="text-xs text-neutral-400">x</span>
-                                <input type="number" onchange="updateItemExtraData(${item.id}, 'hgt', this.value)" value="${d.hgt || ''}" placeholder="A" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
+                                <input type="number" onchange="updateItemExtraData(${item.id}, 'hgt', this.value)" value="${escapeHtml(d.hgt || '')}" placeholder="A" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
                             </div>
                         </div>
                     </div>

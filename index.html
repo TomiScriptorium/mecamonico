@@ -1007,6 +1007,10 @@
                         <option value="Otros">Otros</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Útil cuando tienes el mismo repuesto en varias marcas">Marca</label>
+                    <input type="text" id="new-inv-brand" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Bosch, GTX, Fric...">
+                </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Stock</label>
@@ -1383,7 +1387,7 @@
                     else saved.serviceList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
 
                     if (!saved.inventoryList) saved.inventoryList = [];
-                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; });
+                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; });
 
                     if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
@@ -3385,7 +3389,7 @@
 
         // Fila de "tabla vacía" reutilizada por las 3 vistas del inventario (10 columnas)
         function getEmptyInventoryRowHTML() {
-            return `<tr id="empty-inventory-msg"><td colspan="10" class="text-center py-16 opacity-60"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-400">Bodega Vacía</p><p class="text-sm font-bold text-neutral-400 mt-1">Aún no hay repuestos ni insumos registrados.</p></td></tr>`;
+            return `<tr id="empty-inventory-msg"><td colspan="11" class="text-center py-16 opacity-60"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-400">Bodega Vacía</p><p class="text-sm font-bold text-neutral-400 mt-1">Aún no hay repuestos ni insumos registrados.</p></td></tr>`;
         }
 
         // Fecha de la venta más reciente registrada para un ítem (o aviso si es histórico sin fecha)
@@ -3468,6 +3472,9 @@
                     <td class="p-1.5 sm:p-2 align-middle min-w-[170px]">
                         <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-sm leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
                         ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="mt-1 text-[9px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95"><i class="fa-solid fa-circle-info mr-1"></i>Ficha técnica</button>` : ''}
+                    </td>
+                    <td class="p-1.5 sm:p-2 align-middle min-w-[100px]">
+                        <input type="text" value="${escapeHtml(item.brand || '')}" oninput="updateInventoryItem(${item.id}, 'brand', this.value)" class="brand-input w-full bg-transparent outline-none font-bold text-neutral-600 dark:text-neutral-300 text-xs leading-tight ${pointerClass}" placeholder="Sin marca" ${readOnlyAttr}>
                     </td>
                     <td class="p-1.5 sm:p-2 align-middle text-center">
                         <div class="status-badge-container flex justify-center mb-1">${badgeHTML}</div>
@@ -3610,7 +3617,8 @@
                 modal = document.getElementById('item-sales-modal');
             }
 
-            document.getElementById('item-sales-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Ventas: ${escapeHtml(item.product)}`;
+            const brandSuffix = item.brand ? ` (${escapeHtml(item.brand)})` : '';
+            document.getElementById('item-sales-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Ventas: ${escapeHtml(item.product)}${brandSuffix}`;
             document.getElementById('item-sales-content').innerHTML = rowsHtml;
             document.body.classList.add('modal-open');
             modal.classList.remove('hidden');
@@ -3693,6 +3701,7 @@
             const skuInput = document.getElementById('new-inv-sku');
             const prodInput = document.getElementById('new-inv-product');
             const catInput = document.getElementById('new-inv-category');
+            const brandInput = document.getElementById('new-inv-brand');
             const qtyInput = document.getElementById('new-inv-qty');
             const minInput = document.getElementById('new-inv-min');
             const priceInput = document.getElementById('new-inv-price');
@@ -3701,6 +3710,7 @@
             const sku = skuInput.value.trim() || 'N/A';
             const product = prodInput.value.trim();
             const category = catInput.value;
+            const brand = brandInput ? brandInput.value.trim() : '';
             const qty = parseFloat(qtyInput.value) || 0;
             const minQty = parseFloat(minInput.value) || 0;
             
@@ -3734,6 +3744,7 @@
                 sku: sku,
                 product: product,
                 category: category,
+                brand: brand,
                 price: price,
                 salePrice: salePrice, // <--- AQUÍ ESTABA EL BUG (Faltaba esta línea)
                 qty: qty,
@@ -3757,7 +3768,7 @@
             updateInventoryTotal();
             
             // Limpiar inputs
-            skuInput.value = ''; prodInput.value = ''; qtyInput.value = ''; priceInput.value = ''; salePriceInput.value = '';
+            skuInput.value = ''; prodInput.value = ''; if(brandInput) brandInput.value = ''; qtyInput.value = ''; priceInput.value = ''; salePriceInput.value = '';
             document.getElementById('new-inv-brake-len').value = '';
             document.getElementById('new-inv-brake-hgt').value = '';
             document.getElementById('new-inv-brake-mod').value = '';
@@ -3833,6 +3844,7 @@
             const getVal = (item) => {
                 switch (field) {
                     case 'product': return (item.product || '').toLowerCase();
+                    case 'brand': return (item.brand || '').toLowerCase();
                     case 'sku': return (item.sku || '').toLowerCase();
                     case 'qty': return parseFloat(item.qty) || 0;
                     case 'priceGross': return Math.round((parseFloat(item.price) || 0) * 1.19);
@@ -3976,6 +3988,7 @@
                         <tr>
                             ${getInvSortTh('SKU / Categoría', 'sku')}
                             ${getInvSortTh('Producto', 'product')}
+                            ${getInvSortTh('Marca', 'brand')}
                             ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}
                             ${getInvSortTh('Costo +IVA', 'priceGross', 'text-right')}
                             ${getInvSortTh('Venta +IVA', 'salePriceGross', 'text-right')}
@@ -4045,6 +4058,8 @@
          // Limpiar campos generales
          document.getElementById('new-inv-sku').value = '';
          document.getElementById('new-inv-product').value = '';
+         const brandInputReset = document.getElementById('new-inv-brand');
+         if (brandInputReset) brandInputReset.value = '';
          document.getElementById('new-inv-qty').value = '';
          document.getElementById('new-inv-min').value = '';
          document.getElementById('new-inv-price').value = '';
@@ -4318,6 +4333,7 @@
             id: 'ID (no editar)',
             sku: 'SKU',
             product: 'Producto',
+            brand: 'Marca',
             category: 'Categoría',
             qty: 'Stock Actual',
             minQty: 'Stock Mínimo',
@@ -4344,7 +4360,17 @@
             showToast("Generando Excel...", "fa-spinner fa-spin");
             try {
                 const H = INV_XLSX_HEADERS;
-                const inventoryRows = getSortedInventoryList().map(item => {
+                // Se ordena por Categoría > Marca > Producto para que el archivo quede
+                // agrupado y prolijo (útil cuando hay el mismo repuesto en varias marcas),
+                // sin depender de cómo esté ordenada la tabla en pantalla.
+                const exportList = state.inventoryList.slice().sort((a, b) => {
+                    const catA = (a.category || '').toLowerCase(), catB = (b.category || '').toLowerCase();
+                    if (catA !== catB) return catA.localeCompare(catB);
+                    const brandA = (a.brand || '').toLowerCase(), brandB = (b.brand || '').toLowerCase();
+                    if (brandA !== brandB) return brandA.localeCompare(brandB);
+                    return (a.product || '').toLowerCase().localeCompare((b.product || '').toLowerCase());
+                });
+                const inventoryRows = exportList.map(item => {
                     const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
                     const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                     const soldQty = parseFloat(item.soldQty) || 0;
@@ -4354,6 +4380,7 @@
                         [H.id]: item.id,
                         [H.sku]: item.sku || 'N/A',
                         [H.product]: item.product,
+                        [H.brand]: item.brand || '',
                         [H.category]: item.category || 'Sin categoría',
                         [H.qty]: parseFloat(item.qty) || 0,
                         [H.minQty]: parseFloat(item.minQty) || 0,
@@ -4375,6 +4402,7 @@
                             'Fecha': s.date,
                             'SKU': item.sku || 'N/A',
                             'Producto': item.product,
+                            'Marca': item.brand || '',
                             'Cantidad': s.qty,
                             'Precio Unitario': s.unitPrice,
                             'Total': s.total
@@ -4387,12 +4415,13 @@
                 const wsInv = XLSX.utils.json_to_sheet(inventoryRows);
                 XLSX.utils.book_append_sheet(wb, wsInv, 'Inventario');
 
-                const wsSalesData = salesRows.length ? salesRows : [{ 'Fecha': 'Sin ventas registradas aún', 'SKU': '', 'Producto': '', 'Cantidad': '', 'Precio Unitario': '', 'Total': '' }];
+                const wsSalesData = salesRows.length ? salesRows : [{ 'Fecha': 'Sin ventas registradas aún', 'SKU': '', 'Producto': '', 'Marca': '', 'Cantidad': '', 'Precio Unitario': '', 'Total': '' }];
                 const wsSales = XLSX.utils.json_to_sheet(wsSalesData);
                 XLSX.utils.book_append_sheet(wb, wsSales, 'Historial de Ventas');
 
                 const instructionsRows = [
-                    { 'Cómo editar este archivo': 'Puedes cambiar SKU, Producto, Categoría, Stock Actual, Stock Mínimo, Costo Neto y Precio Venta Neto en la hoja "Inventario".' },
+                    { 'Cómo editar este archivo': 'Puedes cambiar SKU, Producto, Marca, Categoría, Stock Actual, Stock Mínimo, Costo Neto y Precio Venta Neto en la hoja "Inventario".' },
+                    { 'Cómo editar este archivo': 'La hoja "Inventario" viene ordenada por Categoría, luego Marca y luego Producto, para que sea fácil comparar el mismo repuesto en distintas marcas.' },
                     { 'Cómo editar este archivo': 'Las columnas que dicen "(calculado)" y la de ID no debes editarlas: la app las vuelve a calcular sola.' },
                     { 'Cómo editar este archivo': 'Para AGREGAR un producto nuevo: escribe una fila nueva y deja vacía la columna ID (no editar).' },
                     { 'Cómo editar este archivo': 'Si BORRAS una fila aquí, ese producto NO se elimina en la app (bórralo ahí manualmente si quieres).' },
@@ -4453,6 +4482,7 @@
                     const data = {
                         sku: String(row[H.sku] || '').trim() || 'N/A',
                         product: product,
+                        brand: String(row[H.brand] || '').trim(),
                         category: String(row[H.category] || 'Sin categoría').trim(),
                         qty: parseFloat(row[H.qty]) || 0,
                         minQty: parseFloat(row[H.minQty]) || 0,
@@ -4480,7 +4510,7 @@
                         plannedAdditions.forEach(data => {
                             state.inventoryList.push({
                                 id: Date.now() + Math.random(),
-                                sku: data.sku, product: data.product, category: data.category,
+                                sku: data.sku, product: data.product, brand: data.brand, category: data.category,
                                 qty: data.qty, minQty: data.minQty, price: data.price, salePrice: data.salePrice,
                                 soldQty: 0, salesLog: [], image: null, extraData: null
                             });
@@ -5385,7 +5415,7 @@
                 listContainer.innerHTML = vendidos.map(item => `
                     <div onclick="openItemSalesHistory(${item.id})" class="flex justify-between items-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer" title="Ver historial de ventas">
                         <div class="min-w-0 flex-1 pr-4">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 truncate text-sm">${escapeHtml(item.product)}</h4>
+                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 truncate text-sm">${escapeHtml(item.product)}${item.brand ? ` <span class="text-neutral-400 font-normal">(${escapeHtml(item.brand)})</span>` : ''}</h4>
                             <p class="text-[10px] text-neutral-500 font-mono mt-0.5"><i class="fa-solid fa-barcode mr-1"></i>${escapeHtml(item.sku || 'N/A')}</p>
                             <p class="text-[10px] text-neutral-400 mt-0.5"><i class="fa-regular fa-calendar mr-1"></i>Última venta: ${escapeHtml(getLastSaleLabel(item))}</p>
                         </div>
@@ -5744,8 +5774,8 @@
             // 2. Buscar en Inventario/Bodega
             if (state.inventoryList) {
                 state.inventoryList.forEach(i => {
-                    if(i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term))) {
-                        matches.push({id: i.id, name: i.product, price: i.salePrice, qty: i.qty, type: 'inventory'});
+                    if(i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term)) || (i.brand && i.brand.toLowerCase().includes(term))) {
+                        matches.push({id: i.id, name: i.product, brand: i.brand || '', price: i.salePrice, qty: i.qty, type: 'inventory'});
                     }
                 });
             }
@@ -5770,7 +5800,10 @@
                     const stockColor = isOutOfStock ? 'text-red-500' : 'text-green-600';
                     const stockText = isOutOfStock ? 'Agotado' : `Stock: ${s.qty}`;
                     const pointerClass = isOutOfStock ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/30';
-                    const clickAction = isOutOfStock ? '' : `onmousedown="selectServiceSuggestion(${patientId}, '${escapeJsAttr(s.name)}', ${s.price}, ${s.id})"`;
+                    // Si el repuesto tiene marca registrada, la sumamos al nombre para que quede
+                    // clara en la orden de trabajo cuál marca se usó (útil con varias marcas del mismo repuesto)
+                    const fullName = s.brand ? `${s.name} (${s.brand})` : s.name;
+                    const clickAction = isOutOfStock ? '' : `onmousedown="selectServiceSuggestion(${patientId}, '${escapeJsAttr(fullName)}', ${s.price}, ${s.id})"`;
 
                     // Mostramos el precio con IVA también para los repuestos de bodega
                     const grossPrice = Math.round(s.price * 1.19);
@@ -5778,7 +5811,7 @@
                     return `
                     <div class="px-4 py-2.5 ${pointerClass} flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" ${clickAction}>
                         <div class="flex-1 min-w-0 pr-2 leading-tight">
-                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-[10px] text-green-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}</span>
+                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-[10px] text-green-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}${s.brand ? ` <span class="text-neutral-400 font-normal">(${escapeHtml(s.brand)})</span>` : ''}</span>
                             <span class="text-[9px] font-bold ${stockColor} uppercase tracking-wider ml-5">${stockText}</span>
                         </div>
                         <div class="text-right">

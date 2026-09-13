@@ -6,7 +6,7 @@
     <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
          Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
          pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.mercadolibre.com https://api.allorigins.win https://corsproxy.io; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -4597,15 +4597,14 @@
         }
 
         // ================= MÓDULO MERCADO =================
-        // Compara el precio de venta propio con el precio promedio de Mercado Libre,
-        // buscando por el SKU (código de fábrica, ej. de pastillas GTX/PM/Matsumoto).
-        // AVISO: usa el buscador público de Mercado Libre (api.mercadolibre.com), que
-        // no requiere clave, pero es un servicio de terceros fuera de nuestro control:
-        // si en algún momento bloquea la consulta directa desde el navegador, cada
-        // producto igual ofrece un enlace directo a la búsqueda y un campo para
-        // anotar el precio a mano.
-        const MERCADOLIBRE_SITE = 'MLC'; // Chile
-
+        // Compara el precio de venta propio con el precio de Mercado Libre.
+        // Se intentó consultarlo automáticamente (directo desde el navegador, con
+        // puentes CORS públicos, e incluso con una función propia corriendo en el
+        // servidor de Supabase), pero Mercado Libre bloquea la consulta venga de
+        // donde venga — es una protección anti-bots suya, no algo que dependa de
+        // nuestro código. Por eso el flujo quedó así, simple y siempre funcional:
+        // "Ver en ML" abre la búsqueda ya armada, y "Anotar precio" guarda lo que
+        // el usuario vea a mano para poder comparar.
         function getMercadoLibreSearchUrl(query) {
             return `https://listado.mercadolibre.cl/${encodeURIComponent(query)}`;
         }
@@ -4628,121 +4627,9 @@
             return parts.join(' ').replace(/\s+/g, ' ').trim();
         }
 
-        // Mercado Libre bloquea la consulta directa desde el navegador (protección
-        // anti-bots). Como respaldo, si la conexión directa falla se intenta a través
-        // de "puentes" CORS públicos y gratuitos, que sí pueden hablar con Mercado
-        // Libre y reenviar la respuesta. Son servicios de terceros que no controlamos
-        // (pueden fallar o desaparecer), por eso se prueban dos alternativas distintas
-        // antes de rendirse.
-        const CORS_PROXY_BUILDERS = [
-            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
-        ];
-
-        // Convierte la respuesta cruda de Mercado Libre (o de nuestra función que la
-        // reenvía tal cual) en el resumen {avg, min, max, count} que usa la app.
-        function summarizeMlResponse(data) {
-            if (data && data.error) throw new Error(String(data.error).slice(0, 120));
-            const prices = (data && data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
-            if (prices.length === 0) throw new Error('Sin resultados en la respuesta');
-            const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-            return {
-                avg: Math.round(avg),
-                min: Math.round(Math.min(...prices)),
-                max: Math.round(Math.max(...prices)),
-                count: prices.length
-            };
-        }
-
-        async function fetchMercadoLibrePrices(query) {
-            const targetUrl = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
-
-            // Guardamos el motivo de CADA intento fallido, para poder mostrarlo en la
-            // app y diagnosticar sin tener que abrir las herramientas de desarrollador.
-            const failureLog = [];
-
-            // 1) Función propia en Supabase, invocada con el SDK oficial (maneja solo
-            // la autenticación correcta hacia el proyecto, sea cual sea el formato de
-            // clave que use). Es el camino confiable que evita el bloqueo de Mercado
-            // Libre, ya que la consulta la hace el servidor y no el navegador.
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.functions.invoke('ml-search', { body: { query } });
-                    if (error) throw new Error(error.message || String(error));
-                    return summarizeMlResponse(data);
-                } catch (e) {
-                    failureLog.push(`Función Supabase: ${e.message}`);
-                }
-            } else {
-                failureLog.push('Función Supabase: sin conexión a Supabase (modo local)');
-            }
-
-            // 2) Conexión directa y puentes CORS públicos, por si la función de
-            // Supabase todavía no está lista o falla.
-            const fallbackAttempts = [
-                { label: 'Directo', url: targetUrl },
-                { label: 'Puente 1', url: CORS_PROXY_BUILDERS[0](targetUrl) },
-                { label: 'Puente 2', url: CORS_PROXY_BUILDERS[1](targetUrl) }
-            ];
-            for (const attempt of fallbackAttempts) {
-                try {
-                    const res = await fetch(attempt.url);
-                    if (!res.ok) {
-                        let bodyText = '';
-                        try { bodyText = (await res.text()).slice(0, 120); } catch (e) {}
-                        throw new Error(`HTTP ${res.status}${bodyText ? ' - ' + bodyText : ''}`);
-                    }
-                    const data = await res.json();
-                    return summarizeMlResponse(data);
-                } catch (e) {
-                    failureLog.push(`${attempt.label}: ${e.message}`);
-                }
-            }
-            throw new Error(failureLog.join(' · '));
-        }
-
         function todayDateKey() {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-
-        async function refreshMarketPrice(id, silent) {
-            const item = state.inventoryList.find(i => i.id === id);
-            if (!item || !hasValidSku(item)) return;
-            const query = buildMarketSearchQuery(item);
-
-            const cell = document.getElementById(`market-cell-${id}`);
-            if (cell) cell.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-neutral-400"></i>`;
-
-            try {
-                const result = await fetchMercadoLibrePrices(query);
-                item.marketPrice = { ...result, checkedAt: todayDateKey(), source: 'api', query };
-                if (!silent) showToast("Precio de mercado actualizado", "fa-tags");
-            } catch (e) {
-                console.error(e);
-                item.marketPrice = { avg: null, min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'error', query, detail: e.message || String(e) };
-                if (!silent) showToast("No se pudo consultar: revisa el detalle bajo el producto", "fa-triangle-exclamation");
-            }
-            saveData();
-
-            const freshCell = document.getElementById(`market-cell-${id}`);
-            if (freshCell) freshCell.outerHTML = getMarketCellHTML(item);
-            const diffCell = document.getElementById(`diff-cell-${id}`);
-            if (diffCell) diffCell.outerHTML = getMarketDiffCellHTML(item);
-        }
-
-        async function refreshAllMarketPrices() {
-            const items = state.inventoryList.filter(hasValidSku);
-            if (items.length === 0) {
-                showToast("Ningún producto tiene un SKU válido para buscar", "fa-triangle-exclamation");
-                return;
-            }
-            showToast(`Consultando ${items.length} producto(s) en Mercado Libre...`, "fa-spinner fa-spin");
-            for (const item of items) {
-                await refreshMarketPrice(item.id, true);
-                await new Promise(r => setTimeout(r, 400)); // evita saturar la consulta
-            }
-            showToast("Consulta de mercado terminada", "fa-check-double");
         }
 
         function setManualMarketPrice(id) {
@@ -4774,31 +4661,24 @@
 
             const query = buildMarketSearchQuery(item);
             const mlUrl = getMercadoLibreSearchUrl(query);
-            const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-500 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>Ver en ML</a>`;
+            const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Ver en ML</a>`;
 
             if (!mp || mp.avg === null) {
-                const errorNote = (mp && mp.source === 'error')
-                    ? `<p class="text-[9px] text-red-400 mt-0.5 max-w-[160px] text-center leading-tight" title="${escapeHtml(mp.detail || '')}">${escapeHtml(mp.detail ? (mp.detail.length > 60 ? mp.detail.slice(0, 60) + '…' : mp.detail) : 'Sin resultados automáticos')}</p>`
-                    : '';
                 return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-1">
-                    <button onclick="refreshMarketPrice(${item.id})" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"><i class="fa-solid fa-magnifying-glass-dollar mr-1"></i>Buscar</button>
-                    ${errorNote}
-                    <div class="flex items-center gap-2">${linkBtn}<button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline">Anotar a mano</button></div>
+                    ${linkBtn}
+                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline">Anotar precio</button>
                 </div>`;
             }
 
             const [y, m, d] = mp.checkedAt.split('-');
             const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
-            const rangeTitle = (mp.min && mp.max) ? `Rango visto: $${mp.min.toLocaleString('es-CL')} - $${mp.max.toLocaleString('es-CL')}` : 'Ingresado a mano';
-            const sourceLabel = mp.source === 'manual' ? 'anotado a mano' : `${mp.count} aviso${mp.count === 1 ? '' : 's'}`;
 
-            return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-0.5" title="${escapeHtml(rangeTitle)}">
+            return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-0.5" title="Anotado a mano">
                 <span class="text-sm font-black text-neutral-800 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</span>
-                <span class="text-[9px] text-neutral-400">${escapeHtml(sourceLabel)} · ${dateStr}</span>
+                <span class="text-[9px] text-neutral-400">anotado el ${dateStr}</span>
                 <div class="flex items-center gap-2 mt-0.5">
-                    <button onclick="refreshMarketPrice(${item.id})" class="text-[10px] text-blue-500 hover:underline" title="Volver a consultar"><i class="fa-solid fa-rotate"></i></button>
                     ${linkBtn}
-                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline" title="Corregir a mano"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline" title="Corregir"><i class="fa-solid fa-pen"></i></button>
                 </div>
             </div>`;
         }
@@ -4845,12 +4725,11 @@
             return `<div class="pb-24 fade-enter">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2"><i class="fa-solid fa-tags text-orange-500"></i> Mercado</h2>
-                    <button onclick="refreshAllMarketPrices()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2 active:scale-95"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Todos</button>
                 </div>
 
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
                     <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
-                    <p>Compara tu precio de venta con el precio promedio en Mercado Libre. Requiere que el producto tenga SKU (código de fábrica, ej. de pastillas GTX, PM, Matsumoto), y arma la búsqueda combinando categoría + nombre + SKU + marca para encontrar mejor los avisos. Si la búsqueda automática no encuentra resultados, usa "Ver en ML" para revisarlo tú mismo y "Anotar a mano" para guardar el precio que veas.</p>
+                    <p>Compara tu precio de venta con el precio de Mercado Libre. Requiere que el producto tenga SKU (código de fábrica, ej. de pastillas GTX, PM, Matsumoto). Toca "Ver en ML" para abrir la búsqueda ya armada (categoría + nombre + SKU + marca) y revisar el precio, y "Anotar precio" para guardarlo y ver la diferencia con el tuyo.</p>
                 </div>
 
                 <div class="mb-4 relative">

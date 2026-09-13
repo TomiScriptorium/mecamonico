@@ -1082,6 +1082,61 @@
         </div>
     </div>
 
+    <!-- Modal Recargo Masivo -->
+    <div id="bulk-markup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <button onclick="closeBulkMarkupModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-percent text-orange-500"></i> Recargo Masivo</h3>
+            <p class="text-xs text-neutral-400 mb-5">Aplica un recargo a varios productos a la vez, filtrando por marca y/o categoría.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Marca</label>
+                    <select id="bulk-markup-brand" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Categoría</label>
+                    <select id="bulk-markup-category" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors">
+                        <option value="">Todas las categorías</option>
+                        <option value="Repuestos">Repuestos</option>
+                        <option value="Pastillas de freno">Pastillas de freno</option>
+                        <option value="Insumos">Insumos</option>
+                        <option value="Herramientas">Herramientas</option>
+                        <option value="Fluidos">Fluidos</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Buscar por nombre (opcional)</label>
+                    <input type="text" id="bulk-markup-search" oninput="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors" placeholder="Ej: pastilla, filtro...">
+                </div>
+            </div>
+
+            <div class="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-lg p-4 mb-4">
+                <label class="block text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">¿Qué hacer con el recargo?</label>
+                <div class="flex flex-col gap-2 mb-3">
+                    <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                        <input type="radio" name="bulk-markup-mode" value="set" checked onchange="updateBulkMarkupPreview()"> Dejarlo exactamente en
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                        <input type="radio" name="bulk-markup-mode" value="add" onchange="updateBulkMarkupPreview()"> Sumarle (encima del que ya tenga cada producto)
+                    </label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="bulk-markup-pct" oninput="updateBulkMarkupPreview()" class="w-24 p-2 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-800 rounded text-lg font-black text-center text-orange-600 dark:text-orange-400 outline-none focus:border-orange-500" placeholder="60" min="0">
+                    <span class="text-lg font-black text-orange-500">%</span>
+                </div>
+            </div>
+
+            <p id="bulk-markup-count" class="text-sm font-bold text-neutral-500 dark:text-neutral-400 mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> Elige los filtros para ver cuántos productos se van a afectar.</p>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <button onclick="closeBulkMarkupModal()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
+                <button onclick="applyBulkMarkup()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded shadow-md transition text-sm flex items-center gap-2"><i class="fa-solid fa-check"></i> Aplicar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="shopping-list-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl p-6 border-t-4 border-red-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar flex flex-col">
             <button onclick="closeShoppingModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-20"><i class="fa-solid fa-xmark"></i></button>
@@ -4147,6 +4202,11 @@
                     </button>
                     <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
 
+                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
+                        <i class="fa-solid fa-percent text-orange-500"></i>
+                        <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
+                    </button>
+
                     <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
@@ -4327,6 +4387,112 @@
     function closeAddInventoryModal() {
         document.body.classList.remove('modal-open');
         document.getElementById('add-inventory-modal').classList.add('hidden');
+    }
+
+    // --- RECARGO MASIVO: aplicar un % de recargo a varios productos a la vez,
+    // filtrando por marca, categoría y/o nombre (ej: "todas las de marca PM") ---
+    function openBulkMarkupModal() {
+        const brandSelect = document.getElementById('bulk-markup-brand');
+        const brands = Array.from(new Set(state.inventoryList.map(i => (i.brand || '').trim()).filter(b => b))).sort((a, b) => a.localeCompare(b));
+        brandSelect.innerHTML = '<option value="">Todas las marcas</option>' + brands.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+
+        document.getElementById('bulk-markup-category').value = '';
+        document.getElementById('bulk-markup-search').value = '';
+        document.getElementById('bulk-markup-pct').value = '';
+        const setRadio = document.querySelector('input[name="bulk-markup-mode"][value="set"]');
+        if (setRadio) setRadio.checked = true;
+
+        updateBulkMarkupPreview();
+        document.body.classList.add('modal-open');
+        document.getElementById('bulk-markup-modal').classList.remove('hidden');
+    }
+
+    function closeBulkMarkupModal() {
+        document.body.classList.remove('modal-open');
+        document.getElementById('bulk-markup-modal').classList.add('hidden');
+    }
+
+    function getBulkMarkupMatches() {
+        const brand = document.getElementById('bulk-markup-brand').value;
+        const category = document.getElementById('bulk-markup-category').value;
+        const search = document.getElementById('bulk-markup-search').value.trim().toLowerCase();
+        return state.inventoryList.filter(item => {
+            if (brand && (item.brand || '').trim() !== brand) return false;
+            if (category && item.category !== category) return false;
+            if (search && !(item.product || '').toLowerCase().includes(search)) return false;
+            return true;
+        });
+    }
+
+    function updateBulkMarkupPreview() {
+        const countEl = document.getElementById('bulk-markup-count');
+        const matches = getBulkMarkupMatches();
+        if (matches.length === 0) {
+            countEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Ningún producto coincide con estos filtros.';
+            return;
+        }
+        const pct = parseFloat(document.getElementById('bulk-markup-pct').value);
+        const modeInput = document.querySelector('input[name="bulk-markup-mode"]:checked');
+        const mode = modeInput ? modeInput.value : 'set';
+        let extra = '';
+        if (!isNaN(pct)) {
+            extra = mode === 'set' ? ` — quedarán con un recargo de ${pct}%` : ` — se les sumará ${pct} punto(s) a su recargo actual`;
+        }
+        countEl.innerHTML = `<i class="fa-solid fa-boxes-stacked text-blue-500"></i> ${matches.length} producto(s) coinciden${extra}`;
+    }
+
+    function applyBulkMarkup() {
+        const pct = parseFloat(document.getElementById('bulk-markup-pct').value);
+        if (isNaN(pct) || pct < 0) {
+            showToast("Ingresa un porcentaje de recargo válido", "fa-triangle-exclamation");
+            return;
+        }
+        const modeInput = document.querySelector('input[name="bulk-markup-mode"]:checked');
+        const mode = modeInput ? modeInput.value : 'set';
+        const matches = getBulkMarkupMatches();
+        if (matches.length === 0) {
+            showToast("Ningún producto coincide con esos filtros", "fa-triangle-exclamation");
+            return;
+        }
+
+        const brand = document.getElementById('bulk-markup-brand').value;
+        const category = document.getElementById('bulk-markup-category').value;
+        const search = document.getElementById('bulk-markup-search').value.trim();
+        const filterParts = [];
+        if (brand) filterParts.push(`marca "${brand}"`);
+        if (category) filterParts.push(`categoría "${category}"`);
+        if (search) filterParts.push(`nombre contiene "${search}"`);
+        const filterText = filterParts.length ? ` (${filterParts.join(', ')})` : ' (sin filtros: todo el inventario)';
+        const actionText = mode === 'set'
+            ? `dejará el recargo de cada uno en exactamente ${pct}%`
+            : `le sumará ${pct} punto(s) al recargo que ya tiene cada uno`;
+
+        closeBulkMarkupModal();
+        showConfirmModal(
+            "¿Aplicar recargo masivo?",
+            `Se recalculará el precio de venta de ${matches.length} producto(s)${filterText}. Esta acción ${actionText}.`,
+            "Aplicar",
+            function() {
+                matches.forEach(item => {
+                    const price = parseFloat(item.price) || 0;
+                    const priceGross = Math.round(price * 1.19);
+                    let newMarkupPct;
+                    if (mode === 'set') {
+                        newMarkupPct = pct;
+                    } else {
+                        const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+                        const currentMarkup = priceGross > 0 ? ((salePriceGross - priceGross) / priceGross) * 100 : 0;
+                        newMarkupPct = currentMarkup + pct;
+                    }
+                    const newSalePriceGross = priceGross * (1 + newMarkupPct / 100);
+                    item.salePrice = newSalePriceGross / 1.19;
+                });
+                saveData();
+                closeConfirmModal();
+                if (state.view === 'shopping_list') renderView('shopping_list');
+                showToast(`Recargo actualizado en ${matches.length} producto(s)`, "fa-percent");
+            }
+        );
     }
 
         // --- NUEVO SISTEMA DE RENDERIZADO NATIVO DE PDF ---

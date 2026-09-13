@@ -1,0 +1,54 @@
+name: Compilar APK de Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.json'
+      - 'iconomecamonico.png'
+      - 'capacitor.config.json'
+      - 'android/**'
+      - 'package.json'
+      - '.github/workflows/build-android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Copiar la app web y sincronizar con Android
+        run: npm run cap:sync
+
+      - name: Compilar APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Subir el APK generado
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mecamonico-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 90

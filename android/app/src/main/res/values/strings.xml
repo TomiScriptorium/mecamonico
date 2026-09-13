@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mecamonico</string>
+    <string name="title_activity_main">Mecamonico</string>
+    <string name="package_name">cl.mecamonico.taller</string>
+    <string name="custom_url_scheme">cl.mecamonico.taller</string>
+</resources>

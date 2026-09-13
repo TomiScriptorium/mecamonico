@@ -1,0 +1,9 @@
+{
+  "appId": "cl.mecamonico.taller",
+  "appName": "Mecamonico",
+  "webDir": "www",
+  "backgroundColor": "#171717",
+  "android": {
+    "backgroundColor": "#171717"
+  }
+}

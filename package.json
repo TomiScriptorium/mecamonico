@@ -1,0 +1,25 @@
+{
+  "name": "mecamonico",
+  "version": "1.0.0",
+  "description": "Mecamonico Cloud - App de gestión de taller mecánico",
+  "private": true,
+  "scripts": {
+    "build:www": "node scripts/build-www.js",
+    "cap:sync": "npm run build:www && npx cap sync android"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TomiScriptorium/mecamonico.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TomiScriptorium/mecamonico/issues"
+  },
+  "homepage": "https://github.com/TomiScriptorium/mecamonico#readme",
+  "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  }
+}

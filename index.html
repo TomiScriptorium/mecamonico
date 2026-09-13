@@ -4614,6 +4614,20 @@
             return !!(item.sku && item.sku.trim() && item.sku.trim().toUpperCase() !== 'N/A');
         }
 
+        // El SKU solo (ej. "0690") casi no trae resultados en Mercado Libre, porque
+        // casi nadie publica solo el código: se arma una búsqueda más parecida a como
+        // se publica de verdad, combinando categoría + nombre/modelo + SKU + marca
+        // (ej. "pastillas de freno Toyota Hilux 2016-2020 0690 GTX").
+        function buildMarketSearchQuery(item) {
+            const parts = [];
+            if (item.category === 'Pastillas de freno') parts.push('pastillas de freno');
+            else if (item.category && item.category !== 'Otros') parts.push(item.category);
+            if (item.product) parts.push(item.product.replace(/,/g, ' '));
+            if (hasValidSku(item)) parts.push(item.sku.trim());
+            if (item.brand) parts.push(item.brand);
+            return parts.join(' ').replace(/\s+/g, ' ').trim();
+        }
+
         // Mercado Libre bloquea la consulta directa desde el navegador (protección
         // anti-bots). Como respaldo, si la conexión directa falla se intenta a través
         // de "puentes" CORS públicos y gratuitos, que sí pueden hablar con Mercado
@@ -4659,7 +4673,7 @@
         async function refreshMarketPrice(id, silent) {
             const item = state.inventoryList.find(i => i.id === id);
             if (!item || !hasValidSku(item)) return;
-            const query = item.sku.trim();
+            const query = buildMarketSearchQuery(item);
 
             const cell = document.getElementById(`market-cell-${id}`);
             if (cell) cell.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-neutral-400"></i>`;
@@ -4722,7 +4736,7 @@
                 return `<div id="market-cell-${item.id}" class="text-[10px] text-neutral-400 italic">Agrega un SKU para comparar</div>`;
             }
 
-            const query = item.sku.trim();
+            const query = buildMarketSearchQuery(item);
             const mlUrl = getMercadoLibreSearchUrl(query);
             const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-500 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>Ver en ML</a>`;
 
@@ -4798,7 +4812,7 @@
 
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
                     <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
-                    <p>Compara tu precio de venta con el precio promedio en Mercado Libre, buscando por el SKU (código de fábrica) de cada producto — útil para pastillas GTX, PM, Matsumoto, etc. Si la búsqueda automática no encuentra resultados, usa "Ver en ML" para revisarlo tú mismo y "Anotar a mano" para guardar el precio que veas.</p>
+                    <p>Compara tu precio de venta con el precio promedio en Mercado Libre. Requiere que el producto tenga SKU (código de fábrica, ej. de pastillas GTX, PM, Matsumoto), y arma la búsqueda combinando categoría + nombre + SKU + marca para encontrar mejor los avisos. Si la búsqueda automática no encuentra resultados, usa "Ver en ML" para revisarlo tú mismo y "Anotar a mano" para guardar el precio que veas.</p>
                 </div>
 
                 <div class="mb-4 relative">

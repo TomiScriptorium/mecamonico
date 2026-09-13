@@ -14,6 +14,9 @@ on:
       - 'package.json'
       - '.github/workflows/build-android.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,9 +49,17 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Subir el APK generado
+      - name: Subir el APK generado (artifact del flujo)
         uses: actions/upload-artifact@v4
         with:
           name: Mecamonico-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 90
+
+      - name: Publicar el APK en una Release descargable
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-apk
+          name: "Mecamonico Android (última compilación)"
+          body: "APK generado automáticamente desde el commit ${{ github.sha }}. Esta Release se actualiza sola en cada compilación nueva."
+          files: android/app/build/outputs/apk/debug/app-debug.apk

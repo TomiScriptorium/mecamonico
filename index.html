@@ -3493,7 +3493,7 @@
             const priceGross = Math.round(price * 1.19);
             const salePriceGross = Math.round(salePrice * 1.19);
             const realProfit = Math.round(soldQty * (salePriceGross - priceGross));
-            const margin = salePriceGross > 0 ? Math.round(((salePriceGross - priceGross) / salePriceGross) * 100) : 0;
+            const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
 
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
@@ -3581,7 +3581,7 @@
             const priceGross = Math.round(price * 1.19);
             const salePriceGross = Math.round(salePrice * 1.19);
             const realProfit = Math.round(soldQty * (salePriceGross - priceGross));
-            const margin = salePriceGross > 0 ? Math.round(((salePriceGross - priceGross) / salePriceGross) * 100) : 0;
+            const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
 
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
@@ -3642,7 +3642,7 @@
                         <div class="flex flex-col bg-green-50/50 dark:bg-green-900/10 p-2 rounded-lg border border-green-100/50 dark:border-green-800/30 justify-between">
                             <div class="flex justify-between items-start mb-0.5">
                                 <span class="text-[9px] text-green-600/70 dark:text-green-500/70 font-bold uppercase tracking-wider">Venta c/IVA</span>
-                                <span class="margin-text text-[9px] font-black ${margin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${margin}%</span>
+                                <span class="margin-text text-[9px] font-black ${margin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}" title="Recargo sobre el costo">${margin}%</span>
                             </div>
                             <div class="flex items-center mt-auto">
                                 <span class="text-xs font-bold text-green-600 dark:text-green-400 mr-0.5">$</span>
@@ -3709,7 +3709,7 @@
 
                 const marginEl = container.querySelector('.margin-text');
                 if (marginEl) {
-                    const margin = salePriceGross > 0 ? Math.round(((salePriceGross - priceGross) / salePriceGross) * 100) : 0;
+                    const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
                     marginEl.innerText = `${margin}%`;
                     marginEl.classList.toggle('text-green-600', margin >= 0);
                     marginEl.classList.toggle('dark:text-green-400', margin >= 0);
@@ -4047,7 +4047,7 @@
                     case 'margin': {
                         const pg = Math.round((parseFloat(item.price) || 0) * 1.19);
                         const sg = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-                        return sg > 0 ? (sg - pg) / sg : 0;
+                        return pg > 0 ? (sg - pg) / pg : 0;
                     }
                     case 'soldQty': return parseFloat(item.soldQty) || 0;
                     case 'lastSale': return (item.salesLog && item.salesLog[0]) ? item.salesLog[0].date : '';
@@ -4200,7 +4200,7 @@
                             ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}
                             ${getInvSortTh('Costo +IVA', 'priceGross', 'text-right')}
                             ${getInvSortTh('Venta +IVA', 'salePriceGross', 'text-right')}
-                            ${getInvSortTh('Margen', 'margin', 'text-center')}
+                            ${getInvSortTh('Recargo', 'margin', 'text-center')}
                             ${getInvSortTh('Vendidos', 'soldQty', 'text-center')}
                             ${getInvSortTh('Última Venta', 'lastSale', 'text-center')}
                             ${getInvSortTh('Ganancia', 'profit', 'text-right')}

@@ -604,9 +604,6 @@
             <button onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links">
                 <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span> Información
             </button>
-            <button onclick="renderView('mercado')" class="sb-nav-btn nav-btn" data-target="mercado">
-                <span class="sb-icon"><i class="fa-solid fa-tags"></i></span> Mercado
-            </button>
         </nav>
 
         <!-- Acciones al fondo -->
@@ -727,12 +724,6 @@
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Información</span>
-            </button>
-
-            <button onclick="renderView('mercado')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="mercado">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-tags text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Mercado</span>
             </button>
         </nav>
     </div>
@@ -1137,6 +1128,15 @@
         </div>
     </div>
 
+    <!-- Modal Precio de Mercado (por ítem) -->
+    <div id="market-price-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <button onclick="closeMarketPriceModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-4"><i class="fa-solid fa-tags text-orange-500"></i> Precio de Mercado</h3>
+            <div id="market-price-modal-body"></div>
+        </div>
+    </div>
+
     <div id="shopping-list-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl p-6 border-t-4 border-red-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar flex flex-col">
             <button onclick="closeShoppingModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-20"><i class="fa-solid fa-xmark"></i></button>
@@ -1358,7 +1358,7 @@
             userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false,
             showFinanceWidget: true,
-            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado']
+            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
         };
         let selectedDateKey = null; 
         let tempShiftType = null;
@@ -1466,8 +1466,8 @@
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     if (!saved.appTheme) saved.appTheme = localStorage.getItem('mech_theme') || 'rojo';
                     if (saved.showFinanceWidget === undefined) saved.showFinanceWidget = true;
-                    if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado'];
-                    else if (!saved.visibleModules.includes('mercado')) saved.visibleModules.push('mercado'); // Activa el nuevo módulo para cuentas ya existentes
+                    if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'];
+                    else { const mercadoIdx = saved.visibleModules.indexOf('mercado'); if (mercadoIdx !== -1) saved.visibleModules.splice(mercadoIdx, 1); } // Se eliminó el módulo Mercado (se simplificó a un botón dentro de Inventario)
                     
                     if (!saved.shoppingList) saved.shoppingList = [];
                     else saved.shoppingList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
@@ -3483,7 +3483,7 @@
 
         // Fila de "tabla vacía" reutilizada por las 3 vistas del inventario (10 columnas)
         function getEmptyInventoryRowHTML() {
-            return `<tr id="empty-inventory-msg"><td colspan="11" class="text-center py-16 opacity-60"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-400">Bodega Vacía</p><p class="text-sm font-bold text-neutral-400 mt-1">Aún no hay repuestos ni insumos registrados.</p></td></tr>`;
+            return `<tr id="empty-inventory-msg"><td colspan="10" class="text-center py-16 opacity-60"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-400">Bodega Vacía</p><p class="text-sm font-bold text-neutral-400 mt-1">Aún no hay repuestos ni insumos registrados.</p></td></tr>`;
         }
 
         // Misma "bodega vacía" pero para la lista de tarjetas del celular (sin colspan, no es tabla)
@@ -3553,7 +3553,6 @@
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
             const badgeHTML = getStatusBadgeHTML(qty, minQty);
-            const lastSaleLabel = getLastSaleLabel(item);
 
             // LOGICA DE MODO SEGURO (CANDADO)
             const isEditing = window.editingInvId === item.id;
@@ -3602,9 +3601,6 @@
                     <td class="p-1.5 sm:p-2 align-middle text-center">
                         <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-12 bg-transparent outline-none font-black text-sm text-center text-purple-600 dark:text-purple-400 ${pointerClass}" min="0" ${readOnlyAttr}>
                     </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-center whitespace-nowrap">
-                        <button onclick="openItemSalesHistory(${item.id})" class="last-sale-text text-[11px] font-bold ${item.salesLog && item.salesLog.length > 0 ? 'text-neutral-600 dark:text-neutral-300 hover:text-blue-600 hover:underline' : 'text-neutral-300 dark:text-neutral-600'} transition" title="Ver historial de ventas de este ítem">${lastSaleLabel}</button>
-                    </td>
                     <td class="p-1.5 sm:p-2 align-middle text-right whitespace-nowrap">
                         <span class="profit-text text-sm font-black ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">$${realProfit.toLocaleString('es-CL')}</span>
                     </td>
@@ -3614,6 +3610,7 @@
                             <button onclick="sellInventoryItem(${item.id})" class="w-7 h-7 rounded bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
                             <button onclick="openItemSalesHistory(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-blue-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Historial de ventas"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button>
                             <button onclick="duplicateInventoryItem(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-purple-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Duplicar (útil para la misma pieza en otra marca)"><i class="fa-solid fa-copy text-xs"></i></button>
+                            <button onclick="openMarketPriceModal(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
                             <button onclick="deleteInventoryItem(${item.id})" class="w-7 h-7 rounded text-neutral-400 dark:text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 transition flex items-center justify-center active:scale-95" title="Eliminar ítem"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </div>
                     </td>
@@ -3641,7 +3638,6 @@
             const sku = item.sku || 'N/A';
             const category = item.category || 'Sin categoría';
             const badgeHTML = getStatusBadgeHTML(qty, minQty);
-            const lastSaleLabel = getLastSaleLabel(item);
 
             const isEditing = window.editingInvId === item.id;
             const readOnlyAttr = isEditing ? '' : 'readonly';
@@ -3663,11 +3659,12 @@
                             <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-black ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-base transition-colors leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
                             <input type="text" value="${escapeHtml(item.brand || '')}" oninput="updateInventoryItem(${item.id}, 'brand', this.value)" class="brand-input w-full bg-transparent outline-none font-bold text-neutral-500 dark:text-neutral-400 text-xs leading-tight mt-0.5 ${pointerClass}" placeholder="Sin marca" ${readOnlyAttr}>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10 flex-wrap justify-end max-w-[92px]">
+                        <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10 flex-wrap justify-end max-w-[108px]">
                             <button onclick="toggleEditInv(${item.id})" class="w-8 h-8 rounded-lg ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
                             <button onclick="sellInventoryItem(${item.id})" class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
                             <button onclick="openItemSalesHistory(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-blue-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Historial de ventas"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button>
                             <button onclick="duplicateInventoryItem(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-purple-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Duplicar (útil para la misma pieza en otra marca)"><i class="fa-solid fa-copy text-xs"></i></button>
+                            <button onclick="openMarketPriceModal(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
                             <button onclick="deleteInventoryItem(${item.id})" class="w-8 h-8 rounded-lg text-neutral-400 dark:text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 transition flex items-center justify-center active:scale-95" title="Eliminar ítem"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </div>
                     </div>
@@ -3709,11 +3706,6 @@
                         <div class="flex flex-col bg-purple-50/50 dark:bg-purple-900/10 p-2 rounded-lg border border-purple-100/50 dark:border-purple-800/30 justify-between">
                             <span class="text-[9px] text-purple-500/70 font-bold uppercase tracking-wider mb-1">Vendidos</span>
                             <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-full bg-transparent outline-none font-black text-lg text-purple-600 dark:text-purple-400 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr}>
-                        </div>
-
-                        <div class="flex flex-col bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800 justify-between">
-                            <span class="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mb-1">Última Venta</span>
-                            <button onclick="openItemSalesHistory(${item.id})" class="last-sale-text text-xs font-bold text-left ${item.salesLog && item.salesLog.length > 0 ? 'text-neutral-600 dark:text-neutral-300 hover:text-blue-600 hover:underline' : 'text-neutral-300 dark:text-neutral-600'} transition">${lastSaleLabel}</button>
                         </div>
 
                         <div class="flex flex-col bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800 justify-between">
@@ -4105,7 +4097,6 @@
                         return pg > 0 ? (sg - pg) / pg : 0;
                     }
                     case 'soldQty': return parseFloat(item.soldQty) || 0;
-                    case 'lastSale': return (item.salesLog && item.salesLog[0]) ? item.salesLog[0].date : '';
                     case 'profit': {
                         const pg = Math.round((parseFloat(item.price) || 0) * 1.19);
                         const sg = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
@@ -4262,7 +4253,6 @@
                             ${getInvSortTh('Venta +IVA', 'salePriceGross', 'text-right')}
                             ${getInvSortTh('Recargo', 'margin', 'text-center')}
                             ${getInvSortTh('Vendidos', 'soldQty', 'text-center')}
-                            ${getInvSortTh('Última Venta', 'lastSale', 'text-center')}
                             ${getInvSortTh('Ganancia', 'profit', 'text-right')}
                             <th class="p-2 font-bold uppercase tracking-wider text-center">Acciones</th>
                         </tr>
@@ -4921,15 +4911,16 @@
             input.value = '';
         }
 
-        // ================= MÓDULO MERCADO =================
-        // Compara el precio de venta propio con el precio de Mercado Libre.
-        // Se intentó consultarlo automáticamente (directo desde el navegador, con
-        // puentes CORS públicos, e incluso con una función propia corriendo en el
-        // servidor de Supabase), pero Mercado Libre bloquea la consulta venga de
-        // donde venga — es una protección anti-bots suya, no algo que dependa de
-        // nuestro código. Por eso el flujo quedó así, simple y siempre funcional:
-        // "Ver en ML" abre la búsqueda ya armada, y "Anotar precio" guarda lo que
-        // el usuario vea a mano para poder comparar.
+        // ================= COMPARAR PRECIO CON MERCADO LIBRE (por ítem) =================
+        // Antes era un módulo aparte con su propia tabla; se simplificó a un botón
+        // más en las Acciones del ítem (junto a Editar, Vender, Historial, Duplicar)
+        // que abre este mismo comparador en un modal. Se intentó consultar el precio
+        // automáticamente (directo desde el navegador, con puentes CORS públicos, e
+        // incluso con una función propia corriendo en el servidor de Supabase), pero
+        // Mercado Libre bloquea la consulta venga de donde venga — es una protección
+        // anti-bots suya, no algo que dependa de nuestro código. Por eso el flujo
+        // quedó así, simple y siempre funcional: "Ver en ML" abre la búsqueda ya
+        // armada, y "Anotar precio" guarda lo que el usuario vea a mano para comparar.
         function getMercadoLibreSearchUrl(query) {
             return `https://listado.mercadolibre.cl/${encodeURIComponent(query)}`;
         }
@@ -4970,115 +4961,67 @@
             }
             item.marketPrice = { avg: Math.round(num), min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'manual', query: item.sku || item.product };
             saveData();
-            const cell = document.getElementById(`market-cell-${id}`);
-            if (cell) cell.outerHTML = getMarketCellHTML(item);
-            const diffCell = document.getElementById(`diff-cell-${id}`);
-            if (diffCell) diffCell.outerHTML = getMarketDiffCellHTML(item);
+            renderMarketPriceModalBody(item);
             showToast("Precio de mercado guardado", "fa-pen");
         }
 
-        function getMarketCellHTML(item) {
-            const mp = item.marketPrice;
+        function openMarketPriceModal(id) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item) return;
+            renderMarketPriceModalBody(item);
+            document.body.classList.add('modal-open');
+            document.getElementById('market-price-modal').classList.remove('hidden');
+        }
+
+        function closeMarketPriceModal() {
+            document.body.classList.remove('modal-open');
+            document.getElementById('market-price-modal').classList.add('hidden');
+        }
+
+        function renderMarketPriceModalBody(item) {
+            const body = document.getElementById('market-price-modal-body');
+            if (!body) return;
+            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+            const brandSuffix = item.brand ? ` <span class="text-neutral-400 font-normal">(${escapeHtml(item.brand)})</span>` : '';
+
+            let html = `
+                <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 mb-1">${escapeHtml(item.product)}${brandSuffix}</h4>
+                <p class="text-sm font-bold text-neutral-500 dark:text-neutral-400 mb-4">Tu precio de venta: <span class="text-green-600 dark:text-green-400">$${salePriceGross.toLocaleString('es-CL')}</span></p>`;
 
             if (!hasValidSku(item)) {
-                return `<div id="market-cell-${item.id}" class="text-[10px] text-neutral-400 italic">Agrega un Código para comparar</div>`;
+                html += `<p class="text-sm text-neutral-400 italic mb-2"><i class="fa-solid fa-circle-info mr-1"></i>Agrega un Código a este producto para poder comparar con Mercado Libre.</p>`;
+                body.innerHTML = html;
+                return;
             }
 
             const query = buildMarketSearchQuery(item);
             const mlUrl = getMercadoLibreSearchUrl(query);
-            const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Ver en ML</a>`;
+            const mp = item.marketPrice;
 
-            if (!mp || mp.avg === null) {
-                return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-1">
-                    ${linkBtn}
-                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline">Anotar precio</button>
-                </div>`;
+            if (mp && mp.avg !== null) {
+                const diffPct = mp.avg > 0 ? Math.round(((salePriceGross - mp.avg) / mp.avg) * 100) : 0;
+                const diffColor = diffPct > 5 ? 'text-red-600 dark:text-red-400' : (diffPct < -5 ? 'text-green-600 dark:text-green-400' : 'text-neutral-500 dark:text-neutral-400');
+                const diffText = diffPct > 5 ? `${diffPct}% más caro que el mercado` : (diffPct < -5 ? `${Math.abs(diffPct)}% más barato que el mercado` : 'Similar al precio de mercado');
+                const [y, m, d] = mp.checkedAt.split('-');
+                const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+                html += `
+                    <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700 mb-4">
+                        <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Precio visto en Mercado Libre</p>
+                        <p class="text-2xl font-black text-neutral-800 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</p>
+                        <p class="text-[10px] text-neutral-400 mt-1">Anotado el ${dateStr}</p>
+                        <p class="text-sm font-bold ${diffColor} mt-2">${diffText}</p>
+                    </div>`;
+            } else {
+                html += `<p class="text-sm text-neutral-400 italic mb-4">Aún no has anotado un precio de Mercado Libre para este producto.</p>`;
             }
 
-            const [y, m, d] = mp.checkedAt.split('-');
-            const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
+            html += `
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center px-4 py-2.5 bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded shadow-md hover:bg-neutral-700 transition text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en ML</a>
+                    <button onclick="setManualMarketPrice(${item.id})" class="flex-1 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded shadow-md transition text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-pen"></i> ${mp && mp.avg !== null ? 'Corregir' : 'Anotar'} precio</button>
+                </div>`;
 
-            return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-0.5" title="Anotado a mano">
-                <span class="text-sm font-black text-neutral-800 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</span>
-                <span class="text-[9px] text-neutral-400">anotado el ${dateStr}</span>
-                <div class="flex items-center gap-2 mt-0.5">
-                    ${linkBtn}
-                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline" title="Corregir"><i class="fa-solid fa-pen"></i></button>
-                </div>
-            </div>`;
-        }
-
-        function getMarketDiffCellHTML(item) {
-            const mp = item.marketPrice;
-            if (!mp || !mp.avg) return `<span id="diff-cell-${item.id}" class="text-neutral-300 dark:text-neutral-600">—</span>`;
-            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-            const diffPct = Math.round(((salePriceGross - mp.avg) / mp.avg) * 100);
-            const color = diffPct > 5 ? 'text-red-600 dark:text-red-400' : (diffPct < -5 ? 'text-green-600 dark:text-green-400' : 'text-neutral-500 dark:text-neutral-400');
-            const sign = diffPct > 0 ? '+' : '';
-            const label = diffPct > 5 ? 'más caro' : (diffPct < -5 ? 'más barato' : 'similar');
-            return `<span id="diff-cell-${item.id}" class="text-xs font-black ${color}" title="Estás ${label} que el promedio de mercado">${sign}${diffPct}%</span>`;
-        }
-
-        function getMercadoRowHTML(item) {
-            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-            return `<tr id="mercado-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 odd:bg-white even:bg-neutral-50/70 dark:odd:bg-neutral-900 dark:even:bg-neutral-800/40">
-                <td class="p-2 align-middle">
-                    <div class="font-bold text-sm text-neutral-800 dark:text-neutral-100">${escapeHtml(item.product)}</div>
-                    ${item.brand ? `<div class="text-[10px] text-neutral-400">${escapeHtml(item.brand)}</div>` : ''}
-                </td>
-                <td class="p-2 align-middle text-center"><span class="text-[11px] font-mono bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded">${escapeHtml(item.sku || 'N/A')}</span></td>
-                <td class="p-2 align-middle text-right"><span class="text-sm font-bold text-neutral-700 dark:text-neutral-300">$${salePriceGross.toLocaleString('es-CL')}</span></td>
-                <td class="p-2 align-middle text-center">${getMarketCellHTML(item)}</td>
-                <td class="p-2 align-middle text-center">${getMarketDiffCellHTML(item)}</td>
-            </tr>`;
-        }
-
-        function filterMercado(query) {
-            const term = query.toLowerCase();
-            const tbody = document.getElementById('mercado-table-body');
-            if (!tbody) return;
-            Array.from(tbody.children).forEach(row => {
-                if (row.id === 'empty-mercado-msg') return;
-                row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
-            });
-        }
-
-        function getMercadoHTML() {
-            const items = state.inventoryList.slice().sort((a, b) => (a.product || '').toLowerCase().localeCompare((b.product || '').toLowerCase()));
-            const rowsHtml = items.map(item => getMercadoRowHTML(item)).join('');
-
-            return `<div class="pb-24 fade-enter">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                    <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2"><i class="fa-solid fa-tags text-orange-500"></i> Mercado</h2>
-                </div>
-
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
-                    <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
-                    <p>Compara tu precio de venta con el precio de Mercado Libre. Requiere que el producto tenga Código (código de fábrica, ej. de pastillas GTX, PM, Matsumoto). Toca "Ver en ML" para abrir la búsqueda ya armada (categoría + nombre + Código + marca) y revisar el precio, y "Anotar precio" para guardarlo y ver la diferencia con el tuyo.</p>
-                </div>
-
-                <div class="mb-4 relative">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" placeholder="Buscar por nombre, marca o Código..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-orange-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterMercado(this.value)">
-                </div>
-
-                ${items.length === 0
-                    ? `<div class="text-center py-16 opacity-60 bg-white dark:bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-700"><i class="fa-solid fa-box-open text-3xl text-neutral-400 mb-3"></i><p class="text-sm font-bold text-neutral-500">No tienes productos en Bodega aún</p></div>`
-                    : `<div class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-x-auto hide-scrollbar mouse-drag">
-                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                        <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
-                            <tr>
-                                <th class="p-2 font-bold uppercase tracking-wider">Producto</th>
-                                <th class="p-2 font-bold uppercase tracking-wider text-center">Código</th>
-                                <th class="p-2 font-bold uppercase tracking-wider text-right">Tu Precio</th>
-                                <th class="p-2 font-bold uppercase tracking-wider text-center">Precio Mercado</th>
-                                <th class="p-2 font-bold uppercase tracking-wider text-center">Diferencia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="mercado-table-body">${rowsHtml}</tbody>
-                    </table>
-                </div>`}
-            </div>`;
+            body.innerHTML = html;
         }
 
         async function downloadWorkOrderPDF(patientId) {
@@ -5261,7 +5204,7 @@
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
-            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario' || viewName === 'mercado') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
             let contentHTML = '';
             try { 
                 switch(viewName) { 
@@ -5272,7 +5215,6 @@
                     case 'links': contentHTML = getLinksHTML(); break; 
                     case 'work_orders': contentHTML = getWorkOrdersHTML(); break; 
                     case 'shopping_list': contentHTML = getShoppingListHTML(); break;
-                    case 'mercado': contentHTML = getMercadoHTML(); break;
                     default: contentHTML = getDashboardHTML();
                 } 
             } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } 
@@ -5705,8 +5647,7 @@
             'todo': { icon: 'fa-clipboard-list', name: 'Tareas', locked: false },
             'turnario': { icon: 'fa-calendar-days', name: 'Calendario', locked: false },
             'notes': { icon: 'fa-book-open', name: 'Apuntes', locked: false },
-            'links': { icon: 'fa-toolbox', name: 'Información', locked: false },
-            'mercado': { icon: 'fa-tags', name: 'Mercado', locked: false }
+            'links': { icon: 'fa-toolbox', name: 'Información', locked: false }
         };
 
         // --- SISTEMA DE TEMAS ---
@@ -6238,7 +6179,7 @@
                 appTitle: 'Mecamonico', appSubtitle: 'Gestión de Taller & Estudio', 
                 userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
                 darkMode: false, showFinanceWidget: true,
-                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado']
+                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
             };
             try { await idbKeyval.set(APP_KEY, state); } catch(e) {}
             // ------------------------------------------------------

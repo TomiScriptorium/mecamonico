@@ -6,7 +6,7 @@
     <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
          Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
          pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.mercadolibre.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.mercadolibre.com https://api.allorigins.win https://corsproxy.io; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -4614,20 +4614,41 @@
             return !!(item.sku && item.sku.trim() && item.sku.trim().toUpperCase() !== 'N/A');
         }
 
+        // Mercado Libre bloquea la consulta directa desde el navegador (protección
+        // anti-bots). Como respaldo, si la conexión directa falla se intenta a través
+        // de "puentes" CORS públicos y gratuitos, que sí pueden hablar con Mercado
+        // Libre y reenviar la respuesta. Son servicios de terceros que no controlamos
+        // (pueden fallar o desaparecer), por eso se prueban dos alternativas distintas
+        // antes de rendirse.
+        const CORS_PROXY_BUILDERS = [
+            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
+        ];
+
         async function fetchMercadoLibrePrices(query) {
-            const url = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            const prices = (data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
-            if (prices.length === 0) throw new Error('Sin resultados');
-            const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-            return {
-                avg: Math.round(avg),
-                min: Math.round(Math.min(...prices)),
-                max: Math.round(Math.max(...prices)),
-                count: prices.length
-            };
+            const targetUrl = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
+            const attempts = [targetUrl, ...CORS_PROXY_BUILDERS.map(build => build(targetUrl))];
+
+            let lastError = new Error('No se pudo consultar');
+            for (const url of attempts) {
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    const prices = (data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
+                    if (prices.length === 0) throw new Error('Sin resultados');
+                    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+                    return {
+                        avg: Math.round(avg),
+                        min: Math.round(Math.min(...prices)),
+                        max: Math.round(Math.max(...prices)),
+                        count: prices.length
+                    };
+                } catch (e) {
+                    lastError = e; // probamos la siguiente alternativa
+                }
+            }
+            throw lastError;
         }
 
         function todayDateKey() {

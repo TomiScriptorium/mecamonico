@@ -998,7 +998,7 @@
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 <div>
-                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">SKU/Cód.</label>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Código</label>
                     <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
                 </div>
                 <div>
@@ -3505,7 +3505,7 @@
             return `
                 <tr id="inventory-row-${item.id}" class="inv-row ${rowBg} border-b border-neutral-200 dark:border-neutral-800 transition-colors group align-top">
                     <td class="p-1.5 sm:p-2 align-middle">
-                        <input type="text" value="${escapeHtml(sku)}" oninput="updateInventoryItem(${item.id}, 'sku', this.value)" class="w-20 sm:w-24 bg-transparent outline-none font-mono text-[11px] text-neutral-500 dark:text-neutral-400 ${pointerClass}" placeholder="SKU" ${readOnlyAttr}>
+                        <input type="text" value="${escapeHtml(sku)}" oninput="updateInventoryItem(${item.id}, 'sku', this.value)" class="w-20 sm:w-24 bg-transparent outline-none font-mono text-[11px] text-neutral-500 dark:text-neutral-400 ${pointerClass}" placeholder="Código" ${readOnlyAttr}>
                         <div class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mt-0.5 truncate max-w-[100px]" title="${escapeHtml(category)}">${escapeHtml(category)}</div>
                     </td>
                     <td class="p-1.5 sm:p-2 align-middle min-w-[170px]">
@@ -4016,7 +4016,7 @@
             <div class="mb-4 flex gap-2 relative">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" id="inventory-search" placeholder="Buscar por SKU, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
+                    <input type="text" id="inventory-search" placeholder="Buscar por Código, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
                 </div>
                 <button onclick="openInvReportModal()" class="w-[46px] h-[46px] bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Reporte Histórico">
                     <i class="fa-solid fa-chart-line text-xl"></i>
@@ -4027,7 +4027,7 @@
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
                         <tr>
-                            ${getInvSortTh('SKU / Categoría', 'sku')}
+                            ${getInvSortTh('Código / Categoría', 'sku')}
                             ${getInvSortTh('Producto', 'product')}
                             ${getInvSortTh('Marca', 'brand')}
                             ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}
@@ -4365,7 +4365,7 @@
             
             doc.autoTable({
                 startY: 35,
-                head: [['SKU', 'Producto', 'Stock', 'Ventas', 'Costo (+IVA)', 'Venta (+IVA)', 'Ganancia Real']],
+                head: [['Código', 'Producto', 'Stock', 'Ventas', 'Costo (+IVA)', 'Venta (+IVA)', 'Ganancia Real']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [22, 163, 74] },
@@ -4395,28 +4395,11 @@
         }
 
         // --- EXPORTACIÓN / IMPORTACIÓN A EXCEL (.xlsx) — editable en Excel y Google Sheets ---
-        // Los nombres de columna se comparten entre exportar e importar para que
-        // ambos lados siempre lean/escriban exactamente lo mismo.
-        const INV_XLSX_HEADERS = {
-            id: 'ID (no editar)',
-            sku: 'SKU',
-            product: 'Producto',
-            brand: 'Marca',
-            category: 'Categoría',
-            qty: 'Stock Actual',
-            minQty: 'Stock Mínimo',
-            price: 'Costo Neto',
-            priceGross: 'Costo c/IVA (calculado)',
-            salePrice: 'Precio Venta Neto',
-            salePriceGross: 'Precio Venta c/IVA (calculado)',
-            margin: 'Margen % (calculado)',
-            soldQty: 'Unidades Vendidas (calculado)',
-            lastSale: 'Última Venta (calculado)',
-            profit: 'Ganancia Total (calculado)'
-        };
+        // Formato simple pedido por el taller: Código, Producto, y una columna por
+        // cada marca (ej. GTX, PM, MTM) con el stock de esa marca para ese producto.
 
-        // Genera un libro con 3 hojas: el estado actual del inventario (editable y
-        // re-importable), el historial completo de ventas con fecha, y una guía rápida.
+        // Genera un libro con 3 hojas: el inventario en formato de planilla simple
+        // (editable y re-importable), el historial completo de ventas, y una guía rápida.
         function exportInventoryToExcel() {
             if (state.inventoryList.length === 0) {
                 showToast("El inventario está vacío", "fa-triangle-exclamation"); return;
@@ -4427,48 +4410,46 @@
             }
             showToast("Generando Excel...", "fa-spinner fa-spin");
             try {
-                const H = INV_XLSX_HEADERS;
-                // Se ordena por Categoría > Marca > Producto para que el archivo quede
-                // agrupado y prolijo (útil cuando hay el mismo repuesto en varias marcas),
-                // sin depender de cómo esté ordenada la tabla en pantalla.
-                const exportList = state.inventoryList.slice().sort((a, b) => {
-                    const catA = (a.category || '').toLowerCase(), catB = (b.category || '').toLowerCase();
-                    if (catA !== catB) return catA.localeCompare(catB);
-                    const brandA = (a.brand || '').toLowerCase(), brandB = (b.brand || '').toLowerCase();
-                    if (brandA !== brandB) return brandA.localeCompare(brandB);
-                    return (a.product || '').toLowerCase().localeCompare((b.product || '').toLowerCase());
+                // Cada marca distinta se convierte en su propia columna con el stock;
+                // los productos sin marca asignada quedan bajo la columna "Sin marca".
+                const brandSet = new Set();
+                state.inventoryList.forEach(item => {
+                    brandSet.add((item.brand || '').trim() || 'Sin marca');
                 });
-                const inventoryRows = exportList.map(item => {
-                    const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
-                    const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-                    const soldQty = parseFloat(item.soldQty) || 0;
-                    const margin = salePriceGross > 0 ? Math.round(((salePriceGross - priceGross) / salePriceGross) * 100) : 0;
-                    const profit = Math.round(soldQty * (salePriceGross - priceGross));
-                    return {
-                        [H.id]: item.id,
-                        [H.sku]: item.sku || 'N/A',
-                        [H.product]: item.product,
-                        [H.brand]: item.brand || '',
-                        [H.category]: item.category || 'Sin categoría',
-                        [H.qty]: parseFloat(item.qty) || 0,
-                        [H.minQty]: parseFloat(item.minQty) || 0,
-                        [H.price]: Math.round(parseFloat(item.price) || 0),
-                        [H.priceGross]: priceGross,
-                        [H.salePrice]: Math.round(parseFloat(item.salePrice) || 0),
-                        [H.salePriceGross]: salePriceGross,
-                        [H.margin]: margin,
-                        [H.soldQty]: soldQty,
-                        [H.lastSale]: getLastSaleLabel(item),
-                        [H.profit]: profit
-                    };
+                const brands = Array.from(brandSet).sort((a, b) => a.localeCompare(b));
+
+                // Se agrupa por Código + Producto: si el mismo repuesto existe en
+                // varias marcas, todas quedan en una sola fila (una columna por marca).
+                const groups = new Map();
+                state.inventoryList.forEach(item => {
+                    const codigo = (item.sku || '').trim() || 'N/A';
+                    const producto = (item.product || '').trim();
+                    const key = `${codigo.toLowerCase()}||${producto.toLowerCase()}`;
+                    if (!groups.has(key)) {
+                        const qtyByBrand = {};
+                        brands.forEach(b => qtyByBrand[b] = '');
+                        groups.set(key, { codigo, producto, qtyByBrand });
+                    }
+                    const g = groups.get(key);
+                    const brand = (item.brand || '').trim() || 'Sin marca';
+                    const prevQty = parseFloat(g.qtyByBrand[brand]) || 0;
+                    g.qtyByBrand[brand] = prevQty + (parseFloat(item.qty) || 0);
                 });
+
+                const inventoryRows = Array.from(groups.values())
+                    .sort((a, b) => a.producto.toLowerCase().localeCompare(b.producto.toLowerCase()))
+                    .map(g => {
+                        const row = { 'Código': g.codigo, 'Producto': g.producto };
+                        brands.forEach(b => { row[b] = g.qtyByBrand[b]; });
+                        return row;
+                    });
 
                 const salesRows = [];
                 state.inventoryList.forEach(item => {
                     (item.salesLog || []).forEach(s => {
                         salesRows.push({
                             'Fecha': s.date,
-                            'SKU': item.sku || 'N/A',
+                            'Código': item.sku || 'N/A',
                             'Producto': item.product,
                             'Marca': item.brand || '',
                             'Cantidad': s.qty,
@@ -4483,16 +4464,16 @@
                 const wsInv = XLSX.utils.json_to_sheet(inventoryRows);
                 XLSX.utils.book_append_sheet(wb, wsInv, 'Inventario');
 
-                const wsSalesData = salesRows.length ? salesRows : [{ 'Fecha': 'Sin ventas registradas aún', 'SKU': '', 'Producto': '', 'Marca': '', 'Cantidad': '', 'Precio Unitario': '', 'Total': '' }];
+                const wsSalesData = salesRows.length ? salesRows : [{ 'Fecha': 'Sin ventas registradas aún', 'Código': '', 'Producto': '', 'Marca': '', 'Cantidad': '', 'Precio Unitario': '', 'Total': '' }];
                 const wsSales = XLSX.utils.json_to_sheet(wsSalesData);
                 XLSX.utils.book_append_sheet(wb, wsSales, 'Historial de Ventas');
 
                 const instructionsRows = [
-                    { 'Cómo editar este archivo': 'Puedes cambiar SKU, Producto, Marca, Categoría, Stock Actual, Stock Mínimo, Costo Neto y Precio Venta Neto en la hoja "Inventario".' },
-                    { 'Cómo editar este archivo': 'La hoja "Inventario" viene ordenada por Categoría, luego Marca y luego Producto, para que sea fácil comparar el mismo repuesto en distintas marcas.' },
-                    { 'Cómo editar este archivo': 'Las columnas que dicen "(calculado)" y la de ID no debes editarlas: la app las vuelve a calcular sola.' },
-                    { 'Cómo editar este archivo': 'Para AGREGAR un producto nuevo: escribe una fila nueva y deja vacía la columna ID (no editar).' },
-                    { 'Cómo editar este archivo': 'Si BORRAS una fila aquí, ese producto NO se elimina en la app (bórralo ahí manualmente si quieres).' },
+                    { 'Cómo editar este archivo': 'La hoja "Inventario" tiene una columna por cada marca (ej. GTX, PM, MTM): escribe ahí la cantidad de stock de esa marca para ese producto.' },
+                    { 'Cómo editar este archivo': 'Deja la celda vacía si ese producto no existe en esa marca.' },
+                    { 'Cómo editar este archivo': 'Para AGREGAR un producto nuevo: escribe una fila nueva con su Código y Producto, y pon el stock en la columna de la marca que corresponda.' },
+                    { 'Cómo editar este archivo': 'Para AGREGAR una marca nueva que no aparece en el archivo: crea una columna nueva con el nombre de esa marca y pon el stock ahí.' },
+                    { 'Cómo editar este archivo': 'Si BORRAS una fila o dejas una celda de marca vacía, ese producto/marca NO se elimina en la app (bórralo ahí manualmente si quieres).' },
                     { 'Cómo editar este archivo': 'Luego ve a Bodega Central > Importar y sube este mismo archivo ya editado.' }
                 ];
                 const wsInstructions = XLSX.utils.json_to_sheet(instructionsRows);
@@ -4514,8 +4495,9 @@
         }
 
         // Lee el Excel exportado (ya editado por el usuario) y arma un resumen de
-        // cambios: actualiza productos existentes por su ID interno y agrega como
-        // nuevos los que no tengan ID (filas nuevas escritas a mano en la planilla).
+        // cambios: cada columna que no sea Código ni Producto se trata como una
+        // marca, y su valor como el stock de esa marca para ese Código+Producto.
+        // Busca el producto existente por Código+Marca; si no existe, lo agrega.
         // No aplica nada hasta que el usuario confirma el resumen.
         async function handleInventoryImportFile(input) {
             const file = input.files[0];
@@ -4536,31 +4518,38 @@
                 if (!sheet) throw new Error('Sin hoja de inventario');
 
                 const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-                const H = INV_XLSX_HEADERS;
+                if (rows.length === 0) {
+                    showToast("El archivo no tenía filas para importar", "fa-triangle-exclamation");
+                    input.value = '';
+                    return;
+                }
 
-                const plannedUpdates = [];   // { item, data }
-                const plannedAdditions = []; // data
+                // Las columnas de marca son todas menos Código y Producto: así el
+                // taller puede agregar una marca nueva solo creando una columna.
+                const brandCols = Object.keys(rows[0]).filter(k => k !== 'Código' && k !== 'Producto');
+
+                const plannedUpdates = [];   // { item, qty, product }
+                const plannedAdditions = []; // { sku, product, brand, qty }
 
                 rows.forEach(row => {
-                    const product = String(row[H.product] || '').trim();
-                    if (!product) return; // fila vacía o sin nombre: se ignora
+                    const sku = String(row['Código'] || '').trim();
+                    const product = String(row['Producto'] || '').trim();
+                    if (!sku && !product) return; // fila vacía: se ignora
 
-                    const rawId = row[H.id];
-                    const id = (rawId !== undefined && rawId !== '') ? parseFloat(rawId) : null;
-                    const data = {
-                        sku: String(row[H.sku] || '').trim() || 'N/A',
-                        product: product,
-                        brand: String(row[H.brand] || '').trim(),
-                        category: String(row[H.category] || 'Sin categoría').trim(),
-                        qty: parseFloat(row[H.qty]) || 0,
-                        minQty: parseFloat(row[H.minQty]) || 0,
-                        price: parseFloat(row[H.price]) || 0,
-                        salePrice: parseFloat(row[H.salePrice]) || 0
-                    };
+                    brandCols.forEach(col => {
+                        const raw = row[col];
+                        if (raw === '' || raw === undefined || raw === null) return; // celda vacía = sin stock de esa marca
+                        const qty = parseFloat(raw);
+                        if (isNaN(qty)) return;
+                        const brand = col === 'Sin marca' ? '' : col;
 
-                    const existing = id !== null ? state.inventoryList.find(i => i.id === id) : null;
-                    if (existing) plannedUpdates.push({ item: existing, data });
-                    else plannedAdditions.push(data);
+                        const existing = state.inventoryList.find(i =>
+                            (i.sku || '').trim().toLowerCase() === sku.toLowerCase() &&
+                            (i.brand || '').trim().toLowerCase() === brand.trim().toLowerCase()
+                        );
+                        if (existing) plannedUpdates.push({ item: existing, qty, product });
+                        else plannedAdditions.push({ sku: sku || 'N/A', product: product || 'Sin nombre', brand, qty });
+                    });
                 });
 
                 if (plannedUpdates.length === 0 && plannedAdditions.length === 0) {
@@ -4571,15 +4560,18 @@
 
                 showConfirmModal(
                     "¿Importar cambios del Excel?",
-                    `Se actualizarán ${plannedUpdates.length} producto(s) existente(s) y se agregarán ${plannedAdditions.length} producto(s) nuevo(s). Los productos que hayas borrado en el Excel NO se eliminarán aquí.`,
+                    `Se actualizará el stock de ${plannedUpdates.length} producto(s) existente(s) y se agregarán ${plannedAdditions.length} producto(s)/marca(s) nuevos. El precio, categoría y demás datos no cambian con la importación.`,
                     "Importar",
                     function() {
-                        plannedUpdates.forEach(({ item, data }) => Object.assign(item, data));
+                        plannedUpdates.forEach(({ item, qty, product }) => {
+                            item.qty = qty;
+                            if (product) item.product = product;
+                        });
                         plannedAdditions.forEach(data => {
                             state.inventoryList.push({
                                 id: Date.now() + Math.random(),
-                                sku: data.sku, product: data.product, brand: data.brand, category: data.category,
-                                qty: data.qty, minQty: data.minQty, price: data.price, salePrice: data.salePrice,
+                                sku: data.sku, product: data.product, brand: data.brand, category: 'Sin categoría',
+                                qty: data.qty, minQty: 0, price: 0, salePrice: 0,
                                 soldQty: 0, salesLog: [], marketPrice: null, image: null, extraData: null
                             });
                         });
@@ -4613,9 +4605,9 @@
             return !!(item.sku && item.sku.trim() && item.sku.trim().toUpperCase() !== 'N/A');
         }
 
-        // El SKU solo (ej. "0690") casi no trae resultados en Mercado Libre, porque
+        // El Código solo (ej. "0690") casi no trae resultados en Mercado Libre, porque
         // casi nadie publica solo el código: se arma una búsqueda más parecida a como
-        // se publica de verdad, combinando categoría + nombre/modelo + SKU + marca
+        // se publica de verdad, combinando categoría + nombre/modelo + Código + marca
         // (ej. "pastillas de freno Toyota Hilux 2016-2020 0690 GTX").
         function buildMarketSearchQuery(item) {
             const parts = [];
@@ -4656,7 +4648,7 @@
             const mp = item.marketPrice;
 
             if (!hasValidSku(item)) {
-                return `<div id="market-cell-${item.id}" class="text-[10px] text-neutral-400 italic">Agrega un SKU para comparar</div>`;
+                return `<div id="market-cell-${item.id}" class="text-[10px] text-neutral-400 italic">Agrega un Código para comparar</div>`;
             }
 
             const query = buildMarketSearchQuery(item);
@@ -4729,12 +4721,12 @@
 
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
                     <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
-                    <p>Compara tu precio de venta con el precio de Mercado Libre. Requiere que el producto tenga SKU (código de fábrica, ej. de pastillas GTX, PM, Matsumoto). Toca "Ver en ML" para abrir la búsqueda ya armada (categoría + nombre + SKU + marca) y revisar el precio, y "Anotar precio" para guardarlo y ver la diferencia con el tuyo.</p>
+                    <p>Compara tu precio de venta con el precio de Mercado Libre. Requiere que el producto tenga Código (código de fábrica, ej. de pastillas GTX, PM, Matsumoto). Toca "Ver en ML" para abrir la búsqueda ya armada (categoría + nombre + Código + marca) y revisar el precio, y "Anotar precio" para guardarlo y ver la diferencia con el tuyo.</p>
                 </div>
 
                 <div class="mb-4 relative">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" placeholder="Buscar por nombre, marca o SKU..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-orange-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterMercado(this.value)">
+                    <input type="text" placeholder="Buscar por nombre, marca o Código..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-orange-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterMercado(this.value)">
                 </div>
 
                 ${items.length === 0
@@ -4744,7 +4736,7 @@
                         <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
                             <tr>
                                 <th class="p-2 font-bold uppercase tracking-wider">Producto</th>
-                                <th class="p-2 font-bold uppercase tracking-wider text-center">SKU</th>
+                                <th class="p-2 font-bold uppercase tracking-wider text-center">Código</th>
                                 <th class="p-2 font-bold uppercase tracking-wider text-right">Tu Precio</th>
                                 <th class="p-2 font-bold uppercase tracking-wider text-center">Precio Mercado</th>
                                 <th class="p-2 font-bold uppercase tracking-wider text-center">Diferencia</th>
@@ -5068,7 +5060,7 @@
             // 2. Inventario
             (state.inventoryList || []).forEach(i => {
                 if (i.product.toLowerCase().includes(term) || (i.sku && i.sku.toLowerCase().includes(term)) || (i.category && i.category.toLowerCase().includes(term))) {
-                    results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | SKU: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', 
+                    results.push({ type: 'Inventario', title: i.product, desc: `Stock: ${i.qty} | Código: ${i.sku||'N/A'}`, icon: 'fa-box-open', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30',
                     action: () => { 
                         renderView('shopping_list'); 
                         setTimeout(() => highlightElement(`inventory-row-${i.id}`), 500); 
@@ -5570,7 +5562,7 @@
 
             doc.autoTable({
                 startY: 35,
-                head: [['SKU', 'Producto', 'Cant.', 'Costo (+IVA)', 'Ingreso Total', 'Ganancia Neta']],
+                head: [['Código', 'Producto', 'Cant.', 'Costo (+IVA)', 'Ingreso Total', 'Ganancia Neta']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [22, 163, 74] }, 
@@ -6234,7 +6226,7 @@
             }
         }
 
-        // Motor para editar datos principales del producto desde el modal (ej: SKU)
+        // Motor para editar datos principales del producto desde el modal (ej: Código)
         function updateCoreItemData(id, field, value) {
             const item = state.inventoryList.find(i => i.id === id);
             if (item) {
@@ -6245,7 +6237,7 @@
                 const oldRow = document.getElementById(`inventory-row-${id}`);
                 if (oldRow) oldRow.outerHTML = getInventoryRowHTML(item);
                 
-                showToast("SKU actualizado", "fa-barcode");
+                showToast("Código actualizado", "fa-barcode");
             }
         }
 
@@ -6262,8 +6254,8 @@
                         <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Pastillas de Freno (Modo Edición)</p>
                         <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-tight">${escapeHtml(item.product)}</h4>
                         <div class="flex items-center gap-2 mt-2">
-                            <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">SKU / CÓD.</span>
-                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${escapeHtml(item.sku === 'N/A' ? '' : item.sku)}" placeholder="Sin SKU" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
+                            <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Código</span>
+                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${escapeHtml(item.sku === 'N/A' ? '' : item.sku)}" placeholder="Sin código" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
                         </div>
                     </div>
                     

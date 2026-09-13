@@ -4639,45 +4639,66 @@
             (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
         ];
 
-        // Función propia en Supabase (Edge Function) que consulta Mercado Libre desde
-        // el servidor: es la forma confiable de evitar el bloqueo anti-bots, porque la
-        // consulta no sale desde el navegador del usuario. Si todavía no está publicada
-        // en la cuenta de Supabase, este intento simplemente falla y se sigue probando
-        // con las alternativas de siempre (conexión directa y los puentes CORS).
-        const SUPABASE_ML_FUNCTION_URL = `${_supabaseUrl}/functions/v1/ml-search`;
+        // Convierte la respuesta cruda de Mercado Libre (o de nuestra función que la
+        // reenvía tal cual) en el resumen {avg, min, max, count} que usa la app.
+        function summarizeMlResponse(data) {
+            if (data && data.error) throw new Error(String(data.error).slice(0, 120));
+            const prices = (data && data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
+            if (prices.length === 0) throw new Error('Sin resultados en la respuesta');
+            const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+            return {
+                avg: Math.round(avg),
+                min: Math.round(Math.min(...prices)),
+                max: Math.round(Math.max(...prices)),
+                count: prices.length
+            };
+        }
 
         async function fetchMercadoLibrePrices(query) {
             const targetUrl = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
-            const attempts = [
-                { url: SUPABASE_ML_FUNCTION_URL, options: {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'apikey': _supabaseKey, 'Authorization': `Bearer ${_supabaseKey}` },
-                    body: JSON.stringify({ query })
-                } },
-                { url: targetUrl, options: {} },
-                ...CORS_PROXY_BUILDERS.map(build => ({ url: build(targetUrl), options: {} }))
-            ];
 
-            let lastError = new Error('No se pudo consultar');
-            for (const attempt of attempts) {
+            // Guardamos el motivo de CADA intento fallido, para poder mostrarlo en la
+            // app y diagnosticar sin tener que abrir las herramientas de desarrollador.
+            const failureLog = [];
+
+            // 1) Función propia en Supabase, invocada con el SDK oficial (maneja solo
+            // la autenticación correcta hacia el proyecto, sea cual sea el formato de
+            // clave que use). Es el camino confiable que evita el bloqueo de Mercado
+            // Libre, ya que la consulta la hace el servidor y no el navegador.
+            if (supabaseClient) {
                 try {
-                    const res = await fetch(attempt.url, attempt.options);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
-                    const prices = (data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
-                    if (prices.length === 0) throw new Error('Sin resultados');
-                    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-                    return {
-                        avg: Math.round(avg),
-                        min: Math.round(Math.min(...prices)),
-                        max: Math.round(Math.max(...prices)),
-                        count: prices.length
-                    };
+                    const { data, error } = await supabaseClient.functions.invoke('ml-search', { body: { query } });
+                    if (error) throw new Error(error.message || String(error));
+                    return summarizeMlResponse(data);
                 } catch (e) {
-                    lastError = e; // probamos la siguiente alternativa
+                    failureLog.push(`Función Supabase: ${e.message}`);
+                }
+            } else {
+                failureLog.push('Función Supabase: sin conexión a Supabase (modo local)');
+            }
+
+            // 2) Conexión directa y puentes CORS públicos, por si la función de
+            // Supabase todavía no está lista o falla.
+            const fallbackAttempts = [
+                { label: 'Directo', url: targetUrl },
+                { label: 'Puente 1', url: CORS_PROXY_BUILDERS[0](targetUrl) },
+                { label: 'Puente 2', url: CORS_PROXY_BUILDERS[1](targetUrl) }
+            ];
+            for (const attempt of fallbackAttempts) {
+                try {
+                    const res = await fetch(attempt.url);
+                    if (!res.ok) {
+                        let bodyText = '';
+                        try { bodyText = (await res.text()).slice(0, 120); } catch (e) {}
+                        throw new Error(`HTTP ${res.status}${bodyText ? ' - ' + bodyText : ''}`);
+                    }
+                    const data = await res.json();
+                    return summarizeMlResponse(data);
+                } catch (e) {
+                    failureLog.push(`${attempt.label}: ${e.message}`);
                 }
             }
-            throw lastError;
+            throw new Error(failureLog.join(' · '));
         }
 
         function todayDateKey() {
@@ -4699,8 +4720,8 @@
                 if (!silent) showToast("Precio de mercado actualizado", "fa-tags");
             } catch (e) {
                 console.error(e);
-                item.marketPrice = { avg: null, min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'error', query };
-                if (!silent) showToast("No se pudo consultar Mercado Libre automáticamente", "fa-triangle-exclamation");
+                item.marketPrice = { avg: null, min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'error', query, detail: e.message || String(e) };
+                if (!silent) showToast("No se pudo consultar: revisa el detalle bajo el producto", "fa-triangle-exclamation");
             }
             saveData();
 
@@ -4756,7 +4777,9 @@
             const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-500 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>Ver en ML</a>`;
 
             if (!mp || mp.avg === null) {
-                const errorNote = mp && mp.source === 'error' ? `<p class="text-[9px] text-red-400 mt-0.5">Sin resultados automáticos</p>` : '';
+                const errorNote = (mp && mp.source === 'error')
+                    ? `<p class="text-[9px] text-red-400 mt-0.5 max-w-[160px] text-center leading-tight" title="${escapeHtml(mp.detail || '')}">${escapeHtml(mp.detail ? (mp.detail.length > 60 ? mp.detail.slice(0, 60) + '…' : mp.detail) : 'Sin resultados automáticos')}</p>`
+                    : '';
                 return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-1">
                     <button onclick="refreshMarketPrice(${item.id})" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"><i class="fa-solid fa-magnifying-glass-dollar mr-1"></i>Buscar</button>
                     ${errorNote}

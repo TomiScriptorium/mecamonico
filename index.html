@@ -4639,14 +4639,29 @@
             (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
         ];
 
+        // Función propia en Supabase (Edge Function) que consulta Mercado Libre desde
+        // el servidor: es la forma confiable de evitar el bloqueo anti-bots, porque la
+        // consulta no sale desde el navegador del usuario. Si todavía no está publicada
+        // en la cuenta de Supabase, este intento simplemente falla y se sigue probando
+        // con las alternativas de siempre (conexión directa y los puentes CORS).
+        const SUPABASE_ML_FUNCTION_URL = `${_supabaseUrl}/functions/v1/ml-search`;
+
         async function fetchMercadoLibrePrices(query) {
             const targetUrl = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
-            const attempts = [targetUrl, ...CORS_PROXY_BUILDERS.map(build => build(targetUrl))];
+            const attempts = [
+                { url: SUPABASE_ML_FUNCTION_URL, options: {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'apikey': _supabaseKey, 'Authorization': `Bearer ${_supabaseKey}` },
+                    body: JSON.stringify({ query })
+                } },
+                { url: targetUrl, options: {} },
+                ...CORS_PROXY_BUILDERS.map(build => ({ url: build(targetUrl), options: {} }))
+            ];
 
             let lastError = new Error('No se pudo consultar');
-            for (const url of attempts) {
+            for (const attempt of attempts) {
                 try {
-                    const res = await fetch(url);
+                    const res = await fetch(attempt.url, attempt.options);
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     const data = await res.json();
                     const prices = (data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);

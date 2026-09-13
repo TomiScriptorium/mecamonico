@@ -6,7 +6,7 @@
     <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
          Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
          pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.mercadolibre.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -604,6 +604,9 @@
             <button onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links">
                 <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span> Información
             </button>
+            <button onclick="renderView('mercado')" class="sb-nav-btn nav-btn" data-target="mercado">
+                <span class="sb-icon"><i class="fa-solid fa-tags"></i></span> Mercado
+            </button>
         </nav>
 
         <!-- Acciones al fondo -->
@@ -724,6 +727,12 @@
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
                 <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Información</span>
+            </button>
+
+            <button onclick="renderView('mercado')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="mercado">
+                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
+                <i class="fa-solid fa-tags text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Mercado</span>
             </button>
         </nav>
     </div>
@@ -1294,7 +1303,7 @@
             userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false,
             showFinanceWidget: true,
-            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
+            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado']
         };
         let selectedDateKey = null; 
         let tempShiftType = null;
@@ -1402,7 +1411,8 @@
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     if (!saved.appTheme) saved.appTheme = localStorage.getItem('mech_theme') || 'rojo';
                     if (saved.showFinanceWidget === undefined) saved.showFinanceWidget = true;
-                    if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'];
+                    if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado'];
+                    else if (!saved.visibleModules.includes('mercado')) saved.visibleModules.push('mercado'); // Activa el nuevo módulo para cuentas ya existentes
                     
                     if (!saved.shoppingList) saved.shoppingList = [];
                     else saved.shoppingList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
@@ -1416,7 +1426,7 @@
                     else saved.serviceList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
 
                     if (!saved.inventoryList) saved.inventoryList = [];
-                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; });
+                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; });
 
                     if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
@@ -3781,6 +3791,7 @@
                 minQty: minQty,
                 soldQty: 0,
                 salesLog: [],
+                marketPrice: null,
                 image: null,
                 extraData: extraData
             };
@@ -4569,7 +4580,7 @@
                                 id: Date.now() + Math.random(),
                                 sku: data.sku, product: data.product, brand: data.brand, category: data.category,
                                 qty: data.qty, minQty: data.minQty, price: data.price, salePrice: data.salePrice,
-                                soldQty: 0, salesLog: [], image: null, extraData: null
+                                soldQty: 0, salesLog: [], marketPrice: null, image: null, extraData: null
                             });
                         });
                         saveData();
@@ -4583,6 +4594,214 @@
                 showToast("Error al leer el archivo. ¿Es un Excel exportado desde aquí?", "fa-bug");
             }
             input.value = '';
+        }
+
+        // ================= MÓDULO MERCADO =================
+        // Compara el precio de venta propio con el precio promedio de Mercado Libre,
+        // buscando por el SKU (código de fábrica, ej. de pastillas GTX/PM/Matsumoto).
+        // AVISO: usa el buscador público de Mercado Libre (api.mercadolibre.com), que
+        // no requiere clave, pero es un servicio de terceros fuera de nuestro control:
+        // si en algún momento bloquea la consulta directa desde el navegador, cada
+        // producto igual ofrece un enlace directo a la búsqueda y un campo para
+        // anotar el precio a mano.
+        const MERCADOLIBRE_SITE = 'MLC'; // Chile
+
+        function getMercadoLibreSearchUrl(query) {
+            return `https://listado.mercadolibre.cl/${encodeURIComponent(query)}`;
+        }
+
+        function hasValidSku(item) {
+            return !!(item.sku && item.sku.trim() && item.sku.trim().toUpperCase() !== 'N/A');
+        }
+
+        async function fetchMercadoLibrePrices(query) {
+            const url = `https://api.mercadolibre.com/sites/${MERCADOLIBRE_SITE}/search?q=${encodeURIComponent(query)}&limit=15`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const prices = (data.results || []).map(r => r.price).filter(p => typeof p === 'number' && p > 0);
+            if (prices.length === 0) throw new Error('Sin resultados');
+            const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+            return {
+                avg: Math.round(avg),
+                min: Math.round(Math.min(...prices)),
+                max: Math.round(Math.max(...prices)),
+                count: prices.length
+            };
+        }
+
+        function todayDateKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        async function refreshMarketPrice(id, silent) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item || !hasValidSku(item)) return;
+            const query = item.sku.trim();
+
+            const cell = document.getElementById(`market-cell-${id}`);
+            if (cell) cell.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-neutral-400"></i>`;
+
+            try {
+                const result = await fetchMercadoLibrePrices(query);
+                item.marketPrice = { ...result, checkedAt: todayDateKey(), source: 'api', query };
+                if (!silent) showToast("Precio de mercado actualizado", "fa-tags");
+            } catch (e) {
+                console.error(e);
+                item.marketPrice = { avg: null, min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'error', query };
+                if (!silent) showToast("No se pudo consultar Mercado Libre automáticamente", "fa-triangle-exclamation");
+            }
+            saveData();
+
+            const freshCell = document.getElementById(`market-cell-${id}`);
+            if (freshCell) freshCell.outerHTML = getMarketCellHTML(item);
+            const diffCell = document.getElementById(`diff-cell-${id}`);
+            if (diffCell) diffCell.outerHTML = getMarketDiffCellHTML(item);
+        }
+
+        async function refreshAllMarketPrices() {
+            const items = state.inventoryList.filter(hasValidSku);
+            if (items.length === 0) {
+                showToast("Ningún producto tiene un SKU válido para buscar", "fa-triangle-exclamation");
+                return;
+            }
+            showToast(`Consultando ${items.length} producto(s) en Mercado Libre...`, "fa-spinner fa-spin");
+            for (const item of items) {
+                await refreshMarketPrice(item.id, true);
+                await new Promise(r => setTimeout(r, 400)); // evita saturar la consulta
+            }
+            showToast("Consulta de mercado terminada", "fa-check-double");
+        }
+
+        function setManualMarketPrice(id) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item) return;
+            const current = (item.marketPrice && item.marketPrice.avg) ? item.marketPrice.avg : '';
+            const value = prompt("Precio promedio que viste en Mercado Libre (con IVA, solo el número):", current);
+            if (value === null) return;
+            const num = parseFloat(String(value).replace(/[^0-9.]/g, ''));
+            if (isNaN(num) || num <= 0) {
+                showToast("Precio inválido", "fa-triangle-exclamation");
+                return;
+            }
+            item.marketPrice = { avg: Math.round(num), min: null, max: null, count: 0, checkedAt: todayDateKey(), source: 'manual', query: item.sku || item.product };
+            saveData();
+            const cell = document.getElementById(`market-cell-${id}`);
+            if (cell) cell.outerHTML = getMarketCellHTML(item);
+            const diffCell = document.getElementById(`diff-cell-${id}`);
+            if (diffCell) diffCell.outerHTML = getMarketDiffCellHTML(item);
+            showToast("Precio de mercado guardado", "fa-pen");
+        }
+
+        function getMarketCellHTML(item) {
+            const mp = item.marketPrice;
+
+            if (!hasValidSku(item)) {
+                return `<div id="market-cell-${item.id}" class="text-[10px] text-neutral-400 italic">Agrega un SKU para comparar</div>`;
+            }
+
+            const query = item.sku.trim();
+            const mlUrl = getMercadoLibreSearchUrl(query);
+            const linkBtn = `<a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-500 hover:underline" title="Buscar &quot;${escapeHtml(query)}&quot; en Mercado Libre"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>Ver en ML</a>`;
+
+            if (!mp || mp.avg === null) {
+                const errorNote = mp && mp.source === 'error' ? `<p class="text-[9px] text-red-400 mt-0.5">Sin resultados automáticos</p>` : '';
+                return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-1">
+                    <button onclick="refreshMarketPrice(${item.id})" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"><i class="fa-solid fa-magnifying-glass-dollar mr-1"></i>Buscar</button>
+                    ${errorNote}
+                    <div class="flex items-center gap-2">${linkBtn}<button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline">Anotar a mano</button></div>
+                </div>`;
+            }
+
+            const [y, m, d] = mp.checkedAt.split('-');
+            const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
+            const rangeTitle = (mp.min && mp.max) ? `Rango visto: $${mp.min.toLocaleString('es-CL')} - $${mp.max.toLocaleString('es-CL')}` : 'Ingresado a mano';
+            const sourceLabel = mp.source === 'manual' ? 'anotado a mano' : `${mp.count} aviso${mp.count === 1 ? '' : 's'}`;
+
+            return `<div id="market-cell-${item.id}" class="flex flex-col items-center gap-0.5" title="${escapeHtml(rangeTitle)}">
+                <span class="text-sm font-black text-neutral-800 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</span>
+                <span class="text-[9px] text-neutral-400">${escapeHtml(sourceLabel)} · ${dateStr}</span>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <button onclick="refreshMarketPrice(${item.id})" class="text-[10px] text-blue-500 hover:underline" title="Volver a consultar"><i class="fa-solid fa-rotate"></i></button>
+                    ${linkBtn}
+                    <button onclick="setManualMarketPrice(${item.id})" class="text-[10px] text-neutral-400 hover:underline" title="Corregir a mano"><i class="fa-solid fa-pen"></i></button>
+                </div>
+            </div>`;
+        }
+
+        function getMarketDiffCellHTML(item) {
+            const mp = item.marketPrice;
+            if (!mp || !mp.avg) return `<span id="diff-cell-${item.id}" class="text-neutral-300 dark:text-neutral-600">—</span>`;
+            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+            const diffPct = Math.round(((salePriceGross - mp.avg) / mp.avg) * 100);
+            const color = diffPct > 5 ? 'text-red-600 dark:text-red-400' : (diffPct < -5 ? 'text-green-600 dark:text-green-400' : 'text-neutral-500 dark:text-neutral-400');
+            const sign = diffPct > 0 ? '+' : '';
+            const label = diffPct > 5 ? 'más caro' : (diffPct < -5 ? 'más barato' : 'similar');
+            return `<span id="diff-cell-${item.id}" class="text-xs font-black ${color}" title="Estás ${label} que el promedio de mercado">${sign}${diffPct}%</span>`;
+        }
+
+        function getMercadoRowHTML(item) {
+            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+            return `<tr id="mercado-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 odd:bg-white even:bg-neutral-50/70 dark:odd:bg-neutral-900 dark:even:bg-neutral-800/40">
+                <td class="p-2 align-middle">
+                    <div class="font-bold text-sm text-neutral-800 dark:text-neutral-100">${escapeHtml(item.product)}</div>
+                    ${item.brand ? `<div class="text-[10px] text-neutral-400">${escapeHtml(item.brand)}</div>` : ''}
+                </td>
+                <td class="p-2 align-middle text-center"><span class="text-[11px] font-mono bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded">${escapeHtml(item.sku || 'N/A')}</span></td>
+                <td class="p-2 align-middle text-right"><span class="text-sm font-bold text-neutral-700 dark:text-neutral-300">$${salePriceGross.toLocaleString('es-CL')}</span></td>
+                <td class="p-2 align-middle text-center">${getMarketCellHTML(item)}</td>
+                <td class="p-2 align-middle text-center">${getMarketDiffCellHTML(item)}</td>
+            </tr>`;
+        }
+
+        function filterMercado(query) {
+            const term = query.toLowerCase();
+            const tbody = document.getElementById('mercado-table-body');
+            if (!tbody) return;
+            Array.from(tbody.children).forEach(row => {
+                if (row.id === 'empty-mercado-msg') return;
+                row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+            });
+        }
+
+        function getMercadoHTML() {
+            const items = state.inventoryList.slice().sort((a, b) => (a.product || '').toLowerCase().localeCompare((b.product || '').toLowerCase()));
+            const rowsHtml = items.map(item => getMercadoRowHTML(item)).join('');
+
+            return `<div class="pb-24 fade-enter">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2"><i class="fa-solid fa-tags text-orange-500"></i> Mercado</h2>
+                    <button onclick="refreshAllMarketPrices()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center gap-2 active:scale-95"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Todos</button>
+                </div>
+
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
+                    <p>Compara tu precio de venta con el precio promedio en Mercado Libre, buscando por el SKU (código de fábrica) de cada producto — útil para pastillas GTX, PM, Matsumoto, etc. Si la búsqueda automática no encuentra resultados, usa "Ver en ML" para revisarlo tú mismo y "Anotar a mano" para guardar el precio que veas.</p>
+                </div>
+
+                <div class="mb-4 relative">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                    <input type="text" placeholder="Buscar por nombre, marca o SKU..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-orange-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterMercado(this.value)">
+                </div>
+
+                ${items.length === 0
+                    ? `<div class="text-center py-16 opacity-60 bg-white dark:bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-700"><i class="fa-solid fa-box-open text-3xl text-neutral-400 mb-3"></i><p class="text-sm font-bold text-neutral-500">No tienes productos en Bodega aún</p></div>`
+                    : `<div class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-x-auto hide-scrollbar mouse-drag">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                            <tr>
+                                <th class="p-2 font-bold uppercase tracking-wider">Producto</th>
+                                <th class="p-2 font-bold uppercase tracking-wider text-center">SKU</th>
+                                <th class="p-2 font-bold uppercase tracking-wider text-right">Tu Precio</th>
+                                <th class="p-2 font-bold uppercase tracking-wider text-center">Precio Mercado</th>
+                                <th class="p-2 font-bold uppercase tracking-wider text-center">Diferencia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mercado-table-body">${rowsHtml}</tbody>
+                    </table>
+                </div>`}
+            </div>`;
         }
 
         async function downloadWorkOrderPDF(patientId) {
@@ -4765,7 +4984,7 @@
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
-            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario' || viewName === 'mercado') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
             let contentHTML = '';
             try { 
                 switch(viewName) { 
@@ -4775,8 +4994,9 @@
                     case 'notes': contentHTML = getNotesHTML(); break; 
                     case 'links': contentHTML = getLinksHTML(); break; 
                     case 'work_orders': contentHTML = getWorkOrdersHTML(); break; 
-                    case 'shopping_list': contentHTML = getShoppingListHTML(); break; 
-                    default: contentHTML = getDashboardHTML(); 
+                    case 'shopping_list': contentHTML = getShoppingListHTML(); break;
+                    case 'mercado': contentHTML = getMercadoHTML(); break;
+                    default: contentHTML = getDashboardHTML();
                 } 
             } catch (e) { console.error(e); contentHTML = `<div class="p-8 text-center text-red-400">Error.</div>`; } 
 
@@ -5205,7 +5425,8 @@
             'todo': { icon: 'fa-clipboard-list', name: 'Tareas', locked: false },
             'turnario': { icon: 'fa-calendar-days', name: 'Calendario', locked: false },
             'notes': { icon: 'fa-book-open', name: 'Apuntes', locked: false },
-            'links': { icon: 'fa-toolbox', name: 'Información', locked: false }
+            'links': { icon: 'fa-toolbox', name: 'Información', locked: false },
+            'mercado': { icon: 'fa-tags', name: 'Mercado', locked: false }
         };
 
         // --- SISTEMA DE TEMAS ---
@@ -5737,7 +5958,7 @@
                 appTitle: 'Mecamonico', appSubtitle: 'Gestión de Taller & Estudio', 
                 userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
                 darkMode: false, showFinanceWidget: true,
-                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
+                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links', 'mercado']
             };
             try { await idbKeyval.set(APP_KEY, state); } catch(e) {}
             // ------------------------------------------------------

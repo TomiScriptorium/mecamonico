@@ -3501,10 +3501,13 @@
             const editBtnIcon = isEditing ? 'fa-solid fa-lock text-xs' : 'fa-solid fa-pencil text-xs';
             const editBtnClass = isEditing ? 'bg-blue-500 text-white shadow-inner' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white shadow-sm';
             const rowBg = isEditing ? 'bg-blue-50/60 dark:bg-blue-900/10 ring-1 ring-inset ring-blue-300 dark:ring-blue-800' : 'odd:bg-white even:bg-neutral-50/70 dark:odd:bg-neutral-900 dark:even:bg-neutral-800/40 hover:bg-blue-50/40 dark:hover:bg-neutral-800';
+            // Columna Código congelada (sticky) al deslizar la tabla hacia los lados en el celular,
+            // para que nunca se pierda de vista a qué producto corresponde lo que se ve a la derecha.
+            const stickyColBg = isEditing ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-neutral-900';
 
             return `
                 <tr id="inventory-row-${item.id}" class="inv-row ${rowBg} border-b border-neutral-200 dark:border-neutral-800 transition-colors group align-top">
-                    <td class="p-1.5 sm:p-2 align-middle">
+                    <td class="p-1.5 sm:p-2 align-middle sticky left-0 z-10 ${stickyColBg} shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]">
                         <input type="text" value="${escapeHtml(sku)}" oninput="updateInventoryItem(${item.id}, 'sku', this.value)" class="w-20 sm:w-24 bg-transparent outline-none font-mono text-[11px] text-neutral-500 dark:text-neutral-400 ${pointerClass}" placeholder="Código" ${readOnlyAttr}>
                         <div class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mt-0.5 truncate max-w-[100px]" title="${escapeHtml(category)}">${escapeHtml(category)}</div>
                     </td>
@@ -4027,7 +4030,7 @@
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
                         <tr>
-                            ${getInvSortTh('Código / Categoría', 'sku')}
+                            ${getInvSortTh('Código / Categoría', 'sku', 'sticky left-0 z-20 bg-neutral-100 dark:bg-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]')}
                             ${getInvSortTh('Producto', 'product')}
                             ${getInvSortTh('Marca', 'brand')}
                             ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}
@@ -4045,7 +4048,7 @@
                     </tbody>
                 </table>
             </div>
-            <p class="text-[10px] text-neutral-400 mt-2 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> Toca el encabezado de una columna para ordenar. Desliza la tabla hacia los lados para ver todas las columnas.</p>
+            <p class="text-[10px] text-neutral-400 mt-2 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> Toca el encabezado de una columna para ordenar. Desliza la tabla hacia los lados para ver todas las columnas — el Código queda siempre visible.</p>
         </div>
     `;
 }

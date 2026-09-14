@@ -229,7 +229,7 @@
             /* Resetear el flex-col del body y usar grid */
             body {
                 display: grid !important;
-                grid-template-columns: 224px 1fr; /* <-- Ancho más fiel al mockup aprobado */
+                grid-template-columns: 232px 1fr; /* <-- Ancho exacto del mockup aprobado */
                 grid-template-rows: 64px 1fr;
                 grid-template-areas:
                     "sidebar header"
@@ -522,10 +522,34 @@
     </style>
 </head>
 <body class="text-stone-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.1 2.1-2.3-2.3 2.1-2.1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5M6 10v9a1 1 0 0 0 1 1h4v-5h2v5h4a1 1 0 0 0 1-1v-9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M4 16V12l2-5h12l2 5v4M4 16a1.5 1.5 0 0 0 3 0M17 16a1.5 1.5 0 0 0 3 0M4 16h1.5M20 16h-1.5M4 12h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5v-9ZM4 7.5 12 11l8-3.5M12 11v9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-check-square" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 12l2.5 2.5L16 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M8 3.5v4M16 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5.5c0-.8.7-1.5 1.5-1.5H19v15H6.5A1.5 1.5 0 0 0 5 20.5V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 18.5c0-.8.7-1.5 1.5-1.5H19" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M15.5 4.5l4 4L8 20H4v-4L15.5 4.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M9.5 10a2.5 1.6 0 0 1 5 0c0 1-1 1.6-2.5 1.6S9.5 13 9.5 14a2.5 1.6 0 0 0 5 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M11 4h6a2 2 0 0 1 2 2v6l-9 9-8-8 9-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="15.5" cy="8.5" r="1.4" fill="currentColor"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M8 15l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-file-down" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 12v5m0 0-2-2m2 2 2-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V6m0 0-3.5 3.5M12 6l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 18h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 20h18L12 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4m0 3v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 8h14.5A1.5 1.5 0 0 1 20 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5V8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16.5" cy="13" r="1.1" fill="currentColor"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 10.5a6 6 0 0 1 12 0c0 4 1.5 5 2 5.5H4c.5-.5 2-1.5 2-5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="20" r="1.3" fill="currentColor"/><circle cx="16.5" cy="20" r="1.3" fill="currentColor"/></symbol>
+</defs></svg>
 <div id="auth-screen" class="fixed inset-0 bg-stone-950 z-[200] flex flex-col items-center justify-center p-4 fade-enter">
         <div class="mb-8 text-center">
             <div class="w-20 h-20 bg-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-600/30">
-                <i class="fa-solid fa-car text-4xl text-white"></i>
+                <svg width="40" height="40" style="color:white"><use href="#i-wrench"/></svg>
             </div>
             <h1 class="text-3xl font-black text-white tracking-tighter">Mecamonico <span class="text-red-500">Cloud</span></h1>
             <p class="text-stone-400 text-sm mt-1">Ingresa para sincronizar tu taller</p>
@@ -577,7 +601,7 @@
         <!-- Logo + Título clickeable -->
         <div id="sidebar-logo-area" class="relative flex items-center px-4 py-5 border-b border-stone-200 dark:border-neutral-800" style="overflow: visible !important;">
             <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio" class="cursor-pointer flex items-center justify-center transition-all">
-                <i class="fa-solid fa-car" style="color:white; font-size:1.15rem;"></i>
+                <svg width="20" height="20" style="color:white"><use href="#i-wrench"/></svg>
             </div>
             <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller" class="ml-3 cursor-pointer">
                 <div id="sb-app-title" class="font-bold text-white text-sm">Mecamonico <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.6rem;"></i></div>
@@ -594,25 +618,25 @@
             <div class="sb-section-label">Módulos</div>
 
             <button onclick="renderView('dashboard')" class="sb-nav-btn nav-btn" data-target="dashboard">
-                <span class="sb-icon"><i class="fa-solid fa-house"></i></span> Inicio
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-home"/></svg></span> Inicio
             </button>
             <button onclick="renderView('work_orders')" class="sb-nav-btn nav-btn" data-target="work_orders">
-                <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span> Taller
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-car"/></svg></span> Taller
             </button>
             <button onclick="renderView('shopping_list')" class="sb-nav-btn nav-btn" data-target="shopping_list">
-                <span class="sb-icon"><i class="fa-solid fa-box"></i></span> Bodega Central
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-box"/></svg></span> Bodega Central
             </button>
             <button onclick="renderView('todo')" class="sb-nav-btn nav-btn" data-target="todo">
-                <span class="sb-icon"><i class="fa-solid fa-square-check"></i></span> Tareas
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-check-square"/></svg></span> Tareas
             </button>
             <button onclick="renderView('turnario')" class="sb-nav-btn nav-btn" data-target="turnario">
-                <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span> Calendario
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-calendar"/></svg></span> Calendario
             </button>
             <button onclick="renderView('notes')" class="sb-nav-btn nav-btn" data-target="notes">
-                <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span> Apuntes
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-book"/></svg></span> Apuntes
             </button>
             <button onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links">
-                <span class="sb-icon"><i class="fa-solid fa-circle-info"></i></span> Información
+                <span class="sb-icon"><svg width="18" height="18"><use href="#i-info"/></svg></span> Información
             </button>
         </nav>
 
@@ -639,7 +663,7 @@
             <!-- LOGO -->
             <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 md:hidden">
                 <div class="bg-red-600 p-2 sm:p-2.5 rounded-md shadow-sm cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
-                    <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
+                    <svg width="16" height="16" class="sm:w-5 sm:h-5" style="color:white"><use href="#i-wrench"/></svg>
                 </div>
                 <div class="cursor-pointer group min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar Encabezado">
                     <h1 class="font-display text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate">
@@ -2176,10 +2200,10 @@
             
             <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded-2xl shadow-sm border border-stone-200 dark:border-neutral-700 shrink-0">
                 <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-stone-100 dark:border-neutral-800 pb-2' : ''}" id="profile-card-header">
-                    <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-stone-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-stone-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
+                    <div class="relative w-16 h-16 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-stone-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-16 h-16 rounded-full object-cover border-4 border-stone-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
                     <div class="flex-1">
                         <p class="text-xs text-stone-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p>
-                        <h2 class="font-display text-2xl font-extrabold text-stone-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-stone-300"></i></h2>
+                        <h2 class="font-display text-[22px] font-extrabold text-stone-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-stone-300"></i></h2>
                     </div>
                 </div>
                 ${financeWidgetHTML}
@@ -2191,22 +2215,22 @@
                 <h3 class="text-xs font-bold text-stone-400 dark:text-neutral-500 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Accesos Rápidos</h3>
                 <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                     <div onclick="renderView('work_orders'); setTimeout(() => openPatientModal(), 100);" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-stone-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition"><i class="fa-solid fa-car-side text-lg sm:text-2xl"></i></div>
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition"><svg width="18" height="18"><use href="#i-car"/></svg></div>
                         <span class="text-[10px] sm:text-xs font-bold text-stone-600 dark:text-neutral-300 leading-tight">Nuevo<br>Vehículo</span>
                     </div>
-                    
+
                     <div onclick="setActiveShopTab('items')" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-stone-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition"><i class="fa-solid fa-cart-shopping text-lg sm:text-2xl"></i></div>
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition"><svg width="18" height="18"><use href="#i-cart"/></svg></div>
                         <span class="text-[10px] sm:text-xs font-bold text-stone-600 dark:text-neutral-300 leading-tight">Lista<br>Compras</span>
                     </div>
-                    
+
                     <div onclick="renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-stone-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-yellow-500 dark:hover:border-yellow-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/40 transition"><i class="fa-solid fa-pen-clip text-lg sm:text-2xl"></i></div>
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/40 transition"><svg width="18" height="18"><use href="#i-pencil"/></svg></div>
                         <span class="text-[10px] sm:text-xs font-bold text-stone-600 dark:text-neutral-300 leading-tight">Escribir<br>Apunte</span>
                     </div>
-                    
-                    <div onclick="setInfoTab('pdf'); if(state.view !== 'links') renderView('links');" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-stone-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition"><i class="fa-solid fa-file-pdf text-lg sm:text-2xl"></i></div>
+
+                    <div onclick="setInfoTab('pdf'); if(state.view !== 'links') renderView('links');" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-stone-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-stone-400 dark:hover:border-stone-500 hover:shadow-md transition group cursor-pointer text-center">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-full bg-stone-100 dark:bg-neutral-800 text-stone-500 dark:text-neutral-400 flex items-center justify-center group-hover:scale-110 transition"><svg width="18" height="18"><use href="#i-file-down"/></svg></div>
                         <span class="text-[10px] sm:text-xs font-bold text-stone-600 dark:text-neutral-300 leading-tight">Abrir<br>Manual</span>
                     </div>
                 </div>
@@ -4178,39 +4202,39 @@
 
                 <div class="grid grid-cols-2 sm:flex sm:flex-row flex-wrap gap-2 w-full xl:w-auto">
 
-                    <button onclick="openInvSummaryModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                    <button onclick="openInvSummaryModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
                         <i class="fa-solid fa-chart-pie text-stone-400"></i>
                         <span>Resumen</span>
                     </button>
 
-                    <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-cart-shopping text-stone-400"></i>
+                    <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <svg width="15" height="15" class="text-stone-400"><use href="#i-cart"/></svg>
                         <span><span class="hidden sm:inline">Lista de </span>Compras</span>
                     </button>
 
-                    <button onclick="downloadInventoryPDF()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-pdf text-stone-400"></i>
+                    <button onclick="downloadInventoryPDF()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <svg width="15" height="15" class="text-stone-400"><use href="#i-file-down"/></svg>
                         <span>PDF</span>
                     </button>
 
-                    <button onclick="exportInventoryToExcel()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-excel text-stone-400"></i>
+                    <button onclick="exportInventoryToExcel()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <svg width="15" height="15" class="text-stone-400"><use href="#i-file-down"/></svg>
                         <span>Excel</span>
                     </button>
 
-                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
-                        <i class="fa-solid fa-file-import text-stone-400"></i>
+                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
+                        <svg width="15" height="15" class="text-stone-400"><use href="#i-upload"/></svg>
                         <span>Importar</span>
                     </button>
                     <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
 
-                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
-                        <i class="fa-solid fa-tags text-stone-400"></i>
+                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-stone-600 dark:text-neutral-300 border border-stone-200 dark:border-neutral-600 px-3.5 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-stone-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
+                        <svg width="15" height="15" class="text-stone-400"><use href="#i-tag"/></svg>
                         <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
                     </button>
 
-                    <button onclick="openAddInventoryModal()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-red-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
-                        <i class="fa-solid fa-plus"></i>
+                    <button onclick="openAddInventoryModal()" class="bg-red-600 text-white px-4 py-[9px] rounded-[10px] text-[12.5px] font-bold shadow-sm hover:bg-red-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
+                        <svg width="15" height="15"><use href="#i-plus"/></svg>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
                     </button>
 
@@ -4219,22 +4243,22 @@
 
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                 <div class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-stone-100 dark:bg-neutral-800 text-stone-500 dark:text-neutral-400 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-sm"></i></div>
+                    <div class="w-9 h-9 rounded-lg bg-stone-100 dark:bg-neutral-800 text-stone-500 dark:text-neutral-400 flex items-center justify-center"><svg width="17" height="17"><use href="#i-box"/></svg></div>
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Ítems en Catálogo</p>
                     <p id="inv-kpi-items" class="font-display text-2xl font-extrabold text-stone-800 dark:text-neutral-100 leading-none">${state.inventoryList.length}</p>
                 </div>
                 <div class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-sm"></i></div>
+                    <div class="w-9 h-9 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 flex items-center justify-center"><svg width="17" height="17"><use href="#i-alert"/></svg></div>
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Alertas de Stock</p>
                     <p id="inv-kpi-alerts" class="font-display text-2xl font-extrabold ${lowStockCount > 0 ? 'text-yellow-600' : 'text-stone-800 dark:text-neutral-100'} leading-none">${lowStockCount}</p>
                 </div>
                 <div class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><i class="fa-solid fa-wallet text-sm"></i></div>
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><svg width="17" height="17"><use href="#i-wallet"/></svg></div>
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Inversión en Stock</p>
                     <p id="inv-kpi-cost" class="font-display text-2xl font-extrabold text-blue-600 truncate max-w-[130px] sm:max-w-full leading-none" title="$${totalCost.toLocaleString('es-CL')}">$${totalCost.toLocaleString('es-CL')}</p>
                 </div>
                 <div class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
-                    <div class="w-9 h-9 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-500 flex items-center justify-center"><i class="fa-solid fa-sack-dollar text-sm"></i></div>
+                    <div class="w-9 h-9 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-500 flex items-center justify-center"><svg width="17" height="17"><use href="#i-coin"/></svg></div>
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Ganancia Histórica</p>
                     <p id="inv-kpi-profit" class="font-display text-2xl font-extrabold ${totalProfit < 0 ? 'text-red-500' : 'text-green-600'} truncate max-w-[130px] sm:max-w-full leading-none" title="$${totalProfit.toLocaleString('es-CL')}">$${totalProfit.toLocaleString('es-CL')}</p>
                 </div>
@@ -4242,7 +4266,7 @@
 
             <div class="mb-4 flex gap-2 relative">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-400"></i>
+                    <svg width="16" height="16" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-400"><use href="#i-search"/></svg>
                     <input type="text" id="inventory-search" placeholder="Buscar por Código, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-stone-700 dark:text-neutral-200 font-medium transition shadow-sm" onkeyup="filterInventory(this.value)">
                 </div>
                 <button onclick="openInvReportModal()" class="w-[46px] h-[46px] bg-white dark:bg-neutral-800 border border-stone-200 dark:border-neutral-600 text-stone-500 dark:text-neutral-300 rounded-xl flex items-center justify-center hover:bg-stone-50 dark:hover:bg-neutral-700 transition shadow-sm shrink-0" title="Reporte Histórico">

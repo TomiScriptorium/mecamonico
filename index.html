@@ -129,10 +129,10 @@
 
         .work-order {
             background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #d4d4d4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e5e5;
+            border-radius: 1rem;
             position: relative;
-            border-left: 4px solid var(--mech-primary);
         }
 
         .dark .work-order {
@@ -719,65 +719,65 @@
     </div>
     <!-- Fin Nav Bar móvil -->
     <div id="shift-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white dark:bg-neutral-900 rounded-sm shadow-2xl w-full max-w-sm p-0 overflow-hidden transform transition-all scale-100 border-l-4 border-red-600">
-             <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
-                 <h3 id="modal-date-title" class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Editar Fecha</h3>
-                 <button onclick="closeModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm p-0 overflow-hidden transform transition-all scale-100 border border-neutral-200 dark:border-neutral-700">
+             <div class="bg-neutral-50 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
+                 <h3 id="modal-date-title" class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100">Editar Fecha</h3>
+                 <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
              </div>
              <div class="p-5">
                 <label class="block text-sm font-bold text-neutral-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-tag"></i> Tipo de Evento:</label>
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-red-500 hover:text-red-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-wrench text-lg"></i> Práctica</button>
-                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-blue-500 hover:text-blue-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-export text-lg"></i> Informe</button>
-                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-indigo-500 hover:text-indigo-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-signature text-lg"></i> Certamen</button>
-                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-yellow-500 hover:text-yellow-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-book text-lg"></i> Estudio</button>
-                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm col-span-2"><i class="fa-solid fa-calendar-check text-lg"></i> Vehículo Agendado</button>
+                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-red-500 hover:text-red-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-wrench text-lg"></i> Práctica</button>
+                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-blue-500 hover:text-blue-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-export text-lg"></i> Informe</button>
+                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-indigo-500 hover:text-indigo-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-signature text-lg"></i> Certamen</button>
+                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-yellow-500 hover:text-yellow-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-book text-lg"></i> Estudio</button>
+                    <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-green-500 hover:text-green-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm col-span-2"><i class="fa-solid fa-calendar-check text-lg"></i> Vehículo Agendado</button>
                     <button onclick="setShiftType(null)" data-type="null" class="hidden"></button>
                 </div>
-                
+
                 <div class="space-y-3">
                     <div class="flex gap-2">
-                        <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1">
+                        <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1">
                             <i class="fa-regular fa-clock text-neutral-400"></i>
                             <input type="time" id="modal-event-time" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none">
                         </div>
-                        <div id="modal-plate-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1 hidden">
+                        <div id="modal-plate-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 flex-1 hidden">
                             <i class="fa-solid fa-car text-neutral-400"></i>
                             <input type="text" id="modal-car-plate" oninput="this.value = this.value.toUpperCase()" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400 uppercase" placeholder="Patente">
                         </div>
                     </div>
-                    <div id="modal-client-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 hidden">
+                    <div id="modal-client-container" class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-2 hidden">
                         <i class="fa-solid fa-user text-neutral-400"></i>
                         <input type="text" id="modal-car-client" class="bg-transparent w-full text-sm font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400" placeholder="Nombre Cliente / Modelo">
                     </div>
-                    <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded border border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
+                    <div class="bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
                         <i class="fa-solid fa-pen-to-square text-neutral-400"></i>
                         <input type="text" id="modal-note-input" class="bg-transparent w-full text-sm font-semibold text-neutral-700 dark:text-neutral-200 focus:outline-none placeholder-neutral-400" placeholder="Servicio / Motivo...">
                     </div>
                 </div>
 
                 <div id="btn-send-to-workshop" class="hidden mt-4">
-                    <button onclick="sendAgendadoToWorkshop()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition flex items-center justify-center gap-2 text-sm">
+                    <button onclick="sendAgendadoToWorkshop()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-share-from-square"></i> Mandar a Taller (Crear Orden)
                     </button>
                 </div>
 
                 <div class="flex justify-between items-center mt-4 gap-2 border-t border-neutral-100 dark:border-neutral-800 pt-4">
-                    <button onclick="deleteCurrentShift()" class="w-10 h-10 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 rounded font-bold transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    <button onclick="saveShift()" class="flex-1 py-2.5 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 dark:hover:bg-neutral-600 shadow-lg transform active:scale-95 transition-all font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i> Guardar Ficha</button>
+                    <button onclick="deleteCurrentShift()" class="w-10 h-10 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 rounded-lg font-bold transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    <button onclick="saveShift()" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm transform active:scale-95 transition-all font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i> Guardar Ficha</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Otros modales -->
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 text-center border-t-4 border-red-500"><div class="w-14 h-14 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">¿Confirmar?</h3><p id="confirm-message" class="text-sm text-neutral-500 dark:text-neutral-400 mb-6 font-mono">Esta acción es irreversible.</p><div class="flex justify-center gap-3"><button onclick="closeConfirmModal()" class="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded font-bold text-sm">Cancelar</button><button id="confirm-btn-action" class="px-5 py-2 bg-red-600 text-white rounded font-bold text-sm shadow-md">Confirmar</button></div></div></div>
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 text-center"><div class="w-14 h-14 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">¿Confirmar?</h3><p id="confirm-message" class="text-sm text-neutral-500 dark:text-neutral-400 mb-6 font-mono">Esta acción es irreversible.</p><div class="flex justify-center gap-3"><button onclick="closeConfirmModal()" class="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded font-bold text-sm">Cancelar</button><button id="confirm-btn-action" class="px-5 py-2 bg-red-600 text-white rounded font-bold text-sm shadow-md">Confirmar</button></div></div></div>
     <div id="image-modal" class="hidden fixed inset-0 bg-neutral-900/95 z-[100] flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onclick="closeImageModal()">
         <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-neutral-800/50 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition backdrop-blur-md z-10 shadow-lg"><i class="fa-solid fa-xmark text-xl"></i></button>
         <img id="modal-image-content" src="" class="max-w-full max-h-[90vh] object-contain rounded shadow-2xl fade-enter" onclick="event.stopPropagation()">
     </div>
     <div id="preview-note-modal" class="hidden fixed inset-0 bg-neutral-900/90 z-[100] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm" onclick="closePreviewNoteModal()">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 border-t-4 border-red-600 relative item-enter hide-scrollbar" onclick="event.stopPropagation()">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative item-enter hide-scrollbar" onclick="event.stopPropagation()">
             <button onclick="closePreviewNoteModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 hover:bg-red-50 transition flex items-center justify-center z-10">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -799,32 +799,32 @@
             </div>
         </div>
     </div>
-    <div id="folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-red-600"></i> Nueva Sección</h3><input type="text" id="new-folder-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Ej: Motores, Electricidad..."><div class="flex justify-end gap-3"><button onclick="closeFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="createFolder()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Crear</button></div></div></div>
+    <div id="folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700"><h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-red-600"></i> Nueva Sección</h3><input type="text" id="new-folder-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Ej: Motores, Electricidad..."><div class="flex justify-end gap-3"><button onclick="closeFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="createFolder()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-sm shadow-sm">Crear</button></div></div></div>
     <div id="rename-pdf-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-purple-600 fade-enter">
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-purple-600"></i> Renombrar PDF</h3>
-            <input type="text" id="rename-pdf-input" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-purple-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Nuevo nombre..." onkeypress="if(event.key === 'Enter') saveRenamedPdf()">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700 fade-enter">
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-purple-600"></i> Renombrar PDF</h3>
+            <input type="text" id="rename-pdf-input" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Nuevo nombre..." onkeypress="if(event.key === 'Enter') saveRenamedPdf()">
             <div class="flex justify-end gap-3">
                 <button onclick="closeRenamePdfModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button>
-                <button onclick="saveRenamedPdf()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 font-bold text-sm shadow-lg">Guardar</button>
+                <button onclick="saveRenamedPdf()" class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 font-bold text-sm shadow-sm">Guardar</button>
             </div>
         </div>
     </div>
     <div id="rename-folder-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-blue-600 fade-enter">
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-600"></i> Renombrar</h3>
-            <input type="text" id="rename-folder-input" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-blue-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Nuevo nombre..." onkeypress="if(event.key === 'Enter') saveRenamedFolder()">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700 fade-enter">
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-600"></i> Renombrar</h3>
+            <input type="text" id="rename-folder-input" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Nuevo nombre..." onkeypress="if(event.key === 'Enter') saveRenamedFolder()">
             <div class="flex justify-end gap-3">
                 <button onclick="closeRenameFolderModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button>
-                <button onclick="saveRenamedFolder()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold text-sm shadow-lg">Guardar</button>
+                <button onclick="saveRenamedFolder()" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-sm shadow-sm">Guardar</button>
             </div>
         </div>
     </div>
-    <div id="name-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-neutral-800 dark:border-neutral-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-id-card text-neutral-600"></i> Credencial</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Nombre del Técnico/a</p><input type="text" id="new-user-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-neutral-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mecánico Juan"><div class="flex justify-end gap-3"><button onclick="closeNameModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveName()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
-    <div id="title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-tag text-red-600"></i> Rol / Título</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Define tu cargo en el taller</p><input type="text" id="new-user-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Estudiante"><div class="flex justify-end gap-3"><button onclick="closeTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
+    <div id="name-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-id-card text-neutral-600"></i> Credencial</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Nombre del Técnico/a</p><input type="text" id="new-user-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-neutral-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mecánico Juan"><div class="flex justify-end gap-3"><button onclick="closeNameModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveName()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white rounded hover:bg-neutral-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
+    <div id="title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-tag text-red-600"></i> Rol / Título</h3><p class="text-sm text-neutral-400 mb-3 font-bold">Define tu cargo en el taller</p><input type="text" id="new-user-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-4 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Estudiante"><div class="flex justify-end gap-3"><button onclick="closeTitleModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button><button onclick="saveTitle()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold text-sm shadow-lg">Guardar</button></div></div></div>
     
     <div id="app-title-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6 border-l-4 border-red-600">
+        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-xs p-6">
             <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-red-600"></i> Encabezado</h3>
             <p class="text-sm text-neutral-400 mb-1 font-bold">Título Principal</p>
             <input type="text" id="new-app-title" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded mb-3 focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-neutral-800 dark:text-white" placeholder="Ej: Mi Taller">
@@ -838,7 +838,7 @@
     </div>
     
     <div id="history-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-neutral-600 fade-enter">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border border-neutral-200 dark:border-neutral-700 fade-enter">
             <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
                 <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-neutral-500"></i> Historial de Vehículos</h3>
                 <button onclick="closeHistoryModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
@@ -854,23 +854,23 @@
         </div>
     </div>
     <div id="patient-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-t-4 border-blue-600">
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-car-side text-blue-600"></i> Ingresar Vehículo</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-neutral-200 dark:border-neutral-700">
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-car-side text-red-600"></i> Ingresar Vehículo</h3>
             <div class="space-y-3">
-                <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Modelo / Cliente">
-                <input type="tel" id="patient-contact" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Teléfono / Whatsapp">
+                <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Modelo / Cliente">
+                <input type="tel" id="patient-contact" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Teléfono / Whatsapp">
                 <div class="flex gap-3">
-                    <input type="text" id="patient-room" oninput="this.value = this.value.toUpperCase()" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold text-center dark:text-white uppercase" placeholder="Patente">
-                    <input type="text" id="patient-dx" class="w-2/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Falla / Servicio">
+                    <input type="text" id="patient-room" oninput="this.value = this.value.toUpperCase()" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold text-center dark:text-white uppercase" placeholder="Patente">
+                    <input type="text" id="patient-dx" class="w-2/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-lg font-bold dark:text-white" placeholder="Falla / Servicio">
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
                 <button onclick="closePatientModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cancelar</button>
-                <button onclick="createPatient()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold text-sm shadow-lg">Ingresar Orden</button>
+                <button onclick="createPatient()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-sm shadow-sm">Ingresar Orden</button>
             </div>
         </div>
     </div>
-    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-l-4 border-neutral-500"><h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded border border-neutral-300 dark:border-neutral-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
+    <div id="backup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-neutral-200 dark:border-neutral-700"><h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-neutral-500"></i> Base de Datos</h3><p class="text-sm text-neutral-500 mb-6 font-mono">Respaldo comprimido de registros e imágenes.</p><div class="grid gap-3"><button onclick="downloadBackupFile()" class="p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-red-300 hover:bg-red-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-download"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Descargar ZIP</h4><p class="text-xs text-neutral-400">Todo el taller</p></div></button><label class="p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-green-300 hover:bg-green-50 dark:hover:bg-neutral-800 transition flex items-center gap-3 group"><div class="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-300 flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-upload"></i></div><div class="text-left"><h4 class="font-bold text-neutral-700 dark:text-neutral-200 text-sm">Restaurar ZIP</h4><p class="text-xs text-neutral-400">Cargar archivo</p></div><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeBackupModal()" class="px-4 py-2 text-neutral-400 hover:text-neutral-600 font-bold text-sm">Cerrar</button></div></div></div>
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-neutral-900 z-[90] flex flex-col animate-fade-in outline-none" tabindex="0">
         <div class="bg-neutral-800 text-white pt-safe px-4 pb-3 flex justify-between items-center shadow-lg shrink-0 z-20 relative border-b border-neutral-600">
             <h3 id="pdf-reader-title" class="text-lg font-bold truncate max-w-[60%] flex items-center font-mono text-red-500"><i class="fa-solid fa-file-pdf mr-2 text-white"></i> Manual</h3>
@@ -901,9 +901,9 @@
         <div class="bg-neutral-800 h-safe-bottom shrink-0 pb-safe"></div>
     </div>
     <div id="inv-summary-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-blue-500 fade-enter">
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> Resumen de Bodega</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] border border-neutral-200 dark:border-neutral-700 fade-enter">
+            <div class="bg-neutral-50 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
+                <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-red-600"></i> Resumen de Bodega</h3>
                 <button onclick="closeInvSummaryModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0 bg-neutral-50 dark:bg-neutral-800/30 overflow-y-auto hide-scrollbar" id="inv-summary-content">
@@ -917,18 +917,18 @@
 
     <!-- Modal Finanzas -->
     <div id="finance-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] border border-neutral-300 dark:border-neutral-700 fade-enter">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] border border-neutral-200 dark:border-neutral-700 fade-enter">
             <!-- Header Nav -->
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center relative">
+            <div class="bg-neutral-50 dark:bg-neutral-800 p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center relative">
                 <div class="flex gap-1.5 relative z-10">
-                    <button onclick="changeFinanceMonth(-1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-left text-sm"></i></button>
-                    <button onclick="changeFinanceMonth(1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded shadow-sm transition"><i class="fa-solid fa-chevron-right text-sm"></i></button>
+                    <button onclick="changeFinanceMonth(-1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded-lg shadow-sm transition"><i class="fa-solid fa-chevron-left text-sm"></i></button>
+                    <button onclick="changeFinanceMonth(1)" class="w-8 h-8 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 bg-white dark:bg-neutral-700 rounded-lg shadow-sm transition"><i class="fa-solid fa-chevron-right text-sm"></i></button>
                 </div>
                 <div class="text-center absolute left-1/2 transform -translate-x-1/2 w-[50%] pointer-events-none">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Resumen Financiero</p>
-                    <h3 id="finance-month-title" class="text-lg font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-tight pointer-events-auto">Cargando...</h3>
+                    <h3 id="finance-month-title" class="font-display text-lg font-extrabold text-neutral-800 dark:text-neutral-100 uppercase tracking-tight pointer-events-auto">Cargando...</h3>
                 </div>
-                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition relative z-10"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition relative z-10"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <!-- KPIs -->
@@ -951,17 +951,17 @@
             <div class="px-4 pb-4 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/30 flex flex-col gap-3 shrink-0">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500"><i class="fa-solid fa-plus-circle"></i> Nuevo Registro</p>
                 <div class="flex gap-2">
-                    <select id="fin-type" class="flex-1 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                    <select id="fin-type" class="flex-1 p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
                         <option value="income">Ingreso (+)</option>
                         <option value="expense">Gasto (-)</option>
                     </select>
-                    <input type="date" id="fin-date" class="w-[45%] p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                    <input type="date" id="fin-date" class="w-[45%] p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="fin-concept" placeholder="Concepto (ej: Ajuste frenos)" class="flex-1 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
-                    <input type="number" id="fin-amount" placeholder="$0" min="0" class="w-1/3 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold text-right text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                    <input type="text" id="fin-concept" placeholder="Concepto (ej: Ajuste frenos)" class="flex-1 p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                    <input type="number" id="fin-amount" placeholder="$0" min="0" class="w-1/3 p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold text-right text-neutral-700 dark:text-neutral-200 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
                 </div>
-                <button onclick="addTransaction()" class="w-full bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded py-2.5 shadow hover:bg-neutral-700 transition active:scale-95 text-sm uppercase tracking-wide"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Movimiento</button>
+                <button onclick="addTransaction()" class="w-full bg-red-600 text-white font-bold rounded-xl py-2.5 shadow-sm hover:bg-red-700 transition active:scale-95 text-sm uppercase tracking-wide"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Movimiento</button>
             </div>
 
             <!-- Lista Historial -->
@@ -973,22 +973,22 @@
 
     <!-- Modal Configuración -->
      <div id="add-inventory-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-6 border-t-4 border-green-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeAddInventoryModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-plus-circle text-green-600"></i> Ingreso a Bodega</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-2xl p-6 fade-enter relative max-h-[90vh] border border-neutral-200 dark:border-neutral-700 overflow-y-auto hide-scrollbar">
+            <button onclick="closeAddInventoryModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-plus-circle text-red-600"></i> Ingreso a Bodega</h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Código</label>
-                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
+                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
-                    <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro Aceite">
+                    <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro Aceite">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Categoría</label>
-                    <select id="new-inv-category" onchange="toggleCategoryFields(this.value)" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 dark:text-white transition-colors">
+                    <select id="new-inv-category" onchange="toggleCategoryFields(this.value)" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 dark:text-white transition-colors">
                         <option value="Repuestos">Repuestos</option>
                         <option value="Pastillas de freno">Pastillas de freno</option>
                         <option value="Insumos">Insumos</option>
@@ -999,30 +999,30 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Útil cuando tienes el mismo repuesto en varias marcas">Marca</label>
-                    <input type="text" id="new-inv-brand" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Bosch, GTX, Fric...">
+                    <input type="text" id="new-inv-brand" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Bosch, GTX, Fric...">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Stock</label>
-                        <input type="number" id="new-inv-qty" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="0" min="0">
+                        <input type="number" id="new-inv-qty" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="0" min="0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Alerta de Stock Bajo">Mín.</label>
-                        <input type="number" id="new-inv-min" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="1" min="0">
+                        <input type="number" id="new-inv-min" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="1" min="0">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:col-span-2">
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Costo sin IVA">Costo Un. (Neto)</label>
-                        <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
+                        <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1" title="Lo que le cobras al cliente (incluye IVA)">Venta Un. (c/IVA)</label>
-                        <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
+                        <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
                     </div>
                 </div>
             </div>
-            <div id="extra-fields-brakes" class="hidden bg-blue-50/30 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50 mb-4">
+            <div id="extra-fields-brakes" class="hidden bg-blue-50/30 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50 mb-4">
                 <div class="mb-2 border-b border-blue-200 dark:border-blue-800/50 pb-1">
                     <h4 class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider"><i class="fa-solid fa-car-burst"></i> Ficha Técnica: Pastillas</h4>
                 </div>
@@ -1030,7 +1030,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Eje / Posición</label>
-                        <select id="new-inv-brake-pos" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white">
+                        <select id="new-inv-brake-pos" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 dark:text-white">
                             <option value="Delanteras">Delanteras</option>
                             <option value="Traseras">Traseras</option>
                             <option value="Ambas / Universal">Ambas / Universal</option>
@@ -1039,45 +1039,45 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Largo (mm)</label>
-                            <input type="number" id="new-inv-brake-len" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 130">
+                            <input type="number" id="new-inv-brake-len" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 130">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alto (mm)</label>
-                            <input type="number" id="new-inv-brake-hgt" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 50">
+                            <input type="number" id="new-inv-brake-hgt" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 50">
                         </div>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Modelos y Años Compatibles</label>
-                        <input type="text" id="new-inv-brake-mod" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Toyota Yaris 2014-2020, Corolla 2015...">
+                        <input type="text" id="new-inv-brake-mod" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Toyota Yaris 2014-2020, Corolla 2015...">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Nota Adicional</label>
-                        <input type="text" id="new-inv-brake-not" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Incluye seguro, compuesto cerámico...">
+                        <input type="text" id="new-inv-brake-not" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Incluye seguro, compuesto cerámico...">
                     </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <button onclick="closeAddInventoryModal()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
-                <button onclick="addInventoryItem()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow-md transition text-sm flex items-center gap-2"><i class="fa-solid fa-save"></i> Guardar Ítem</button>
+                <button onclick="addInventoryItem()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-sm transition text-sm flex items-center gap-2"><i class="fa-solid fa-save"></i> Guardar Ítem</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Recargo Masivo -->
     <div id="bulk-markup-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeBulkMarkupModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-percent text-orange-500"></i> Recargo Masivo</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 fade-enter relative max-h-[90vh] border border-neutral-200 dark:border-neutral-700 overflow-y-auto hide-scrollbar">
+            <button onclick="closeBulkMarkupModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-percent text-orange-500"></i> Recargo Masivo</h3>
             <p class="text-xs text-neutral-400 mb-5">Aplica un recargo a varios productos a la vez, filtrando por marca y/o categoría.</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Marca</label>
-                    <select id="bulk-markup-brand" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors"></select>
+                    <select id="bulk-markup-brand" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-orange-500 dark:text-white transition-colors"></select>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Categoría</label>
-                    <select id="bulk-markup-category" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors">
+                    <select id="bulk-markup-category" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-orange-500 dark:text-white transition-colors">
                         <option value="">Todas las categorías</option>
                         <option value="Repuestos">Repuestos</option>
                         <option value="Pastillas de freno">Pastillas de freno</option>
@@ -1089,11 +1089,11 @@
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Buscar por nombre (opcional)</label>
-                    <input type="text" id="bulk-markup-search" oninput="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors" placeholder="Ej: pastilla, filtro...">
+                    <input type="text" id="bulk-markup-search" oninput="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm outline-none focus:border-orange-500 dark:text-white transition-colors" placeholder="Ej: pastilla, filtro...">
                 </div>
             </div>
 
-            <div class="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-lg p-4 mb-4">
+            <div class="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-xl p-4 mb-4">
                 <label class="block text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">¿Qué hacer con el recargo?</label>
                 <div class="flex flex-col gap-2 mb-3">
                     <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
@@ -1104,7 +1104,7 @@
                     </label>
                 </div>
                 <div class="flex items-center gap-2">
-                    <input type="number" id="bulk-markup-pct" oninput="updateBulkMarkupPreview()" class="w-24 p-2 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-800 rounded text-lg font-black text-center text-orange-600 dark:text-orange-400 outline-none focus:border-orange-500" placeholder="60" min="0">
+                    <input type="number" id="bulk-markup-pct" oninput="updateBulkMarkupPreview()" class="w-24 p-2 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-800 rounded-lg text-lg font-black text-center text-orange-600 dark:text-orange-400 outline-none focus:border-orange-500" placeholder="60" min="0">
                     <span class="text-lg font-black text-orange-500">%</span>
                 </div>
             </div>
@@ -1113,26 +1113,26 @@
 
             <div class="flex justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <button onclick="closeBulkMarkupModal()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
-                <button onclick="applyBulkMarkup()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded shadow-md transition text-sm flex items-center gap-2"><i class="fa-solid fa-check"></i> Aplicar</button>
+                <button onclick="applyBulkMarkup()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-sm transition text-sm flex items-center gap-2"><i class="fa-solid fa-check"></i> Aplicar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Precio de Mercado (por ítem) -->
     <div id="market-price-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeMarketPriceModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-4"><i class="fa-solid fa-tags text-orange-500"></i> Precio de Mercado</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-6 fade-enter relative max-h-[90vh] border border-neutral-200 dark:border-neutral-700 overflow-y-auto hide-scrollbar">
+            <button onclick="closeMarketPriceModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-4"><i class="fa-solid fa-tags text-orange-500"></i> Precio de Mercado</h3>
             <div id="market-price-modal-body"></div>
         </div>
     </div>
 
     <div id="shopping-list-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl p-6 border-t-4 border-red-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar flex flex-col">
-            <button onclick="closeShoppingModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-20"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-cart-shopping text-red-600"></i> Lista de Compras</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-4xl p-6 fade-enter relative max-h-[90vh] border border-neutral-200 dark:border-neutral-700 overflow-y-auto hide-scrollbar flex flex-col">
+            <button onclick="closeShoppingModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-20"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-cart-shopping text-red-600"></i> Lista de Compras</h3>
             
-            <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mb-4 p-4 space-y-3 shrink-0">
+            <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700 mb-4 p-4 space-y-3 shrink-0">
                 <div>
                     <label class="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Título del Documento</label>
                     <input type="text" id="shop-title" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent text-lg font-black text-neutral-800 dark:text-neutral-100 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-red-500 transition placeholder-neutral-400" placeholder="Ej: Repuestos Motor V8">
@@ -1149,7 +1149,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-x-auto hide-scrollbar mouse-drag mb-4 min-h-[200px]">
+            <div class="flex-1 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-x-auto hide-scrollbar mouse-drag mb-4 min-h-[200px]">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
@@ -1169,7 +1169,7 @@
                                 <input type="number" id="new-item-qty" placeholder="1" class="w-full min-w-[50px] bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="1" onkeypress="if(event.key === 'Enter') addShoppingItem()">
                             </td>
                             <td class="p-2 sm:p-3 text-center">
-                                <button onclick="addShoppingItem()" class="bg-red-600 text-white w-7 h-7 sm:w-8 sm:h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm mx-auto">
+                                <button onclick="addShoppingItem()" class="bg-red-600 text-white w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-red-700 transition shadow-sm mx-auto">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                 </button>
                             </td>
@@ -1179,23 +1179,23 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-auto shrink-0 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <button onclick="clearShoppingList()" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold rounded shadow-sm hover:bg-red-500 hover:text-white transition text-sm flex items-center gap-2"><i class="fa-solid fa-eraser"></i> Limpiar</button>
-                <button onclick="downloadShoppingPDF()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded shadow-lg hover:bg-neutral-700 transition text-sm flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> Exportar PDF</button>
+                <button onclick="clearShoppingList()" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold rounded-xl shadow-sm hover:bg-red-500 hover:text-white transition text-sm flex items-center gap-2"><i class="fa-solid fa-eraser"></i> Limpiar</button>
+                <button onclick="downloadShoppingPDF()" class="px-4 py-2 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 font-bold rounded-xl shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition text-sm flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-500"></i> Exportar PDF</button>
             </div>
         </div>
     </div>
      <div id="inv-report-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-green-600 fade-enter">
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-green-600"></i> Balance Histórico</h3>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border border-neutral-200 dark:border-neutral-700 fade-enter">
+            <div class="bg-neutral-50 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
+                <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-green-600"></i> Balance Histórico</h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="downloadSalesPDF()" class="bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar PDF">
-                        <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+                    <button onclick="downloadSalesPDF()" class="bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-600 text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar PDF">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
                     </button>
-                    <button onclick="exportInventoryToExcel()" class="bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar a Excel (inventario + historial con fechas)">
-                        <i class="fa-solid fa-file-excel text-green-400"></i> Excel
+                    <button onclick="exportInventoryToExcel()" class="bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-600 text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar a Excel (inventario + historial con fechas)">
+                        <i class="fa-solid fa-file-excel text-green-600"></i> Excel
                     </button>
-                    <button onclick="closeInvReportModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="closeInvReportModal()" class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
             <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0 bg-neutral-50 dark:bg-neutral-800/30 border-b border-neutral-200 dark:border-neutral-700" id="inv-report-kpis">
@@ -1208,30 +1208,30 @@
         </div>
     </div>
     <div id="price-list-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[90] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-red-600 fade-enter flex flex-col max-h-[90vh]">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-neutral-200 dark:border-neutral-700 fade-enter flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-list-ul text-red-600"></i> Catálogo de Servicios</h3>
-                <button onclick="closePriceListModal()" class="w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-list-ul text-red-600"></i> Catálogo de Servicios</h3>
+                <button onclick="closePriceListModal()" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex gap-2 mb-4 shrink-0">
-                <input type="text" id="new-preset-name" placeholder="Ej: Cambio Aceite" class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition dark:text-white" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
-                <input type="number" id="new-preset-price" placeholder="$ Final (c/IVA)" title="Precio Final con IVA incluido" class="w-32 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition text-right text-red-500 dark:text-red-400" onkeypress="if(event.key === 'Enter') addPredefinedService()">
-                <button onclick="addPredefinedService()" class="bg-red-600 text-white px-4 rounded font-bold hover:bg-red-700 transition shadow-sm active:scale-95"><i class="fa-solid fa-plus"></i></button>
+                <input type="text" id="new-preset-name" placeholder="Ej: Cambio Aceite" class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold outline-none focus:border-red-500 transition dark:text-white" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
+                <input type="number" id="new-preset-price" placeholder="$ Final (c/IVA)" title="Precio Final con IVA incluido" class="w-32 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-bold outline-none focus:border-red-500 transition text-right text-red-500 dark:text-red-400" onkeypress="if(event.key === 'Enter') addPredefinedService()">
+                <button onclick="addPredefinedService()" class="bg-red-600 text-white px-4 rounded-lg font-bold hover:bg-red-700 transition shadow-sm active:scale-95"><i class="fa-solid fa-plus"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto hide-scrollbar border border-neutral-200 dark:border-neutral-700 rounded bg-neutral-50/50 dark:bg-neutral-900/50 relative" id="price-list-container">
+            <div class="flex-1 overflow-y-auto hide-scrollbar border border-neutral-200 dark:border-neutral-700 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/50 relative" id="price-list-container">
             </div>
         </div>
     </div>
         <div id="settings-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm md:max-w-3xl p-6 border border-neutral-300 dark:border-neutral-700 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm md:max-w-3xl p-6 border border-neutral-200 dark:border-neutral-700 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
             
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-gear text-neutral-500"></i> Configuración</h3>
+            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-gear text-neutral-500"></i> Configuración</h3>
             
             <div class="flex flex-col md:flex-row gap-6">
                 
                 <div class="flex-1 space-y-5">
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700">
                         <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-palette"></i> Tema Visual</h4>
                         <div class="flex gap-4 justify-center py-2">
                             <button onclick="setAppTheme('rojo')" class="w-8 h-8 rounded-full bg-[#dc2626] shadow-md ring-2 ring-transparent hover:scale-110 transition focus:outline-none" id="theme-btn-rojo" title="Rojo"></button>
@@ -1242,7 +1242,7 @@
                         </div>
                     </div>
                     
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700">
                         <label class="flex items-center justify-between cursor-pointer">
                             <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-2"><i class="fa-solid fa-wallet text-green-500 w-4 text-center"></i> Balance Diario</span>
                             <input type="checkbox" id="toggle-finance-widget" onchange="toggleFinanceSetting(this.checked)" class="w-5 h-5 accent-red-600 cursor-pointer">
@@ -1250,26 +1250,26 @@
                         <p class="text-[10px] text-neutral-500 mt-1 ml-6">Muestra tus ganancias en la pestaña de Inicio.</p>
                     </div>
 
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700">
                         <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Calidad de PDFs</h4>
-                        <select id="pdf-quality-select" onchange="updatePdfQuality(this.value)" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition cursor-pointer">
+                        <select id="pdf-quality-select" onchange="updatePdfQuality(this.value)" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-600 rounded-lg text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition cursor-pointer">
                             <option value="low">Baja (Para WhatsApp)</option>
                             <option value="medium">Normal (Balanceado)</option>
                             <option value="high">Alta (Para imprimir)</option>
                         </select>
                 </div>
 
-                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
+                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700 mt-5">
                     <div class="flex justify-between items-center mb-3 pl-1">
                         <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell"></i> Alertas de Agenda</h4>
-                        <span id="notif-status-badge" class="text-[9px] font-bold px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500">Desactivadas</span>
+                        <span id="notif-status-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-700 text-neutral-500">Desactivadas</span>
                     </div>
                     
                     <div class="flex gap-2 mb-2">
-                        <button id="btn-notif-toggle" onclick="requestNotificationPermission()" class="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-bold rounded text-sm hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                        <button id="btn-notif-toggle" onclick="requestNotificationPermission()" class="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-bold rounded-lg text-sm hover:bg-blue-100 transition flex items-center justify-center gap-2">
                             <i class="fa-regular fa-bell"></i> Activar
                         </button>
-                        <select id="notif-time-select" onchange="updateNotifTime(this.value)" class="w-28 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 transition cursor-pointer" title="Minutos de anticipación">
+                        <select id="notif-time-select" onchange="updateNotifTime(this.value)" class="w-28 p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-600 rounded-lg text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:border-red-500 transition cursor-pointer" title="Minutos de anticipación">
                             <option value="5">5 min</option>
                             <option value="10">10 min</option>
                             <option value="15">15 min</option>
@@ -1280,9 +1280,9 @@
                     <p class="text-[9px] text-neutral-500 leading-tight text-center">Para móviles: Instala la app en la pantalla de inicio y déjala minimizada de fondo.</p>
                 </div>
 
-                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
+                <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700 mt-5">
                     <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Cuenta en la Nube</h4>
-                        <button onclick="logoutUser()" class="w-full p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-bold rounded text-sm hover:bg-red-100 transition flex items-center justify-center gap-2">
+                        <button onclick="logoutUser()" class="w-full p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-bold rounded-lg text-sm hover:bg-red-100 transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-door-open"></i> Cerrar Sesión
                         </button>
                     </div>
@@ -1795,28 +1795,28 @@
         function getLinksHTML() {
             const isWeb = state.activeInfoTab === 'web';
             const linksHTML = (state.links || []).map(l => createLinkHTML(l)).join('');
-            const webContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Nuevo Recurso</h3><div class="flex flex-col gap-3"><input type="text" id="link-title" placeholder="Nombre (ej: Foro, Manual)" class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full font-bold dark:text-white"><div class="flex flex-col gap-2"><input type="url" id="link-url" placeholder="https://..." class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full dark:text-white"><button onclick="addLink()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-3 rounded font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transition shadow-lg text-sm w-full mt-1"><i class="fa-solid fa-plus mr-2"></i> Guardar</button></div></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Biblioteca Web</h3><div id="links-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${linksHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin enlaces guardados</div>'}</div></div></div>`;
+            const webContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 sticky top-0"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Nuevo Recurso</h3><div class="flex flex-col gap-3"><input type="text" id="link-title" placeholder="Nombre (ej: Foro, Manual)" class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full font-bold dark:text-white"><div class="flex flex-col gap-2"><input type="url" id="link-url" placeholder="https://..." class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full dark:text-white"><button onclick="addLink()" class="bg-red-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-sm text-sm w-full mt-1"><i class="fa-solid fa-plus mr-2"></i> Guardar</button></div></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Biblioteca Web</h3><div id="links-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${linksHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin enlaces guardados</div>'}</div></div></div>`;
             const pdfsHTML = (state.pdfs || []).map(p => createPdfHTML(p)).join('');
-            const pdfContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0 text-center"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3 text-left">Subir Manual Técnico</h3><div class="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer group flex flex-col items-center justify-center gap-2 h-64" onclick="triggerPdfInput()"><div class="w-16 h-16 rounded bg-neutral-100 dark:bg-neutral-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition mb-2"><i class="fa-solid fa-file-arrow-up text-3xl text-neutral-400 dark:text-neutral-500 group-hover:text-red-500 transition"></i></div><p class="text-lg font-bold text-neutral-500 dark:text-neutral-300 group-hover:text-red-600 transition">Toca para subir</p><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">PDF (Máx 25MB)</p><input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)"></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Manuales Guardados</h3><div id="pdfs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${pdfsHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin documentos guardados</div>'}</div></div></div>`;
-            
-            const activeClass = "bg-red-600 text-white shadow-md";
+            const pdfContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 sticky top-0 text-center"><h3 class="text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3 text-left">Subir Manual Técnico</h3><div class="border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer group flex flex-col items-center justify-center gap-2 h-64" onclick="triggerPdfInput()"><div class="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition mb-2"><i class="fa-solid fa-file-arrow-up text-3xl text-neutral-400 dark:text-neutral-500 group-hover:text-red-500 transition"></i></div><p class="text-lg font-bold text-neutral-500 dark:text-neutral-300 group-hover:text-red-600 transition">Toca para subir</p><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">PDF (Máx 25MB)</p><input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)"></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-400 dark:text-neutral-500 mb-3">Manuales Guardados</h3><div id="pdfs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${pdfsHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin documentos guardados</div>'}</div></div></div>`;
+
+            const activeClass = "bg-red-600 text-white shadow-sm";
             const inactiveClass = "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200";
 
-            return `<div><h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-toolbox text-red-600"></i> Información Técnica</h2><div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 shadow-inner">
-                <button id="tab-btn-web" onclick="setInfoTab('web')" class="flex-1 py-2 text-sm font-bold rounded transition ${isWeb ? activeClass : inactiveClass}">Enlaces Web</button>
-                <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
-            </div><div class="mb-4 relative"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="info-search" placeholder="Buscar manual o recurso..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInfo(this.value)"></div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
+            return `<div><div class="mb-5"><h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Información</h2><p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Manuales técnicos y enlaces de referencia</p></div><div class="flex p-1 bg-neutral-100 dark:bg-neutral-800 rounded-xl mb-4">
+                <button id="tab-btn-web" onclick="setInfoTab('web')" class="flex-1 py-2 text-sm font-bold rounded-lg transition ${isWeb ? activeClass : inactiveClass}">Enlaces Web</button>
+                <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded-lg transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
+            </div><div class="mb-4 relative"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="info-search" placeholder="Buscar manual o recurso..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInfo(this.value)"></div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
         }
         function createPdfHTML(pdf) {
-            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${escapeHtml(pdf.title)}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
-            <button onclick="event.stopPropagation(); renamePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
-            <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; 
+            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition hover:border-red-300 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${escapeHtml(pdf.title)}</h4><p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
+            <button onclick="event.stopPropagation(); renamePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
+            <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`;
         }
-        
-        function createLinkHTML(link) { const safeUrl = sanitizeUrl(link.url); const favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(safeUrl)}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${escapeHtml(favicon)}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${escapeHtml(link.title)}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${escapeHtml(link.url)}</div></a>
-        <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
-        <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
+
+        function createLinkHTML(link) { const safeUrl = sanitizeUrl(link.url); const favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(safeUrl)}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition hover:border-red-300 dark:hover:border-red-500 group h-full"><img src="${escapeHtml(favicon)}" class="w-10 h-10 rounded-lg bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${escapeHtml(link.title)}</span><div class="text-xs text-neutral-400 dark:text-neutral-500 font-mono truncate mt-0.5">${escapeHtml(link.url)}</div></a>
+        <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
+        <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
         
         function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); 
             const list = document.getElementById('links-list');
@@ -2023,11 +2023,11 @@
             if (note.images && note.images.length > 0) {
                 imagesCont.classList.remove('hidden');
                 note.images.forEach(src => {
-                    imagesCont.insertAdjacentHTML('beforeend', `<img src="${src}" onclick="openImagePreviewModal(this.src)" class="max-w-[48%] h-auto max-h-60 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm object-contain cursor-pointer hover:opacity-90 transition">`);
+                    imagesCont.insertAdjacentHTML('beforeend', `<img src="${src}" onclick="openImagePreviewModal(this.src)" class="max-w-[48%] h-auto max-h-60 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm object-contain cursor-pointer hover:opacity-90 transition">`);
                 });
             } else if (note.image) {
                 imagesCont.classList.remove('hidden');
-                imagesCont.insertAdjacentHTML('beforeend', `<img src="${note.image}" onclick="openImagePreviewModal(this.src)" class="max-w-[80%] h-auto max-h-80 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm object-contain cursor-pointer hover:opacity-90 transition">`);
+                imagesCont.insertAdjacentHTML('beforeend', `<img src="${note.image}" onclick="openImagePreviewModal(this.src)" class="max-w-[80%] h-auto max-h-80 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm object-contain cursor-pointer hover:opacity-90 transition">`);
             } else {
                 imagesCont.classList.add('hidden');
             }
@@ -2101,7 +2101,7 @@
                     let plateInfo = ev.plate ? `<span class="text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-1 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag mr-1 text-neutral-400"></i> ${escapeHtml(ev.plate)}</span>` : '';
                     let timeInfo = ev.eventTime ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${ev.eventTime} hrs</p>` : '<p class="text-xs font-bold text-neutral-400 mt-1">Sin horario definido</p>';
 
-                    return `<div class="flex items-center gap-3 bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-2 hover:border-neutral-300 transition cursor-pointer" onclick="renderView('turnario')">
+                    return `<div class="flex items-center gap-3 bg-white dark:bg-neutral-800 p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm mb-2 hover:border-neutral-300 transition cursor-pointer" onclick="renderView('turnario')">
                             <div class="w-10 h-10 rounded-xl ${bg} ${color} flex items-center justify-center shrink-0 shadow-inner"><i class="fa-solid ${icon} text-lg"></i></div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center flex-wrap gap-y-1"><p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate mr-1">${escapeHtml(ev.note || 'Evento agendado')}</p>${plateInfo} ${clientInfo}</div>
@@ -2235,11 +2235,11 @@
                 contactBtn = `<a href="tel:${escapeHtml(p.contact)}" class="ml-2 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200" title="Llamar: ${escapeHtml(p.contact)}"><i class="fa-solid fa-phone text-xs"></i></a>`;
             }
 
-            return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600">
+            return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter">
                 <div class="flex justify-between items-start mb-2">
                     <div>
                         <div class="flex gap-2 mb-1">
-                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i> ${escapeHtml(p.room)}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/50 hover:border-red-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i> ${escapeHtml(p.room)}</span>
                         </div>
                         <div class="flex items-center">
                             <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${escapeHtml(p.name)}</h4>
@@ -2262,7 +2262,7 @@
         function generatePatientsHTML() { 
             const activePatients = (state.patients || []).filter(p => p.status !== 'archivada');
             if (activePatients.length === 0) {
-                return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-400 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-400 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`;
+                return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded-2xl border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-400 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-400 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`;
             }
             return activePatients.map(p => createPatientCardHTML(p)).join('');
         }
@@ -2281,45 +2281,42 @@
                     </div>
                     <h3 class="text-xl font-bold text-neutral-400 dark:text-neutral-500">Taller Vacío</h3>
                     <p class="text-sm text-neutral-400 dark:text-neutral-600">Ingresa un vehículo para comenzar.</p>
-                    <button onclick="openPatientModal()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-blue-700 transition">Ingresar Vehículo</button>
+                    <button onclick="openPatientModal()" class="mt-4 bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm hover:bg-red-700 transition">Ingresar Vehículo</button>
                    </div>`
                 : patients.map(p => createWorkOrderCardHTML(p)).join('');
 
             return `
                 <div class="flex flex-col h-full fade-enter">
+                    <div class="mb-5 flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Taller</h2>
+                            <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Vehículos en proceso y órdenes de trabajo</p>
+                        </div>
+                        <button onclick="openPatientModal()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-red-700 transition flex items-center gap-2 active:scale-95"><i class="fa-solid fa-plus"></i> Nueva Orden</button>
+                    </div>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 shrink-0">
-                        <div class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-600">
-                            <span class="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Vehículos</span>
-                            <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100">${totalCars}</div>
+                        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-car-side text-sm"></i></div>
+                            <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Vehículos en Taller</p>
+                            <p class="font-display text-2xl font-extrabold text-neutral-800 dark:text-neutral-100 leading-none">${totalCars}</p>
                         </div>
-                        <div onclick="openPriceListModal()" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-red-500 flex items-center justify-between hover:border-red-500 hover:shadow-md transition group cursor-pointer active:scale-[0.98]">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:bg-red-100 group-hover:scale-110 transition shadow-inner shrink-0">
-                                    <i class="fa-solid fa-list-ul text-lg"></i>
-                                </div>
+                        <div onclick="openPriceListModal()" class="col-span-1 lg:col-span-3 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex items-center justify-between hover:shadow-md transition group cursor-pointer active:scale-[0.98]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-list-ul text-sm"></i></div>
                                 <div>
-                                    <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-wide leading-tight">Lista de Precios</h3>
-                                    <p class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mt-0.5">Catálogo de servicios</p>
+                                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-100 leading-tight">Lista de Precios</h3>
+                                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Catálogo de servicios</p>
                                 </div>
                             </div>
-                            <div class="w-6 h-6 shrink-0 rounded bg-neutral-50 dark:bg-neutral-800 text-neutral-400 group-hover:text-red-500 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition shadow-sm border border-transparent group-hover:border-red-200 dark:group-hover:border-red-800">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="col-span-2 bg-gradient-to-r from-neutral-800 to-neutral-900 text-white p-4 rounded shadow-lg flex justify-between items-center cursor-pointer hover:shadow-xl transition relative overflow-hidden group" onclick="openPatientModal()">
-                            <div class="relative z-10">
-                                <h3 class="font-bold text-lg"><i class="fa-solid fa-plus-circle text-blue-400 mr-2"></i>Nueva Orden</h3>
-                                <p class="text-xs text-neutral-400">Ingresar vehículo a taller</p>
-                            </div>
-                            <i class="fa-solid fa-wrench text-6xl absolute -right-2 -bottom-4 opacity-10 group-hover:opacity-20 transition rotate-12"></i>
+                            <i class="fa-solid fa-chevron-right text-xs text-neutral-300 group-hover:text-red-500 transition"></i>
                         </div>
                     </div>
                     <div class="mb-4 flex gap-2 relative">
                         <div class="relative flex-1">
                             <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                            <input type="text" placeholder="Buscar por modelo o patente..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-blue-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterWorkOrders(this.value)">
+                            <input type="text" placeholder="Buscar por modelo o patente..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterWorkOrders(this.value)">
                         </div>
-                        <button onclick="openHistoryModal()" class="w-[46px] h-[46px] bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Ver Historial">
+                        <button onclick="openHistoryModal()" class="w-[46px] h-[46px] bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 rounded-xl flex items-center justify-center hover:bg-neutral-50 dark:hover:bg-neutral-700 transition shadow-sm shrink-0" title="Ver Historial">
                             <i class="fa-solid fa-clock-rotate-left text-xl"></i>
                         </button>
                     </div>
@@ -2341,9 +2338,8 @@
             const total = subtotal + iva;
             
             let progressColor = 'bg-blue-600';
-            let borderColor = 'border-l-blue-600';
-            if (pct === 100 && totalTasks > 0) { progressColor = 'bg-green-500'; borderColor = 'border-l-green-500'; }
-            else if (totalTasks === 0) { progressColor = 'bg-neutral-400'; borderColor = 'border-l-neutral-400'; }
+            if (pct === 100 && totalTasks > 0) { progressColor = 'bg-green-500'; }
+            else if (totalTasks === 0) { progressColor = 'bg-neutral-400'; }
 
             const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join('');
 
@@ -2354,10 +2350,10 @@
                 </a>`;
             }
 
-            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-300 dark:border-neutral-700 md:dark:border-transparent border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
+            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-neutral-200 dark:border-neutral-700 p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
                     <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
                         <div>
-                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${escapeHtml(p.room)}</span>
+                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[8px] mr-1"></i>${escapeHtml(p.room)}</span>
                             <div class="flex items-center">
                                 <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${escapeHtml(p.name)}</h4>
                             </div>
@@ -2388,9 +2384,9 @@
                                     <div id="service-suggestions-${p.id}" class="hidden absolute bottom-[110%] left-0 w-full mb-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-2xl max-h-40 overflow-y-auto z-20 text-sm"></div>
                                 </div>
                                 <input type="number" id="new-task-price-${p.id}-lg" placeholder="$ Valor" class="w-20 bg-transparent text-sm outline-none placeholder-neutral-400 text-right text-red-500 font-bold" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
-                                <button onclick="addPatientTaskWrapper(${p.id})" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-paper-plane"></i></button>
+                                <button onclick="addPatientTaskWrapper(${p.id})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-paper-plane"></i></button>
                             </div>
-                            <button onclick="downloadWorkOrderPDF(${p.id})" class="w-full bg-neutral-800 dark:bg-neutral-800 text-white text-xs py-2 rounded font-bold hover:bg-neutral-700 transition shadow flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Cotización / OT PDF</button>
+                            <button onclick="downloadWorkOrderPDF(${p.id})" class="w-full bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 text-xs py-2 rounded-lg font-bold hover:bg-neutral-50 dark:hover:bg-neutral-700 transition shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-500"></i> Cotización / OT PDF</button>
                         </div>
                     </div>
                 </div>`;
@@ -2697,7 +2693,7 @@
             const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
             
             // 1. DIBUJAR CALENDARIO (Lado Izquierdo)
-            let calendarHTML = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; 
+            let calendarHTML = `<div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-50 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded-lg transition shadow-sm border border-transparent hover:border-neutral-200"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-400 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded-lg transition shadow-sm border border-transparent hover:border-neutral-200"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-400 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`;
             
             for (let i = 0; i < startingDay; i++) { calendarHTML += `<div></div>`; } 
             for (let day = 1; day <= daysInMonth; day++) { 
@@ -2705,16 +2701,22 @@
                 calendarHTML += createDayCellHTML(dateKey, day); 
             } 
             
-            calendarHTML += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; 
+            calendarHTML += `</div></div><div class="bg-neutral-50 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; 
             
             // 2. OBTENER PANEL DE AGENDA (Lado Derecho)
             let agendaHTML = getAgendaPanelHTML(selectedDateKey);
 
             // 3. UNIR AMBOS
-            return `<div class="flex flex-col lg:flex-row gap-6 h-full pb-32 lg:pb-0 fade-enter max-w-6xl mx-auto">
-                        <div class="lg:w-7/12 shrink-0">${calendarHTML}</div>
-                        <div class="lg:w-5/12 flex flex-col shrink-0" id="agenda-panel">${agendaHTML}</div>
-                    </div>`; 
+            return `<div class="fade-enter max-w-6xl mx-auto">
+                        <div class="mb-5">
+                            <h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Calendario</h2>
+                            <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Turnos, entregas y vehículos agendados</p>
+                        </div>
+                        <div class="flex flex-col lg:flex-row gap-6 h-full pb-32 lg:pb-0">
+                            <div class="lg:w-7/12 shrink-0">${calendarHTML}</div>
+                            <div class="lg:w-5/12 flex flex-col shrink-0" id="agenda-panel">${agendaHTML}</div>
+                        </div>
+                    </div>`;
         }
 
         function createDayCellHTML(dateKey, day) { 
@@ -2755,7 +2757,7 @@
                 dots += `</div>`;
             } 
             
-            return `<div data-date="${dateKey}" onclick="selectAgendaDay('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-all duration-200 active:scale-90 ${bgClass}">${content}${dots}</div>`; 
+            return `<div data-date="${dateKey}" onclick="selectAgendaDay('${dateKey}')" class="aspect-square rounded-lg flex items-center justify-center relative cursor-pointer transition-all duration-200 active:scale-90 ${bgClass}">${content}${dots}</div>`;
         }
 
         function selectAgendaDay(dateKey) {
@@ -2803,7 +2805,7 @@
                     else if (shift.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; typeName = 'Estudio / Teoría'; }
                     else if (shift.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-50 dark:bg-green-900/20'; typeName = 'Vehículo Agendado'; }
 
-                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-[10px] mr-1 opacity-50"></i>${escapeHtml(shift.plate)}</span>` : '';
+                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded-md bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-[10px] mr-1 opacity-50"></i>${escapeHtml(shift.plate)}</span>` : '';
                     let clientHtml = shift.client ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-1.5"><i class="fa-solid fa-user text-xs mr-2 opacity-50 text-neutral-400"></i> ${escapeHtml(shift.client)}</p>` : '';
                     let timeHtml = shift.eventTime ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3"><i class="fa-regular fa-clock text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.eventTime} hrs</p>` : '';
 
@@ -2811,19 +2813,18 @@
                     let workshopBtn = '';
                     if (shift.type === 'libre') {
                         workshopBtn = `
-                            <button onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="w-full mt-3 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm active:scale-95">
+                            <button onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="w-full mt-3 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm active:scale-95">
                                 <i class="fa-solid fa-share-from-square"></i> Ingresar a Taller (Crear O.T.)
                             </button>
                         `;
                     }
 
                     contentHTML += `
-                        <div class="bg-white dark:bg-neutral-900 p-5 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm relative overflow-hidden group">
+                        <div class="bg-white dark:bg-neutral-900 p-5 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm relative overflow-hidden group">
                             <div class="absolute top-2 right-2 flex gap-1 z-10">
-                                <button onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-blue-100 text-neutral-500 hover:text-blue-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-red-100 text-neutral-500 hover:text-red-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
+                                <button onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-blue-100 text-neutral-500 hover:text-blue-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-red-100 text-neutral-500 hover:text-red-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
                             </div>
-                            <div class="absolute top-0 left-0 w-2 h-full ${bg.split(' ')[0].replace('bg-', 'bg-')}"></div>
                             <div class="flex items-center gap-4 mb-4 pr-16">
                                 <div class="w-12 h-12 rounded-xl ${bg} ${color} flex items-center justify-center text-xl shrink-0 shadow-inner">
                                     <i class="fa-solid ${icon}"></i>
@@ -2846,13 +2847,13 @@
             }
 
             return `
-                <div class="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-t-xl border border-neutral-300 dark:border-neutral-700 border-b-0 flex justify-between items-center shadow-inner shrink-0">
+                <div class="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-t-2xl border border-neutral-200 dark:border-neutral-700 border-b-0 flex justify-between items-center shrink-0">
                     <h3 class="font-bold text-neutral-800 dark:text-neutral-200 capitalize tracking-tight flex items-center gap-2"><i class="fa-regular fa-calendar-days text-red-500 text-lg"></i> ${dateTitle}</h3>
-                    <button onclick="openShiftModal('${dateKey}')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition shadow-sm flex items-center gap-1 active:scale-95">
+                    <button onclick="openShiftModal('${dateKey}')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-1 active:scale-95">
                         <i class="fa-solid fa-plus"></i> Añadir
                     </button>
                 </div>
-                <div class="bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-b-xl border border-neutral-300 dark:border-neutral-700 shadow-sm flex-1 flex flex-col max-h-[600px]">
+                <div class="bg-white dark:bg-neutral-900/50 p-4 rounded-b-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm flex-1 flex flex-col max-h-[600px]">
                     ${contentHTML}
                 </div>
             `;
@@ -3005,10 +3006,9 @@
     return `
     <div class="lg:h-full min-h-full flex flex-col fade-enter font-sans">
         
-        <div class="mb-8 mt-2">
-            <h1 class="text-3xl lg:text-4xl font-black text-neutral-800 dark:text-neutral-100 tracking-tight flex items-center gap-3">
-                Apuntes del Taller <i class="fa-solid fa-wrench text-neutral-400"></i>
-            </h1>
+        <div class="mb-5 mt-2">
+            <h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Apuntes</h2>
+            <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Procedimientos, códigos y notas del taller</p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8 flex-1 items-start lg:overflow-hidden">
@@ -3016,19 +3016,19 @@
             <div class="w-full lg:w-1/5 shrink-0 flex flex-col gap-8 lg:overflow-y-auto hide-scrollbar pb-4">
                 
                 <div>
-                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3 flex items-center gap-2">Acciones rápidas 🔥</h3>
+                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3">Acciones rápidas</h3>
                     <div class="flex flex-col gap-1.5">
-                        <button onclick="document.getElementById('new-note-text').focus()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-md text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                            <i class="fa-solid fa-file-pen text-purple-400"></i> Agregar nota
+                        <button onclick="document.getElementById('new-note-text').focus()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-lg text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                            <i class="fa-solid fa-file-pen text-red-500"></i> Agregar nota
                         </button>
-                        <button onclick="openFolderModal()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-md text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                            <i class="fa-solid fa-folder-plus text-blue-400"></i> Nueva sección
+                        <button onclick="openFolderModal()" class="w-full text-left px-3 py-2 bg-neutral-100 dark:bg-[#252525] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] rounded-lg text-sm font-medium transition-colors border border-transparent dark:border-[#333] flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                            <i class="fa-solid fa-folder-plus text-neutral-500"></i> Nueva sección
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3 flex items-center gap-2">Secciones 📖</h3>
+                    <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-200 mb-3">Secciones</h3>
                     <div class="flex flex-col gap-0.5" id="folders-container">
                         ${generateFoldersHTML()}
                     </div>
@@ -3038,7 +3038,7 @@
             <div class="w-full lg:w-2/4 flex-1 flex flex-col h-full">
                 
                 <div class="flex justify-between items-center mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                    <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Resumen general 📚</h3>
+                    <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Resumen general</h3>
                     <div class="relative w-48 lg:w-64">
                         <i class="fa-solid fa-search absolute left-2 top-1/2 transform -translate-y-1/2 text-neutral-400 text-xs"></i>
                         <input type="text" id="notes-search" placeholder="Buscar apunte..." class="w-full pl-7 pr-3 py-1 bg-transparent outline-none text-sm text-neutral-800 dark:text-neutral-200 transition-colors font-medium placeholder-neutral-400" onkeyup="filterNotes(this.value)">
@@ -3056,7 +3056,7 @@
                 <div id="note-editor" class="bg-[#f4f0eb] dark:bg-[#322f27] p-5 rounded-xl shadow-sm border border-[#e8e4df] dark:border-[#423e35] flex flex-col transition-all h-full" data-zen="false">
                     
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-[#5c574c] dark:text-[#d4cebd] flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-600"></i> <span id="editor-title">Notas rápidas</span> 📝</h3>
+                        <h3 class="text-sm font-bold text-[#5c574c] dark:text-[#d4cebd] flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-600"></i> <span id="editor-title">Notas rápidas</span></h3>
                         <div class="flex gap-3 items-center">
                             <button onclick="toggleZenMode()" class="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition" title="Modo Enfoque"><i id="zen-icon" class="fa-solid fa-expand text-xs"></i></button>
                             <button id="editor-cancel-btn" onclick="cancelEdit()" class="text-[#5c574c] dark:text-[#a8a395] hover:text-red-500 transition hidden"><i class="fa-solid fa-xmark"></i></button>
@@ -3073,7 +3073,7 @@
                         </label>
                         <input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)">
                         
-                        <button id="editor-save-btn" onclick="saveNote()" class="bg-[#3a3832] dark:bg-[#4a473f] text-[#f4f0eb] px-4 py-1.5 rounded-md text-xs font-bold hover:opacity-90 transition active:scale-95 shadow-sm">
+                        <button id="editor-save-btn" onclick="saveNote()" class="bg-red-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition active:scale-95 shadow-sm">
                             Guardar
                         </button>
                     </div>
@@ -3085,7 +3085,7 @@
 }
         
         function generateFoldersHTML() { 
-    const allBtn = `<button onclick="changeFolder('all')" class="w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors flex items-center gap-2 ${state.currentFolderId === 'all' ? 'bg-neutral-200 dark:bg-neutral-800 font-bold text-neutral-900 dark:text-white' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/50 text-neutral-600 dark:text-neutral-400'}"><i class="fa-solid fa-layer-group text-neutral-400 w-4 text-center"></i> Todas</button>`;
+    const allBtn = `<button onclick="changeFolder('all')" class="w-full text-left px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2 ${state.currentFolderId === 'all' ? 'bg-neutral-200 dark:bg-neutral-800 font-bold text-neutral-900 dark:text-white' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/50 text-neutral-600 dark:text-neutral-400'}"><i class="fa-solid fa-layer-group text-neutral-400 w-4 text-center"></i> Todas</button>`;
     
     const folderBtns = (state.folders || []).map(f => {
         const isGeneral = f.id === 'general';
@@ -3096,7 +3096,7 @@
         const delBtn = isGeneral ? '' : `<button onclick="event.stopPropagation(); deleteFolder('${f.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i class="fa-solid fa-xmark text-[10px]"></i></button>`;
         
         return `
-        <div class="group flex items-center justify-between w-full rounded-md ${activeClass}">
+        <div class="group flex items-center justify-between w-full rounded-lg ${activeClass}">
             <button onclick="changeFolder('${f.id}')" class="flex-1 text-left px-3 py-1.5 text-sm flex items-center gap-2 truncate">
                 <i class="fa-solid fa-folder text-neutral-400 w-4 text-center"></i> ${escapeHtml(f.name)}
             </button>
@@ -3137,13 +3137,13 @@
     const folderName = (state.folders || []).find(f => f.id === note.folderId)?.name || 'General'; 
     
     return `
-    <div id="note-${note.id}" class="flex flex-col bg-white dark:bg-[#1f1f1f] rounded-lg shadow-sm border border-neutral-200 dark:border-[#333] hover:shadow-md hover:bg-neutral-50 dark:hover:bg-[#252525] transition-all cursor-pointer group overflow-hidden break-inside-avoid relative" onclick="openPreviewNoteModal(${note.id})">
+    <div id="note-${note.id}" class="flex flex-col bg-white dark:bg-[#1f1f1f] rounded-xl shadow-sm border border-neutral-200 dark:border-[#333] hover:shadow-md hover:bg-neutral-50 dark:hover:bg-[#252525] transition-all cursor-pointer group overflow-hidden break-inside-avoid relative" onclick="openPreviewNoteModal(${note.id})">
         
         ${imagesHTML}
         
         <div class="p-3.5 flex flex-col flex-1">
             <div class="flex items-start justify-between gap-2 mb-2">
-                <span class="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#2e2e2e] px-2 py-0.5 rounded-sm flex items-center gap-1"><i class="fa-solid fa-hashtag text-[8px] opacity-50"></i>${escapeHtml(folderName)}</span>
+                <span class="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#2e2e2e] px-2 py-0.5 rounded-md flex items-center gap-1"><i class="fa-solid fa-hashtag text-[8px] opacity-50"></i>${escapeHtml(folderName)}</span>
                 
                 <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="event.stopPropagation(); startEditNote(${note.id})" class="w-6 h-6 rounded flex items-center justify-center text-neutral-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition" title="Editar"><i class="fa-solid fa-pen text-[10px]"></i></button>
@@ -3196,7 +3196,7 @@
         editor.setAttribute('data-zen', 'true');
         document.body.style.overflow = "hidden"; 
     } else {
-        editor.className = "bg-white dark:bg-neutral-900 p-5 rounded-xl shadow-sm border border-neutral-300 dark:border-neutral-700 relative lg:h-auto transition-all duration-300 overflow-hidden";
+        editor.className = "bg-[#f4f0eb] dark:bg-[#322f27] p-5 rounded-xl shadow-sm border border-[#e8e4df] dark:border-[#423e35] flex flex-col relative lg:h-full transition-all duration-300";
         textarea.classList.replace('flex-1', 'min-h-[150px]');
         textarea.classList.replace('text-lg', 'text-base');
         textarea.classList.add('resize-none');
@@ -3271,8 +3271,8 @@
 
         function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const el = document.getElementById(`note-${id}`); if(el) { el.classList.add('item-leave'); setTimeout(() => el.remove(), 300); } showToast("Nota eliminada", "fa-trash"); }
         
-        function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
-        function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${escapeHtml(todo.text)}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
+        function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="mb-5"><h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Lista de Tareas</h2><p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Objetivos y mantenimientos</p></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-medium placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-600 text-white w-12 rounded-lg hover:bg-red-700 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
+        function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700"; const textClass = todo.done ? "line-through text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-red-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded-xl shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${escapeHtml(todo.text)}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
         
         function addTodo() { 
             const input = document.getElementById('new-todo'); 
@@ -3292,7 +3292,7 @@
             showToast("Tarea añadida", "fa-plus"); 
         }
 
-        function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
+        function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded-xl shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-400 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded-xl shadow-sm border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-regular fa-square text-neutral-400 dark:text-neutral-500 group-hover:text-red-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
         function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
         
         function getShoppingRowHTML(item) {
@@ -3806,10 +3806,10 @@
             if (!modal) {
                 document.body.insertAdjacentHTML('beforeend', `
                     <div id="item-sales-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] border-t-4 border-blue-500 fade-enter">
-                            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                                <h3 id="item-sales-title" class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 truncate pr-2"><i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Historial de Ventas</h3>
-                                <button onclick="closeItemSalesHistory()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center shrink-0"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] border border-neutral-200 dark:border-neutral-700 fade-enter">
+                            <div class="bg-neutral-50 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
+                                <h3 id="item-sales-title" class="font-display text-lg font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 truncate pr-2"><i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Historial de Ventas</h3>
+                                <button onclick="closeItemSalesHistory()" class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center shrink-0"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                             <div id="item-sales-content" class="flex-1 overflow-y-auto hide-scrollbar"></div>
                         </div>
@@ -4493,12 +4493,12 @@
                 const modalId = 'pdf-action-' + Date.now();
                 const modalHtml = `
                     <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
-                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
+                            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700 text-center relative">
                             <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                             <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50">
                                 <i class="fa-solid fa-file-pdf text-3xl"></i>
                             </div>
-                            <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
+                            <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
                             <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
                             <div class="flex flex-col gap-3">
                                 <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2">
@@ -5165,10 +5165,10 @@
                     const modalId = 'pdf-action-' + Date.now();
                     const modalHtml = `
                         <div id="${modalId}" class="fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-enter">
-                            <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-xs p-6 border-t-4 border-red-600 text-center relative">
+                                <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-xs p-6 border border-neutral-200 dark:border-neutral-700 text-center relative">
                                 <button id="btn-close-top-${modalId}" class="absolute top-3 right-3 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                                 <div class="w-16 h-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 dark:border-red-900/50"><i class="fa-solid fa-file-pdf text-3xl"></i></div>
-                                <h3 class="text-xl font-black text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
+                                <h3 class="font-display text-xl font-extrabold text-neutral-800 dark:text-neutral-100 mb-1">Documento Listo</h3>
                                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-6 font-mono truncate px-2">${fileName}</p>
                                 <div class="flex flex-col gap-3">
                                     <button id="btn-share-${modalId}" class="w-full px-5 py-3.5 bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-red-700 active:scale-95 transition flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes text-lg"></i> Compartir Archivo</button>
@@ -6448,28 +6448,28 @@
             const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
 
             document.getElementById('inv-summary-content').innerHTML = `
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-neutral-500 flex justify-between items-center group">
+                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 flex justify-between items-center group">
                     <div>
                         <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Catálogo</p>
                         <p class="text-2xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${totalItems}</p>
                     </div>
                     <i class="fa-solid fa-boxes-stacked text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-yellow-500 flex justify-between items-center group">
+                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 flex justify-between items-center group">
                     <div>
                         <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alertas Stock</p>
                         <p class="text-2xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-300 dark:text-neutral-700'} leading-none">${lowStockCount}</p>
                     </div>
                     <i class="fa-solid fa-triangle-exclamation text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-blue-500 flex justify-between items-center group overflow-hidden">
+                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 flex justify-between items-center group overflow-hidden">
                     <div class="z-10 relative">
                         <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Inversión Actual</p>
                         <p class="text-xl font-black text-blue-600 truncate max-w-[120px] sm:max-w-full leading-none">$${totalCost.toLocaleString('es-CL')}</p>
                     </div>
                     <i class="fa-solid fa-money-bill-trend-up text-4xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-green-500 flex justify-between items-center group overflow-hidden">
+                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 flex justify-between items-center group overflow-hidden">
                     <div class="z-10 relative">
                         <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Ganancia Real</p>
                         <p class="text-xl font-black ${totalProfit >= 0 ? 'text-green-600' : 'text-red-500'} truncate max-w-[120px] sm:max-w-full leading-none">$${totalProfit.toLocaleString('es-CL')}</p>
@@ -6534,7 +6534,7 @@
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col">
+                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Eje / Posición</span>
                             <select onchange="updateItemExtraData(${item.id}, 'pos', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm pb-1 cursor-pointer">
                                 <option value="Delanteras" ${d.pos === 'Delanteras' ? 'selected' : ''}>Delanteras</option>
@@ -6542,7 +6542,7 @@
                                 <option value="Ambas / Universal" ${d.pos === 'Ambas / Universal' ? 'selected' : ''}>Ambas / Universal</option>
                             </select>
                         </div>
-                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col">
+                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 flex flex-col">
                             <span class="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Dimensiones (L x A)</span>
                             <div class="flex items-center gap-1 mt-auto">
                                 <input type="number" onchange="updateItemExtraData(${item.id}, 'len', this.value)" value="${escapeHtml(d.len || '')}" placeholder="L" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
@@ -6568,8 +6568,8 @@
             if (!modal) {
                 document.body.insertAdjacentHTML('beforeend', `
                     <div id="item-info-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-5 border-t-4 border-blue-500 fade-enter relative">
-                            <button onclick="closeItemInfoModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm p-5 border border-neutral-200 dark:border-neutral-700 fade-enter relative">
+                            <button onclick="closeItemInfoModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                             <div id="item-info-content"></div>
                         </div>
                     </div>

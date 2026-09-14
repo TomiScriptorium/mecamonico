@@ -41,6 +41,12 @@ jobs:
 
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # El paquete legacy "tools" ya no existe en el repositorio del SDK
+          # (Google lo eliminó); solo pedimos platform-tools, que sigue
+          # disponible. Gradle descarga solo el resto (platform/build-tools)
+          # según lo declarado en android/app/build.gradle.
+          packages: "platform-tools"
 
       - name: Copiar la app web y sincronizar con Android
         run: npm run cap:sync

@@ -104,32 +104,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body {
-            font-family: 'Roboto Condensed', sans-serif; 
+            font-family: 'IBM Plex Sans', sans-serif;
             background-color: var(--mech-bg);
-            background-image: 
-                linear-gradient(rgba(23, 23, 23, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(23, 23, 23, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
             -webkit-tap-highlight-color: transparent;
-            font-size: 1.1rem; 
+            font-size: 1.05rem;
             overscroll-behavior-y: none;
             transition: background-color 0.3s ease;
         }
 
         .dark body {
             background-color: #0a0a0a;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         }
 
         input, textarea, button, select, .font-handwriting {
-            font-family: 'Roboto Condensed', sans-serif !important;
+            font-family: 'IBM Plex Sans', sans-serif !important;
         }
 
         .work-order {
@@ -246,7 +239,7 @@
 
             body > header {
                 grid-area: header;
-                border-left: 1px solid #1f1f1f;
+                border-left: 1px solid #e5e5e5;
             }
 
             #app-container {
@@ -260,8 +253,8 @@
             display: flex !important;
             flex-direction: column;
             height: 100dvh;
-            background: #121212;
-            border-right: 1px solid #262626;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e5;
             overflow: hidden;
             z-index: 50;
         }
@@ -284,16 +277,16 @@
             gap: 11px;
             padding: 0 14px;
             height: 64px;
-            border-bottom: 1px solid #1f1f1f;
+            border-bottom: 1px solid #e5e5e5;
             flex-shrink: 0;
         }
 
         #sidebar-logo-icon {
             width: 36px;
             height: 36px;
-            background: rgb(var(--theme-700));
-            border: 1px solid rgba(var(--theme-500), 0.4);
-            border-radius: 8px;
+            background: rgb(var(--theme-600));
+            border: none;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -301,19 +294,19 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        #sidebar-logo-icon:hover { background: rgb(var(--theme-600)); }
+        #sidebar-logo-icon:hover { background: rgb(var(--theme-700)); }
 
         #sidebar-title-area {
             cursor: pointer;
             flex: 1;
             min-width: 0;
         }
-        #sidebar-title-area:hover #sb-app-title { color: rgb(var(--theme-400)); }
+        #sidebar-title-area:hover #sb-app-title { color: rgb(var(--theme-600)); }
 
         #sb-app-title {
             font-size: 0.95rem;
-            font-weight: 900;
-            color: #ffffff;
+            font-weight: 800;
+            color: #262626;
             letter-spacing: -0.02em;
             line-height: 1.2;
             transition: color 0.2s;
@@ -324,7 +317,7 @@
         #sb-app-subtitle {
             font-size: 0.55rem; /* Texto apenas más pequeño */
             font-weight: 700;
-            color: #404040;
+            color: #a3a3a3;
             text-transform: uppercase;
             letter-spacing: 0.05em; /* Letras un poco más juntas para que quepa bien */
             white-space: nowrap;
@@ -345,7 +338,7 @@
             padding: 8px 16px 4px;
             font-size: 0.58rem;
             font-weight: 800;
-            color: #2a2a2a;
+            color: #a3a3a3;
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
@@ -360,27 +353,27 @@
             border-radius: 10px;
             border: none;
             background: transparent;
-            color: #737373;
+            color: #525252;
             font-size: 0.8rem; /* Letra un toque más sutil */
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: left;
-            font-family: 'Roboto Condensed', sans-serif;
+            font-family: 'IBM Plex Sans', sans-serif;
         }
         .sb-nav-btn:hover {
-            background: #1a1a1a;
-            color: #d4d4d4;
+            background: #f5f5f5;
+            color: #262626;
         }
         .sb-nav-btn.active {
-            background: rgba(var(--theme-600), 0.18);
-            color: rgb(var(--theme-400));
+            background: rgba(var(--theme-500), 0.12);
+            color: rgb(var(--theme-600));
         }
         .sb-nav-btn .sb-icon {
             width: 26px; /* Cuadrito más delicado */
             height: 26px;
-            border-radius: 6px;
-            background: #181818;
+            border-radius: 7px;
+            background: transparent;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -388,15 +381,15 @@
             flex-shrink: 0;
             transition: background 0.15s;
         }
-        .sb-nav-btn:hover .sb-icon { background: #222; }
+        .sb-nav-btn:hover .sb-icon { background: #e5e5e5; }
         .sb-nav-btn.active .sb-icon {
-            background: rgba(var(--theme-600), 0.3);
-            color: rgb(var(--theme-400));
+            background: rgba(var(--theme-500), 0.18);
+            color: rgb(var(--theme-600));
         }
 
         /* Footer */
         #sidebar-footer {
-            border-top: 1px solid #1a1a1a;
+            border-top: 1px solid #e5e5e5;
             padding: 8px;
             flex-shrink: 0;
         }
@@ -406,20 +399,20 @@
             gap: 9px;
             width: 100%;
             padding: 8px 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             background: transparent;
-            color: #404040;
+            color: #737373;
             font-size: 0.75rem;
             font-weight: 700;
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
             text-align: left;
-            font-family: 'Roboto Condensed', sans-serif;
+            font-family: 'IBM Plex Sans', sans-serif;
         }
         .sb-action-btn:hover {
-            background: #1a1a1a;
-            color: #a3a3a3;
+            background: #f5f5f5;
+            color: #262626;
         }
         .sb-action-btn i { width: 16px; text-align: center; }
 
@@ -618,55 +611,55 @@
         </div>
     </aside>
     <!-- ========== FIN SIDEBAR ========== -->
-    <header class="bg-neutral-900/95 md:backdrop-blur-md text-white pt-safe shadow-md md:shadow-sm z-[60] shrink-0 relative overflow-visible border-b-4 md:border-b border-red-600 md:border-neutral-800 transition-colors">
+    <header class="bg-white/95 dark:bg-neutral-900/95 md:backdrop-blur-md text-neutral-800 dark:text-neutral-100 pt-safe shadow-sm z-[60] shrink-0 relative overflow-visible border-b-4 md:border-b border-red-600 md:border-neutral-200 dark:md:border-neutral-800 transition-colors">
         <div class="px-3 sm:px-4 h-[64px] flex justify-between items-center relative z-20 gap-2 sm:gap-6">
             <!-- LOGO -->
             <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 md:hidden">
-                <div class="bg-red-700 p-2 sm:p-2.5 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
+                <div class="bg-red-600 p-2 sm:p-2.5 rounded-md shadow-sm cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
                     <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
                 </div>
                 <div class="cursor-pointer group min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar Encabezado">
-                    <h1 class="text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-400 transition-colors truncate">
+                    <h1 class="text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate">
                         <span id="header-app-title" class="truncate">Mecamonico</span> <i class="fa-solid fa-wrench wrench-anim text-red-500 text-[10px] sm:text-sm shrink-0"></i>
                     </h1>
-                    <p id="header-app-subtitle" class="text-[9px] sm:text-[10px] lg:text-xs text-neutral-400 font-bold group-hover:text-neutral-300 transition-colors truncate">Gestión de Taller & Estudio</p>
+                    <p id="header-app-subtitle" class="text-[9px] sm:text-[10px] lg:text-xs text-neutral-500 dark:text-neutral-400 font-bold group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors truncate">Gestión de Taller & Estudio</p>
                 </div>
             </div>
 
             <!-- BUSCADOR UNIVERSAL (Escritorio) -->
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl hidden md:block z-10">
                 <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                <input type="text" id="desktop-search-input" placeholder="Buscar vehículos, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
+                <input type="text" id="desktop-search-input" placeholder="Buscar vehículos, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-base text-neutral-800 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-400 dark:placeholder-neutral-500" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
                 <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto relative z-20">
-                <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
+                <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-200 dark:border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
                     <i class="fa-solid fa-search"></i>
                 </button>
-                <button onclick="toggleDarkMode()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
+                <button onclick="toggleDarkMode()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-200 dark:border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
                     <i class="fa-solid fa-moon dark:hidden"></i>
                     <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
                 </button>
-                <button onclick="openBackupModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
+                <button onclick="openBackupModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-200 dark:border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
                     <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
-                <button onclick="openSettingsModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
+                <button onclick="openSettingsModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-200 dark:border-neutral-600 active:scale-95 transition-colors" title="Configuración">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
         </div>
-        
+
         <!-- BUSCADOR UNIVERSAL (Móvil Expandible - Ahora como Overlay Flotante Fijo) -->
-        <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-neutral-900/95 backdrop-blur-md z-[100] border-b border-neutral-800 md:hidden shadow-2xl">
+        <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md z-[100] border-b border-neutral-200 dark:border-neutral-800 md:hidden shadow-lg">
             <div class="flex items-center gap-2 p-3">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" id="mobile-search-input" placeholder="Buscar en la app..." class="w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-[16px] text-white focus:ring-2 focus:ring-red-500 outline-none transition shadow-inner" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
+                    <input type="text" id="mobile-search-input" placeholder="Buscar en la app..." class="w-full pl-10 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-[16px] text-neutral-800 dark:text-white focus:ring-2 focus:ring-red-500 outline-none transition" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
                     <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
                 </div>
-                <button onclick="toggleMobileSearch()" class="text-neutral-400 hover:text-white shrink-0 px-2 py-1 flex items-center justify-center"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                <button onclick="toggleMobileSearch()" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 px-2 py-1 flex items-center justify-center"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
         </div>
     </header>
@@ -676,48 +669,48 @@
 
     <!-- Nav Bar (solo móvil/tablet) -->
     <div id="mobile-nav-wrapper" class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
-            
-            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
+        <nav id="nav-menu" class="bg-white dark:bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_24px_rgba(23,23,23,0.15)] border border-neutral-200 dark:border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
+
+            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
-            </button>
-            
-            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Taller</span>
+                <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Inicio</span>
             </button>
 
-            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
+            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="work_orders">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-boxes-stacked text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Gestión</span>
+                <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Taller</span>
             </button>
-            
-            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
+
+            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="shopping_list">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
+                <i class="fa-solid fa-boxes-stacked text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Gestión</span>
             </button>
-            
-            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
+
+            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="todo">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
+                <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Tareas</span>
             </button>
-            
-            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
+
+            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="turnario">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
+                <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Calendario</span>
             </button>
-            
-            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
+
+            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="notes">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-neutral-500 group-[.active]:text-white">Información</span>
+                <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Apuntes</span>
+            </button>
+
+            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-target="links">
+                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
+                <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 group-[.active]:text-neutral-800 dark:group-[.active]:text-white">Información</span>
             </button>
         </nav>
     </div>
@@ -2158,7 +2151,7 @@
             
             return `<div class="flex flex-col gap-6 w-full lg:max-w-2xl mx-auto pb-20 lg:p-6 hide-scrollbar fade-enter">
             
-            <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0">
+            <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 shrink-0">
                 <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-neutral-100 dark:border-neutral-800 pb-2' : ''}" id="profile-card-header">
                     <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
                     <div class="flex-1">
@@ -2197,11 +2190,11 @@
             </div>
 
             <div class="order-4 grid grid-cols-2 gap-3 shrink-0 mt-2">
-                <div onclick="renderView('work_orders')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer">
+                <div onclick="renderView('work_orders')" class="bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer">
                     <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${activeCars}</div>
                     <span class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide uppercase">En Taller</span>
                 </div>
-                <div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer">
+                <div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer">
                     <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${pendingTodos.length}</div>
                     <span class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide uppercase">Pendientes</span>
                 </div>

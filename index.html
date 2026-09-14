@@ -420,6 +420,23 @@
             background: #F1EEEA;
             color: #24211D;
         }
+
+        /* ---- Modo oscuro del sidebar (antes faltaba por completo) ---- */
+        .dark #desktop-sidebar { background: #171717; border-right-color: #262626; }
+        .dark body > header { border-left-color: #262626; }
+        .dark #sidebar-logo-area { border-bottom-color: #262626; }
+        .dark #sb-app-title { color: #f5f5f5; }
+        .dark #sb-app-subtitle { color: #737373; }
+        .dark .sb-section-label { color: #737373; }
+        .dark .sb-nav-btn { color: #a3a3a3; }
+        .dark .sb-nav-btn:hover { background: #262626; color: #f5f5f5; }
+        .dark .sb-nav-btn:hover .sb-icon { background: #404040; }
+        .dark .sb-nav-btn.active { background: rgba(var(--theme-500), 0.2); }
+        .dark .sb-nav-btn.active .sb-icon { background: rgba(var(--theme-500), 0.28); }
+        .dark #sidebar-footer { border-top-color: #262626; }
+        .dark .sb-action-btn { color: #a3a3a3; }
+        .dark .sb-action-btn:hover { background: #262626; color: #f5f5f5; }
+        .dark #toggle-sidebar-btn { color: #a3a3a3; }
         .sb-action-btn i { width: 16px; text-align: center; }
 
         /* Scrollbar bonito para el main en PC */

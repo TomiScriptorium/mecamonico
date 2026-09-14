@@ -104,7 +104,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -124,6 +124,8 @@
         input, textarea, button, select, .font-handwriting {
             font-family: 'IBM Plex Sans', sans-serif !important;
         }
+
+        .font-display { font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; }
 
         .work-order {
             background: white;
@@ -304,6 +306,7 @@
         #sidebar-title-area:hover #sb-app-title { color: rgb(var(--theme-600)); }
 
         #sb-app-title {
+            font-family: 'Manrope', sans-serif;
             font-size: 0.95rem;
             font-weight: 800;
             color: #262626;
@@ -619,7 +622,7 @@
                     <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
                 </div>
                 <div class="cursor-pointer group min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar Encabezado">
-                    <h1 class="text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate">
+                    <h1 class="font-display text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate">
                         <span id="header-app-title" class="truncate">Mecamonico</span> <i class="fa-solid fa-wrench wrench-anim text-red-500 text-[10px] sm:text-sm shrink-0"></i>
                     </h1>
                     <p id="header-app-subtitle" class="text-[9px] sm:text-[10px] lg:text-xs text-neutral-500 dark:text-neutral-400 font-bold group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors truncate">Gestión de Taller & Estudio</p>
@@ -2141,7 +2144,7 @@
                     </div>
                     <div class="flex flex-col items-end shrink-0 pl-2">
                         <button onclick="hideFinanceWidgetDirectly(event)" class="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-red-500 transition rounded hover:bg-black/5 dark:hover:bg-white/5" title="Ocultar Balance"><i class="fa-solid fa-eye-slash text-xs"></i></button>
-                        <span id="finance-widget-amount" class="text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5">${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}</span>
+                        <span id="finance-widget-amount" class="font-display text-2xl font-extrabold ${profitColor} tracking-tight mr-1 mt-2.5">${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}</span>
                     </div>
                 </div>`;
 
@@ -2156,7 +2159,7 @@
                     <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
                     <div class="flex-1">
                         <p class="text-xs text-neutral-400 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p>
-                        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2>
+                        <h2 class="font-display text-2xl font-extrabold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2>
                     </div>
                 </div>
                 ${financeWidgetHTML}
@@ -2191,11 +2194,11 @@
 
             <div class="order-4 grid grid-cols-2 gap-3 shrink-0 mt-2">
                 <div onclick="renderView('work_orders')" class="bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer">
-                    <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${activeCars}</div>
+                    <div class="font-display text-3xl font-extrabold text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${activeCars}</div>
                     <span class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide uppercase">En Taller</span>
                 </div>
                 <div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer">
-                    <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${pendingTodos.length}</div>
+                    <div class="font-display text-3xl font-extrabold text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${pendingTodos.length}</div>
                     <span class="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wide uppercase">Pendientes</span>
                 </div>
             </div>
@@ -3557,10 +3560,10 @@
                 <tr id="inventory-row-${item.id}" class="inv-row ${rowBg} border-b border-neutral-200 dark:border-neutral-800 transition-colors group align-top">
                     <td class="p-1.5 sm:p-2 align-middle sticky left-0 z-10 ${stickyColBg} shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]">
                         <input type="text" value="${escapeHtml(sku)}" oninput="updateInventoryItem(${item.id}, 'sku', this.value)" class="w-20 sm:w-24 bg-transparent outline-none font-mono text-[11px] text-neutral-500 dark:text-neutral-400 ${pointerClass}" placeholder="Código" ${readOnlyAttr}>
-                        <div class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mt-0.5 truncate max-w-[100px]" title="${escapeHtml(category)}">${escapeHtml(category)}</div>
                     </td>
                     <td class="p-1.5 sm:p-2 align-middle min-w-[170px]">
                         <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-sm leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
+                        <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5 truncate max-w-[160px]" title="${escapeHtml(category)}">${escapeHtml(category)}</div>
                         ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="mt-1 text-[9px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95"><i class="fa-solid fa-circle-info mr-1"></i>Ficha técnica</button>` : ''}
                     </td>
                     <td class="p-1.5 sm:p-2 align-middle min-w-[100px]">
@@ -3640,10 +3643,10 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="text-[9px] font-mono bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 shadow-sm"><i class="fa-solid fa-barcode mr-1 opacity-50"></i>${escapeHtml(sku)}</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500"><i class="fa-solid fa-tag mr-1 opacity-50"></i>${escapeHtml(category)}</span>
                                 ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="text-[9px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95 z-10 relative"><i class="fa-solid fa-circle-info mr-1"></i>+ Info</button>` : ''}
                             </div>
                             <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-black ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-base transition-colors leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
+                            <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">${escapeHtml(category)}</div>
                             <input type="text" value="${escapeHtml(item.brand || '')}" oninput="updateInventoryItem(${item.id}, 'brand', this.value)" class="brand-input w-full bg-transparent outline-none font-bold text-neutral-500 dark:text-neutral-400 text-xs leading-tight mt-0.5 ${pointerClass}" placeholder="Sin marca" ${readOnlyAttr}>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10 flex-wrap justify-end max-w-[108px]">
@@ -4147,45 +4150,46 @@
 
     return `
         <div class="pb-24 fade-enter">
-            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 sm:gap-4 mb-4">
-                <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-green-600"></i> Bodega Central
-                </h2>
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 sm:gap-4 mb-5">
+                <div>
+                    <h2 class="font-display text-[26px] font-extrabold text-neutral-800 dark:text-neutral-100 tracking-tight">Bodega Central</h2>
+                    <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">Inventario, precios y stock de tu taller</p>
+                </div>
 
                 <div class="grid grid-cols-2 sm:flex sm:flex-row flex-wrap gap-2 w-full xl:w-auto">
 
-                    <button onclick="openInvSummaryModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-chart-pie text-blue-500"></i>
+                    <button onclick="openInvSummaryModal()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-chart-pie text-neutral-400"></i>
                         <span>Resumen</span>
                     </button>
 
-                    <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-cart-shopping text-purple-500"></i>
+                    <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-cart-shopping text-neutral-400"></i>
                         <span><span class="hidden sm:inline">Lista de </span>Compras</span>
                     </button>
 
-                    <button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-pdf text-red-400"></i>
+                    <button onclick="downloadInventoryPDF()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-file-pdf text-neutral-400"></i>
                         <span>PDF</span>
                     </button>
 
-                    <button onclick="exportInventoryToExcel()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-excel text-green-400"></i>
+                    <button onclick="exportInventoryToExcel()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-file-excel text-neutral-400"></i>
                         <span>Excel</span>
                     </button>
 
-                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
-                        <i class="fa-solid fa-file-import text-blue-500"></i>
+                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
+                        <i class="fa-solid fa-file-import text-neutral-400"></i>
                         <span>Importar</span>
                     </button>
                     <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
 
-                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
-                        <i class="fa-solid fa-percent text-orange-500"></i>
+                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
+                        <i class="fa-solid fa-tags text-neutral-400"></i>
                         <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
                     </button>
 
-                    <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
+                    <button onclick="openAddInventoryModal()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-red-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
                     </button>
@@ -4194,30 +4198,34 @@
             </div>
 
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-neutral-500">
-                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Ítems en Catálogo</p>
-                    <p id="inv-kpi-items" class="text-lg sm:text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${state.inventoryList.length}</p>
+                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-sm"></i></div>
+                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Ítems en Catálogo</p>
+                    <p id="inv-kpi-items" class="font-display text-2xl font-extrabold text-neutral-800 dark:text-neutral-100 leading-none">${state.inventoryList.length}</p>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-yellow-500">
-                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Alertas de Stock</p>
-                    <p id="inv-kpi-alerts" class="text-lg sm:text-xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-800 dark:text-neutral-100'} leading-none">${lowStockCount}</p>
+                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-sm"></i></div>
+                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Alertas de Stock</p>
+                    <p id="inv-kpi-alerts" class="font-display text-2xl font-extrabold ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-800 dark:text-neutral-100'} leading-none">${lowStockCount}</p>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-blue-500">
-                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Inversión en Stock</p>
-                    <p id="inv-kpi-cost" class="text-lg sm:text-xl font-black text-blue-600 truncate max-w-[100px] sm:max-w-full leading-none" title="$${totalCost.toLocaleString('es-CL')}">$${totalCost.toLocaleString('es-CL')}</p>
+                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><i class="fa-solid fa-wallet text-sm"></i></div>
+                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Inversión en Stock</p>
+                    <p id="inv-kpi-cost" class="font-display text-2xl font-extrabold text-blue-600 truncate max-w-[130px] sm:max-w-full leading-none" title="$${totalCost.toLocaleString('es-CL')}">$${totalCost.toLocaleString('es-CL')}</p>
                 </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-green-500">
-                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Ganancia Histórica</p>
-                    <p id="inv-kpi-profit" class="text-lg sm:text-xl font-black ${totalProfit < 0 ? 'text-red-500' : 'text-green-600'} truncate max-w-[100px] sm:max-w-full leading-none" title="$${totalProfit.toLocaleString('es-CL')}">$${totalProfit.toLocaleString('es-CL')}</p>
+                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-500 flex items-center justify-center"><i class="fa-solid fa-sack-dollar text-sm"></i></div>
+                    <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Ganancia Histórica</p>
+                    <p id="inv-kpi-profit" class="font-display text-2xl font-extrabold ${totalProfit < 0 ? 'text-red-500' : 'text-green-600'} truncate max-w-[130px] sm:max-w-full leading-none" title="$${totalProfit.toLocaleString('es-CL')}">$${totalProfit.toLocaleString('es-CL')}</p>
                 </div>
             </div>
 
             <div class="mb-4 flex gap-2 relative">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" id="inventory-search" placeholder="Buscar por Código, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
+                    <input type="text" id="inventory-search" placeholder="Buscar por Código, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-medium transition shadow-sm" onkeyup="filterInventory(this.value)">
                 </div>
-                <button onclick="openInvReportModal()" class="w-[46px] h-[46px] bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Reporte Histórico">
+                <button onclick="openInvReportModal()" class="w-[46px] h-[46px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-300 rounded-xl flex items-center justify-center hover:bg-neutral-50 dark:hover:bg-neutral-700 transition shadow-sm shrink-0" title="Reporte Histórico">
                     <i class="fa-solid fa-chart-line text-xl"></i>
                 </button>
             </div>
@@ -4228,11 +4236,11 @@
             </div>
 
             <!-- Tabla tipo Excel: solo en escritorio (lg y más grande) -->
-            <div class="hidden lg:block bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-x-auto hide-scrollbar mouse-drag">
+            <div class="hidden lg:block bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-x-auto hide-scrollbar mouse-drag">
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                    <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+                    <thead class="sticky top-0 z-10 bg-neutral-50 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
                         <tr>
-                            ${getInvSortTh('Código / Categoría', 'sku', 'sticky left-0 z-20 bg-neutral-100 dark:bg-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]')}
+                            ${getInvSortTh('Código', 'sku', 'sticky left-0 z-20 bg-neutral-50 dark:bg-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]')}
                             ${getInvSortTh('Producto', 'product')}
                             ${getInvSortTh('Marca', 'brand')}
                             ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}

@@ -112,7 +112,7 @@
             font-family: 'IBM Plex Sans', sans-serif;
             background-color: #FAF8F6;
             -webkit-tap-highlight-color: transparent;
-            font-size: 1.05rem;
+            font-size: 1rem;
             overscroll-behavior-y: none;
             transition: background-color 0.3s ease;
         }
@@ -229,7 +229,7 @@
             /* Resetear el flex-col del body y usar grid */
             body {
                 display: grid !important;
-                grid-template-columns: 200px 1fr; /* <-- Barra más delgada y elegante */
+                grid-template-columns: 224px 1fr; /* <-- Ancho más fiel al mockup aprobado */
                 grid-template-rows: 64px 1fr;
                 grid-template-areas:
                     "sidebar header"
@@ -363,6 +363,9 @@
             transition: all 0.2s ease;
             text-align: left;
             font-family: 'IBM Plex Sans', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .sb-nav-btn:hover {
             background: #F1EEEA;
@@ -380,7 +383,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem; /* Ícono proporcional al nuevo tamaño */
+            font-size: 1rem; /* Ícono proporcional al nuevo tamaño */
             flex-shrink: 0;
             transition: background 0.15s;
         }
@@ -574,16 +577,16 @@
             <div class="sb-section-label">Módulos</div>
 
             <button onclick="renderView('dashboard')" class="sb-nav-btn nav-btn" data-target="dashboard">
-                <span class="sb-icon"><i class="fa-solid fa-warehouse"></i></span> Inicio
+                <span class="sb-icon"><i class="fa-solid fa-house"></i></span> Inicio
             </button>
             <button onclick="renderView('work_orders')" class="sb-nav-btn nav-btn" data-target="work_orders">
                 <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span> Taller
             </button>
             <button onclick="renderView('shopping_list')" class="sb-nav-btn nav-btn" data-target="shopping_list">
-                <span class="sb-icon"><i class="fa-solid fa-boxes-stacked"></i></span> Gestión
+                <span class="sb-icon"><i class="fa-solid fa-box"></i></span> Bodega Central
             </button>
             <button onclick="renderView('todo')" class="sb-nav-btn nav-btn" data-target="todo">
-                <span class="sb-icon"><i class="fa-solid fa-clipboard-list"></i></span> Tareas
+                <span class="sb-icon"><i class="fa-solid fa-square-check"></i></span> Tareas
             </button>
             <button onclick="renderView('turnario')" class="sb-nav-btn nav-btn" data-target="turnario">
                 <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span> Calendario
@@ -592,7 +595,7 @@
                 <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span> Apuntes
             </button>
             <button onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links">
-                <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span> Información
+                <span class="sb-icon"><i class="fa-solid fa-circle-info"></i></span> Información
             </button>
         </nav>
 
@@ -676,7 +679,7 @@
 
             <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-stone-100 dark:hover:bg-neutral-800 transition-colors" data-target="dashboard">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-warehouse text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <i class="fa-solid fa-house text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-stone-400 dark:text-neutral-500 group-[.active]:text-stone-800 dark:group-[.active]:text-white">Inicio</span>
             </button>
 
@@ -688,13 +691,13 @@
 
             <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-stone-100 dark:hover:bg-neutral-800 transition-colors" data-target="shopping_list">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-boxes-stacked text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-[10px] font-bold text-stone-400 dark:text-neutral-500 group-[.active]:text-stone-800 dark:group-[.active]:text-white">Gestión</span>
+                <i class="fa-solid fa-box text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <span class="text-[10px] font-bold text-stone-400 dark:text-neutral-500 group-[.active]:text-stone-800 dark:group-[.active]:text-white">Bodega</span>
             </button>
 
             <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-stone-100 dark:hover:bg-neutral-800 transition-colors" data-target="todo">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <i class="fa-solid fa-square-check text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-stone-400 dark:text-neutral-500 group-[.active]:text-stone-800 dark:group-[.active]:text-white">Tareas</span>
             </button>
 
@@ -712,7 +715,7 @@
 
             <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-stone-100 dark:hover:bg-neutral-800 transition-colors" data-target="links">
                 <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-toolbox text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
+                <i class="fa-solid fa-circle-info text-xl mb-0.5 text-stone-400 dark:text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
                 <span class="text-[10px] font-bold text-stone-400 dark:text-neutral-500 group-[.active]:text-stone-800 dark:group-[.active]:text-white">Información</span>
             </button>
         </nav>
@@ -5636,13 +5639,13 @@
 
         // --- SISTEMA DE CONFIGURACIÓN GLOBAL ---
         const moduleNames = {
-            'dashboard': { icon: 'fa-warehouse', name: 'Inicio', locked: true }, // Nunca se oculta
+            'dashboard': { icon: 'fa-house', name: 'Inicio', locked: true }, // Nunca se oculta
             'work_orders': { icon: 'fa-car-side', name: 'Taller', locked: false },
-            'shopping_list': { icon: 'fa-boxes-stacked', name: 'Gestión', locked: false },
-            'todo': { icon: 'fa-clipboard-list', name: 'Tareas', locked: false },
+            'shopping_list': { icon: 'fa-box', name: 'Bodega Central', locked: false },
+            'todo': { icon: 'fa-square-check', name: 'Tareas', locked: false },
             'turnario': { icon: 'fa-calendar-days', name: 'Calendario', locked: false },
             'notes': { icon: 'fa-book-open', name: 'Apuntes', locked: false },
-            'links': { icon: 'fa-toolbox', name: 'Información', locked: false }
+            'links': { icon: 'fa-circle-info', name: 'Información', locked: false }
         };
 
         // --- SISTEMA DE TEMAS ---

@@ -1234,6 +1234,9 @@
         </div>
     </div>
 
+    <!-- Menú flotante de "más acciones" del inventario (compartido; se reposiciona con JS junto al botón de tres puntos que lo abrió) -->
+    <div id="inv-actions-menu" class="hidden fixed z-[70] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-xl py-1 w-48 text-sm"></div>
+
     <!-- Modal Escanear Código de Barra -->
     <div id="barcode-scan-modal" class="hidden fixed inset-0 bg-neutral-900/90 z-[95] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-4 border-t-4 border-blue-600 fade-enter relative">
@@ -1380,6 +1383,7 @@
         let currentFinanceDate = new Date();
         let pendingScanBarcode = null; // código crudo leído por la cámara, pendiente de asociar al ítem nuevo que se está creando
         let barcodeScanReader = null; // instancia activa del lector de la cámara (ZXing)
+        let linkingBarcodeItemId = null; // si no es null, el próximo escaneo se asocia a este ítem YA existente (ver associateBarcodeToItem)
 
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
@@ -1666,6 +1670,13 @@
                     e.stopPropagation();
                 }
             }, true);
+
+            // Cierra el menú de "más acciones" del inventario al hacer clic afuera
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#inv-actions-menu') && !e.target.closest('.inv-actions-trigger')) {
+                    closeInvActionsMenu();
+                }
+            });
         }
 
         function manualZoom(delta) { updateCanvasStyle(currentZoom + delta); }
@@ -3624,10 +3635,8 @@
                         <div class="flex items-center justify-center gap-1">
                             <button onclick="toggleEditInv(${item.id})" class="w-7 h-7 rounded ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
                             <button onclick="sellInventoryItem(${item.id})" class="w-7 h-7 rounded bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
-                            <button onclick="openItemSalesHistory(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-blue-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Historial de ventas"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button>
-                            <button onclick="duplicateInventoryItem(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-purple-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Duplicar (útil para la misma pieza en otra marca)"><i class="fa-solid fa-copy text-xs"></i></button>
                             <button onclick="openMarketPriceModal(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
-                            <button onclick="deleteInventoryItem(${item.id})" class="w-7 h-7 rounded text-neutral-400 dark:text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 transition flex items-center justify-center active:scale-95" title="Eliminar ítem"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            <button onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition shadow-sm flex items-center justify-center active:scale-95" title="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-xs"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -3678,10 +3687,8 @@
                         <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10 flex-wrap justify-end max-w-[108px]">
                             <button onclick="toggleEditInv(${item.id})" class="w-8 h-8 rounded-lg ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
                             <button onclick="sellInventoryItem(${item.id})" class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
-                            <button onclick="openItemSalesHistory(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-blue-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Historial de ventas"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button>
-                            <button onclick="duplicateInventoryItem(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-purple-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Duplicar (útil para la misma pieza en otra marca)"><i class="fa-solid fa-copy text-xs"></i></button>
                             <button onclick="openMarketPriceModal(${item.id})" class="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
-                            <button onclick="deleteInventoryItem(${item.id})" class="w-8 h-8 rounded-lg text-neutral-400 dark:text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 transition flex items-center justify-center active:scale-95" title="Eliminar ítem"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            <button onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition shadow-sm flex items-center justify-center active:scale-95" title="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-xs"></i></button>
                         </div>
                     </div>
 
@@ -4422,6 +4429,13 @@
         return state.inventoryList.find(i => i.barcode && i.barcode === raw);
     }
 
+    // Asocia el código de barra que se escanee a continuación a un ítem YA existente
+    // (para productos cargados antes de tener esta función). Ver handleScannedBarcode().
+    function associateBarcodeToItem(id) {
+        linkingBarcodeItemId = id;
+        openBarcodeScanModal();
+    }
+
     async function openBarcodeScanModal() {
         if (typeof ZXing === 'undefined') {
             showToast("No se pudo cargar el lector de códigos (revisa tu conexión)", "fa-triangle-exclamation");
@@ -4430,7 +4444,10 @@
         document.body.classList.add('modal-open');
         document.getElementById('barcode-scan-modal').classList.remove('hidden');
         const statusEl = document.getElementById('barcode-scan-status');
-        statusEl.textContent = 'Apunta la cámara al código de barras del producto.';
+        const linkingItem = linkingBarcodeItemId !== null ? state.inventoryList.find(i => i.id === linkingBarcodeItemId) : null;
+        statusEl.textContent = linkingItem
+            ? `Escanea el código de barra que quieres asociar a "${linkingItem.product}".`
+            : 'Apunta la cámara al código de barras del producto.';
 
         try {
             barcodeScanReader = new ZXing.BrowserMultiFormatReader();
@@ -4454,12 +4471,29 @@
             try { barcodeScanReader.reset(); } catch (e) {}
             barcodeScanReader = null;
         }
+        linkingBarcodeItemId = null; // cancelar el escaneo también cancela una asociación pendiente
         document.body.classList.remove('modal-open');
         document.getElementById('barcode-scan-modal').classList.add('hidden');
     }
 
     function handleScannedBarcode(raw) {
+        const targetId = linkingBarcodeItemId; // se guarda antes: closeBarcodeScanModal() lo resetea
         closeBarcodeScanModal();
+
+        if (targetId !== null) {
+            const item = state.inventoryList.find(i => i.id === targetId);
+            if (!item) return;
+            const conflict = findInventoryItemByBarcode(raw);
+            if (conflict && conflict.id !== targetId) {
+                showToast(`Ese código ya está asociado a "${conflict.product}"`, "fa-triangle-exclamation");
+                return;
+            }
+            item.barcode = raw;
+            saveData();
+            showToast(`Código asociado a "${item.product}"`, "fa-check");
+            return;
+        }
+
         const existing = findInventoryItemByBarcode(raw);
         if (existing) {
             closeAddInventoryModal(); // por si el escaneo se inició desde dentro del formulario de "Nuevo Ítem"
@@ -4475,6 +4509,47 @@
             openAddInventoryModal({ barcode: raw });
             showToast("Código nuevo: completa los datos del ítem", "fa-barcode");
         }
+    }
+
+    // --- MENÚ "MÁS ACCIONES" DEL INVENTARIO (los tres puntitos) ---
+    // Un solo menú flotante compartido por todas las filas/tarjetas: se reposiciona
+    // con JS junto al botón que lo abrió, en vez de tener un menú propio por ítem
+    // (evita que quede cortado por el scroll horizontal de la tabla).
+    function toggleInvActionsMenu(id, btnEl) {
+        const menu = document.getElementById('inv-actions-menu');
+        const wasOpenForThis = menu.dataset.forId === String(id) && !menu.classList.contains('hidden');
+        closeInvActionsMenu();
+        if (wasOpenForThis) return;
+
+        const item = state.inventoryList.find(i => i.id === id);
+        if (!item) return;
+
+        menu.innerHTML = `
+            <button onclick="closeInvActionsMenu(); openItemSalesHistory(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-clock-rotate-left w-4 text-center text-neutral-400"></i> Historial de ventas</button>
+            <button onclick="closeInvActionsMenu(); associateBarcodeToItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-barcode w-4 text-center text-neutral-400"></i> ${item.barcode ? 'Cambiar código de barra' : 'Asociar código de barra'}</button>
+            <button onclick="closeInvActionsMenu(); duplicateInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-copy w-4 text-center text-neutral-400"></i> Duplicar</button>
+            <div class="border-t border-neutral-100 dark:border-neutral-700 my-1"></div>
+            <button onclick="closeInvActionsMenu(); deleteInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-500"><i class="fa-solid fa-trash-can w-4 text-center"></i> Eliminar ítem</button>
+        `;
+
+        const rect = btnEl.getBoundingClientRect();
+        const menuWidth = 192; // w-48
+        const menuHeightEst = 180;
+        let left = rect.right - menuWidth;
+        if (left < 8) left = 8;
+        if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8;
+        let top = rect.bottom + 4;
+        if (top + menuHeightEst > window.innerHeight) top = Math.max(8, rect.top - 4 - menuHeightEst);
+
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        menu.dataset.forId = String(id);
+        menu.classList.remove('hidden');
+    }
+
+    function closeInvActionsMenu() {
+        const menu = document.getElementById('inv-actions-menu');
+        if (menu) { menu.classList.add('hidden'); menu.dataset.forId = ''; }
     }
 
     // --- RECARGO MASIVO: aplicar un % de recargo a varios productos a la vez,

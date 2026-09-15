@@ -99,6 +99,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- SheetJS: exportación real a Excel (.xlsx), abrible/editable en Excel y Google Sheets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- ZXing: lectura de códigos de barra (Code128, EAN, UPC, etc.) usando la cámara -->
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -984,7 +986,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Código</label>
-                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
+                    <div class="flex gap-2">
+                        <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
+                        <button type="button" onclick="openBarcodeScanModal()" class="shrink-0 w-10 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-neutral-500 hover:text-blue-500 hover:border-blue-400 transition flex items-center justify-center" title="Escanear código de barra">
+                            <i class="fa-solid fa-barcode"></i>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
@@ -1226,6 +1233,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Escanear Código de Barra -->
+    <div id="barcode-scan-modal" class="hidden fixed inset-0 bg-neutral-900/90 z-[95] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-4 border-t-4 border-blue-600 fade-enter relative">
+            <button onclick="closeBarcodeScanModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-800/80 text-white hover:bg-red-500 transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-3"><i class="fa-solid fa-barcode text-blue-500"></i> Escanear Código</h3>
+            <div class="relative bg-black rounded-lg overflow-hidden aspect-[4/3] flex items-center justify-center">
+                <video id="barcode-scan-video" class="w-full h-full object-cover" muted playsinline></video>
+                <div class="absolute inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-red-500/80 shadow-[0_0_8px_2px_rgba(239,68,68,0.6)]"></div>
+            </div>
+            <p id="barcode-scan-status" class="text-xs text-center text-neutral-500 dark:text-neutral-400 mt-3">Apunta la cámara al código de barras del producto.</p>
+        </div>
+    </div>
         <div id="settings-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm md:max-w-3xl p-6 border border-neutral-300 dark:border-neutral-700 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
             <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
@@ -1262,6 +1282,19 @@
                             <option value="high">Alta (Para imprimir)</option>
                         </select>
                 </div>
+
+                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-barcode"></i> Código al Escanear</h4>
+                        <p class="text-[10px] text-neutral-500 mb-2">Qué usar como "Código" al agregar un ítem nuevo escaneando su código de barra.</p>
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                                <input type="radio" name="barcode-code-format" value="largo" onchange="updateBarcodeFormat(this.value)"> Código completo <span class="text-[10px] font-mono font-normal text-neutral-400">(ej: PF-SC-D-976-GTX)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                                <input type="radio" name="barcode-code-format" value="corto" onchange="updateBarcodeFormat(this.value)"> Código corto <span class="text-[10px] font-mono font-normal text-neutral-400">(ej: 0418)</span>
+                            </label>
+                        </div>
+                    </div>
 
                 <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
                     <div class="flex justify-between items-center mb-3 pl-1">
@@ -1352,12 +1385,15 @@
             userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false,
             showFinanceWidget: true,
+            barcodeCodeFormat: 'largo',
             visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
         };
-        let selectedDateKey = null; 
+        let selectedDateKey = null;
         let tempShiftType = null;
-        let currentNoteImages = []; 
+        let currentNoteImages = [];
         let currentFinanceDate = new Date();
+        let pendingScanBarcode = null; // código crudo leído por la cámara, pendiente de asociar al ítem nuevo que se está creando
+        let barcodeScanReader = null; // instancia activa del lector de la cámara (ZXing)
 
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
@@ -1460,6 +1496,7 @@
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     if (!saved.appTheme) saved.appTheme = localStorage.getItem('mech_theme') || 'rojo';
                     if (saved.showFinanceWidget === undefined) saved.showFinanceWidget = true;
+                    if (!saved.barcodeCodeFormat) saved.barcodeCodeFormat = 'largo';
                     if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'];
                     else { const mercadoIdx = saved.visibleModules.indexOf('mercado'); if (mercadoIdx !== -1) saved.visibleModules.splice(mercadoIdx, 1); } // Se eliminó el módulo Mercado (se simplificó a un botón dentro de Inventario)
                     
@@ -1475,7 +1512,7 @@
                     else saved.serviceList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
 
                     if (!saved.inventoryList) saved.inventoryList = [];
-                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; });
+                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; if(i.barcode === undefined) i.barcode = ''; });
 
                     if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
@@ -3978,10 +4015,12 @@
                 salesLog: [],
                 marketPrice: null,
                 image: null,
-                extraData: extraData
+                extraData: extraData,
+                barcode: pendingScanBarcode || ''
             };
-            
-            state.inventoryList.unshift(newItem); 
+
+            state.inventoryList.unshift(newItem);
+            pendingScanBarcode = null;
             saveData();
             
             const tbody = document.getElementById('inventory-table-body');
@@ -4192,6 +4231,11 @@
                         <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
                     </button>
 
+                    <button onclick="openBarcodeScanModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Escanear un código de barra para buscar o agregar un ítem">
+                        <i class="fa-solid fa-barcode text-blue-500"></i>
+                        <span>Escanear</span>
+                    </button>
+
                     <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
@@ -4309,6 +4353,12 @@
     // `prefill` es opcional: si viene (desde "Duplicar"), copia los datos de un ítem
     // existente en vez de dejar el formulario en blanco. Ver duplicateInventoryItem().
     function openAddInventoryModal(prefill) {
+         // Si el formulario se abrió desde un escaneo sin coincidencia, guardamos el
+         // código crudo leído para asociarlo al ítem una vez que se guarde (ver
+         // handleScannedBarcode() y addInventoryItem()). En cualquier otro caso
+         // (botón "Nuevo Ítem" o "Duplicar") no hay código de barra que asociar.
+         pendingScanBarcode = (prefill && prefill.barcode) || null;
+
          // Llenar (o limpiar) campos generales
          document.getElementById('new-inv-sku').value = prefill ? (prefill.sku || '') : '';
          document.getElementById('new-inv-product').value = prefill ? (prefill.product || '') : '';
@@ -4371,6 +4421,79 @@
     function closeAddInventoryModal() {
         document.body.classList.remove('modal-open');
         document.getElementById('add-inventory-modal').classList.add('hidden');
+        pendingScanBarcode = null;
+    }
+
+    // --- ESCÁNER DE CÓDIGO DE BARRA ---
+    // Lee el código con la cámara (ZXing). Si el código ya está guardado en algún
+    // ítem (item.barcode), salta directo a ese ítem sin tocar su "Código" visible.
+    // Si es nuevo, abre "Nuevo Ítem" con el Código sugerido según el formato elegido
+    // en Configuración; el código crudo de la cámara nunca se muestra, queda guardado
+    // aparte (item.barcode) solo para reconocer el mismo repuesto en futuros escaneos.
+
+    // Extrae el último grupo de dígitos de un texto (ej: "PF-SC-D-976-GTX" -> "976").
+    // Si no encuentra dígitos, devuelve el texto tal cual.
+    function extractShortCode(raw) {
+        const match = String(raw).match(/(\d+)(?!.*\d)/);
+        return match ? match[0] : String(raw);
+    }
+
+    function suggestCodeFromScan(raw) {
+        return (state.barcodeCodeFormat === 'corto') ? extractShortCode(raw) : String(raw);
+    }
+
+    function findInventoryItemByBarcode(raw) {
+        return state.inventoryList.find(i => i.barcode && i.barcode === raw);
+    }
+
+    async function openBarcodeScanModal() {
+        if (typeof ZXing === 'undefined') {
+            showToast("No se pudo cargar el lector de códigos (revisa tu conexión)", "fa-triangle-exclamation");
+            return;
+        }
+        document.body.classList.add('modal-open');
+        document.getElementById('barcode-scan-modal').classList.remove('hidden');
+        const statusEl = document.getElementById('barcode-scan-status');
+        statusEl.textContent = 'Apunta la cámara al código de barras del producto.';
+
+        try {
+            barcodeScanReader = new ZXing.BrowserMultiFormatReader();
+            const videoEl = document.getElementById('barcode-scan-video');
+            await barcodeScanReader.decodeFromConstraints(
+                { video: { facingMode: 'environment' } },
+                videoEl,
+                (result, err) => {
+                    if (result) handleScannedBarcode(result.getText());
+                }
+            );
+        } catch (e) {
+            console.error(e);
+            statusEl.textContent = 'No se pudo abrir la cámara. Revisa los permisos.';
+            showToast("No se pudo abrir la cámara", "fa-video-slash");
+        }
+    }
+
+    function closeBarcodeScanModal() {
+        if (barcodeScanReader) {
+            try { barcodeScanReader.reset(); } catch (e) {}
+            barcodeScanReader = null;
+        }
+        document.body.classList.remove('modal-open');
+        document.getElementById('barcode-scan-modal').classList.add('hidden');
+    }
+
+    function handleScannedBarcode(raw) {
+        closeBarcodeScanModal();
+        const existing = findInventoryItemByBarcode(raw);
+        if (existing) {
+            closeAddInventoryModal(); // por si el escaneo se inició desde dentro del formulario de "Nuevo Ítem"
+            showToast(`Ítem encontrado: ${existing.product}`, "fa-check");
+            highlightElement(`inventory-row-${existing.id}`);
+            highlightElement(`inventory-card-${existing.id}`);
+        } else {
+            openAddInventoryModal({ sku: suggestCodeFromScan(raw), barcode: raw });
+            showToast("Código nuevo: completa los datos del ítem", "fa-barcode");
+        }
     }
 
     // --- RECARGO MASIVO: aplicar un % de recargo a varios productos a la vez,
@@ -5710,6 +5833,9 @@
 
             updateThemeButtonsUI(state.appTheme || localStorage.getItem('mech_theme') || 'rojo');
 
+            const barcodeFormatRadio = document.querySelector(`input[name="barcode-code-format"][value="${state.barcodeCodeFormat || 'largo'}"]`);
+            if (barcodeFormatRadio) barcodeFormatRadio.checked = true;
+
             const list = document.getElementById('modules-settings-list');
             list.innerHTML = Object.entries(moduleNames).map(([key, data]) => `
                 <label class="flex items-center justify-between p-2.5 rounded bg-neutral-50 dark:bg-neutral-800/30 border border-neutral-200 dark:border-neutral-700 ${data.locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800'} transition">
@@ -5732,6 +5858,12 @@
             state.pdfQuality = val;
             saveData();
             showToast("Calidad PDF actualizada", "fa-check");
+        }
+
+        function updateBarcodeFormat(val) {
+            state.barcodeCodeFormat = val;
+            saveData();
+            showToast("Formato de código actualizado", "fa-check");
         }
 
         function toggleFinanceSetting(checked) {

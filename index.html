@@ -99,8 +99,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- SheetJS: exportación real a Excel (.xlsx), abrible/editable en Excel y Google Sheets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- ZXing: lectura de códigos de barra (Code128, EAN, UPC, etc.) usando la cámara -->
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -986,12 +984,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Código</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
-                        <button type="button" onclick="openBarcodeScanModal()" class="shrink-0 w-10 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-neutral-500 hover:text-blue-500 hover:border-blue-400 transition flex items-center justify-center" title="Escanear código de barra">
-                            <i class="fa-solid fa-barcode"></i>
-                        </button>
-                    </div>
+                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Producto / Ítem *</label>
@@ -1237,18 +1230,6 @@
     <!-- Menú flotante de "más acciones" del inventario (compartido; se reposiciona con JS junto al botón de tres puntos que lo abrió) -->
     <div id="inv-actions-menu" class="hidden fixed z-[70] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-xl py-1 w-48 text-sm"></div>
 
-    <!-- Modal Escanear Código de Barra -->
-    <div id="barcode-scan-modal" class="hidden fixed inset-0 bg-neutral-900/90 z-[95] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-4 border-t-4 border-blue-600 fade-enter relative">
-            <button onclick="closeBarcodeScanModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-800/80 text-white hover:bg-red-500 transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-3"><i class="fa-solid fa-barcode text-blue-500"></i> Escanear Código</h3>
-            <div class="relative bg-black rounded-lg overflow-hidden aspect-[4/3] flex items-center justify-center">
-                <video id="barcode-scan-video" class="w-full h-full object-cover" muted playsinline></video>
-                <div class="absolute inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-red-500/80 shadow-[0_0_8px_2px_rgba(239,68,68,0.6)]"></div>
-            </div>
-            <p id="barcode-scan-status" class="text-xs text-center text-neutral-500 dark:text-neutral-400 mt-3">Apunta la cámara al código de barras del producto.</p>
-        </div>
-    </div>
         <div id="settings-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm md:max-w-3xl p-6 border border-neutral-300 dark:border-neutral-700 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
             <button onclick="closeSettingsModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
@@ -1381,9 +1362,6 @@
         let tempShiftType = null;
         let currentNoteImages = [];
         let currentFinanceDate = new Date();
-        let pendingScanBarcode = null; // código crudo leído por la cámara, pendiente de asociar al ítem nuevo que se está creando
-        let barcodeScanReader = null; // instancia activa del lector de la cámara (ZXing)
-        let linkingBarcodeItemId = null; // si no es null, el próximo escaneo se asocia a este ítem YA existente (ver associateBarcodeToItem)
 
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
@@ -1501,7 +1479,7 @@
                     else saved.serviceList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); });
 
                     if (!saved.inventoryList) saved.inventoryList = [];
-                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; if(i.barcode === undefined) i.barcode = ''; });
+                    else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; });
 
                     if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
 
@@ -4007,12 +3985,10 @@
                 salesLog: [],
                 marketPrice: null,
                 image: null,
-                extraData: extraData,
-                barcode: pendingScanBarcode || ''
+                extraData: extraData
             };
 
             state.inventoryList.unshift(newItem);
-            pendingScanBarcode = null;
             saveData();
             
             const tbody = document.getElementById('inventory-table-body');
@@ -4223,11 +4199,6 @@
                         <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
                     </button>
 
-                    <button onclick="openBarcodeScanModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Escanear un código de barra para buscar o agregar un ítem">
-                        <i class="fa-solid fa-barcode text-blue-500"></i>
-                        <span>Escanear</span>
-                    </button>
-
                     <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
@@ -4345,12 +4316,6 @@
     // `prefill` es opcional: si viene (desde "Duplicar"), copia los datos de un ítem
     // existente en vez de dejar el formulario en blanco. Ver duplicateInventoryItem().
     function openAddInventoryModal(prefill) {
-         // Si el formulario se abrió desde un escaneo sin coincidencia, guardamos el
-         // código crudo leído para asociarlo al ítem una vez que se guarde (ver
-         // handleScannedBarcode() y addInventoryItem()). En cualquier otro caso
-         // (botón "Nuevo Ítem" o "Duplicar") no hay código de barra que asociar.
-         pendingScanBarcode = (prefill && prefill.barcode) || null;
-
          // Llenar (o limpiar) campos generales
          document.getElementById('new-inv-sku').value = prefill ? (prefill.sku || '') : '';
          document.getElementById('new-inv-product').value = prefill ? (prefill.product || '') : '';
@@ -4413,102 +4378,6 @@
     function closeAddInventoryModal() {
         document.body.classList.remove('modal-open');
         document.getElementById('add-inventory-modal').classList.add('hidden');
-        pendingScanBarcode = null;
-    }
-
-    // --- ESCÁNER DE CÓDIGO DE BARRA ---
-    // Lee el código con la cámara (ZXing). Si el código ya está guardado en algún
-    // ítem (item.barcode), salta directo a ese ítem sin tocar su "Código" visible.
-    // Si es nuevo, abre "Nuevo Ítem" con el campo "Código" vacío (el número que trae
-    // la barra es un código interno del fabricante/distribuidor, sin relación con lo
-    // impreso en la caja, así que no sirve como sugerencia); el valor crudo leído sí
-    // queda guardado aparte (item.barcode, oculto) para reconocer el mismo repuesto
-    // en futuros escaneos.
-
-    function findInventoryItemByBarcode(raw) {
-        return state.inventoryList.find(i => i.barcode && i.barcode === raw);
-    }
-
-    // Asocia el código de barra que se escanee a continuación a un ítem YA existente
-    // (para productos cargados antes de tener esta función). Ver handleScannedBarcode().
-    function associateBarcodeToItem(id) {
-        linkingBarcodeItemId = id;
-        openBarcodeScanModal();
-    }
-
-    async function openBarcodeScanModal() {
-        if (typeof ZXing === 'undefined') {
-            showToast("No se pudo cargar el lector de códigos (revisa tu conexión)", "fa-triangle-exclamation");
-            return;
-        }
-        document.body.classList.add('modal-open');
-        document.getElementById('barcode-scan-modal').classList.remove('hidden');
-        const statusEl = document.getElementById('barcode-scan-status');
-        const linkingItem = linkingBarcodeItemId !== null ? state.inventoryList.find(i => i.id === linkingBarcodeItemId) : null;
-        statusEl.textContent = linkingItem
-            ? `Escanea el código de barra que quieres asociar a "${linkingItem.product}".`
-            : 'Apunta la cámara al código de barras del producto.';
-
-        try {
-            barcodeScanReader = new ZXing.BrowserMultiFormatReader();
-            const videoEl = document.getElementById('barcode-scan-video');
-            await barcodeScanReader.decodeFromConstraints(
-                { video: { facingMode: 'environment' } },
-                videoEl,
-                (result, err) => {
-                    if (result) handleScannedBarcode(result.getText());
-                }
-            );
-        } catch (e) {
-            console.error(e);
-            statusEl.textContent = 'No se pudo abrir la cámara. Revisa los permisos.';
-            showToast("No se pudo abrir la cámara", "fa-video-slash");
-        }
-    }
-
-    function closeBarcodeScanModal() {
-        if (barcodeScanReader) {
-            try { barcodeScanReader.reset(); } catch (e) {}
-            barcodeScanReader = null;
-        }
-        linkingBarcodeItemId = null; // cancelar el escaneo también cancela una asociación pendiente
-        document.body.classList.remove('modal-open');
-        document.getElementById('barcode-scan-modal').classList.add('hidden');
-    }
-
-    function handleScannedBarcode(raw) {
-        const targetId = linkingBarcodeItemId; // se guarda antes: closeBarcodeScanModal() lo resetea
-        closeBarcodeScanModal();
-
-        if (targetId !== null) {
-            const item = state.inventoryList.find(i => i.id === targetId);
-            if (!item) return;
-            const conflict = findInventoryItemByBarcode(raw);
-            if (conflict && conflict.id !== targetId) {
-                showToast(`Ese código ya está asociado a "${conflict.product}"`, "fa-triangle-exclamation");
-                return;
-            }
-            item.barcode = raw;
-            saveData();
-            showToast(`Código asociado a "${item.product}"`, "fa-check");
-            return;
-        }
-
-        const existing = findInventoryItemByBarcode(raw);
-        if (existing) {
-            closeAddInventoryModal(); // por si el escaneo se inició desde dentro del formulario de "Nuevo Ítem"
-            showToast(`Ítem encontrado: ${existing.product}`, "fa-check");
-            highlightElement(`inventory-row-${existing.id}`);
-            highlightElement(`inventory-card-${existing.id}`);
-        } else {
-            // El número que trae la barra es un código interno del fabricante/distribuidor,
-            // sin relación con lo impreso en la caja: no sirve como sugerencia de Código,
-            // así que el campo queda vacío para que se escriba a mano como siempre.
-            // El valor crudo (raw) sí queda guardado en item.barcode (oculto) para
-            // reconocer este mismo repuesto la próxima vez que se escanee.
-            openAddInventoryModal({ barcode: raw });
-            showToast("Código nuevo: completa los datos del ítem", "fa-barcode");
-        }
     }
 
     // --- MENÚ "MÁS ACCIONES" DEL INVENTARIO (los tres puntitos) ---
@@ -4526,7 +4395,6 @@
 
         menu.innerHTML = `
             <button onclick="closeInvActionsMenu(); openItemSalesHistory(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-clock-rotate-left w-4 text-center text-neutral-400"></i> Historial de ventas</button>
-            <button onclick="closeInvActionsMenu(); associateBarcodeToItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-barcode w-4 text-center text-neutral-400"></i> ${item.barcode ? 'Cambiar código de barra' : 'Asociar código de barra'}</button>
             <button onclick="closeInvActionsMenu(); duplicateInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-copy w-4 text-center text-neutral-400"></i> Duplicar</button>
             <div class="border-t border-neutral-100 dark:border-neutral-700 my-1"></div>
             <button onclick="closeInvActionsMenu(); deleteInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-500"><i class="fa-solid fa-trash-can w-4 text-center"></i> Eliminar ítem</button>

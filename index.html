@@ -1283,19 +1283,6 @@
                         </select>
                 </div>
 
-                    <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-barcode"></i> Código al Escanear</h4>
-                        <p class="text-[10px] text-neutral-500 mb-2">Qué usar como "Código" al agregar un ítem nuevo escaneando su código de barra.</p>
-                        <div class="flex flex-col gap-2">
-                            <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
-                                <input type="radio" name="barcode-code-format" value="largo" onchange="updateBarcodeFormat(this.value)"> Código completo <span class="text-[10px] font-mono font-normal text-neutral-400">(ej: PF-SC-D-976-GTX)</span>
-                            </label>
-                            <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
-                                <input type="radio" name="barcode-code-format" value="corto" onchange="updateBarcodeFormat(this.value)"> Código corto <span class="text-[10px] font-mono font-normal text-neutral-400">(ej: 0418)</span>
-                            </label>
-                        </div>
-                    </div>
-
                 <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-5">
                     <div class="flex justify-between items-center mb-3 pl-1">
                         <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell"></i> Alertas de Agenda</h4>
@@ -1385,7 +1372,6 @@
             userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false,
             showFinanceWidget: true,
-            barcodeCodeFormat: 'largo',
             visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
         };
         let selectedDateKey = null;
@@ -1496,7 +1482,6 @@
                     if (saved.darkMode === undefined) saved.darkMode = false;
                     if (!saved.appTheme) saved.appTheme = localStorage.getItem('mech_theme') || 'rojo';
                     if (saved.showFinanceWidget === undefined) saved.showFinanceWidget = true;
-                    if (!saved.barcodeCodeFormat) saved.barcodeCodeFormat = 'largo';
                     if (!saved.visibleModules) saved.visibleModules = ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'];
                     else { const mercadoIdx = saved.visibleModules.indexOf('mercado'); if (mercadoIdx !== -1) saved.visibleModules.splice(mercadoIdx, 1); } // Se eliminó el módulo Mercado (se simplificó a un botón dentro de Inventario)
                     
@@ -4427,20 +4412,11 @@
     // --- ESCÁNER DE CÓDIGO DE BARRA ---
     // Lee el código con la cámara (ZXing). Si el código ya está guardado en algún
     // ítem (item.barcode), salta directo a ese ítem sin tocar su "Código" visible.
-    // Si es nuevo, abre "Nuevo Ítem" con el Código sugerido según el formato elegido
-    // en Configuración; el código crudo de la cámara nunca se muestra, queda guardado
-    // aparte (item.barcode) solo para reconocer el mismo repuesto en futuros escaneos.
-
-    // Extrae el último grupo de dígitos de un texto (ej: "PF-SC-D-976-GTX" -> "976").
-    // Si no encuentra dígitos, devuelve el texto tal cual.
-    function extractShortCode(raw) {
-        const match = String(raw).match(/(\d+)(?!.*\d)/);
-        return match ? match[0] : String(raw);
-    }
-
-    function suggestCodeFromScan(raw) {
-        return (state.barcodeCodeFormat === 'corto') ? extractShortCode(raw) : String(raw);
-    }
+    // Si es nuevo, abre "Nuevo Ítem" con el campo "Código" vacío (el número que trae
+    // la barra es un código interno del fabricante/distribuidor, sin relación con lo
+    // impreso en la caja, así que no sirve como sugerencia); el valor crudo leído sí
+    // queda guardado aparte (item.barcode, oculto) para reconocer el mismo repuesto
+    // en futuros escaneos.
 
     function findInventoryItemByBarcode(raw) {
         return state.inventoryList.find(i => i.barcode && i.barcode === raw);
@@ -4491,7 +4467,12 @@
             highlightElement(`inventory-row-${existing.id}`);
             highlightElement(`inventory-card-${existing.id}`);
         } else {
-            openAddInventoryModal({ sku: suggestCodeFromScan(raw), barcode: raw });
+            // El número que trae la barra es un código interno del fabricante/distribuidor,
+            // sin relación con lo impreso en la caja: no sirve como sugerencia de Código,
+            // así que el campo queda vacío para que se escriba a mano como siempre.
+            // El valor crudo (raw) sí queda guardado en item.barcode (oculto) para
+            // reconocer este mismo repuesto la próxima vez que se escanee.
+            openAddInventoryModal({ barcode: raw });
             showToast("Código nuevo: completa los datos del ítem", "fa-barcode");
         }
     }
@@ -5833,9 +5814,6 @@
 
             updateThemeButtonsUI(state.appTheme || localStorage.getItem('mech_theme') || 'rojo');
 
-            const barcodeFormatRadio = document.querySelector(`input[name="barcode-code-format"][value="${state.barcodeCodeFormat || 'largo'}"]`);
-            if (barcodeFormatRadio) barcodeFormatRadio.checked = true;
-
             const list = document.getElementById('modules-settings-list');
             list.innerHTML = Object.entries(moduleNames).map(([key, data]) => `
                 <label class="flex items-center justify-between p-2.5 rounded bg-neutral-50 dark:bg-neutral-800/30 border border-neutral-200 dark:border-neutral-700 ${data.locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800'} transition">
@@ -5858,12 +5836,6 @@
             state.pdfQuality = val;
             saveData();
             showToast("Calidad PDF actualizada", "fa-check");
-        }
-
-        function updateBarcodeFormat(val) {
-            state.barcodeCodeFormat = val;
-            saveData();
-            showToast("Formato de código actualizado", "fa-check");
         }
 
         function toggleFinanceSetting(checked) {

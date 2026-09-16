@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Mecamonico Cloud - App de gestión de taller mecánico",
   "private": true,
+  "author": "Mecamonico",
+  "main": "electron/main.js",
   "scripts": {
     "build:www": "node scripts/build-www.js",
-    "cap:sync": "npm run build:www && npx cap sync android"
+    "cap:sync": "npm run build:www && npx cap sync android",
+    "electron:start": "npm run build:www && electron .",
+    "electron:build": "npm run build:www && electron-builder --win --publish never"
   },
   "repository": {
     "type": "git",
@@ -20,6 +24,39 @@
     "@capacitor/android": "^8.5.2",
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.5.2"
+    "@capacitor/core": "^8.5.2",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-serve": "^1.3.0",
+    "electron-updater": "^6.8.9"
+  },
+  "build": {
+    "appId": "cl.mecamonico.taller.desktop",
+    "productName": "Mecamonico",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "electron/**/*",
+      "www/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "iconomecamonico.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Mecamonico-Setup.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "TomiScriptorium",
+      "repo": "mecamonico"
+    }
   }
 }

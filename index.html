@@ -3566,6 +3566,26 @@
             }
         }
 
+        // Ingreso y ganancia REALES de un ítem, a partir de lo que efectivamente
+        // se cobró en cada venta (item.salesLog[].total), no del precio de venta
+        // actual del producto. Así, si una venta tuvo descuento, se refleja acá
+        // en vez de calcular la ganancia como si se hubiera vendido al precio lleno.
+        // Las ventas antiguas sin registro individual (de antes de existir el
+        // historial con fecha) no tienen cómo saberse su precio real, así que para
+        // esas se usa el precio de venta actual como mejor estimación disponible.
+        function getItemSalesStats(item) {
+            const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+            const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+            const soldQty = parseFloat(item.soldQty) || 0;
+            const log = item.salesLog || [];
+            const loggedQty = log.reduce((sum, s) => sum + (parseFloat(s.qty) || 0), 0);
+            const loggedRevenue = log.reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
+            const untrackedQty = Math.max(0, soldQty - loggedQty);
+            const revenue = Math.round(loggedRevenue + untrackedQty * salePriceGross);
+            const profit = Math.round(revenue - soldQty * priceGross);
+            return { revenue, profit, soldQty, priceGross, salePriceGross };
+        }
+
         function getInventoryRowHTML(item) {
             const price = parseFloat(item.price) || 0;
             const salePrice = parseFloat(item.salePrice) || 0;
@@ -3575,7 +3595,7 @@
 
             const priceGross = Math.round(price * 1.19);
             const salePriceGross = Math.round(salePrice * 1.19);
-            const realProfit = Math.round(soldQty * (salePriceGross - priceGross));
+            const realProfit = getItemSalesStats(item).profit;
             const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
 
             const sku = item.sku || 'N/A';
@@ -3658,7 +3678,7 @@
 
             const priceGross = Math.round(price * 1.19);
             const salePriceGross = Math.round(salePrice * 1.19);
-            const realProfit = Math.round(soldQty * (salePriceGross - priceGross));
+            const realProfit = getItemSalesStats(item).profit;
             const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
 
             const sku = item.sku || 'N/A';
@@ -3769,7 +3789,7 @@
 
                 const profitEl = container.querySelector('.profit-text');
                 if (profitEl) {
-                    const profit = Math.round((parseFloat(item.soldQty)||0) * (salePriceGross - priceGross));
+                    const profit = getItemSalesStats(item).profit;
                     profitEl.innerText = `$${profit.toLocaleString('es-CL')}`;
                     profitEl.title = `$${profit.toLocaleString('es-CL')}`;
                     profitEl.classList.toggle('text-green-600', profit >= 0);
@@ -4127,12 +4147,7 @@
             // Revertido: Costo físico real en estantes (qty * price)
             const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
             
-            const totalProfit = state.inventoryList.reduce((sum, item) => {
-                const pGross = Math.round((parseFloat(item.price) || 0) * 1.19);
-                const spGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-                const sq = parseFloat(item.soldQty) || 0;
-                return sum + (sq * (spGross - pGross));
-            }, 0);
+            const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
             
             const kpiItems = document.getElementById('inv-kpi-items');
             if(kpiItems) kpiItems.innerText = state.inventoryList.length;
@@ -4256,12 +4271,7 @@
     const inventoryCardsHTML = sortedList.map((item) => getInventoryCardHTML(item)).join('');
 
     const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
-    const totalProfit = state.inventoryList.reduce((sum, item) => {
-        const pGross = Math.round((parseFloat(item.price) || 0) * 1.19);
-        const spGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-        const sq = parseFloat(item.soldQty) || 0;
-        return sum + (sq * (spGross - pGross));
-    }, 0);
+    const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
     const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
 
     return `
@@ -4796,12 +4806,7 @@
             showToast("Generando PDF...", "fa-spinner fa-spin");
             
             const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
-            const totalProfit = state.inventoryList.reduce((sum, item) => {
-                const p = Math.round((parseFloat(item.price) || 0) * 1.19);
-                const sp = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-                const sq = parseFloat(item.soldQty) || 0;
-                return sum + (sq * (sp - p));
-            }, 0);
+            const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
             
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' }); 
@@ -4820,7 +4825,7 @@
                 const costGross = Math.round((parseFloat(item.price) || 0) * 1.19);
                 const saleGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
-                const profit = sq * (saleGross - costGross);
+                const profit = getItemSalesStats(item).profit;
                 return [
                     item.sku || '---',
                     item.product,
@@ -5962,13 +5967,13 @@
 
             const tableData = vendidos.sort((a,b) => b.soldQty - a.soldQty).map(item => {
                 const cost = Math.round((parseFloat(item.price) || 0) * 1.19);
-                const sale = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const sq = parseFloat(item.soldQty) || 0;
-                
+                const stats = getItemSalesStats(item);
+
                 const costoTotal = cost * sq;
-                const ingresos = sale * sq;
-                const profit = (sale - cost) * sq;
-                
+                const ingresos = stats.revenue;
+                const profit = stats.profit;
+
                 totalCostos += costoTotal;
                 totalIngresos += ingresos;
                 totalGanancia += profit;
@@ -6017,19 +6022,19 @@
 
             state.inventoryList.forEach(item => {
                 const cost = Math.round((parseFloat(item.price) || 0) * 1.19);
-                const sale = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
                 const q = parseFloat(item.qty) || 0;
                 const sq = parseFloat(item.soldQty) || 0;
+                const stats = getItemSalesStats(item);
 
                 // Dinero total que has gastado comprando repuestos
                 invHistorica += cost * (q + sq);
-                // Dinero total que ha entrado por ventas
-                totalIngresos += sale * sq;
+                // Dinero total que ha entrado por ventas (ya con descuentos reales)
+                totalIngresos += stats.revenue;
                 // Costo puro de lo que ya se vendió
                 costoVendido += cost * sq;
 
                 if (sq > 0) {
-                    vendidos.push({ ...item, profit: (sale - cost) * sq });
+                    vendidos.push({ ...item, profit: stats.profit });
                 }
             });
 
@@ -6616,12 +6621,7 @@
         // --- NUEVAS FUNCIONES DEL MODAL DE RESUMEN DE BODEGA ---
         function openInvSummaryModal() {
             const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
-            const totalProfit = state.inventoryList.reduce((sum, item) => {
-                const p = Math.round((parseFloat(item.price) || 0) * 1.19);
-                const sp = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-                const sq = parseFloat(item.soldQty) || 0;
-                return sum + (sq * (sp - p));
-            }, 0);
+            const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
             
             const totalItems = state.inventoryList.length;
             const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;

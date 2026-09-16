@@ -1122,6 +1122,29 @@
         </div>
     </div>
 
+    <!-- Modal Confirmar Venta (con opción de descuento) -->
+    <div id="sell-confirm-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[85] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-6 border-t-4 border-green-600 fade-enter relative">
+            <button onclick="closeSellConfirmModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-hand-holding-dollar text-green-600"></i> Confirmar Venta</h3>
+            <p id="sell-confirm-item-name" class="text-sm text-neutral-500 dark:text-neutral-400 mb-4"></p>
+
+            <div id="sell-confirm-question">
+                <p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3">¿Desea agregar un descuento a esta venta?</p>
+                <div class="flex gap-3">
+                    <button onclick="confirmSaleNoDiscount()" class="flex-1 py-2.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition">No</button>
+                    <button onclick="showSellDiscountInput()" class="flex-1 py-2.5 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition">Sí</button>
+                </div>
+            </div>
+
+            <div id="sell-confirm-discount" class="hidden">
+                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Monto del descuento ($)</label>
+                <input type="number" id="sell-discount-amount" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-lg font-bold text-center outline-none focus:border-green-500 dark:text-white transition-colors mb-3" placeholder="Ej: 2000" min="0" onkeypress="if(event.key === 'Enter') confirmSaleWithDiscount()">
+                <button onclick="confirmSaleWithDiscount()" class="w-full py-2.5 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition"><i class="fa-solid fa-check mr-1"></i> Confirmar Venta</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Precio de Mercado (por ítem) -->
     <div id="market-price-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
@@ -3842,7 +3865,53 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        let pendingSaleItemId = null;
+
+        // Antes de vender, pregunta si hay que aplicar un descuento a esa venta
+        // puntual (monto fijo en pesos, ej: 2.000). Ver executeSale() más abajo,
+        // que es la que realmente descuenta el stock y registra la venta.
         function sellInventoryItem(id) {
+            const item = state.inventoryList.find(i => i.id === id);
+            if (!item) return;
+            if (!(parseFloat(item.qty) > 0)) {
+                showToast("Sin stock para vender", "fa-triangle-exclamation");
+                return;
+            }
+            pendingSaleItemId = id;
+            document.getElementById('sell-confirm-item-name').textContent = item.product;
+            document.getElementById('sell-confirm-question').classList.remove('hidden');
+            document.getElementById('sell-confirm-discount').classList.add('hidden');
+            document.getElementById('sell-discount-amount').value = '';
+            document.body.classList.add('modal-open');
+            document.getElementById('sell-confirm-modal').classList.remove('hidden');
+        }
+
+        function closeSellConfirmModal() {
+            pendingSaleItemId = null;
+            document.body.classList.remove('modal-open');
+            document.getElementById('sell-confirm-modal').classList.add('hidden');
+        }
+
+        function showSellDiscountInput() {
+            document.getElementById('sell-confirm-question').classList.add('hidden');
+            document.getElementById('sell-confirm-discount').classList.remove('hidden');
+            setTimeout(() => document.getElementById('sell-discount-amount').focus(), 50);
+        }
+
+        function confirmSaleNoDiscount() {
+            const id = pendingSaleItemId;
+            closeSellConfirmModal();
+            executeSale(id, 0);
+        }
+
+        function confirmSaleWithDiscount() {
+            const id = pendingSaleItemId;
+            const discount = Math.max(0, parseFloat(document.getElementById('sell-discount-amount').value) || 0);
+            closeSellConfirmModal();
+            executeSale(id, discount);
+        }
+
+        function executeSale(id, discount) {
             const item = state.inventoryList.find(i => i.id === id);
             if (!item) return;
             if (parseFloat(item.qty) > 0) {
@@ -3850,7 +3919,8 @@
                 item.soldQty = (parseFloat(item.soldQty) || 0) + 1;
 
                 // SOLUCIÓN 2: Crear el historial registrando la venta automáticamente en Finanzas
-                const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+                const basePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
+                const salePriceGross = Math.max(0, basePriceGross - (parseFloat(discount) || 0));
                 const today = new Date();
                 const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
                 const txId = Date.now();
@@ -3889,7 +3959,7 @@
                     }
                 }
                 updateInventoryTotal();
-                showToast("Venta registrada en Finanzas", "fa-hand-holding-dollar");
+                showToast(discount > 0 ? `Venta registrada (-$${discount.toLocaleString('es-CL')} descuento)` : "Venta registrada en Finanzas", "fa-hand-holding-dollar");
             } else {
                 showToast("Sin stock para vender", "fa-triangle-exclamation");
             }

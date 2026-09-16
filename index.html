@@ -6060,12 +6060,40 @@
         // Iniciar PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                // Si ya había un Service Worker controlando esta pestaña, cualquier
+                // cambio de ahí en adelante es una actualización real (no la
+                // primera instalación), así que ahí sí recargamos solos.
+                const hadController = !!navigator.serviceWorker.controller;
+
                 navigator.serviceWorker.register('./sw.js')
                 .then(registration => {
                     console.log('PWA Lista y registrada con éxito');
+
+                    // La app de PC/celular instalada puede quedar abierta días sin
+                    // cerrarse nunca, así que además de la revisión automática del
+                    // navegador, forzamos una revisión cada vez que la ventana
+                    // vuelve a primer plano.
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') registration.update();
+                    });
                 })
                 .catch(err => {
                     console.log('Error al registrar PWA: ', err);
+                });
+
+                if (!hadController) return;
+
+                // sw.js activa la versión nueva de inmediato (skipWaiting +
+                // clients.claim), pero la página ya cargada sigue ejecutando el
+                // código viejo hasta que se recarga. En vez de obligar al usuario a
+                // cerrar todo manualmente (como antes), recargamos solos una vez
+                // apenas el Service Worker nuevo toma el control.
+                let reloadedForUpdate = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (reloadedForUpdate) return;
+                    reloadedForUpdate = true;
+                    showToast("Actualizando a la versión nueva...", "fa-rotate");
+                    setTimeout(() => window.location.reload(), 800);
                 });
             });
         }

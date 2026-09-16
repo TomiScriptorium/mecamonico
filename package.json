@@ -56,7 +56,8 @@
     "publish": {
       "provider": "github",
       "owner": "TomiScriptorium",
-      "repo": "mecamonico"
+      "repo": "mecamonico",
+      "releaseType": "release"
     }
   }
 }

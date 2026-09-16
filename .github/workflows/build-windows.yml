@@ -1,0 +1,48 @@
+name: Compilar app de Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.json'
+      - 'iconomecamonico.png'
+      - 'package.json'
+      - 'electron/**'
+      - '.github/workflows/build-windows.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Poner un número de versión único para esta compilación
+        # electron-updater compara versiones para saber si hay una más nueva,
+        # así que cada compilación necesita una versión distinta y mayor a la
+        # anterior. Se usa el número de ejecución del workflow, que siempre sube.
+        run: npm version "1.0.${{ github.run_number }}" --no-git-tag-version
+
+      - name: Compilar el instalador y publicarlo en una Release de GitHub
+        # electron-builder crea (o actualiza) una Release con el número de
+        # versión de este build, sube el instalador (.exe) y el archivo
+        # "latest.yml" que usa electron-updater para saber cuál es la última
+        # versión disponible.
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

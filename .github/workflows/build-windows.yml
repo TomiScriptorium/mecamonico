@@ -38,6 +38,9 @@ jobs:
         # anterior. Se usa el número de ejecución del workflow, que siempre sube.
         run: npm version "1.0.${{ github.run_number }}" --no-git-tag-version
 
+      - name: Copiar la app web (la misma fuente que usan la web y Android)
+        run: npm run build:www
+
       - name: Compilar el instalador y publicarlo en una Release de GitHub
         # electron-builder crea (o actualiza) una Release con el número de
         # versión de este build, sube el instalador (.exe) y el archivo

@@ -1,10 +1,16 @@
 // App de escritorio para Windows: la misma app web (www/index.html, generada
 // desde index.html por scripts/build-www.js) mostrada en una ventana nativa,
 // sin barra de navegador. Se actualiza sola con electron-updater (ver abajo).
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const serve = require('electron-serve');
+
+// Identidad estable de la app ante Windows. Sin esto, el acceso directo
+// fijado en la barra de tareas puede desvincularse del ícono de la app
+// después de una actualización (Windows ya no reconoce que es "la misma
+// app"). Debe coincidir con el "appId" de electron-builder en package.json.
+app.setAppUserModelId('cl.mecamonico.taller.desktop');
 
 // Sirve www/ desde un origen propio (app://-) en vez de file://, para que
 // IndexedDB, fetch y el resto de las APIs que ya usa la app (autenticación,
@@ -26,10 +32,17 @@ async function createWindow() {
         backgroundColor: '#fafafa',
         icon: path.join(__dirname, '..', 'iconomecamonico.png'),
         autoHideMenuBar: true,
+        show: false, // se muestra ya maximizada en "ready-to-show", para evitar el parpadeo de la ventana chica
         webPreferences: {
             contextIsolation: true,
-            nodeIntegration: false
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.js')
         }
+    });
+
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.maximize();
+        mainWindow.show();
     });
 
     // Los enlaces que la app abre en pestaña nueva (target="_blank", como "Ver
@@ -48,11 +61,28 @@ app.whenReady().then(async () => {
     await createWindow();
 
     // Revisa actualizaciones al abrir y cada 30 minutos mientras quede abierta
-    // (la app de escritorio suele quedar abierta todo el día). Si encuentra una
-    // versión nueva la descarga sola y avisa con una notificación del sistema
-    // para reiniciar y aplicarla.
-    autoUpdater.checkForUpdatesAndNotify();
-    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 30 * 60 * 1000);
+    // (la app de escritorio suele quedar abierta todo el día). autoDownload
+    // queda en su valor por defecto (true): se descarga sola en segundo plano.
+    // No se usa checkForUpdatesAndNotify() porque esa muestra una notificación
+    // nativa de Windows en inglés; en vez de eso, al terminar de descargar se
+    // avisa con un modal propio de la app (ver 'update-downloaded' más abajo).
+    autoUpdater.checkForUpdates();
+    setInterval(() => autoUpdater.checkForUpdates(), 30 * 60 * 1000);
+});
+
+// Cuando la actualización ya se descargó, se le avisa a la página (que
+// muestra un modal con el mismo estilo del resto de la app, en español) en
+// vez de dejar que electron-updater muestre su notificación nativa.
+autoUpdater.on('update-downloaded', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('update-downloaded');
+    }
+});
+
+// La página pide reiniciar (el usuario confirmó en el modal) para instalar
+// la actualización ya descargada.
+ipcMain.on('restart-to-update', () => {
+    autoUpdater.quitAndInstall();
 });
 
 app.on('window-all-closed', () => {

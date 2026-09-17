@@ -6207,7 +6207,22 @@
                 });
             });
         }
-        
+
+        // --- ACTUALIZACIONES DE LA APP DE ESCRITORIO (Windows/Electron) ---
+        // window.electronAPI solo existe dentro de la app nativa (lo expone
+        // electron/preload.js); en la web o en la app de Android no existe, así
+        // que este bloque simplemente no hace nada ahí.
+        if (window.electronAPI) {
+            window.electronAPI.onUpdateDownloaded(() => {
+                showConfirmModal(
+                    "Actualización lista",
+                    "Hay una versión nueva de Mecamonico descargada. Reinicia la app para instalarla.",
+                    "Reiniciar ahora",
+                    () => window.electronAPI.restartToUpdate()
+                );
+            });
+        }
+
        // --- SISTEMA DE AUTENTICACIÓN (SUPABASE) ---
         let currentUser = null;
 

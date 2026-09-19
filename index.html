@@ -1589,9 +1589,26 @@
         // en modo día o de noche (por eso se veían esas franjas blancas). Se
         // sincroniza con el mismo color de fondo que usa <body> en cada modo.
         function syncAndroidSystemBars() {
-            const edgeToEdge = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.EdgeToEdge;
-            if (!edgeToEdge) return;
-            edgeToEdge.setBackgroundColor({ color: state.darkMode ? '#0a0a0a' : '#fafafa' });
+            const plugins = window.Capacitor && window.Capacitor.Plugins;
+            if (!plugins) return;
+            const color = state.darkMode ? '#0a0a0a' : '#fafafa';
+
+            if (plugins.EdgeToEdge) {
+                plugins.EdgeToEdge.setBackgroundColor({ color }).catch(() => {});
+            }
+
+            // El plugin de arriba a veces deja el color de la barra de estado sin
+            // aplicar en algunos equipos (queda gris en vez del color pedido)
+            // aunque la barra de navegación sí cambie bien. @capacitor/status-bar
+            // se usa aparte, tanto para reforzar ese mismo color como para avisarle
+            // al sistema si los íconos (hora, batería, señal) deben verse claros
+            // (fondo oscuro) u oscuros (fondo claro): sin esto, Android puede
+            // agregar una sombra gris detrás para que los íconos sigan siendo
+            // legibles, que es justo el gris que se ve de más.
+            if (plugins.StatusBar) {
+                plugins.StatusBar.setBackgroundColor({ color }).catch(() => {});
+                plugins.StatusBar.setStyle({ style: state.darkMode ? 'DARK' : 'LIGHT' }).catch(() => {});
+            }
         }
 
         let pdfDoc = null; let pageNum = 1; let pageRendering = false; let pageNumPending = null; let renderTask = null; let currentZoom = 1.0; let baseCanvasWidth = null;

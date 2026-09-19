@@ -25,6 +25,7 @@
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",
+    "@capawesome/capacitor-android-edge-to-edge-support": "^8.0.8",
     "electron": "^33.4.11",
     "electron-builder": "^25.1.8"
   },

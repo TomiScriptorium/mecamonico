@@ -1579,6 +1579,19 @@
             } else {
                 document.documentElement.classList.remove('dark');
             }
+            syncAndroidSystemBars();
+        }
+
+        // En Android, desde que el sistema fuerza pantalla "edge to edge" (a
+        // partir de Android 15), el área de la barra de estado y la barra de
+        // navegación queda pintada por separado de la página: si no se le dice
+        // qué color usar, el plugin la deja blanca sin importar si la app está
+        // en modo día o de noche (por eso se veían esas franjas blancas). Se
+        // sincroniza con el mismo color de fondo que usa <body> en cada modo.
+        function syncAndroidSystemBars() {
+            const edgeToEdge = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.EdgeToEdge;
+            if (!edgeToEdge) return;
+            edgeToEdge.setBackgroundColor({ color: state.darkMode ? '#0a0a0a' : '#fafafa' });
         }
 
         let pdfDoc = null; let pageNum = 1; let pageRendering = false; let pageNumPending = null; let renderTask = null; let currentZoom = 1.0; let baseCanvasWidth = null;

@@ -524,25 +524,32 @@
         </div>
         
         <div class="bg-neutral-900 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-sm border border-neutral-800">
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-1">Correo Electrónico</label>
-                    <input type="email" id="auth-email" class="w-full p-3 bg-neutral-950 border border-neutral-800 rounded focus:ring-2 focus:ring-red-500 outline-none text-white transition font-bold" placeholder="taller@correo.com">
+            <!-- Envuelto en <form> con autocomplete/name reales y un submit de
+                 verdad: es lo que Google Contraseñas, el llavero de iOS/Safari y
+                 los gestores de contraseñas del navegador necesitan para
+                 detectar el inicio de sesión y ofrecer guardarlo. Antes eran
+                 inputs sueltos sin <form>, así que nunca los detectaban. -->
+            <form id="auth-form" onsubmit="return handleAuthSubmit(event)" autocomplete="on">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-1">Correo Electrónico</label>
+                        <input type="email" id="auth-email" name="username" autocomplete="username" class="w-full p-3 bg-neutral-950 border border-neutral-800 rounded focus:ring-2 focus:ring-red-500 outline-none text-white transition font-bold" placeholder="taller@correo.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-1">Contraseña</label>
+                        <input type="password" id="auth-password" name="password" autocomplete="current-password" class="w-full p-3 bg-neutral-950 border border-neutral-800 rounded focus:ring-2 focus:ring-red-500 outline-none text-white transition font-bold" placeholder="••••••••">
+                    </div>
+
+                    <div class="pt-3 flex flex-col gap-3">
+                        <button type="submit" name="authAction" value="login" class="w-full bg-red-600 text-white font-bold rounded py-3.5 shadow hover:bg-red-700 transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                        </button>
+                        <button type="submit" name="authAction" value="register" class="w-full bg-neutral-800 text-white font-bold rounded py-3.5 shadow hover:bg-neutral-700 transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-plus text-neutral-400"></i> Crear Cuenta Nueva
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-1">Contraseña</label>
-                    <input type="password" id="auth-password" class="w-full p-3 bg-neutral-950 border border-neutral-800 rounded focus:ring-2 focus:ring-red-500 outline-none text-white transition font-bold" placeholder="••••••••">
-                </div>
-                
-                <div class="pt-3 flex flex-col gap-3">
-                    <button onclick="loginUser()" class="w-full bg-red-600 text-white font-bold rounded py-3.5 shadow hover:bg-red-700 transition active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
-                    </button>
-                    <button onclick="registerUser()" class="w-full bg-neutral-800 text-white font-bold rounded py-3.5 shadow hover:bg-neutral-700 transition active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-user-plus text-neutral-400"></i> Crear Cuenta Nueva
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
         <button onclick="continueOffline()" class="mt-8 text-neutral-500 hover:text-white text-sm font-bold transition underline underline-offset-4 decoration-neutral-700">
             <i class="fa-solid fa-wifi mr-1"></i> Continuar sin internet (Modo Local)
@@ -6471,6 +6478,18 @@
             } catch (e) {
                 console.warn("Modo local activo.", e);
             }
+        }
+
+        // Un solo <form> sirve tanto para "Iniciar Sesión" como para "Crear
+        // Cuenta Nueva" (comparten los mismos campos); event.submitter dice
+        // cuál de los dos botones se apretó. Hacer un submit de verdad (en vez
+        // de un simple onclick) es justo lo que activa el aviso de "guardar
+        // contraseña" en los gestores de contraseñas.
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const action = event.submitter && event.submitter.value;
+            if (action === 'register') registerUser(); else loginUser();
+            return false;
         }
 
         async function registerUser() {

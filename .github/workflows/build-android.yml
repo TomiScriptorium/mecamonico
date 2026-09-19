@@ -50,6 +50,17 @@ jobs:
 
       - name: Copiar la app web y sincronizar con Android
         run: npm run cap:sync
+        env:
+          # Se usa tal cual como versionCode/versionName más abajo y queda
+          # empaquetado dentro del APK (www/build-info.json) para que la app
+          # pueda compararse con la última compilación publicada en GitHub.
+          MECAMONICO_BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Poner un número de versión único para esta compilación
+        working-directory: android/app
+        run: |
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" build.gradle
 
       - name: Compilar APK
         working-directory: android
@@ -67,5 +78,9 @@ jobs:
         with:
           tag_name: android-apk
           name: "Mecamonico Android (última compilación)"
-          body: "APK generado automáticamente desde el commit ${{ github.sha }}. Esta Release se actualiza sola en cada compilación nueva."
+          # La app instalada lee el número de "build" de este texto (con una
+          # expresión regular) para saber si hay una versión más nueva
+          # disponible acá. Si se cambia la redacción, mantener el formato
+          # "(build <número>)" tal cual.
+          body: "APK generado automáticamente desde el commit ${{ github.sha }} (build ${{ github.run_number }}). Esta Release se actualiza sola en cada compilación nueva."
           files: android/app/build/outputs/apk/debug/app-debug.apk

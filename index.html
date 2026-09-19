@@ -6305,6 +6305,56 @@
             });
         }
 
+        // --- ACTUALIZACIONES DE LA APP DE ANDROID ---
+        // A diferencia de Windows, una app de Android instalada fuera de Google
+        // Play nunca puede descargarse ni instalarse sola: el sistema exige que
+        // el usuario confirme la instalación de cada APK. Lo que sí se puede
+        // automatizar es avisar que hay una versión más nueva y abrir el
+        // navegador del sistema ya apuntando al link de descarga directo.
+        if (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android') {
+            const ANDROID_RELEASE_API = 'https://api.github.com/repos/TomiScriptorium/mecamonico/releases/tags/android-apk';
+            const ANDROID_APK_URL = 'https://github.com/TomiScriptorium/mecamonico/releases/download/android-apk/app-debug.apk';
+            let androidUpdatePrompted = false;
+
+            async function checkAndroidUpdate() {
+                if (androidUpdatePrompted) return;
+                try {
+                    const localRes = await fetch('build-info.json', { cache: 'no-store' });
+                    const local = await localRes.json();
+
+                    const remoteRes = await fetch(ANDROID_RELEASE_API, { cache: 'no-store' });
+                    if (!remoteRes.ok) return;
+                    const release = await remoteRes.json();
+                    const match = /\(build (\d+)\)/.exec(release.body || '');
+                    if (!match) return;
+                    const remoteBuild = parseInt(match[1], 10);
+
+                    if (remoteBuild > (local.build || 0)) {
+                        androidUpdatePrompted = true;
+                        showConfirmModal(
+                            "Actualización disponible",
+                            "Hay una versión nueva de Mecamonico. Se abrirá el navegador para descargar el APK; una vez descargado, ábrelo para instalar la actualización.",
+                            "Descargar ahora",
+                            () => {
+                                const a = document.createElement('a');
+                                a.href = ANDROID_APK_URL;
+                                a.target = '_blank';
+                                a.rel = 'noopener noreferrer';
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                            }
+                        );
+                    }
+                } catch (err) {
+                    console.log('No se pudo revisar actualizaciones de Android: ', err);
+                }
+            }
+
+            checkAndroidUpdate();
+            setInterval(checkAndroidUpdate, 30 * 60 * 1000);
+        }
+
        // --- SISTEMA DE AUTENTICACIÓN (SUPABASE) ---
         let currentUser = null;
 

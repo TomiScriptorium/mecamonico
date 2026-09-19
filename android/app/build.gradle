@@ -16,7 +16,29 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Sin esto, cada compilación en GitHub Actions firma el APK con una clave
+    // de depuración distinta y generada al azar (el runner es una máquina
+    // nueva cada vez, sin el "debug.keystore" de siempre que Android Studio
+    // reutiliza en una PC). Android exige que un "update" tenga la misma
+    // firma que la versión instalada, así que instalar una compilación nueva
+    // encima de la anterior fallaba con "La app no está instalada" en vez de
+    // actualizar. Se usa esta clave, fija y guardada en el repositorio, para
+    // que todas las compilaciones queden firmadas siempre igual. Es una clave
+    // de depuración (no de Play Store): igual que la que genera Android
+    // Studio, su contraseña es pública a propósito, así que no es un secreto.
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

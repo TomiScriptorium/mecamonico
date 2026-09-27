@@ -617,6 +617,10 @@
 
         <!-- Acciones al fondo -->
         <div id="sidebar-footer">
+            <button onclick="toggleProfile()" id="sb-profile-btn" class="sb-action-btn" title="Cambiar entre perfil Mecánico y Administrador">
+                <i class="fa-solid fa-user-gear" id="sb-profile-icon"></i>
+                <span id="sb-profile-label">Perfil: Mecánico</span>
+            </button>
             <button onclick="toggleDarkMode()" class="sb-action-btn">
                 <i class="fa-solid fa-moon dark:hidden"></i>
                 <i class="fa-solid fa-sun hidden dark:inline" style="color:#facc15;"></i>
@@ -658,6 +662,9 @@
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto relative z-20">
                 <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
                     <i class="fa-solid fa-search"></i>
+                </button>
+                <button onclick="toggleProfile()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Cambiar entre perfil Mecánico y Administrador">
+                    <i class="fa-solid fa-user-gear" id="mobile-profile-icon"></i>
                 </button>
                 <button onclick="toggleDarkMode()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
                     <i class="fa-solid fa-moon dark:hidden"></i>
@@ -804,6 +811,17 @@
             </div>
         </div>
     </div>
+    <!-- Modal para pedir el PIN de Administrador al cambiar de perfil. -->
+    <div id="pin-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-6 border-t-4 border-neutral-800 dark:border-neutral-600 fade-enter relative">
+            <h3 id="pin-modal-title" class="text-base font-bold text-neutral-800 dark:text-neutral-100 mb-3 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Ingresa el PIN de Administrador</h3>
+            <input type="password" inputmode="numeric" autocomplete="off" id="pin-modal-input" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-lg tracking-[0.5em] text-center outline-none focus:border-neutral-500 dark:text-white transition-colors mb-4" onkeypress="if(event.key === 'Enter') confirmPinPrompt()">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePinPrompt()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
+                <button onclick="confirmPinPrompt()" class="px-5 py-2 bg-neutral-800 dark:bg-neutral-700 text-white rounded font-bold text-sm shadow-md hover:bg-neutral-700 transition">Entrar</button>
+            </div>
+        </div>
+    </div>
     <div id="image-modal" class="hidden fixed inset-0 bg-neutral-900/95 z-[100] flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onclick="closeImageModal()">
         <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-neutral-800/50 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition backdrop-blur-md z-10 shadow-lg"><i class="fa-solid fa-xmark text-xl"></i></button>
         <img id="modal-image-content" src="" class="max-w-full max-h-[90vh] object-contain rounded shadow-2xl fade-enter" onclick="event.stopPropagation()">
@@ -886,14 +904,22 @@
         </div>
     </div>
     <div id="patient-modal" class="hidden fixed inset-0 bg-neutral-900/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-t-4 border-blue-600">
+        <div class="bg-white dark:bg-neutral-900 rounded shadow-xl w-full max-w-sm p-6 border-t-4 border-blue-600 max-h-[90vh] overflow-y-auto hide-scrollbar">
             <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-car-side text-blue-600"></i> Ingresar Vehículo</h3>
             <div class="space-y-3">
-                <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Modelo / Cliente">
+                <input type="text" id="patient-model" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Modelo del vehículo">
+                <input type="text" id="patient-name" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Nombre del cliente">
                 <input type="tel" id="patient-contact" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold dark:text-white" placeholder="Teléfono / Whatsapp">
                 <div class="flex gap-3">
                     <input type="text" id="patient-room" oninput="this.value = this.value.toUpperCase()" class="w-1/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold text-center dark:text-white uppercase" placeholder="Patente">
                     <input type="text" id="patient-dx" class="w-2/3 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-lg font-bold font-reading dark:text-white" placeholder="Falla / Servicio">
+                </div>
+                <!-- Datos opcionales del cliente: solo se piden en el perfil
+                     Administrador (RUT y dirección no son necesarios para que el
+                     mecánico trabaje, y son datos personales del cliente). -->
+                <div id="patient-admin-fields" class="hidden space-y-3 pt-1 border-t border-dashed border-neutral-200 dark:border-neutral-700">
+                    <input type="text" id="patient-rut" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-sm font-bold dark:text-white" placeholder="RUT del cliente (opcional)">
+                    <input type="text" id="patient-address" class="w-full p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-blue-600 outline-none text-sm font-bold font-reading dark:text-white" placeholder="Dirección del cliente (opcional)">
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
@@ -1206,6 +1232,16 @@
                         <input type="text" id="shop-note" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold font-reading text-neutral-600 dark:text-neutral-600 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-red-500 transition placeholder-neutral-400" placeholder="Ej: Solicitar factura a...">
                     </div>
                 </div>
+                <div class="flex items-center gap-3 pt-1">
+                    <div id="shop-logo-preview-wrap" class="hidden w-12 h-12 rounded border border-neutral-300 dark:border-neutral-600 bg-white overflow-hidden shrink-0">
+                        <img id="shop-logo-preview" src="" class="w-full h-full object-contain">
+                    </div>
+                    <label class="text-xs font-bold text-neutral-600 hover:text-red-600 cursor-pointer transition flex items-center gap-1">
+                        <i class="fa-solid fa-image"></i> <span id="shop-logo-label">Agregar logo del taller (para las OT/cotizaciones en PDF)</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="updateShopLogo(this)">
+                    </label>
+                    <button id="shop-logo-remove-btn" onclick="removeShopLogo()" class="hidden text-xs font-bold text-neutral-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
             </div>
 
             <div class="flex-1 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-x-auto hide-scrollbar mouse-drag mb-4 min-h-[200px]">
@@ -1305,6 +1341,14 @@
                         </div>
                     </div>
                     
+                    <div id="admin-pin-settings-card" class="hidden p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <h4 class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-2 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Perfil Administrador</h4>
+                        <p class="text-xs text-neutral-500 mb-3">El PIN protege los datos del cliente (RUT, dirección) para que solo Administrador pueda verlos y editarlos.</p>
+                        <button onclick="changeAdminPin()" class="w-full p-2 bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded text-sm hover:bg-neutral-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-key"></i> <span id="admin-pin-btn-label">Configurar PIN</span>
+                        </button>
+                    </div>
+
                     <div class="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
                         <label class="flex items-center justify-between cursor-pointer">
                             <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-2"><i class="fa-solid fa-wallet text-green-500 w-4 text-center"></i> Balance Diario</span>
@@ -1411,7 +1455,15 @@
             userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
             darkMode: false,
             showFinanceWidget: true,
-            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
+            visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'],
+            // Perfiles Mecánico/Administrador: el de Administrador ve datos del
+            // cliente que el de Mecánico no necesita (RUT, dirección) y queda
+            // protegido con un PIN opcional. Arranca siempre en 'mecanico' por
+            // seguridad (ver checkUserSession).
+            currentProfile: 'mecanico',
+            adminPin: '',
+            shopLogo: null,
+            nextOtNumber: 1
         };
         let selectedDateKey = null;
         let tempShiftType = null;
@@ -1436,6 +1488,7 @@
                 applyTheme();
                 updateHeaderUI();
                 updateNavVisibility();
+                updateProfileSwitcherUI();
                 setupGlobalListeners();
                 state.view = initialView;
                 renderView(initialView);
@@ -1455,10 +1508,17 @@
                 // Mantenemos la vista actual para que la base de datos no nos obligue a saltar de pantalla
                 state.view = initialView;
 
+                // Por seguridad, cada vez que se abre la app de nuevo (no al navegar
+                // entre pantallas) vuelve a partir en el perfil Mecánico, aunque haya
+                // quedado en Administrador la última vez. Así un celular que se deja
+                // por ahí no queda mostrando los datos del cliente sin querer.
+                state.currentProfile = 'mecanico';
+
                 // Si cargó bien, refrescamos la pantalla con tus datos guardados
                 applyTheme();
                 updateHeaderUI();
                 updateNavVisibility();
+                updateProfileSwitcherUI();
                 renderView(initialView);
             } catch (e) {
                 console.warn("Base de datos local congelada. Usando memoria limpia temporal.");
@@ -1536,7 +1596,19 @@
                     if (!saved.inventoryList) saved.inventoryList = [];
                     else saved.inventoryList.forEach(i => { if(!i.id) i.id = Date.now() + Math.random(); if(!i.salesLog) i.salesLog = []; if(i.brand === undefined) i.brand = ''; if(i.marketPrice === undefined) i.marketPrice = null; });
 
-                    if (!saved.activeShopTab) saved.activeShopTab = 'items'; 
+                    if (!saved.activeShopTab) saved.activeShopTab = 'items';
+
+                    if (!saved.currentProfile) saved.currentProfile = 'mecanico';
+                    if (saved.adminPin === undefined) saved.adminPin = '';
+                    if (saved.shopLogo === undefined) saved.shopLogo = null;
+                    if (saved.nextOtNumber === undefined) {
+                        // N° de OT nuevo: le asigna un correlativo a cada orden ya
+                        // existente (por fecha de creación) para que el historial
+                        // completo quede numerado, no solo las órdenes nuevas.
+                        const sorted = [...saved.patients].sort((a, b) => a.id - b.id);
+                        sorted.forEach((p, idx) => { if (!p.otNumber) p.otNumber = idx + 1; });
+                        saved.nextOtNumber = sorted.length + 1;
+                    }
 
                     saved.notes = saved.notes.map(n => {
                         if (n.image && !n.images) n.images = [n.image];
@@ -2118,6 +2190,90 @@
             if (cb) cb(value);
         }
 
+        // --- PIN de Administrador (perfiles Mecánico/Administrador) ---
+        let pinPromptCallback = null;
+        function showPinPrompt(title, onConfirm) {
+            pinPromptCallback = onConfirm;
+            document.getElementById('pin-modal-title').innerText = title;
+            const input = document.getElementById('pin-modal-input');
+            input.value = '';
+            document.body.classList.add('modal-open');
+            document.getElementById('pin-modal').classList.remove('hidden');
+            setTimeout(() => input.focus(), 50);
+        }
+        function closePinPrompt() {
+            pinPromptCallback = null;
+            document.body.classList.remove('modal-open');
+            document.getElementById('pin-modal').classList.add('hidden');
+        }
+        function confirmPinPrompt() {
+            const value = document.getElementById('pin-modal-input').value;
+            const cb = pinPromptCallback;
+            closePinPrompt();
+            if (cb) cb(value);
+        }
+
+        // Cambia entre el perfil Mecánico (sin datos personales del cliente) y
+        // Administrador (todo). Volver a Mecánico nunca pide PIN -es el perfil
+        // "seguro"-; entrar a Administrador lo pide, salvo que todavía no se
+        // haya configurado uno (primera vez, se avisa igual).
+        function toggleProfile() {
+            if (state.currentProfile === 'administrador') {
+                state.currentProfile = 'mecanico';
+                saveData();
+                updateProfileSwitcherUI();
+                renderView(state.view);
+                showToast("Perfil: Mecánico", "fa-user-gear");
+                return;
+            }
+            if (!state.adminPin) {
+                state.currentProfile = 'administrador';
+                saveData();
+                updateProfileSwitcherUI();
+                renderView(state.view);
+                showToast("Perfil: Administrador (configura un PIN en Ajustes)", "fa-triangle-exclamation");
+                return;
+            }
+            showPinPrompt("Ingresa el PIN de Administrador", (pin) => {
+                if (pin && pin === state.adminPin) {
+                    state.currentProfile = 'administrador';
+                    saveData();
+                    updateProfileSwitcherUI();
+                    renderView(state.view);
+                    showToast("Perfil: Administrador", "fa-user-shield");
+                } else {
+                    showToast("PIN incorrecto", "fa-circle-xmark");
+                }
+            });
+        }
+
+        function updateProfileSwitcherUI() {
+            const isAdmin = state.currentProfile === 'administrador';
+            const icon = isAdmin ? 'fa-user-shield' : 'fa-user-gear';
+            const label = isAdmin ? 'Perfil: Administrador' : 'Perfil: Mecánico';
+            const sbIcon = document.getElementById('sb-profile-icon');
+            const sbLabel = document.getElementById('sb-profile-label');
+            const mobileIcon = document.getElementById('mobile-profile-icon');
+            if (sbIcon) sbIcon.className = `fa-solid ${icon}`;
+            if (sbLabel) sbLabel.innerText = label;
+            if (mobileIcon) mobileIcon.className = `fa-solid ${icon}`;
+        }
+
+        // Configura o cambia el PIN de Administrador desde Ajustes (solo se
+        // puede hacer estando ya en el perfil Administrador).
+        function changeAdminPin() {
+            showTextPrompt("Nuevo PIN de Administrador (4 a 6 números)", "", (newPin) => {
+                const clean = newPin.trim();
+                if (!/^\d{4,6}$/.test(clean)) {
+                    showToast("El PIN debe tener entre 4 y 6 números", "fa-triangle-exclamation");
+                    return;
+                }
+                state.adminPin = clean;
+                saveData();
+                showToast("PIN de Administrador actualizado", "fa-check");
+            });
+        }
+
         function openImagePreviewModal(src) {
             const modal = document.getElementById('image-modal');
             const img = document.getElementById('modal-image-content');
@@ -2362,16 +2518,19 @@
                 contactBtn = `<a href="tel:${escapeHtml(p.contact)}" class="ml-2 w-9 h-9 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200 shrink-0" title="Llamar: ${escapeHtml(p.contact)}"><i class="fa-solid fa-phone text-xs"></i></a>`;
             }
 
+            const clientLabel = getPatientClientLabel(p);
             return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600">
                 <div class="flex justify-between items-start mb-2">
                     <div>
-                        <div class="flex gap-2 mb-1">
+                        <div class="flex gap-2 mb-1 flex-wrap">
+                            ${p.otNumber ? `<span class="bg-neutral-800 dark:bg-neutral-700 text-white px-2 py-0.5 rounded text-xs font-bold tracking-wide" title="N° de Orden de Trabajo">OT-${String(p.otNumber).padStart(4, '0')}</span>` : ''}
                             <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-xs font-bold tracking-wide border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i> ${escapeHtml(p.room)}</span>
                         </div>
                         <div class="flex items-center">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${escapeHtml(p.name)}</h4>
+                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${escapeHtml(getPatientVehicleLabel(p))}</h4>
                             ${contactBtn}
                         </div>
+                        ${clientLabel ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-1"><i class="fa-solid fa-user text-[10px] mr-1 opacity-70"></i>${escapeHtml(clientLabel)}</p>` : ''}
                         <p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${escapeHtml(p.dx)}</p>
                     </div>
                     <button onclick="deletePatient(${p.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
@@ -2481,15 +2640,34 @@
                 </a>`;
             }
 
-            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-300 dark:border-neutral-700 md:dark:border-transparent border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(p.name.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
+            const clientLabel = getPatientClientLabel(p);
+            const clientDisplay = `<p onclick="editPatientClientName(${p.id})" class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-1 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-user text-[10px] mr-1 opacity-70"></i>${clientLabel ? escapeHtml(clientLabel) : 'Agregar nombre del cliente'}</p>`;
+
+            const isAdmin = state.currentProfile === 'administrador';
+            const receptionDisplay = p.receptionDate ? `<span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600" title="Fecha y hora de recepción"><i class="fa-regular fa-clock mr-1"></i>${new Date(p.receptionDate).toLocaleString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>` : '';
+            let adminExtraDisplay = '';
+            if (isAdmin) {
+                adminExtraDisplay = `<div class="mt-1.5 pt-1.5 border-t border-dashed border-neutral-200 dark:border-neutral-700 space-y-0.5">
+                    <p onclick="editPatientRut(${p.id})" class="text-[11px] font-bold text-neutral-500 dark:text-neutral-600 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-id-card text-[10px] mr-1 opacity-70"></i>${p.clientRut ? escapeHtml(p.clientRut) : 'Agregar RUT'}</p>
+                    <p onclick="editPatientAddress(${p.id})" class="text-[11px] font-bold text-neutral-500 dark:text-neutral-600 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-location-dot text-[10px] mr-1 opacity-70"></i>${p.clientAddress ? escapeHtml(p.clientAddress) : 'Agregar dirección'}</p>
+                </div>`;
+            }
+
+            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-300 dark:border-neutral-700 md:dark:border-transparent border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(getPatientVehicleLabel(p).toLowerCase())} ${escapeHtml(clientLabel.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
                     <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
                         <div>
-                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i>${escapeHtml(p.room)}</span>
-                            <div class="flex items-center">
-                                <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${escapeHtml(p.name)}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                ${p.otNumber ? `<span class="inline-block px-2 py-0.5 rounded bg-neutral-800 dark:bg-neutral-700 text-white text-xs font-bold tracking-wide shadow-sm" title="N° de Orden de Trabajo">OT-${String(p.otNumber).padStart(4, '0')}</span>` : ''}
+                                <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold tracking-widest shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i>${escapeHtml(p.room)}</span>
+                                ${receptionDisplay}
                             </div>
+                            <div class="flex items-center">
+                                <h4 onclick="editPatientVehicleModel(${p.id})" class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none cursor-pointer hover:text-blue-600 transition" title="Editar modelo">${escapeHtml(getPatientVehicleLabel(p))}</h4>
+                            </div>
+                            ${clientDisplay}
                             ${contactDisplay}
                             <p class="text-sm font-bold text-neutral-500 dark:text-neutral-600 mt-1 truncate"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> ${escapeHtml(p.dx)}</p>
+                            ${adminExtraDisplay}
                         </div>
                         <button onclick="deletePatient(${p.id})" class="w-11 h-11 flex items-center justify-center rounded-full text-neutral-300 hover:bg-red-50 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
@@ -2621,26 +2799,39 @@
             }
         }
 
-        function openPatientModal() { 
-            document.getElementById('patient-modal').classList.remove('hidden'); 
-            document.body.classList.add('modal-open'); 
-            document.getElementById('patient-name').value = ''; 
-            document.getElementById('patient-contact').value = ''; 
-            document.getElementById('patient-room').value = ''; 
-            document.getElementById('patient-dx').value = ''; 
-            document.getElementById('patient-name').focus(); 
+        function openPatientModal() {
+            document.getElementById('patient-modal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
+            document.getElementById('patient-model').value = '';
+            document.getElementById('patient-name').value = '';
+            document.getElementById('patient-contact').value = '';
+            document.getElementById('patient-room').value = '';
+            document.getElementById('patient-dx').value = '';
+            document.getElementById('patient-rut').value = '';
+            document.getElementById('patient-address').value = '';
+            document.getElementById('patient-admin-fields').classList.toggle('hidden', state.currentProfile !== 'administrador');
+            document.getElementById('patient-model').focus();
         }
         function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); document.body.classList.remove('modal-open'); }
-        
-        function createPatient() { 
-            const name = document.getElementById('patient-name').value.trim(); 
-            const contact = document.getElementById('patient-contact').value.trim(); 
-            const room = document.getElementById('patient-room').value.trim().toUpperCase(); 
-            const dx = document.getElementById('patient-dx').value.trim(); 
-            if (!name) return; 
-            
-            const newPatient = { id: Date.now(), name, contact: contact || '', room: room || '---', dx: dx || 'Revisión', tasks: [], status: 'activa', archiveDate: null };
-            state.patients.unshift(newPatient); 
+
+        function createPatient() {
+            const model = document.getElementById('patient-model').value.trim();
+            const name = document.getElementById('patient-name').value.trim();
+            const contact = document.getElementById('patient-contact').value.trim();
+            const room = document.getElementById('patient-room').value.trim().toUpperCase();
+            const dx = document.getElementById('patient-dx').value.trim();
+            const rut = document.getElementById('patient-rut').value.trim();
+            const address = document.getElementById('patient-address').value.trim();
+            if (!model) return;
+
+            const now = new Date();
+            const newPatient = {
+                id: Date.now(), otNumber: state.nextOtNumber || 1, vehicleModel: model, name, contact: contact || '',
+                room: room || '---', dx: dx || 'Revisión', clientRut: rut || '', clientAddress: address || '',
+                receptionDate: now.toISOString(), tasks: [], status: 'activa', archiveDate: null
+            };
+            state.nextOtNumber = (state.nextOtNumber || 1) + 1;
+            state.patients.unshift(newPatient);
             saveData(); 
             closePatientModal(); 
             
@@ -2672,6 +2863,14 @@
             showToast("Vehículo Ingresado", "fa-check"); 
         }
 
+        // Antes de separar Modelo y Cliente en dos campos, "name" era un solo
+        // campo combinado "Modelo / Cliente". Estas dos funciones hacen que las
+        // órdenes viejas se sigan viendo bien (usan ese texto combinado como
+        // "modelo") sin duplicar el mismo texto como si fuera también el
+        // nombre del cliente.
+        function getPatientVehicleLabel(p) { return p.vehicleModel || p.name || 'Vehículo'; }
+        function getPatientClientLabel(p) { return p.vehicleModel ? (p.name || '') : ''; }
+
         function editPatientRoom(id) {
             const patient = state.patients.find(p => p.id === id);
             if (!patient) return;
@@ -2682,6 +2881,54 @@
                     renderView(state.view); // Refresca la pantalla
                     showToast("Patente actualizada", "fa-pen");
                 }
+            });
+        }
+
+        function editPatientVehicleModel(id) {
+            const patient = state.patients.find(p => p.id === id);
+            if (!patient) return;
+            showTextPrompt("Corrige o edita el modelo del vehículo", getPatientVehicleLabel(patient), (newModel) => {
+                if (newModel.trim() !== "") {
+                    patient.vehicleModel = newModel.trim();
+                    saveData();
+                    renderView(state.view);
+                    showToast("Modelo actualizado", "fa-pen");
+                }
+            });
+        }
+
+        function editPatientClientName(id) {
+            const patient = state.patients.find(p => p.id === id);
+            if (!patient) return;
+            showTextPrompt("Nombre del cliente", getPatientClientLabel(patient), (newName) => {
+                patient.name = newName.trim();
+                saveData();
+                renderView(state.view);
+                showToast("Cliente actualizado", "fa-pen");
+            });
+        }
+
+        // Estas dos son solo para el perfil Administrador (los botones que las
+        // llaman ya quedan ocultos en modo Mecánico).
+        function editPatientRut(id) {
+            const patient = state.patients.find(p => p.id === id);
+            if (!patient) return;
+            showTextPrompt("RUT del cliente", patient.clientRut || '', (newRut) => {
+                patient.clientRut = newRut.trim();
+                saveData();
+                renderView(state.view);
+                showToast("RUT actualizado", "fa-pen");
+            });
+        }
+
+        function editPatientAddress(id) {
+            const patient = state.patients.find(p => p.id === id);
+            if (!patient) return;
+            showTextPrompt("Dirección del cliente", patient.clientAddress || '', (newAddress) => {
+                patient.clientAddress = newAddress.trim();
+                saveData();
+                renderView(state.view);
+                showToast("Dirección actualizada", "fa-pen");
             });
         }
 
@@ -4476,8 +4723,47 @@
     function updateShopHeader(field, value) {
         if (field === 'title') state.shopTitle = value;
         if (field === 'address') state.shopAddress = value;
-        if (field === 'note') state.shopNote = value; 
+        if (field === 'note') state.shopNote = value;
         saveData();
+    }
+
+    async function updateShopLogo(input) {
+        if (!input.files || !input.files[0]) return;
+        try {
+            showToast("Procesando logo...", "fa-spinner fa-spin");
+            state.shopLogo = await processImage(input.files[0]);
+            saveData();
+            renderShopLogoPreview();
+            showToast("Logo del taller actualizado", "fa-image");
+        } catch (e) {
+            showToast("Error al procesar el logo", "fa-triangle-exclamation");
+        }
+        input.value = '';
+    }
+
+    function removeShopLogo() {
+        state.shopLogo = null;
+        saveData();
+        renderShopLogoPreview();
+        showToast("Logo eliminado", "fa-trash");
+    }
+
+    function renderShopLogoPreview() {
+        const wrap = document.getElementById('shop-logo-preview-wrap');
+        const img = document.getElementById('shop-logo-preview');
+        const label = document.getElementById('shop-logo-label');
+        const removeBtn = document.getElementById('shop-logo-remove-btn');
+        if (!wrap) return;
+        if (state.shopLogo) {
+            img.src = state.shopLogo;
+            wrap.classList.remove('hidden');
+            removeBtn.classList.remove('hidden');
+            label.innerText = 'Cambiar logo del taller';
+        } else {
+            wrap.classList.add('hidden');
+            removeBtn.classList.add('hidden');
+            label.innerText = 'Agregar logo del taller (para las OT/cotizaciones en PDF)';
+        }
     }
 
     function clearShoppingList() {
@@ -4505,7 +4791,8 @@
         document.getElementById('shop-title').value = state.shopTitle || '';
         document.getElementById('shop-address').value = state.shopAddress || '';
         document.getElementById('shop-note').value = state.shopNote || '';
-        
+        renderShopLogoPreview();
+
         const tbody = document.getElementById('shopping-table-body');
         if (tbody) tbody.innerHTML = itemsHTML || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
         
@@ -5276,45 +5563,76 @@
             const subtotal = p.tasks.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
-            
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            
+
+            // Logo del taller (si se cargó uno en Ajustes > Lista de Compras):
+            // corre el nombre del taller a la derecha para no superponerse.
             const shopData = state.appTitle || "Mecamonico Taller";
-            doc.setFont("helvetica", "bold"); doc.setFontSize(24);
-            doc.text(shopData, 14, 20);
-            
+            let nameX = 14;
+            if (state.shopLogo) {
+                try {
+                    doc.addImage(state.shopLogo, 'JPEG', 14, 10, 18, 18);
+                    nameX = 36;
+                } catch (e) { /* logo corrupto o formato no soportado: se omite sin romper el PDF */ }
+            }
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(shopData, nameX, 19);
+
             doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
-            
+            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, nameX, 26);
+
             doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(220, 38, 38);
-            doc.text("COTIZACIÓN / O.T.", 196, 20, { align: "right" });
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 100, 100);
-            doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 196, 26, { align: "right" });
+            doc.text("COTIZACIÓN / O.T.", 196, 16, { align: "right" });
+            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+            doc.text(`N° OT-${String(p.otNumber || 0).padStart(4, '0')}`, 196, 23, { align: "right" });
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+            const receptionDate = p.receptionDate ? new Date(p.receptionDate) : new Date();
+            doc.text(`Recepción: ${receptionDate.toLocaleDateString('es-CL')} ${receptionDate.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}`, 196, 29, { align: "right" });
             doc.setTextColor(0,0,0);
 
-            // Caja Cliente
+            // Caja Cliente: se arma la lista de filas primero (RUT/Dirección
+            // solo si se cargaron) para calcular el alto real de la caja, en
+            // vez de dejar un cuadro fijo con espacio de más o de menos.
+            const clientRows = [
+                ['Vehículo:', getPatientVehicleLabel(p)],
+                ['Patente:', p.room]
+            ];
+            const clientLabel = getPatientClientLabel(p);
+            if (clientLabel) clientRows.push(['Cliente:', clientLabel]);
+            clientRows.push(['Contacto:', p.contact || '---']);
+            if (p.clientRut) clientRows.push(['RUT:', p.clientRut]);
+            if (p.clientAddress) clientRows.push(['Dirección:', p.clientAddress]);
+
+            const rowHeight = 7;
+            const boxTop = 34;
+            const boxHeight = (clientRows.length + 1) * rowHeight + 3; // +1 fila para la falla/diagnóstico
             doc.setFillColor(245, 245, 245);
-            doc.roundedRect(14, 32, 182, 35, 2, 2, 'F');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-            doc.text("Cliente / Modelo:", 18, 40); doc.setFont("helvetica", "normal"); doc.text(p.name, 52, 40);
-            doc.setFont("helvetica", "bold"); doc.text("Patente:", 18, 47); doc.setFont("helvetica", "normal"); doc.text(p.room, 38, 47);
-            doc.setFont("helvetica", "bold"); doc.text("Contacto:", 18, 54); doc.setFont("helvetica", "normal"); doc.text(p.contact || '---', 40, 54);
+            doc.roundedRect(14, boxTop, 182, boxHeight, 2, 2, 'F');
+
+            let rowY = boxTop + 8;
+            doc.setFontSize(11);
+            clientRows.forEach(([label, value]) => {
+                doc.setFont("helvetica", "bold"); doc.text(label, 18, rowY);
+                doc.setFont("helvetica", "normal"); doc.text(String(value), 50, rowY);
+                rowY += rowHeight;
+            });
             doc.setFont("helvetica", "bold"); doc.setTextColor(220, 38, 38);
-            doc.text("Falla Inicial / Diagnóstico:", 18, 61); doc.setFont("helvetica", "normal"); doc.text(p.dx, 68, 61);
+            doc.text("Falla Inicial / Diagnóstico:", 18, rowY); doc.setFont("helvetica", "normal"); doc.text(p.dx, 68, rowY);
             doc.setTextColor(0,0,0);
 
             const tableData = p.tasks.map(item => [`${item.done ? '[LISTO] ' : '[PEND.] '} ${item.text}`, `$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}`]);
-            
+
             doc.autoTable({
-                startY: 75,
+                startY: boxTop + boxHeight + 6,
                 head: [['Detalle de Servicio / Repuesto', 'Valor']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [220, 38, 38] },
                 columnStyles: { 1: { halign: 'right', cellWidth: 35 } },
                 foot: [[
-                    { content: 'TOTAL (+IVA)', styles: { halign: 'right', fontStyle: 'bold', fontSize: 12 } }, 
+                    { content: 'TOTAL (+IVA)', styles: { halign: 'right', fontStyle: 'bold', fontSize: 12 } },
                     { content: `$${total.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold', fontSize: 14, textColor: [220, 38, 38] } }
                 ]],
                 footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] },
@@ -5325,8 +5643,18 @@
             doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100,100,100);
             doc.text(`Subtotal: $${subtotal.toLocaleString('es-CL')} | IVA (19%): $${iva.toLocaleString('es-CL')}`, 196, finalY, { align: "right" });
 
-            const fileName = `Cotizacion_${p.room.replace(/[^a-zA-Z0-9]/g, '')}_${new Date().toISOString().slice(0,10)}.pdf`;
-            showPdfModal(doc.output('blob'), fileName, `Cotización ${p.room}`);
+            // Firma de recibido: el nexo entre la cotización y la entrega del
+            // vehículo, propio de una OT profesional.
+            const signatureY = Math.min(finalY + 30, 280);
+            doc.setDrawColor(150, 150, 150);
+            doc.line(30, signatureY, 90, signatureY);
+            doc.line(120, signatureY, 180, signatureY);
+            doc.setFontSize(8); doc.setTextColor(100, 100, 100);
+            doc.text("Firma Cliente (recibido conforme)", 60, signatureY + 4, { align: "center" });
+            doc.text("Firma Taller", 150, signatureY + 4, { align: "center" });
+
+            const fileName = `OT-${String(p.otNumber || 0).padStart(4, '0')}_${p.room.replace(/[^a-zA-Z0-9]/g, '')}.pdf`;
+            showPdfModal(doc.output('blob'), fileName, `OT-${String(p.otNumber || 0).padStart(4, '0')} · ${p.room}`);
         }
         
         async function shareNote(noteId) {
@@ -5544,11 +5872,13 @@
 
             // 1. Órdenes / Taller e Historial
             (state.patients || []).forEach(p => {
-                if (p.name.toLowerCase().includes(term) || p.room.toLowerCase().includes(term) || p.dx.toLowerCase().includes(term)) {
+                const vehicleLabel = getPatientVehicleLabel(p);
+                const clientLabel = getPatientClientLabel(p);
+                if (vehicleLabel.toLowerCase().includes(term) || clientLabel.toLowerCase().includes(term) || p.room.toLowerCase().includes(term) || p.dx.toLowerCase().includes(term)) {
                     const isArchived = p.status === 'archivada';
-                    results.push({ 
-                        type: isArchived ? 'Historial' : 'Vehículo', 
-                        title: `${p.name} (${p.room})`, 
+                    results.push({
+                        type: isArchived ? 'Historial' : 'Vehículo',
+                        title: `${vehicleLabel} (${p.room})`,
                         desc: isArchived ? `Archivado: ${p.dx}` : p.dx, 
                         icon: isArchived ? 'fa-box-archive' : 'fa-car-side', 
                         color: isArchived ? 'text-neutral-500' : 'text-blue-500', 
@@ -5964,6 +6294,11 @@
         }
 
         function openSettingsModal() {
+            const adminCard = document.getElementById('admin-pin-settings-card');
+            if (adminCard) {
+                adminCard.classList.toggle('hidden', state.currentProfile !== 'administrador');
+                document.getElementById('admin-pin-btn-label').innerText = state.adminPin ? 'Cambiar PIN' : 'Configurar PIN';
+            }
             document.getElementById('toggle-finance-widget').checked = state.showFinanceWidget;
             // Cargar la configuración de calidad (por defecto 'medium')
             document.getElementById('pdf-quality-select').value = state.pdfQuality || 'medium';
@@ -6221,7 +6556,7 @@
             
             if (query.trim()) {
                 const term = query.toLowerCase().trim();
-                archived = archived.filter(p => p.room.toLowerCase().includes(term) || p.name.toLowerCase().includes(term));
+                archived = archived.filter(p => p.room.toLowerCase().includes(term) || getPatientVehicleLabel(p).toLowerCase().includes(term) || getPatientClientLabel(p).toLowerCase().includes(term));
             }
 
             // Ordenar por fecha de archivo (más reciente primero)
@@ -6246,8 +6581,11 @@
                 <div id="history-card-${p.id}" class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 mb-3 shadow-sm hover:shadow transition">
                     <div class="flex justify-between items-start mb-3 border-b border-neutral-100 dark:border-neutral-700 pb-2">
                         <div>
-                            <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold tracking-widest mb-1 shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i>${escapeHtml(p.room)}</span>
-                            <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100">${escapeHtml(p.name)}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                ${p.otNumber ? `<span class="inline-block px-2 py-0.5 rounded bg-neutral-800 dark:bg-neutral-700 text-white text-xs font-bold tracking-wide shadow-sm" title="N° de Orden de Trabajo">OT-${String(p.otNumber).padStart(4, '0')}</span>` : ''}
+                                <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold tracking-widest shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i>${escapeHtml(p.room)}</span>
+                            </div>
+                            <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100">${escapeHtml(getPatientVehicleLabel(p))}</h4>
                             <p class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-0.5"><i class="fa-solid fa-calendar-check mr-1"></i> Archivado el ${dateStr}</p>
                         </div>
                         <div class="flex gap-2">
@@ -6442,7 +6780,7 @@
                         const activeView = sessionStorage.getItem('currentView') || 'dashboard';
                         state.view = activeView;
                         
-                        applyTheme(); updateHeaderUI(); updateNavVisibility();
+                        applyTheme(); updateHeaderUI(); updateNavVisibility(); updateProfileSwitcherUI();
                         renderView(activeView);
                         showToast("Taller Sincronizado", "fa-cloud-arrow-down");
                     } else if (localTime > cloudTime) {
@@ -6572,7 +6910,8 @@
                 appTitle: 'Mecamonico', appSubtitle: 'Gestión de Taller & Estudio', 
                 userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
                 darkMode: false, showFinanceWidget: true,
-                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links']
+                visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'],
+                currentProfile: 'mecanico', adminPin: '', shopLogo: null, nextOtNumber: 1
             };
             try { await idbKeyval.set(APP_KEY, state); } catch(e) {}
             // ------------------------------------------------------

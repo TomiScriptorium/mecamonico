@@ -7,3 +7,6 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 
 include ':capawesome-capacitor-android-edge-to-edge-support'
 project(':capawesome-capacitor-android-edge-to-edge-support').projectDir = new File('../node_modules/@capawesome/capacitor-android-edge-to-edge-support/android')
+
+include ':capawesome-capacitor-password-autofill'
+project(':capawesome-capacitor-password-autofill').projectDir = new File('../node_modules/@capawesome/capacitor-password-autofill/android')

@@ -6496,6 +6496,18 @@
             return false;
         }
 
+        // La app de Android corre en un WebView, así que el formulario nunca
+        // dispara el aviso nativo de "¿Guardar contraseña?" por sí solo (eso
+        // solo pasa en un navegador de verdad). @capawesome/capacitor-password-autofill
+        // llama directo a la API de Android (Credential Manager) para
+        // mostrarlo igual, apenas el login o el registro funciona. En la web
+        // y en Windows/Electron el plugin no existe, así que esto no hace nada ahí.
+        function saveAndroidPassword(email, password) {
+            const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.PasswordAutofill;
+            if (!plugin) return;
+            plugin.savePassword({ username: email, password }).catch(() => {});
+        }
+
         async function registerUser() {
             if (!supabaseClient) return showToast("Sin conexión al servidor", "fa-wifi");
             const email = document.getElementById('auth-email').value.trim();
@@ -6509,6 +6521,7 @@
                     showToast(error.message, "fa-circle-xmark");
                 } else {
                     sessionStorage.removeItem('offlineMode'); // <-- ROMPE EL SEGURO LOCAL
+                    saveAndroidPassword(email, password);
                     showToast("Cuenta creada exitosamente", "fa-check");
                     checkUserSession();
                 }
@@ -6530,6 +6543,7 @@
                     showToast("Correo o contraseña incorrectos", "fa-circle-xmark");
                 } else {
                     sessionStorage.removeItem('offlineMode'); // <-- ROMPE EL SEGURO LOCAL
+                    saveAndroidPassword(email, password);
                     showToast("¡Bienvenido a la Nube!", "fa-cloud");
                     checkUserSession();
                 }

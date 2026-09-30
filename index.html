@@ -2338,6 +2338,10 @@
             document.body.classList.remove('modal-open');
             const screen = document.getElementById('admin-panel-screen');
             if (screen) screen.classList.add('hidden');
+            // Limpia el contenido para no dejar un input de la pizarra "escondido"
+            // duplicando el id del que sí se ve en el Dashboard de abajo.
+            const body = document.getElementById('admin-panel-body');
+            if (body) body.innerHTML = '';
         }
 
         function renderAdminPanelBody() {
@@ -2448,6 +2452,9 @@
                             </div>
                         </div>
                         <div class="max-h-[60vh] overflow-y-auto hide-scrollbar pr-1">${salesFeedHTML}</div>
+                    </div>
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4 mt-4">
+                        ${getTeamNotesBoardHTML('write')}
                     </div>
                 </div>
                 <div class="lg:col-span-2 lg:order-1 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4">
@@ -2596,24 +2603,78 @@
             }); 
         }
 
-        // Pizarra de avisos rápidos de Inicio, solo visible en el perfil
-        // Mecánico (turnos, pendientes del día) - separada del módulo Apuntes,
-        // que es para notas largas y archivadas.
+        // Pizarra de avisos de Inicio: la escribe el Administrador (desde el
+        // Dashboard en Android, o desde el Panel de Administrador en PC/Web) y
+        // el Mecánico solo puede marcarla como vista o eliminarla -no escribir
+        // ni editar. Separada del módulo Apuntes, que es para notas largas y
+        // archivadas.
         function addMechanicNote() {
             const input = document.getElementById('new-mechanic-note-input');
+            if (!input) return;
             const text = input.value.trim();
             if (!text) return;
             if (!state.mechanicNotes) state.mechanicNotes = [];
-            state.mechanicNotes.push({ id: Date.now(), text });
+            state.mechanicNotes.push({ id: Date.now(), text, seen: false });
             saveData();
             input.value = '';
-            renderView('dashboard');
+            refreshTeamNotesUI();
+        }
+
+        function markMechanicNoteSeen(id) {
+            const note = (state.mechanicNotes || []).find(n => n.id === id);
+            if (note) note.seen = true;
+            saveData();
+            refreshTeamNotesUI();
         }
 
         function deleteMechanicNote(id) {
             state.mechanicNotes = (state.mechanicNotes || []).filter(n => n.id !== id);
             saveData();
-            renderView('dashboard');
+            refreshTeamNotesUI();
+        }
+
+        // Si el Panel de Administrador está abierto, la pizarra vive ahí (el
+        // Dashboard de debajo queda oculto y sin tocar); si no, vive en el
+        // Dashboard normal (Android en cualquier perfil, o PC/Web en Mecánico).
+        function refreshTeamNotesUI() {
+            const panel = document.getElementById('admin-panel-screen');
+            if (panel && !panel.classList.contains('hidden')) {
+                renderAdminPanelBody();
+            } else if (state.view === 'dashboard') {
+                renderView('dashboard');
+            }
+        }
+
+        // Bloque de la pizarra, reutilizado en el Dashboard y en el Panel de
+        // Administrador. mode 'write' (Administrador): puede agregar y borrar.
+        // mode 'read' (Mecánico): solo marcar como vista o borrar.
+        function getTeamNotesBoardHTML(mode) {
+            const isWriter = mode === 'write';
+            const notes = state.mechanicNotes || [];
+            const listHTML = notes.length === 0
+                ? `<p class="text-xs text-neutral-400 text-center py-3">Sin avisos por ahora</p>`
+                : notes.slice().reverse().map(n => {
+                    const statusHTML = n.seen
+                        ? `<span class="text-[10px] font-bold text-green-600 dark:text-green-400 flex items-center gap-1 shrink-0 whitespace-nowrap"><i class="fa-solid fa-check"></i> Visto</span>`
+                        : (isWriter
+                            ? `<span class="text-[10px] font-bold text-neutral-400 shrink-0 whitespace-nowrap">Sin ver</span>`
+                            : `<button onclick="markMechanicNoteSeen(${n.id})" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 shrink-0 whitespace-nowrap">Marcar visto</button>`);
+                    return `<div class="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg px-3 py-2">
+                        <p class="flex-1 text-sm text-neutral-700 dark:text-neutral-300 break-words">${escapeHtml(n.text)}</p>
+                        ${statusHTML}
+                        <button onclick="deleteMechanicNote(${n.id})" class="text-neutral-400 hover:text-red-500 transition shrink-0" title="Eliminar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>`;
+                }).join('');
+
+            const writerInputHTML = isWriter ? `
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="new-mechanic-note-input" placeholder="Dejar un aviso para Mecánico..." class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-yellow-500 dark:text-white transition-colors" onkeypress="if(event.key==='Enter') addMechanicNote()">
+                    <button onclick="addMechanicNote()" class="px-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-sm shrink-0"><i class="fa-solid fa-plus"></i></button>
+                </div>` : '';
+
+            return `<h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-600 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-note-sticky text-yellow-500"></i> Pizarra del Taller</h3>
+                ${writerInputHTML}
+                <div class="flex flex-col gap-2 max-h-[220px] overflow-y-auto hide-scrollbar">${listHTML}</div>`;
         }
 
         function getDashboardHTML() {
@@ -2703,21 +2764,10 @@
             const displayUserName = state.userName || 'Usuario';
             const displayUserTitle = state.userTitle || 'Estudiante';
 
-            const mechanicNotesHTML = state.currentProfile === 'mecanico' ? `
+            const mechanicNotesHTML = `
                 <div class="order-2 bg-white dark:bg-neutral-900 rounded-xl p-4 border border-yellow-200 dark:border-yellow-900/50 shrink-0 shadow-sm">
-                    <h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-600 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-note-sticky text-yellow-500"></i> Pizarra del Taller</h3>
-                    <div class="flex gap-2 mb-3">
-                        <input type="text" id="new-mechanic-note-input" placeholder="Dejar un aviso rápido..." class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-yellow-500 dark:text-white transition-colors" onkeypress="if(event.key==='Enter') addMechanicNote()">
-                        <button onclick="addMechanicNote()" class="px-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-sm shrink-0"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                    <div class="flex flex-col gap-2 max-h-[180px] overflow-y-auto hide-scrollbar">
-                        ${(state.mechanicNotes && state.mechanicNotes.length) ? state.mechanicNotes.slice().reverse().map(n => `
-                            <div class="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg px-3 py-2">
-                                <p class="flex-1 text-sm text-neutral-700 dark:text-neutral-300 break-words">${escapeHtml(n.text)}</p>
-                                <button onclick="deleteMechanicNote(${n.id})" class="text-neutral-400 hover:text-red-500 transition shrink-0"><i class="fa-solid fa-xmark"></i></button>
-                            </div>`).join('') : `<p class="text-xs text-neutral-400 text-center py-3">Sin avisos por ahora</p>`}
-                    </div>
-                </div>` : '';
+                    ${getTeamNotesBoardHTML(state.currentProfile === 'administrador' ? 'write' : 'read')}
+                </div>`;
 
             return `<div class="flex flex-col gap-6 w-full lg:max-w-2xl mx-auto pb-20 lg:p-6 hide-scrollbar fade-enter">
             

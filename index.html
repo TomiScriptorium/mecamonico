@@ -822,6 +822,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Panel de Administrador: espacio aparte a pantalla completa (solo PC/Web,
+         ver isAndroidApp()) que se abre al cambiar a perfil Administrador. Queda
+         por debajo de los modales genéricos (confirm/text-prompt/pin, z-[110])
+         para poder seguir usándolos desde acá (ej. cambiar el PIN, editar un
+         campo de texto), pero por encima del contenido normal de la app. -->
+    <div id="admin-panel-screen" class="hidden fixed inset-0 bg-neutral-100 dark:bg-neutral-950 z-[90] flex flex-col">
+        <div class="shrink-0 bg-neutral-900 text-white px-4 sm:px-6 h-16 flex items-center justify-between shadow-md border-b-4 border-red-600">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-red-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="min-w-0">
+                    <h2 class="font-black text-sm sm:text-base leading-none truncate">Panel de Administrador</h2>
+                    <p id="admin-panel-date" class="text-[11px] text-neutral-500 font-bold truncate"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="changeAdminPin()" class="text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-3 py-2 rounded border border-neutral-700 transition flex items-center gap-2" title="Configurar o cambiar el PIN">
+                    <i class="fa-solid fa-key"></i><span class="hidden sm:inline">PIN</span>
+                </button>
+                <button onclick="toggleProfile()" class="text-xs sm:text-sm font-bold bg-red-700 hover:bg-red-600 text-white px-3 py-2 rounded transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Volver a Mecánico
+                </button>
+            </div>
+        </div>
+        <div id="admin-panel-body" class="flex-1 overflow-y-auto p-3 sm:p-6"></div>
+    </div>
     <div id="image-modal" class="hidden fixed inset-0 bg-neutral-900/95 z-[100] flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onclick="closeImageModal()">
         <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-neutral-800/50 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition backdrop-blur-md z-10 shadow-lg"><i class="fa-solid fa-xmark text-xl"></i></button>
         <img id="modal-image-content" src="" class="max-w-full max-h-[90vh] object-contain rounded shadow-2xl fade-enter" onclick="event.stopPropagation()">
@@ -1463,7 +1489,10 @@
             currentProfile: 'mecanico',
             adminPin: '',
             shopLogo: null,
-            nextOtNumber: 1
+            nextOtNumber: 1,
+            // Notas rápidas de Inicio, solo para el perfil Mecánico (avisos de
+            // turno, pendientes del día) - distintas del módulo Apuntes.
+            mechanicNotes: []
         };
         let selectedDateKey = null;
         let tempShiftType = null;
@@ -1601,6 +1630,7 @@
                     if (!saved.currentProfile) saved.currentProfile = 'mecanico';
                     if (saved.adminPin === undefined) saved.adminPin = '';
                     if (saved.shopLogo === undefined) saved.shopLogo = null;
+                    if (!saved.mechanicNotes) saved.mechanicNotes = [];
                     if (saved.nextOtNumber === undefined) {
                         // N° de OT nuevo: le asigna un correlativo a cada orden ya
                         // existente (por fecha de creación) para que el historial
@@ -2213,34 +2243,48 @@
             if (cb) cb(value);
         }
 
+        // La APK de Android ya venía probada y funcionando con el cambio de
+        // perfil "en el mismo lugar" (sin panel aparte); el Panel de
+        // Administrador de pantalla completa es solo para PC/Web (Windows/
+        // Electron y navegador), donde sí hay espacio de sobra para eso.
+        function isAndroidApp() {
+            return !!(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');
+        }
+
         // Cambia entre el perfil Mecánico (sin datos personales del cliente) y
         // Administrador (todo). Volver a Mecánico nunca pide PIN -es el perfil
         // "seguro"-; entrar a Administrador lo pide, salvo que todavía no se
-        // haya configurado uno (primera vez, se avisa igual).
+        // haya configurado uno (primera vez, se avisa igual). En PC/Web, entrar
+        // a Administrador abre el Panel de Administrador a pantalla completa en
+        // vez de solo cambiar el perfil en la vista actual.
         function toggleProfile() {
             if (state.currentProfile === 'administrador') {
                 state.currentProfile = 'mecanico';
                 saveData();
                 updateProfileSwitcherUI();
+                closeAdminPanel();
                 renderView(state.view);
                 showToast("Perfil: Mecánico", "fa-user-gear");
                 return;
             }
-            if (!state.adminPin) {
+            const enterAdmin = (toastMsg, toastIcon) => {
                 state.currentProfile = 'administrador';
                 saveData();
                 updateProfileSwitcherUI();
-                renderView(state.view);
-                showToast("Perfil: Administrador (configura un PIN en Ajustes)", "fa-triangle-exclamation");
+                if (isAndroidApp()) {
+                    renderView(state.view);
+                } else {
+                    openAdminPanel();
+                }
+                showToast(toastMsg, toastIcon);
+            };
+            if (!state.adminPin) {
+                enterAdmin("Perfil: Administrador (configura un PIN en Ajustes)", "fa-triangle-exclamation");
                 return;
             }
             showPinPrompt("Ingresa el PIN de Administrador", (pin) => {
                 if (pin && pin === state.adminPin) {
-                    state.currentProfile = 'administrador';
-                    saveData();
-                    updateProfileSwitcherUI();
-                    renderView(state.view);
-                    showToast("Perfil: Administrador", "fa-user-shield");
+                    enterAdmin("Perfil: Administrador", "fa-user-shield");
                 } else {
                     showToast("PIN incorrecto", "fa-circle-xmark");
                 }
@@ -2273,6 +2317,210 @@
                 showToast("PIN de Administrador actualizado", "fa-check");
             });
         }
+
+        // ===================== PANEL DE ADMINISTRADOR =====================
+        // Espacio aparte a pantalla completa (solo PC/Web, ver isAndroidApp())
+        // pensado para trabajar tranquilo en el escritorio: ventas del día con
+        // hora exacta y un editor grande de órdenes de trabajo con más detalle
+        // del que entra cómodo en el modal chico de "Nuevo Vehículo".
+        let adminPanelSelectedOtId = null;
+
+        function openAdminPanel() {
+            adminPanelSelectedOtId = null;
+            document.body.classList.add('modal-open');
+            document.getElementById('admin-panel-screen').classList.remove('hidden');
+            const dateLabel = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('admin-panel-date').innerText = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+            renderAdminPanelBody();
+        }
+
+        function closeAdminPanel() {
+            document.body.classList.remove('modal-open');
+            const screen = document.getElementById('admin-panel-screen');
+            if (screen) screen.classList.add('hidden');
+        }
+
+        function renderAdminPanelBody() {
+            const body = document.getElementById('admin-panel-body');
+            if (body) body.innerHTML = getAdminPanelBodyHTML();
+        }
+
+        // Input/textarea reutilizable del formulario de detalle de la OT.
+        function adminPanelFieldHTML(id, label, value, opts) {
+            opts = opts || {};
+            const span = opts.span ? ' sm:col-span-2' : '';
+            if (opts.type === 'textarea') {
+                return `<div class="${span}"><label class="block text-[11px] font-bold text-neutral-500 uppercase tracking-wide mb-1">${label}</label><textarea id="${id}" rows="${opts.rows || 2}" class="w-full p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-red-500 dark:text-white transition-colors resize-none">${escapeHtml(value || '')}</textarea></div>`;
+            }
+            return `<div class="${span}"><label class="block text-[11px] font-bold text-neutral-500 uppercase tracking-wide mb-1">${label}</label><input type="${opts.type || 'text'}" id="${id}" value="${escapeHtml(value || '')}" class="w-full p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-red-500 dark:text-white transition-colors"></div>`;
+        }
+
+        function getAdminPanelBodyHTML() {
+            const today = new Date();
+            const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // --- Ventas/ingresos de hoy, con hora exacta (más recientes primero) ---
+            const todayTxs = (state.transactions || []).filter(t => t.date === dateKey).slice().sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+            const todayIncome = todayTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+            const todayExpense = todayTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+
+            const salesFeedHTML = todayTxs.length === 0
+                ? `<div class="text-center py-10 opacity-50"><i class="fa-solid fa-receipt text-3xl mb-2 text-neutral-400"></i><p class="text-sm font-bold text-neutral-500">Sin movimientos hoy</p></div>`
+                : todayTxs.map(t => {
+                    const isIncome = t.type === 'income';
+                    const color = isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+                    const bg = isIncome ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20';
+                    const sign = isIncome ? '+' : '-';
+                    return `<div class="flex items-center gap-3 p-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 mb-2">
+                        <div class="px-2 h-9 rounded-lg ${bg} ${color} flex items-center justify-center shrink-0 font-mono text-xs font-bold">${escapeHtml(t.time || '--:--')}</div>
+                        <div class="flex-1 min-w-0"><p class="text-sm font-bold text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(t.concept)}</p></div>
+                        <span class="font-black ${color} text-sm shrink-0">${sign}$${t.amount.toLocaleString('es-CL')}</span>
+                    </div>`;
+                }).join('');
+
+            // --- Lista maestra de OT activas ---
+            const activePatients = (state.patients || []).filter(p => p.status !== 'archivada').sort((a, b) => b.id - a.id);
+            const selected = adminPanelSelectedOtId ? state.patients.find(p => p.id === adminPanelSelectedOtId) : null;
+
+            const otListHTML = activePatients.length === 0
+                ? `<div class="text-center py-10 opacity-50"><i class="fa-solid fa-car-side text-3xl mb-2 text-neutral-400"></i><p class="text-sm font-bold text-neutral-500">No hay órdenes activas</p></div>`
+                : activePatients.map(p => {
+                    const isSelected = selected && selected.id === p.id;
+                    const clientLabel = getPatientClientLabel(p);
+                    const searchTerm = (getPatientVehicleLabel(p) + ' ' + clientLabel + ' ' + (p.room || '')).toLowerCase();
+                    return `<div onclick="selectAdminPanelOT(${p.id})" data-search="${escapeHtml(searchTerm)}" class="p-3 rounded-lg border cursor-pointer transition mb-2 ${isSelected ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700'}">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-black text-neutral-400 font-mono">OT-${String(p.otNumber || 0).padStart(4, '0')}</span>
+                            <span class="text-[10px] font-bold text-neutral-400 font-mono">${escapeHtml(p.room || '')}</span>
+                        </div>
+                        <p class="text-sm font-bold text-neutral-800 dark:text-neutral-100 truncate">${escapeHtml(getPatientVehicleLabel(p))}</p>
+                        ${clientLabel ? `<p class="text-xs text-neutral-500 truncate"><i class="fa-solid fa-user mr-1"></i>${escapeHtml(clientLabel)}</p>` : ''}
+                    </div>`;
+                }).join('');
+
+            // --- Formulario de detalle (crear una OT nueva o editar la seleccionada) ---
+            const p = selected;
+            const otBadge = p ? `OT-${String(p.otNumber || 0).padStart(4, '0')}` : 'Nueva OT';
+            const receptionInfo = p ? new Date(p.receptionDate).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : 'Se registra al crear la orden';
+
+            const detailFormHTML = `
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div>
+                        <span class="text-xs font-black text-red-600 font-mono">${otBadge}</span>
+                        <p class="text-[11px] text-neutral-500 font-bold"><i class="fa-regular fa-clock mr-1"></i>Recepción: ${receptionInfo}</p>
+                    </div>
+                    ${p ? `<div class="flex gap-2">
+                        <button onclick="downloadWorkOrderPDF(${p.id})" class="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                        <button onclick="archiveAdminPanelOT(${p.id})" class="text-xs font-bold bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-1.5 rounded flex items-center gap-1.5"><i class="fa-solid fa-box-archive"></i> Archivar</button>
+                    </div>` : ''}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    ${adminPanelFieldHTML('ap-model', 'Modelo del vehículo *', p ? getPatientVehicleLabel(p) : '')}
+                    ${adminPanelFieldHTML('ap-room', 'Patente', p ? p.room : '')}
+                    ${adminPanelFieldHTML('ap-name', 'Nombre del cliente', p ? getPatientClientLabel(p) : '')}
+                    ${adminPanelFieldHTML('ap-contact', 'Contacto', p ? p.contact : '')}
+                    ${adminPanelFieldHTML('ap-rut', 'RUT', p ? p.clientRut : '')}
+                    ${adminPanelFieldHTML('ap-address', 'Dirección', p ? p.clientAddress : '')}
+                    ${adminPanelFieldHTML('ap-mileage', 'Kilometraje', p ? p.mileage : '', { type: 'number' })}
+                    ${adminPanelFieldHTML('ap-payment', 'Forma de pago', p ? p.paymentMethod : '')}
+                    ${adminPanelFieldHTML('ap-delivery', 'Fecha estimada de entrega', p ? p.estimatedDelivery : '', { type: 'date' })}
+                    ${adminPanelFieldHTML('ap-dx', 'Diagnóstico / falla reportada', p ? p.dx : '', { type: 'textarea', span: true })}
+                    ${adminPanelFieldHTML('ap-fuel', 'Combustible y estado del vehículo al recibir', p ? p.fuelCondition : '', { type: 'textarea', span: true })}
+                    ${adminPanelFieldHTML('ap-warranty', 'Garantía / notas de garantía del trabajo', p ? p.warrantyNote : '', { type: 'textarea', span: true })}
+                </div>
+                <button onclick="saveAdminPanelOT()" class="mt-4 w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> ${p ? 'Guardar Cambios' : 'Crear Orden de Trabajo'}
+                </button>
+            `;
+
+            return `<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="lg:col-span-1 lg:order-2">
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">
+                        <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar text-green-600"></i> Ventas de Hoy</h3>
+                        <div class="flex gap-2 mb-4">
+                            <div class="flex-1 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/50 rounded-lg p-2 text-center">
+                                <p class="text-[10px] font-bold text-green-700 dark:text-green-500 uppercase">Ingresos</p>
+                                <p class="text-sm font-black text-green-700 dark:text-green-400">$${todayIncome.toLocaleString('es-CL')}</p>
+                            </div>
+                            <div class="flex-1 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-lg p-2 text-center">
+                                <p class="text-[10px] font-bold text-red-700 dark:text-red-500 uppercase">Egresos</p>
+                                <p class="text-sm font-black text-red-700 dark:text-red-400">$${todayExpense.toLocaleString('es-CL')}</p>
+                            </div>
+                        </div>
+                        <div class="max-h-[60vh] overflow-y-auto hide-scrollbar pr-1">${salesFeedHTML}</div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 lg:order-1 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4">
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wide">Órdenes Activas</h3>
+                            <button onclick="selectAdminPanelOT(null)" class="text-xs font-bold text-red-600 hover:text-red-700" title="Nueva OT"><i class="fa-solid fa-circle-plus"></i></button>
+                        </div>
+                        <input type="text" placeholder="Buscar..." class="w-full mb-3 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-red-500 dark:text-white" onkeyup="filterAdminPanelOtList(this.value)">
+                        <div id="admin-panel-ot-list" class="max-h-[60vh] overflow-y-auto hide-scrollbar pr-1">${otListHTML}</div>
+                    </div>
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">${detailFormHTML}</div>
+                </div>
+            </div>`;
+        }
+
+        function selectAdminPanelOT(id) {
+            adminPanelSelectedOtId = id;
+            renderAdminPanelBody();
+        }
+
+        function filterAdminPanelOtList(query) {
+            const term = query.toLowerCase();
+            const list = document.getElementById('admin-panel-ot-list');
+            if (!list) return;
+            Array.from(list.children).forEach(el => {
+                if (!el.dataset || el.dataset.search === undefined) return;
+                el.style.display = el.dataset.search.includes(term) ? '' : 'none';
+            });
+        }
+
+        function saveAdminPanelOT() {
+            const model = document.getElementById('ap-model').value.trim();
+            if (!model) { showToast("El modelo del vehículo es obligatorio", "fa-triangle-exclamation"); return; }
+
+            let patient = adminPanelSelectedOtId ? state.patients.find(x => x.id === adminPanelSelectedOtId) : null;
+            const isNew = !patient;
+            if (isNew) {
+                patient = { id: Date.now(), otNumber: state.nextOtNumber || 1, receptionDate: new Date().toISOString(), tasks: [], status: 'activa', archiveDate: null };
+                state.nextOtNumber = (state.nextOtNumber || 1) + 1;
+                state.patients.unshift(patient);
+            }
+            patient.vehicleModel = model;
+            patient.name = document.getElementById('ap-name').value.trim();
+            patient.contact = document.getElementById('ap-contact').value.trim();
+            patient.room = document.getElementById('ap-room').value.trim().toUpperCase() || '---';
+            patient.clientRut = document.getElementById('ap-rut').value.trim();
+            patient.clientAddress = document.getElementById('ap-address').value.trim();
+            patient.dx = document.getElementById('ap-dx').value.trim() || 'Revisión';
+            patient.mileage = document.getElementById('ap-mileage').value.trim();
+            patient.fuelCondition = document.getElementById('ap-fuel').value.trim();
+            patient.estimatedDelivery = document.getElementById('ap-delivery').value;
+            patient.paymentMethod = document.getElementById('ap-payment').value.trim();
+            patient.warrantyNote = document.getElementById('ap-warranty').value.trim();
+
+            saveData();
+            adminPanelSelectedOtId = patient.id;
+            renderAdminPanelBody();
+            showToast(isNew ? "Orden de trabajo creada" : "Cambios guardados", "fa-check");
+        }
+
+        function archiveAdminPanelOT(id) {
+            showConfirmModal("¿Archivar Orden?", "El vehículo pasará al historial.", "Archivar", () => {
+                const p = state.patients.find(x => x.id === id);
+                if (p) { p.status = 'archivada'; p.archiveDate = new Date().toISOString(); }
+                saveData();
+                closeConfirmModal();
+                if (adminPanelSelectedOtId === id) adminPanelSelectedOtId = null;
+                renderAdminPanelBody();
+                showToast("Orden archivada", "fa-box-archive");
+            });
+        }
+        // =================== FIN PANEL DE ADMINISTRADOR ====================
 
         function openImagePreviewModal(src) {
             const modal = document.getElementById('image-modal');
@@ -2346,6 +2594,26 @@
                 else if (type === 'link') deleteLink(id); 
                 closeConfirmModal(); 
             }); 
+        }
+
+        // Pizarra de avisos rápidos de Inicio, solo visible en el perfil
+        // Mecánico (turnos, pendientes del día) - separada del módulo Apuntes,
+        // que es para notas largas y archivadas.
+        function addMechanicNote() {
+            const input = document.getElementById('new-mechanic-note-input');
+            const text = input.value.trim();
+            if (!text) return;
+            if (!state.mechanicNotes) state.mechanicNotes = [];
+            state.mechanicNotes.push({ id: Date.now(), text });
+            saveData();
+            input.value = '';
+            renderView('dashboard');
+        }
+
+        function deleteMechanicNote(id) {
+            state.mechanicNotes = (state.mechanicNotes || []).filter(n => n.id !== id);
+            saveData();
+            renderView('dashboard');
         }
 
         function getDashboardHTML() {
@@ -2431,10 +2699,26 @@
                     </div>
                 </div>`;
 
-            const profileImageSrc = state.userProfileImage || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="#dc2626"/><text x="32" y="40" text-anchor="middle" fill="#fff" font-size="28" font-family="sans-serif" font-weight="bold">MEC</text></svg>'); 
-            const displayUserName = state.userName || 'Usuario'; 
-            const displayUserTitle = state.userTitle || 'Estudiante'; 
-            
+            const profileImageSrc = state.userProfileImage || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="#dc2626"/><text x="32" y="40" text-anchor="middle" fill="#fff" font-size="28" font-family="sans-serif" font-weight="bold">MEC</text></svg>');
+            const displayUserName = state.userName || 'Usuario';
+            const displayUserTitle = state.userTitle || 'Estudiante';
+
+            const mechanicNotesHTML = state.currentProfile === 'mecanico' ? `
+                <div class="order-2 bg-white dark:bg-neutral-900 rounded-xl p-4 border border-yellow-200 dark:border-yellow-900/50 shrink-0 shadow-sm">
+                    <h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-600 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-note-sticky text-yellow-500"></i> Pizarra del Taller</h3>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="new-mechanic-note-input" placeholder="Dejar un aviso rápido..." class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-yellow-500 dark:text-white transition-colors" onkeypress="if(event.key==='Enter') addMechanicNote()">
+                        <button onclick="addMechanicNote()" class="px-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-sm shrink-0"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div class="flex flex-col gap-2 max-h-[180px] overflow-y-auto hide-scrollbar">
+                        ${(state.mechanicNotes && state.mechanicNotes.length) ? state.mechanicNotes.slice().reverse().map(n => `
+                            <div class="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg px-3 py-2">
+                                <p class="flex-1 text-sm text-neutral-700 dark:text-neutral-300 break-words">${escapeHtml(n.text)}</p>
+                                <button onclick="deleteMechanicNote(${n.id})" class="text-neutral-400 hover:text-red-500 transition shrink-0"><i class="fa-solid fa-xmark"></i></button>
+                            </div>`).join('') : `<p class="text-xs text-neutral-400 text-center py-3">Sin avisos por ahora</p>`}
+                    </div>
+                </div>` : '';
+
             return `<div class="flex flex-col gap-6 w-full lg:max-w-2xl mx-auto pb-20 lg:p-6 hide-scrollbar fade-enter">
             
             <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0">
@@ -2449,7 +2733,9 @@
             </div>
             
             ${reminderHTML}
-            
+
+            ${mechanicNotesHTML}
+
             <div class="order-3 shrink-0 mt-2">
                 <h3 class="text-xs font-bold text-neutral-600 dark:text-neutral-500 uppercase tracking-wide mb-3 ml-1"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Accesos Rápidos</h3>
                 <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
@@ -2729,7 +3015,7 @@
                             const txId = Date.now() + Math.random();
                             
                             if (!state.transactions) state.transactions = [];
-                            state.transactions.push({ id: txId, concept: `Venta O.T: ${invItem.product} (${patient.room})`, amount: salePriceGross, type: 'income', date: dateKey });
+                            state.transactions.push({ id: txId, concept: `Venta O.T: ${invItem.product} (${patient.room})`, amount: salePriceGross, type: 'income', date: dateKey, time: today.toTimeString().slice(0, 5) });
                             newTask.txId = txId; // Vinculamos la transacción a la tarea por si la borra
 
                             // Registro con fecha exacta (trazabilidad estilo "libro de ventas")
@@ -4323,7 +4609,8 @@
                     concept: `Venta Bodega: ${item.product}`,
                     amount: salePriceGross,
                     type: 'income',
-                    date: dateKey
+                    date: dateKey,
+                    time: today.toTimeString().slice(0, 5)
                 });
 
                 // Registro con fecha exacta (trazabilidad estilo "libro de ventas")
@@ -5604,6 +5891,11 @@
             clientRows.push(['Contacto:', p.contact || '---']);
             if (p.clientRut) clientRows.push(['RUT:', p.clientRut]);
             if (p.clientAddress) clientRows.push(['Dirección:', p.clientAddress]);
+            if (p.mileage) clientRows.push(['Kilometraje:', `${p.mileage} km`]);
+            if (p.fuelCondition) clientRows.push(['Combustible/Estado:', p.fuelCondition]);
+            if (p.estimatedDelivery) clientRows.push(['Entrega Estimada:', new Date(p.estimatedDelivery + 'T12:00:00').toLocaleDateString('es-CL')]);
+            if (p.paymentMethod) clientRows.push(['Forma de Pago:', p.paymentMethod]);
+            if (p.warrantyNote) clientRows.push(['Garantía:', p.warrantyNote]);
 
             const rowHeight = 7;
             const boxTop = 34;
@@ -6186,7 +6478,7 @@
                 return;
             }
 
-            const newTx = { id: Date.now(), concept, amount, type, date };
+            const newTx = { id: Date.now(), concept, amount, type, date, time: new Date().toTimeString().slice(0, 5) };
             if (!state.transactions) state.transactions = [];
             state.transactions.push(newTx);
             saveData();
@@ -6911,7 +7203,7 @@
                 userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
                 darkMode: false, showFinanceWidget: true,
                 visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'],
-                currentProfile: 'mecanico', adminPin: '', shopLogo: null, nextOtNumber: 1
+                currentProfile: 'mecanico', adminPin: '', shopLogo: null, nextOtNumber: 1, mechanicNotes: []
             };
             try { await idbKeyval.set(APP_KEY, state); } catch(e) {}
             // ------------------------------------------------------

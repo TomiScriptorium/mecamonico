@@ -99,6 +99,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- SheetJS: exportación real a Excel (.xlsx), abrible/editable en Excel y Google Sheets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Chart.js: gráficos de mano de obra / repuestos en el Panel de Administrador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -2322,11 +2324,17 @@
         // Espacio aparte a pantalla completa (solo PC/Web, ver isAndroidApp())
         // pensado para trabajar tranquilo en el escritorio: ventas del día con
         // hora exacta y un editor grande de órdenes de trabajo con más detalle
-        // del que entra cómodo en el modal chico de "Nuevo Vehículo".
+        // del que entra cómodo en el modal chico de "Nuevo Vehículo", más una
+        // pestaña de Contabilidad con gráficos de ganancia.
         let adminPanelSelectedOtId = null;
+        let adminPanelTab = 'ordenes'; // 'ordenes' | 'contabilidad'
+        let adminPanelAccountingMonth = new Date(); // mes mostrado en Contabilidad; no se guarda, se resetea al abrir el panel
+        let adminAccountingCharts = { labor: null, parts: null };
 
         function openAdminPanel() {
             adminPanelSelectedOtId = null;
+            adminPanelTab = 'ordenes';
+            adminPanelAccountingMonth = new Date();
             document.body.classList.add('modal-open');
             document.getElementById('admin-panel-screen').classList.remove('hidden');
             const dateLabel = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -2338,6 +2346,7 @@
             document.body.classList.remove('modal-open');
             const screen = document.getElementById('admin-panel-screen');
             if (screen) screen.classList.add('hidden');
+            destroyAdminAccountingCharts();
             // Limpia el contenido para no dejar un input de la pizarra "escondido"
             // duplicando el id del que sí se ve en el Dashboard de abajo.
             const body = document.getElementById('admin-panel-body');
@@ -2347,6 +2356,41 @@
         function renderAdminPanelBody() {
             const body = document.getElementById('admin-panel-body');
             if (body) body.innerHTML = getAdminPanelBodyHTML();
+            if (adminPanelTab === 'contabilidad') renderAdminAccountingCharts(); else destroyAdminAccountingCharts();
+        }
+
+        function setAdminPanelTab(tab) {
+            adminPanelTab = tab;
+            renderAdminPanelBody();
+        }
+
+        function shiftAdminPanelAccountingMonth(delta) {
+            adminPanelAccountingMonth.setMonth(adminPanelAccountingMonth.getMonth() + delta);
+            renderAdminPanelBody();
+        }
+
+        function destroyAdminAccountingCharts() {
+            if (adminAccountingCharts.labor) { adminAccountingCharts.labor.destroy(); adminAccountingCharts.labor = null; }
+            if (adminAccountingCharts.parts) { adminAccountingCharts.parts.destroy(); adminAccountingCharts.parts = null; }
+        }
+
+        // Si el CDN de Chart.js no cargó (sin internet, o bloqueado), se omiten
+        // los gráficos sin romper el resto del panel -mismo criterio que ya se
+        // usa con jsPDF/XLSX en el resto de la app.
+        function renderAdminAccountingCharts() {
+            destroyAdminAccountingCharts();
+            if (typeof Chart === 'undefined') return;
+            const stats = getAccountingStats(adminPanelAccountingMonth);
+            const labels = Array.from({ length: stats.daysInMonth }, (_, i) => String(i + 1));
+            const laborCanvas = document.getElementById('admin-chart-labor');
+            const partsCanvas = document.getElementById('admin-chart-parts');
+            const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
+            if (laborCanvas) {
+                adminAccountingCharts.labor = new Chart(laborCanvas, { type: 'bar', data: { labels, datasets: [{ label: 'Mano de Obra', data: stats.laborByDay, backgroundColor: '#3b82f6', borderRadius: 3 }] }, options: commonOptions });
+            }
+            if (partsCanvas) {
+                adminAccountingCharts.parts = new Chart(partsCanvas, { type: 'bar', data: { labels, datasets: [{ label: 'Repuestos', data: stats.partsByDay, backgroundColor: '#22c55e', borderRadius: 3 }] }, options: commonOptions });
+            }
         }
 
         // Input/textarea reutilizable del formulario de detalle de la OT.
@@ -2360,6 +2404,15 @@
         }
 
         function getAdminPanelBodyHTML() {
+            const tabBtn = (tab, icon, label) => `<button onclick="setAdminPanelTab('${tab}')" class="px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${adminPanelTab === tab ? 'bg-red-600 text-white shadow-sm' : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800'}"><i class="fa-solid ${icon}"></i> ${label}</button>`;
+            const tabsHTML = `<div class="max-w-7xl mx-auto mb-4 flex gap-2">
+                ${tabBtn('ordenes', 'fa-car-side', 'Órdenes')}
+                ${tabBtn('contabilidad', 'fa-chart-pie', 'Contabilidad')}
+            </div>`;
+            return tabsHTML + (adminPanelTab === 'contabilidad' ? getAdminAccountingHTML() : getAdminOrdersTabHTML());
+        }
+
+        function getAdminOrdersTabHTML() {
             const today = new Date();
             const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -2469,6 +2522,98 @@
                     <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">${detailFormHTML}</div>
                 </div>
             </div>`;
+        }
+
+        function getAdminAccountingHTML() {
+            const stats = getAccountingStats(adminPanelAccountingMonth);
+            const year = adminPanelAccountingMonth.getFullYear();
+            const month = adminPanelAccountingMonth.getMonth();
+            const monthLabel = adminPanelAccountingMonth.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
+            const marginPct = stats.partsRevenueTotal > 0 ? Math.round((stats.partsProfitTotal / stats.partsRevenueTotal) * 100) : 0;
+            const totalProfit = stats.laborTotal + stats.partsProfitTotal;
+
+            const monthSales = getAllPartsSalesFlat().filter(s => s.year === year && s.month === month);
+            const salesRowsHTML = monthSales.length === 0
+                ? `<tr><td colspan="5" class="text-center py-8 text-neutral-400 text-sm">Sin ventas de repuestos este mes</td></tr>`
+                : monthSales.map(s => `<tr class="border-b border-neutral-100 dark:border-neutral-800">
+                    <td class="py-2 px-2 font-mono text-xs text-neutral-500 whitespace-nowrap">${escapeHtml(s.date)} ${escapeHtml(s.time || '--:--')}</td>
+                    <td class="py-2 px-2 text-sm font-bold text-neutral-700 dark:text-neutral-200">${escapeHtml(s.product)}</td>
+                    <td class="py-2 px-2 text-sm text-center">${s.qty}</td>
+                    <td class="py-2 px-2 text-sm text-right font-mono whitespace-nowrap">$${Math.round(s.unitPrice).toLocaleString('es-CL')}</td>
+                    <td class="py-2 px-2 text-sm text-right font-mono font-bold whitespace-nowrap">$${Math.round(s.total).toLocaleString('es-CL')}</td>
+                </tr>`).join('');
+
+            return `<div class="max-w-7xl mx-auto">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <button onclick="shiftAdminPanelAccountingMonth(-1)" class="w-8 h-8 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-800" title="Mes anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 capitalize w-40 text-center">${monthLabel}</span>
+                        <button onclick="shiftAdminPanelAccountingMonth(1)" class="w-8 h-8 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-800" title="Mes siguiente"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                    </div>
+                    <button onclick="exportAccountingToExcel()" class="text-xs font-bold bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 shadow-sm"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-blue-200 dark:border-blue-900/40 p-4">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wide mb-1">Ganancia Mano de Obra</p>
+                        <p class="text-xl font-black text-blue-600">$${Math.round(stats.laborTotal).toLocaleString('es-CL')}</p>
+                    </div>
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-green-200 dark:border-green-900/40 p-4">
+                        <p class="text-[10px] font-bold text-green-600 uppercase tracking-wide mb-1">Ganancia Repuestos</p>
+                        <p class="text-xl font-black text-green-600">$${Math.round(stats.partsProfitTotal).toLocaleString('es-CL')}</p>
+                        <p class="text-[10px] text-neutral-400 font-bold mt-0.5">Margen ${marginPct}% sobre $${Math.round(stats.partsRevenueTotal).toLocaleString('es-CL')} vendidos</p>
+                    </div>
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+                        <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mb-1">Ganancia Total del Mes</p>
+                        <p class="text-xl font-black text-neutral-800 dark:text-neutral-100">$${Math.round(totalProfit).toLocaleString('es-CL')}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+                        <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-3">Mano de Obra por Día</h3>
+                        <div style="height:220px"><canvas id="admin-chart-labor"></canvas></div>
+                    </div>
+                    <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+                        <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-3">Repuestos por Día</h3>
+                        <div style="height:220px"><canvas id="admin-chart-parts"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+                    <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-list"></i> Historial Detallado de Ventas de Repuestos</h3>
+                    <div class="overflow-x-auto max-h-[50vh] overflow-y-auto">
+                        <table class="w-full text-left">
+                            <thead class="sticky top-0 bg-white dark:bg-neutral-900">
+                                <tr class="border-b border-neutral-200 dark:border-neutral-800 text-[10px] font-bold text-neutral-400 uppercase">
+                                    <th class="py-2 px-2">Fecha / Hora</th><th class="py-2 px-2">Producto</th><th class="py-2 px-2 text-center">Cant.</th><th class="py-2 px-2 text-right">Precio Unit.</th><th class="py-2 px-2 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${salesRowsHTML}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function exportAccountingToExcel() {
+            if (typeof XLSX === 'undefined') {
+                showToast("No se pudo cargar el motor de Excel (revisa tu conexión)", "fa-triangle-exclamation");
+                return;
+            }
+            const year = adminPanelAccountingMonth.getFullYear();
+            const month = adminPanelAccountingMonth.getMonth();
+            const rows = getAllPartsSalesFlat().filter(s => s.year === year && s.month === month).map(s => ({
+                'Fecha': s.date, 'Hora': s.time || '', 'Producto': s.product, 'Cantidad': s.qty,
+                'Precio Unitario': s.unitPrice, 'Total': s.total, 'Ganancia': Math.round(s.profit)
+            }));
+            const wsData = rows.length ? rows : [{ 'Fecha': 'Sin ventas este mes', 'Hora': '', 'Producto': '', 'Cantidad': '', 'Precio Unitario': '', 'Total': '', 'Ganancia': '' }];
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Ventas de Repuestos');
+            const monthSlug = adminPanelAccountingMonth.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }).replace(/[^a-zA-Z0-9]/g, '_');
+            XLSX.writeFile(wb, `Contabilidad_${monthSlug}.xlsx`);
+            showToast("Excel exportado", "fa-file-excel");
         }
 
         function selectAdminPanelOT(id) {
@@ -3065,7 +3210,7 @@
                             const txId = Date.now() + Math.random();
                             
                             if (!state.transactions) state.transactions = [];
-                            state.transactions.push({ id: txId, concept: `Venta O.T: ${invItem.product} (${patient.room})`, amount: salePriceGross, type: 'income', date: dateKey, time: today.toTimeString().slice(0, 5) });
+                            state.transactions.push({ id: txId, concept: `Venta O.T: ${invItem.product} (${patient.room})`, amount: salePriceGross, type: 'income', date: dateKey, time: today.toTimeString().slice(0, 5), category: 'repuesto' });
                             newTask.txId = txId; // Vinculamos la transacción a la tarea por si la borra
 
                             // Registro con fecha exacta (trazabilidad estilo "libro de ventas")
@@ -3318,14 +3463,34 @@
             } 
         }
 
-        function togglePatientTask(patientId, taskId) { 
-            const patient = state.patients.find(p => p.id === patientId); 
-            if(patient) { 
-                const task = patient.tasks.find(t => t.id === taskId); 
-                if(task) { 
-                    task.done = !task.done; 
-                    saveData(); 
-                    
+        function togglePatientTask(patientId, taskId) {
+            const patient = state.patients.find(p => p.id === patientId);
+            if(patient) {
+                const task = patient.tasks.find(t => t.id === taskId);
+                if(task) {
+                    task.done = !task.done;
+
+                    // Mano de obra (tareas sin repuesto asociado, invId): a diferencia
+                    // de un repuesto -que ya queda registrado en Finanzas al agregarlo a
+                    // la OT-, la mano de obra recién se cuenta como ingreso real al
+                    // marcarla como lista. Si se vuelve a desmarcar, se retira de
+                    // Finanzas (igual que un repuesto se devuelve a bodega si se borra).
+                    if (!task.invId) {
+                        if (task.done && !task.txId && (parseFloat(task.price) || 0) > 0) {
+                            const now = new Date();
+                            const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                            const txId = Date.now() + Math.random();
+                            if (!state.transactions) state.transactions = [];
+                            state.transactions.push({ id: txId, concept: `Mano de Obra O.T: ${task.text} (${patient.room})`, amount: parseFloat(task.price) || 0, type: 'income', date: dateKey, time: now.toTimeString().slice(0, 5), category: 'mano_obra' });
+                            task.txId = txId;
+                        } else if (!task.done && task.txId) {
+                            state.transactions = state.transactions.filter(tx => tx.id !== task.txId);
+                            task.txId = null;
+                        }
+                    }
+
+                    saveData();
+
                     const btn = document.getElementById(`btn-ptask-${taskId}`); 
                     const txt = document.getElementById(`txt-ptask-${taskId}`); 
                     if(btn && txt) { 
@@ -3343,9 +3508,17 @@
             if (patient) {
                 const task = patient.tasks.find(t => t.id === taskId);
                 if (task) {
-                    if (field === 'price') task.price = parseFloat(value) || 0;
+                    if (field === 'price') {
+                        task.price = parseFloat(value) || 0;
+                        // Si ya se registró como ingreso de mano de obra, mantiene el
+                        // monto de Finanzas igual al precio editado.
+                        if (task.txId) {
+                            const tx = (state.transactions || []).find(t => t.id === task.txId);
+                            if (tx) tx.amount = task.price;
+                        }
+                    }
                     else task.text = value.trim() || "Sin descripción";
-                    
+
                     saveData();
                     // Recargamos la tarjeta para que el Total y el IVA se actualicen de inmediato
                     if (state.view === 'work_orders') {
@@ -3375,9 +3548,12 @@
                         state.transactions = state.transactions.filter(tx => tx.id !== task.txId);
                     }
                     showToast("Repuesto devuelto a bodega", "fa-rotate-left");
+                } else if (task && task.txId) {
+                    // Tarea de mano de obra ya registrada como ingreso: se retira de Finanzas al borrarla.
+                    state.transactions = state.transactions.filter(tx => tx.id !== task.txId);
                 }
 
-                patient.tasks = patient.tasks.filter(t => t.id !== taskId); 
+                patient.tasks = patient.tasks.filter(t => t.id !== taskId);
                 saveData(); 
                 
                 if (state.view === 'work_orders') {
@@ -4217,6 +4393,7 @@
             item.salesLog.unshift({
                 id: Date.now() + Math.random(),
                 date: dateKey,
+                time: today.toTimeString().slice(0, 5),
                 qty: qty,
                 unitPrice: unitPriceGross,
                 total: Math.round(qty * unitPriceGross),
@@ -4257,6 +4434,61 @@
             const revenue = Math.round(loggedRevenue + untrackedQty * salePriceGross);
             const profit = Math.round(revenue - soldQty * priceGross);
             return { revenue, profit, soldQty, priceGross, salePriceGross };
+        }
+
+        // ===================== CONTABILIDAD (Panel de Administrador) =====================
+        // Aplana el historial de ventas de TODOS los repuestos en una sola lista,
+        // con el producto y la ganancia real de cada venta ya calculada (precio
+        // cobrado menos el costo de ese repuesto), ordenada de la más reciente a
+        // la más antigua -la misma idea que "Historial de Ventas" por ítem, pero
+        // de todo el inventario junto.
+        function getAllPartsSalesFlat() {
+            const rows = [];
+            (state.inventoryList || []).forEach(item => {
+                const priceGross = Math.round((parseFloat(item.price) || 0) * 1.19);
+                (item.salesLog || []).forEach(s => {
+                    const dateParts = (s.date || '').split('-').map(Number);
+                    const qty = parseFloat(s.qty) || 0;
+                    const total = parseFloat(s.total) || 0;
+                    rows.push({
+                        date: s.date || '', time: s.time || '', product: item.product || 'Repuesto',
+                        qty, unitPrice: parseFloat(s.unitPrice) || 0, total, profit: total - qty * priceGross,
+                        year: dateParts[0] || 0, month: (dateParts[1] || 1) - 1, day: dateParts[2] || 1
+                    });
+                });
+            });
+            rows.sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+            return rows;
+        }
+
+        // Ganancia de mano de obra y de repuestos, día por día, para el mes de
+        // `monthDate`. La mano de obra se lee de Finanzas (se registra sola al
+        // marcar la tarea como lista); los repuestos, del historial de ventas de
+        // cada ítem (ya tiene el costo real de cada venta, no solo el ingreso).
+        function getAccountingStats(monthDate) {
+            const year = monthDate.getFullYear();
+            const month = monthDate.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const laborByDay = new Array(daysInMonth).fill(0);
+            const partsByDay = new Array(daysInMonth).fill(0);
+            let laborTotal = 0, partsRevenueTotal = 0, partsProfitTotal = 0;
+
+            (state.transactions || []).forEach(tx => {
+                if (tx.type !== 'income' || tx.category !== 'mano_obra') return;
+                const d = (tx.date || '').split('-').map(Number);
+                if (d[0] !== year || (d[1] - 1) !== month) return;
+                laborByDay[d[2] - 1] += tx.amount || 0;
+                laborTotal += tx.amount || 0;
+            });
+
+            getAllPartsSalesFlat().forEach(s => {
+                if (s.year !== year || s.month !== month) return;
+                partsByDay[s.day - 1] += s.profit;
+                partsRevenueTotal += s.total;
+                partsProfitTotal += s.profit;
+            });
+
+            return { laborByDay, partsByDay, laborTotal, partsRevenueTotal, partsProfitTotal, daysInMonth };
         }
 
         function getInventoryRowHTML(item) {
@@ -4660,7 +4892,8 @@
                     amount: salePriceGross,
                     type: 'income',
                     date: dateKey,
-                    time: today.toTimeString().slice(0, 5)
+                    time: today.toTimeString().slice(0, 5),
+                    category: 'repuesto'
                 });
 
                 // Registro con fecha exacta (trazabilidad estilo "libro de ventas")

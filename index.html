@@ -106,17 +106,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body {
             font-family: 'Roboto Condensed', sans-serif;
             background-color: #fafafa;
-            background-image: 
-                linear-gradient(rgba(23, 23, 23, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(23, 23, 23, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
             -webkit-tap-highlight-color: transparent;
             font-size: 1.1rem; 
             overscroll-behavior-y: none;
@@ -125,9 +121,18 @@
 
         .dark body {
             background-color: #0a0a0a;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Patente dibujada como placa chilena real: blanca con borde fino, se
+           ve igual en modo día y noche porque es un objeto físico. */
+        .plate {
+            display: inline-flex; align-items: center; flex-shrink: 0;
+            height: 24px; padding: 0 8px; border-radius: 4px;
+            background: #fff; color: #111;
+            border: 1px solid rgba(17, 17, 17, 0.55);
+            box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 3px rgba(17, 17, 17, 0.1);
+            font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+            font-variant-numeric: tabular-nums; white-space: nowrap;
         }
 
         input, textarea, button, select, .font-handwriting {
@@ -558,20 +563,6 @@
         </button>
     </div>
     
-    <!-- Decoración de Fondo -->
-    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-10 dark:opacity-5 transition-opacity duration-300">
-        <svg class="absolute -top-20 -left-20 w-[500px] h-[500px] text-neutral-800 dark:text-neutral-600 animate-spin-slow" fill="currentColor" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 464c-114.9 0-208-93.1-208-208S141.1 48 256 48s208 93.1 208 208S370.9 464 256 464z"/>
-            <path d="M256 128c-70.7 0-128 57.3-128 128s57.3 128 128 128s128-57.3 128-128S326.7 128 256 128z M256 320c-35.3 0-64-28.7-64-64s28.7-64 64-64s64 28.7 64 64S291.3 320 256 320z"/>
-            <path d="M256 80V120" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-            <path d="M424 200L384 220" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-            <path d="M360 400L330 370" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-            <path d="M152 400L182 370" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-            <path d="M88 200L128 220" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
-        </svg>
-        <i class="fa-solid fa-wrench text-neutral-400 dark:text-neutral-600 absolute -bottom-10 left-[10%] text-[12rem] rotate-12 opacity-50"></i>
-    </div>
-
     <!-- ========== SIDEBAR DE ESCRITORIO (solo visible en lg+) ========== -->
     <aside id="desktop-sidebar">
 
@@ -2796,176 +2787,208 @@
         function getTeamNotesBoardHTML(mode) {
             const isWriter = mode === 'write';
             const notes = state.mechanicNotes || [];
+            const unseen = notes.filter(n => !n.seen).length;
             const listHTML = notes.length === 0
-                ? `<p class="text-xs text-neutral-400 text-center py-3">Sin avisos por ahora</p>`
-                : notes.slice().reverse().map(n => {
+                ? `<p class="py-2 text-sm text-neutral-500">Sin avisos por ahora</p>`
+                : `<ul class="divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${notes.slice().reverse().map(n => {
                     const statusHTML = n.seen
-                        ? `<span class="text-[10px] font-bold text-green-600 dark:text-green-400 flex items-center gap-1 shrink-0 whitespace-nowrap"><i class="fa-solid fa-check"></i> Visto</span>`
+                        ? `<span class="text-xs text-neutral-500 flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-check text-[10px]"></i>Visto</span>`
                         : (isWriter
-                            ? `<span class="text-[10px] font-bold text-neutral-400 shrink-0 whitespace-nowrap">Sin ver</span>`
-                            : `<button onclick="markMechanicNoteSeen(${n.id})" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 shrink-0 whitespace-nowrap">Marcar visto</button>`);
-                    return `<div class="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg px-3 py-2">
-                        <p class="flex-1 text-sm text-neutral-700 dark:text-neutral-300 break-words">${escapeHtml(n.text)}</p>
-                        ${statusHTML}
-                        <button onclick="deleteMechanicNote(${n.id})" class="text-neutral-400 hover:text-red-500 transition shrink-0" title="Eliminar"><i class="fa-solid fa-xmark"></i></button>
-                    </div>`;
-                }).join('');
+                            ? `<span class="text-xs text-neutral-500 whitespace-nowrap">Sin ver</span>`
+                            : `<button type="button" onclick="markMechanicNoteSeen(${n.id})" class="h-7 px-2.5 rounded-md text-xs text-neutral-700 dark:text-neutral-200 border border-neutral-900/[0.12] dark:border-white/[0.12] hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap">Marcar visto</button>`);
+                    return `<li class="flex items-start gap-3 py-2.5">
+                        <span class="mt-2 w-1.5 h-1.5 shrink-0 rounded-full ${n.seen ? 'bg-transparent' : 'bg-red-600'}" aria-hidden="true"></span>
+                        <p class="flex-1 min-w-0 text-[15px] leading-6 break-words ${n.seen ? 'text-neutral-500' : 'text-neutral-900 dark:text-neutral-100'}">${escapeHtml(n.text)}</p>
+                        <span class="flex items-center gap-1 shrink-0 min-h-6">
+                            ${statusHTML}
+                            <button type="button" onclick="deleteMechanicNote(${n.id})" class="w-7 h-7 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar aviso" aria-label="Eliminar aviso"><i class="fa-solid fa-xmark text-sm"></i></button>
+                        </span>
+                    </li>`;
+                }).join('')}</ul>`;
 
             const writerInputHTML = isWriter ? `
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="new-mechanic-note-input" placeholder="Dejar un aviso para Mecánico..." class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-yellow-500 dark:text-white transition-colors" onkeypress="if(event.key==='Enter') addMechanicNote()">
-                    <button onclick="addMechanicNote()" class="px-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-sm shrink-0"><i class="fa-solid fa-plus"></i></button>
+                <div class="flex gap-2 mb-2">
+                    <input type="text" id="new-mechanic-note-input" placeholder="Aviso para los mecánicos" aria-label="Nuevo aviso" class="flex-1 min-w-0 h-10 px-3 rounded-lg bg-neutral-100 dark:bg-white/[0.06] border border-transparent focus:border-neutral-900/[0.2] dark:focus:border-white/[0.2] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 outline-none transition-colors duration-150" onkeypress="if(event.key==='Enter') addMechanicNote()">
+                    <button type="button" onclick="addMechanicNote()" class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 shrink-0">Agregar</button>
                 </div>` : '';
 
-            return `<h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-600 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fa-solid fa-note-sticky text-yellow-500"></i> Pizarra del Taller</h3>
+            return `<div class="flex items-baseline justify-between gap-3 mb-2">
+                    <h2 class="text-base font-medium text-neutral-900 dark:text-neutral-100">Pizarra del taller</h2>
+                    ${unseen ? `<span class="text-sm tabular-nums text-neutral-500">${unseen} sin ver</span>` : ''}
+                </div>
                 ${writerInputHTML}
-                <div class="flex flex-col gap-2 max-h-[220px] overflow-y-auto hide-scrollbar">${listHTML}</div>`;
+                <div class="max-h-[320px] overflow-y-auto hide-scrollbar">${listHTML}</div>`;
+        }
+
+        // ===================== INICIO =====================
+        // Diseño: fondos grises neutros, un solo acento (el color de marca de
+        // Ajustes) y dos momentos con más detalle: el balance del día y la
+        // agenda con la patente de cada auto dibujada como placa real.
+        const DASH_CARD = 'bg-white dark:bg-neutral-900 rounded-xl border border-neutral-900/[0.08] dark:border-white/[0.08]';
+        const DASH_HOVER = 'hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors duration-150';
+
+        // Patente en formato de placa chilena: KJTR42 -> KJ·TR·42
+        function formatPlateLabel(raw) {
+            const v = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (v.length === 6) return `${v.slice(0, 2)}·${v.slice(2, 4)}·${v.slice(4)}`;
+            return v;
+        }
+        function plateHTML(raw) {
+            const label = formatPlateLabel(raw);
+            return label ? `<span class="plate" title="Patente">${escapeHtml(label)}</span>` : '';
+        }
+
+        function getTodayKey() {
+            const t = new Date();
+            return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+        }
+
+        function getDashboardSummaryHTML() {
+            const dateKey = getTodayKey();
+            const activeCars = (state.patients || []).filter(p => p.status !== 'archivada').length;
+            const pendingTodos = (state.todos || []).filter(t => !t.done).length;
+            const dailyTxs = (state.transactions || []).filter(t => t.date === dateKey);
+            const income = dailyTxs.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0);
+            const expense = dailyTxs.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0);
+            const profit = income - expense;
+            const sign = profit < 0 ? '−' : (profit > 0 ? '+' : '');
+            const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
+            const incomeShare = (income + expense) > 0 ? Math.round(income / (income + expense) * 100) : 0;
+
+            const balanceHTML = state.showFinanceWidget ? `
+                <div class="col-span-2 lg:col-span-1 ${DASH_CARD} p-5 flex flex-col justify-between gap-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-sm text-neutral-600 dark:text-neutral-400">Balance de hoy</p>
+                            <p class="mt-2 text-[40px] leading-none font-medium tabular-nums ${profit < 0 ? 'text-red-600 dark:text-[#e5484d]' : 'text-neutral-900 dark:text-neutral-100'}">${sign}${fmt(Math.abs(profit))}</p>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="openFinanceModal()" class="h-8 px-3 rounded-lg text-sm text-neutral-700 dark:text-neutral-300 ${DASH_HOVER} hover:bg-neutral-100 dark:hover:bg-white/[0.06]">Ver mes</button>
+                            <button type="button" onclick="hideFinanceWidgetDirectly(event)" title="Ocultar balance" aria-label="Ocultar balance" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 ${DASH_HOVER} hover:bg-neutral-100 dark:hover:bg-white/[0.06]"><i class="fa-regular fa-eye-slash text-sm"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="h-1.5 rounded-full bg-neutral-900/[0.08] dark:bg-white/[0.08] overflow-hidden" role="img" aria-label="Ingresos ${incomeShare}% del movimiento de hoy">
+                            <div class="h-full rounded-full bg-[#16a34a] dark:bg-[#4cc38a]" style="width:${incomeShare}%"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm tabular-nums">
+                            <span class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400"><span class="w-2 h-2 rounded-full bg-[#16a34a] dark:bg-[#4cc38a]"></span>Ingresos <span class="text-neutral-900 dark:text-neutral-100">${fmt(income)}</span></span>
+                            <span class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400"><span class="w-2 h-2 rounded-full bg-neutral-900/[0.16] dark:bg-white/[0.16]"></span>Egresos <span class="text-neutral-900 dark:text-neutral-100">${fmt(expense)}</span></span>
+                        </div>
+                    </div>
+                </div>` : '';
+
+            const countCard = (onclick, label, value, caption) => `
+                <button type="button" onclick="${onclick}" class="${DASH_CARD} ${DASH_HOVER} p-5 text-left flex flex-col justify-between gap-3">
+                    <span class="text-sm text-neutral-600 dark:text-neutral-400">${label}</span>
+                    <span>
+                        <span class="block text-[32px] leading-none font-medium tabular-nums text-neutral-900 dark:text-neutral-100">${value}</span>
+                        <span class="block mt-2 text-xs text-neutral-500">${caption}</span>
+                    </span>
+                </button>`;
+
+            return `<section id="dashboard-summary" class="grid grid-cols-2 ${state.showFinanceWidget ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]' : ''} gap-4">
+                ${balanceHTML}
+                ${countCard("renderView('work_orders')", 'En taller', activeCars, activeCars === 1 ? 'vehículo activo' : 'vehículos activos')}
+                ${countCard("renderView('todo')", 'Pendientes', pendingTodos, pendingTodos === 1 ? 'tarea por hacer' : 'tareas por hacer')}
+            </section>`;
+        }
+
+        function getDashboardAgendaHTML() {
+            const dateKey = getTodayKey();
+            const shiftsOn = d => state.shifts[d] && (Array.isArray(state.shifts[d]) ? state.shifts[d].length > 0 : true);
+            const asList = d => Array.isArray(state.shifts[d]) ? state.shifts[d] : [state.shifts[d]];
+            let events = []; let title = 'Agenda de hoy';
+            if (shiftsOn(dateKey)) {
+                events = asList(dateKey);
+            } else {
+                const next = Object.keys(state.shifts).filter(d => d > dateKey).sort().find(shiftsOn);
+                if (next) {
+                    events = asList(next);
+                    const [y, m, d] = next.split('-').map(Number);
+                    title = 'Próxima agenda, ' + new Date(y, m - 1, d).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric' }).replace(',', '');
+                }
+            }
+            const typeIcon = { guardia: 'fa-wrench', dia: 'fa-file-export', noche: 'fa-file-signature', post: 'fa-book', libre: 'fa-car-side' };
+            const rows = events.slice().sort((a, b) => (a.eventTime || '24:00').localeCompare(b.eventTime || '24:00')).map(ev => `
+                <li>
+                    <button type="button" onclick="renderView('turnario')" class="w-full flex items-center gap-3 sm:gap-4 px-5 py-3 text-left ${DASH_HOVER}">
+                        <span class="w-11 shrink-0 text-sm tabular-nums text-neutral-600 dark:text-neutral-400">${ev.eventTime ? escapeHtml(ev.eventTime) : '—'}</span>
+                        <span class="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 items-center justify-center"><i class="fa-solid ${typeIcon[ev.type] || 'fa-calendar-check'} text-[13px]"></i></span>
+                        <span class="flex-1 min-w-0">
+                            <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(ev.note || 'Evento agendado')}</span>
+                            ${ev.client ? `<span class="block text-sm text-neutral-500 truncate">${escapeHtml(ev.client)}</span>` : ''}
+                        </span>
+                        ${plateHTML(ev.plate)}
+                    </button>
+                </li>`).join('');
+
+            return `<section class="${DASH_CARD}">
+                <div class="flex items-baseline justify-between gap-3 px-5 pt-4 pb-3">
+                    <h2 class="text-base font-medium text-neutral-900 dark:text-neutral-100 first-letter:uppercase">${title}</h2>
+                    ${events.length ? `<span class="text-sm tabular-nums text-neutral-500">${events.length} ${events.length === 1 ? 'cita' : 'citas'}</span>` : ''}
+                </div>
+                ${events.length
+                    ? `<ul class="border-t border-neutral-900/[0.06] dark:border-white/[0.06] divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${rows}</ul>`
+                    : `<div class="px-5 pb-5 text-sm text-neutral-500">Sin citas próximas. <button type="button" onclick="renderView('turnario')" class="text-neutral-700 dark:text-neutral-300 underline underline-offset-2 hover:text-neutral-900 dark:hover:text-white">Abrir calendario</button></div>`}
+            </section>`;
         }
 
         function getDashboardHTML() {
-            const today = new Date(); const year = today.getFullYear(); const month = String(today.getMonth() + 1).padStart(2, '0'); const day = String(today.getDate()).padStart(2, '0'); const dateKey = `${year}-${month}-${day}`; 
-            
-            // NUEVO SISTEMA DE RECORDATORIOS PROFESIONAL
-            let reminderHTML = ''; 
-            let eventsToShow = []; let eventDateLabel = '';
-            
-            if (state.shifts[dateKey] && (Array.isArray(state.shifts[dateKey]) ? state.shifts[dateKey].length > 0 : true)) {
-                eventsToShow = Array.isArray(state.shifts[dateKey]) ? state.shifts[dateKey] : [state.shifts[dateKey]];
-                eventDateLabel = 'HOY';
-            } else {
-                const futureDates = Object.keys(state.shifts).filter(d => d > dateKey).sort();
-                for (const d of futureDates) {
-                    if (state.shifts[d] && (Array.isArray(state.shifts[d]) ? state.shifts[d].length > 0 : true)) {
-                        eventsToShow = Array.isArray(state.shifts[d]) ? state.shifts[d] : [state.shifts[d]];
-                        const [ny, nm, nd] = d.split('-').map(Number); const dObj = new Date(ny, nm - 1, nd);
-                        eventDateLabel = dObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
-                        break;
-                    }
-                }
-            }
-
-            if (eventsToShow.length > 0) {
-                eventsToShow.sort((a, b) => (a.eventTime || '24:00').localeCompare(b.eventTime || '24:00'));
-                let eventsList = eventsToShow.map(ev => {
-                    let icon = 'fa-calendar-check'; let color = 'text-blue-500'; let bg = 'bg-blue-100 dark:bg-blue-900/30';
-                    if (ev.type === 'guardia') { icon = 'fa-wrench'; color = 'text-red-500'; bg = 'bg-red-100 dark:bg-red-900/30'; }
-                    else if (ev.type === 'dia') { icon = 'fa-file-export'; color = 'text-blue-500'; bg = 'bg-blue-100 dark:bg-blue-900/30'; }
-                    else if (ev.type === 'noche') { icon = 'fa-file-signature'; color = 'text-indigo-500'; bg = 'bg-indigo-100 dark:bg-indigo-900/30'; }
-                    else if (ev.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-100 dark:bg-yellow-900/30'; }
-                    else if (ev.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-100 dark:bg-green-900/30'; }
-
-                    let clientInfo = ev.client ? `<span class="text-xs bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-2 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-user mr-1 text-neutral-400"></i> ${escapeHtml(ev.client)}</span>` : '';
-                    let plateInfo = ev.plate ? `<span class="text-xs bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded font-bold text-neutral-600 dark:text-neutral-300 ml-1 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag mr-1 text-neutral-400"></i> ${escapeHtml(ev.plate)}</span>` : '';
-                    let timeInfo = ev.eventTime ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${ev.eventTime} hrs</p>` : '<p class="text-xs font-bold text-neutral-600 mt-1">Sin horario definido</p>';
-
-                    return `<div class="flex items-center gap-3 bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-2 hover:border-neutral-300 transition cursor-pointer" onclick="renderView('turnario')">
-                            <div class="w-10 h-10 rounded-xl ${bg} ${color} flex items-center justify-center shrink-0 shadow-inner"><i class="fa-solid ${icon} text-lg"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-y-1"><p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate mr-1">${escapeHtml(ev.note || 'Evento agendado')}</p>${plateInfo} ${clientInfo}</div>
-                                ${timeInfo}
-                            </div>
-                        </div>`;
-                }).join('');
-
-                reminderHTML = `<div class="order-2 bg-neutral-100 dark:bg-neutral-900/50 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700 shrink-0 shadow-inner">
-                        <div class="flex justify-between items-center mb-3 pl-1">
-                            <h3 class="text-xs font-bold text-neutral-500 dark:text-neutral-600 uppercase tracking-wide flex items-center gap-2"><i class="fa-solid fa-bell text-yellow-500 text-sm"></i> Agenda: <span class="text-neutral-700 dark:text-neutral-300 capitalize">${eventDateLabel}</span></h3>
-                            <span class="text-xs font-bold bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded border border-yellow-200 dark:border-yellow-800 shadow-sm">${eventsToShow.length} ${eventsToShow.length === 1 ? 'registro' : 'registros'}</span>
-                        </div>
-                        <div class="max-h-[250px] overflow-y-auto hide-scrollbar pr-1">${eventsList}</div>
-                    </div>`;
-            }
-
-            const pendingTodos = (state.todos || []).filter(t => !t.done);
-            const activeCars = (state.patients || []).filter(p => p.status !== 'archivada').length;
-            
-            // Lógica Cálculo Balance Diario
-            const dailyTxs = (state.transactions || []).filter(t => t.date === dateKey);
-            const dailyIncome = dailyTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const dailyExpense = dailyTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const dailyProfit = dailyIncome - dailyExpense;
-            const signStr = dailyProfit < 0 ? '-' : (dailyProfit > 0 ? '+' : '');
-            const profitColor = dailyProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-            const profitBg = dailyProfit >= 0 ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30';
-            
-            const displayClass = state.showFinanceWidget ? 'flex' : 'hidden';
-
-            const financeWidgetHTML = `
-                <div id="finance-widget-container" class="${displayClass} items-center justify-between p-2.5 rounded-lg border transition-all duration-300 shadow-sm group ${profitBg} relative mt-3">
-                    <div class="flex items-center gap-2.5 cursor-pointer w-full" onclick="openFinanceModal()" title="Ver historial y resumen mensual">
-                        <div id="finance-widget-icon-bg" class="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center shadow-sm group-hover:scale-105 transition shrink-0 ${profitColor}"><i class="fa-solid fa-wallet text-xl"></i></div>
-                        <div class="${profitColor}" id="finance-widget-text-color">
-                            <p class="text-xs font-bold uppercase tracking-widest opacity-80 leading-none mb-1 text-neutral-500 dark:text-neutral-600">Balance Hoy</p>
-                            <p class="text-[11px] font-bold leading-none hover:underline opacity-90"><i class="fa-solid fa-chart-line mr-1"></i>Ver Resumen Mensual</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end shrink-0 pl-2">
-                        <button onclick="hideFinanceWidgetDirectly(event)" class="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center text-neutral-600 hover:text-red-500 transition rounded hover:bg-black/5 dark:hover:bg-white/5" title="Ocultar Balance"><i class="fa-solid fa-eye-slash text-xs"></i></button>
-                        <span id="finance-widget-amount" class="text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5">${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}</span>
-                    </div>
-                </div>`;
-
-            const profileImageSrc = state.userProfileImage || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="#dc2626"/><text x="32" y="40" text-anchor="middle" fill="#fff" font-size="28" font-family="sans-serif" font-weight="bold">MEC</text></svg>');
+            const today = new Date();
+            const dateTitle = today.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
             const displayUserName = state.userName || 'Usuario';
             const displayUserTitle = state.userTitle || 'Estudiante';
+            const initials = displayUserName.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'M';
 
-            const mechanicNotesHTML = `
-                <div class="order-2 bg-white dark:bg-neutral-900 rounded-xl p-4 border border-yellow-200 dark:border-yellow-900/50 shrink-0 shadow-sm">
-                    ${getTeamNotesBoardHTML(state.currentProfile === 'administrador' ? 'write' : 'read')}
-                </div>`;
+            const avatarHTML = state.userProfileImage
+                ? `<img src="${escapeHtml(state.userProfileImage)}" alt="" class="w-full h-full object-cover">`
+                : `<span class="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-medium">${escapeHtml(initials)}</span>`;
 
-            return `<div class="flex flex-col gap-6 w-full lg:max-w-2xl mx-auto pb-20 lg:p-6 hide-scrollbar fade-enter">
-            
-            <div class="order-1 flex flex-col bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 shrink-0">
-                <div class="flex items-center gap-4 ${state.showFinanceWidget ? 'border-b border-neutral-100 dark:border-neutral-800 pb-2' : ''}" id="profile-card-header">
-                    <div class="relative w-20 h-20 shrink-0 group cursor-pointer"><div class="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div><label for="profile-upload" class="cursor-pointer"><img src="${profileImageSrc}" class="w-20 h-20 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-800 shadow relative z-10 group-hover:opacity-80 transition" onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 fill=%22%23dc2626%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2228%22 font-family=%22sans-serif%22 font-weight=%22bold%22>MEC</text></svg>')"><div class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera text-white text-sm"></i></div></label><input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)"><div class="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center z-20 pointer-events-none text-white"><i class="fa-solid fa-check text-xs"></i></div></div>
-                    <div class="flex-1">
-                        <p class="text-xs text-neutral-600 dark:text-neutral-500 font-bold tracking-widest cursor-pointer select-none" onclick="openTitleModal()">${displayUserTitle}</p>
-                        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100 leading-tight flex items-center gap-2 cursor-pointer hover:text-red-600 transition" onclick="openNameModal()">Hola, ${displayUserName} <i class="fa-solid fa-pen-to-square text-sm text-neutral-300"></i></h2>
+            const quickAction = (onclick, icon, label) => `
+                <button type="button" onclick="${onclick}" class="${DASH_CARD} ${DASH_HOVER} p-3 lg:px-4 flex flex-col lg:flex-row items-center gap-2 lg:gap-3 text-center lg:text-left">
+                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-600 dark:text-neutral-300 flex items-center justify-center"><i class="fa-solid ${icon} text-[15px]"></i></span>
+                    <span class="text-[13px] leading-4 text-neutral-700 dark:text-neutral-300">${label}</span>
+                </button>`;
+
+            return `<div class="w-full max-w-6xl mx-auto lg:px-2 lg:pt-2 pb-24 lg:pb-8 flex flex-col gap-6 fade-enter">
+                <header class="flex items-center gap-4">
+                    <label for="profile-upload" class="relative w-12 h-12 shrink-0 rounded-full overflow-hidden cursor-pointer group" title="Cambiar foto">
+                        ${avatarHTML}
+                        <span class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center text-white"><i class="fa-solid fa-camera text-xs"></i></span>
+                    </label>
+                    <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)">
+                    <div class="min-w-0">
+                        <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100 first-letter:uppercase">${escapeHtml(dateTitle)}</h1>
+                        <p class="flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400 min-w-0">
+                            <button type="button" onclick="openNameModal()" title="Editar nombre" class="truncate hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150">${escapeHtml(displayUserName)}</button>
+                            <span aria-hidden="true">·</span>
+                            <button type="button" onclick="openTitleModal()" title="Editar cargo" class="truncate hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150">${escapeHtml(displayUserTitle)}</button>
+                        </p>
+                    </div>
+                </header>
+
+                ${getDashboardSummaryHTML()}
+
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-6 items-start">
+                    <div class="flex flex-col gap-6 min-w-0">
+                        ${getDashboardAgendaHTML()}
+                    </div>
+                    <div class="flex flex-col gap-6 min-w-0">
+                        <section class="${DASH_CARD} p-5">
+                            ${getTeamNotesBoardHTML(state.currentProfile === 'administrador' ? 'write' : 'read')}
+                        </section>
+                        <section>
+                            <h2 class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-3">Accesos rápidos</h2>
+                            <div class="grid grid-cols-4 lg:grid-cols-2 gap-3">
+                                ${quickAction("renderView('work_orders'); setTimeout(() => openPatientModal(), 100);", 'fa-car-side', 'Nuevo vehículo')}
+                                ${quickAction("setActiveShopTab('items')", 'fa-cart-shopping', 'Lista de compras')}
+                                ${quickAction("renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)", 'fa-pen', 'Escribir apunte')}
+                                ${quickAction("setInfoTab('pdf'); if(state.view !== 'links') renderView('links');", 'fa-book-open', 'Abrir manual')}
+                            </div>
+                        </section>
                     </div>
                 </div>
-                ${financeWidgetHTML}
-            </div>
-            
-            ${reminderHTML}
-
-            ${mechanicNotesHTML}
-
-            <div class="order-3 shrink-0 mt-2">
-                <h3 class="text-xs font-bold text-neutral-600 dark:text-neutral-500 uppercase tracking-wide mb-3 ml-1"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Accesos Rápidos</h3>
-                <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-                    <div onclick="renderView('work_orders'); setTimeout(() => openPatientModal(), 100);" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition"><i class="fa-solid fa-car-side text-lg sm:text-2xl"></i></div>
-                        <span class="text-xs sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Nuevo<br>Vehículo</span>
-                    </div>
-                    
-                    <div onclick="setActiveShopTab('items')" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition"><i class="fa-solid fa-cart-shopping text-lg sm:text-2xl"></i></div>
-                        <span class="text-xs sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Lista<br>Compras</span>
-                    </div>
-                    
-                    <div onclick="renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-yellow-500 dark:hover:border-yellow-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/40 transition"><i class="fa-solid fa-pen-clip text-lg sm:text-2xl"></i></div>
-                        <span class="text-xs sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Escribir<br>Apunte</span>
-                    </div>
-                    
-                    <div onclick="setInfoTab('pdf'); if(state.view !== 'links') renderView('links');" class="bg-white dark:bg-neutral-900 p-3 md:p-0 md:aspect-square rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 md:rounded-2xl md:dark:border-neutral-800 flex flex-col items-center justify-center gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-md transition group cursor-pointer text-center">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition"><i class="fa-solid fa-file-pdf text-lg sm:text-2xl"></i></div>
-                        <span class="text-xs sm:text-xs font-bold text-neutral-600 dark:text-neutral-300 leading-tight">Abrir<br>Manual</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="order-4 grid grid-cols-2 gap-3 shrink-0 mt-2">
-                <div onclick="renderView('work_orders')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-blue-400 transition group cursor-pointer">
-                    <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${activeCars}</div>
-                    <span class="text-xs font-bold text-neutral-500 dark:text-neutral-600 tracking-wide uppercase">En Taller</span>
-                </div>
-                <div onclick="renderView('todo')" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-red-400 transition group cursor-pointer">
-                    <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100 group-hover:scale-110 transition">${pendingTodos.length}</div>
-                    <span class="text-xs font-bold text-neutral-500 dark:text-neutral-600 tracking-wide uppercase">Pendientes</span>
-                </div>
-            </div>
             </div>`;
         }
 
@@ -6618,55 +6641,8 @@
 
         // --- SISTEMA FINANCIERO (MODAL) ---
         function updateDashboardFinanceDOM() {
-            const container = document.getElementById('finance-widget-container');
-            const header = document.getElementById('profile-card-header');
-            if (!container) return; // Si no está en el dashboard ignora
-
-            if (!state.showFinanceWidget) {
-                container.classList.remove('flex');
-                container.classList.add('hidden');
-                if(header) header.className = "flex items-center gap-4"; // Quita el borde inferior
-                return;
-            } else {
-                container.classList.remove('hidden');
-                container.classList.add('flex');
-                if(header) header.className = "flex items-center gap-4 border-b border-neutral-100 dark:border-neutral-800 pb-2";
-            }
-
-            const today = new Date(); 
-            const year = today.getFullYear(); 
-            const month = String(today.getMonth() + 1).padStart(2, '0'); 
-            const day = String(today.getDate()).padStart(2, '0'); 
-            const dateKey = `${year}-${month}-${day}`;
-
-            const dailyTxs = (state.transactions || []).filter(t => t.date === dateKey);
-            const dailyIncome = dailyTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const dailyExpense = dailyTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const dailyProfit = dailyIncome - dailyExpense;
-            const signStr = dailyProfit < 0 ? '-' : (dailyProfit > 0 ? '+' : '');
-
-            const isPositive = dailyProfit >= 0;
-            const profitColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-            
-            const baseClass = "items-center justify-between p-2.5 rounded-lg border transition-all duration-300 shadow-sm group relative mt-3";
-            const bgClass = isPositive ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30';
-            container.className = `flex ${baseClass} ${bgClass}`;
-
-            const amountEl = document.getElementById('finance-widget-amount');
-            if (amountEl) {
-                amountEl.innerText = `${signStr}$${Math.abs(dailyProfit).toLocaleString('es-CL')}`;
-                amountEl.className = `text-2xl font-black ${profitColor} tracking-tight mr-1 mt-2.5`;
-            }
-
-            const iconBg = document.getElementById('finance-widget-icon-bg');
-            if (iconBg) {
-                iconBg.className = `w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center shadow-sm group-hover:scale-105 transition shrink-0 ${profitColor}`;
-            }
-            
-            const textColor = document.getElementById('finance-widget-text-color');
-            if (textColor) {
-                textColor.className = profitColor;
-            }
+            const summary = document.getElementById('dashboard-summary');
+            if (summary) summary.outerHTML = getDashboardSummaryHTML();
         }
 
         function openFinanceModal() {

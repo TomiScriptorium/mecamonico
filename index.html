@@ -2992,26 +2992,16 @@
             </div>`;
         }
 
-        function createPatientTaskHTML(t, patientId) { 
-            const priceValue = t.price || 0;
-            const isProduct = !!t.invId; // Detecta si viene de la bodega
-            const icon = isProduct ? `<i class="fa-solid fa-box text-xs text-green-500 mr-1.5" title="Repuesto de Bodega"></i>` : ``;
-            
-            return `<div id="patient-task-${t.id}" class="flex items-center gap-1 group/task mb-1 item-enter">
-                <button onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" class="text-sm ${t.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition shrink-0"><i class="fa-${t.done ? 'solid' : 'regular'} fa-square-check"></i></button>
-                
-                <div class="flex items-center flex-1 min-w-0 bg-transparent ${t.done ? 'text-neutral-600 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'} hover:bg-neutral-50 dark:hover:bg-neutral-800/30 rounded px-1 transition">
-                    ${icon}
-                    <input type="text" id="txt-ptask-${t.id}" value="${escapeHtml(t.text)}" onchange="updatePatientTask(${patientId}, ${t.id}, 'text', this.value)" class="text-sm bg-transparent outline-none w-full truncate" placeholder="Descripción...">
-                </div>
-                
-                <div class="flex items-center shrink-0 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 rounded px-1 transition">
-                    <span class="text-xs font-bold ${t.price ? 'text-red-500' : 'text-neutral-600'}">$</span>
-                    <input type="number" value="${priceValue === 0 ? '' : priceValue}" placeholder="0" onchange="updatePatientTask(${patientId}, ${t.id}, 'price', this.value)" class="text-xs font-bold ${t.price ? 'text-red-500' : 'text-neutral-600'} w-14 sm:w-16 bg-transparent outline-none text-right" min="0">
-                </div>
-
-                <button onclick="deletePatientTask(${patientId}, ${t.id})" class="text-neutral-200 dark:text-neutral-700 hover:text-red-400 opacity-0 group-hover/task:opacity-100 transition shrink-0 px-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>`; 
+        function createPatientTaskHTML(t, patientId) {
+            const price = parseFloat(t.price) || 0;
+            const isProduct = !!t.invId;
+            return `<li id="patient-task-${t.id}" class="group/task flex items-center gap-2 py-2">
+                <button type="button" onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" aria-label="${t.done ? 'Marcar como pendiente' : 'Marcar como lista'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${t.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${t.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}</button>
+                ${isProduct ? '<i class="fa-solid fa-box text-[11px] text-neutral-400 shrink-0" title="Repuesto de bodega"></i>' : ''}
+                <input type="text" id="txt-ptask-${t.id}" value="${escapeHtml(t.text)}" onchange="updatePatientTask(${patientId}, ${t.id}, 'text', this.value)" aria-label="Descripción" class="flex-1 min-w-0 bg-transparent outline-none text-[15px] truncate rounded px-1 -mx-1 focus:bg-neutral-100 dark:focus:bg-white/[0.06] ${t.done ? 'text-neutral-500 line-through decoration-neutral-400' : 'text-neutral-900 dark:text-neutral-100'}" placeholder="Descripción">
+                <button type="button" onclick="deletePatientTask(${patientId}, ${t.id})" aria-label="Eliminar línea" title="Eliminar línea" class="w-6 h-6 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover/task:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><i class="fa-solid fa-xmark text-xs"></i></button>
+                <input type="text" inputmode="numeric" value="${price ? '$' + price.toLocaleString('es-CL') : ''}" placeholder="$0" aria-label="Valor" onchange="updatePatientTask(${patientId}, ${t.id}, 'price', this.value.replace(/[^0-9]/g, ''))" class="w-20 shrink-0 bg-transparent outline-none text-right text-sm tabular-nums rounded px-0.5 focus:bg-neutral-100 dark:focus:bg-white/[0.06] ${t.done ? 'text-neutral-500' : 'text-neutral-700 dark:text-neutral-300'}">
+            </li>`;
         }
 
         function createPatientCardHTML(p) { 
@@ -3060,149 +3050,122 @@
         function getWorkOrdersHTML() {
             const patients = (state.patients || []).filter(p => p.status !== 'archivada');
             const totalCars = patients.length;
-            const totalTasks = patients.reduce((acc, p) => acc + p.tasks.length, 0);
-            const doneTasks = patients.reduce((acc, p) => acc + p.tasks.filter(t => t.done).length, 0);
-            const globalProgress = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
+            const readyCount = patients.filter(p => p.tasks.length > 0 && p.tasks.every(t => t.done)).length;
+            const btn2 = 'h-9 px-3.5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center gap-2 whitespace-nowrap hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150';
 
-            const cardsHTML = patients.length === 0 
-                ? `<div class="col-span-full text-center py-20 opacity-50 fade-enter">
-                    <div class="w-24 h-24 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-car-side text-5xl text-neutral-300 dark:text-neutral-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-neutral-600 dark:text-neutral-500">Taller Vacío</h3>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-600">Ingresa un vehículo para comenzar.</p>
-                    <button onclick="openPatientModal()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-blue-700 transition">Ingresar Vehículo</button>
+            const cardsHTML = patients.length === 0
+                ? `<div class="col-span-full ${DASH_CARD} px-6 py-12 text-center">
+                    <p class="text-base font-medium text-neutral-900 dark:text-neutral-100">Sin vehículos en taller</p>
+                    <p class="mt-1 text-sm text-neutral-500">Cuando ingreses un vehículo, su orden de trabajo aparece aquí</p>
+                    <button type="button" onclick="openPatientModal()" class="mt-5 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Nueva orden</button>
                    </div>`
                 : patients.map(p => createWorkOrderCardHTML(p)).join('');
 
             return `
-                <div class="flex flex-col h-full fade-enter">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 shrink-0">
-                        <div class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-600">
-                            <span class="text-xs font-bold text-neutral-600 dark:text-neutral-500 uppercase tracking-wide">Vehículos</span>
-                            <div class="text-3xl font-black text-neutral-800 dark:text-neutral-100">${totalCars}</div>
+                <div class="w-full max-w-7xl mx-auto lg:px-2 lg:pt-2 pb-32 lg:pb-8 flex flex-col gap-5 fade-enter">
+                    <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                        <div>
+                            <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100">Taller</h1>
+                            <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400"><span class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">${totalCars}</span> ${totalCars === 1 ? 'vehículo' : 'vehículos'} en taller${readyCount ? ` · ${readyCount} ${readyCount === 1 ? 'orden lista' : 'órdenes listas'} para entregar` : ''}</p>
                         </div>
-                        <div onclick="openPriceListModal()" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 border-l-4 border-l-red-500 flex items-center justify-between hover:border-red-500 hover:shadow-md transition group cursor-pointer active:scale-[0.98]">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center group-hover:bg-red-100 group-hover:scale-110 transition shadow-inner shrink-0">
-                                    <i class="fa-solid fa-list-ul text-lg"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-wide leading-tight">Lista de Precios</h3>
-                                    <p class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-0.5">Catálogo de servicios</p>
-                                </div>
-                            </div>
-                            <div class="w-6 h-6 shrink-0 rounded bg-neutral-50 dark:bg-neutral-800 text-neutral-600 group-hover:text-red-500 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition shadow-sm border border-transparent group-hover:border-red-200 dark:group-hover:border-red-800">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="openPriceListModal()" class="${btn2}"><i class="fa-solid fa-list-ul text-[13px] text-neutral-500"></i><span class="lg:hidden">Precios</span><span class="hidden lg:inline">Lista de precios</span></button>
+                            <button type="button" onclick="openHistoryModal()" class="${btn2}"><i class="fa-solid fa-clock-rotate-left text-[13px] text-neutral-500"></i>Historial</button>
+                            <button type="button" onclick="openPatientModal()" class="flex-1 lg:flex-none h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><i class="fa-solid fa-plus text-[13px]"></i>Nueva orden</button>
                         </div>
-                        <div class="col-span-2 bg-gradient-to-r from-neutral-800 to-neutral-900 text-white p-4 rounded shadow-lg flex justify-between items-center cursor-pointer hover:shadow-xl transition relative overflow-hidden group" onclick="openPatientModal()">
-                            <div class="relative z-10">
-                                <h3 class="font-bold text-lg"><i class="fa-solid fa-plus-circle text-blue-400 mr-2"></i>Nueva Orden</h3>
-                                <p class="text-xs text-neutral-600">Ingresar vehículo a taller</p>
-                            </div>
-                            <i class="fa-solid fa-wrench text-6xl absolute -right-2 -bottom-4 opacity-10 group-hover:opacity-20 transition rotate-12"></i>
-                        </div>
+                    </header>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500"></i>
+                        <input type="text" placeholder="Buscar modelo, patente o cliente" aria-label="Buscar órdenes" class="w-full h-10 pl-10 pr-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" oninput="filterWorkOrders(this.value)">
                     </div>
-                    <div class="mb-4 flex gap-2 relative">
-                        <div class="relative flex-1">
-                            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                            <input type="text" placeholder="Buscar por modelo o patente..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-blue-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterWorkOrders(this.value)">
-                        </div>
-                        <button onclick="openHistoryModal()" class="w-[46px] h-[46px] bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Ver Historial">
-                            <i class="fa-solid fa-clock-rotate-left text-xl"></i>
-                        </button>
-                    </div>
-                    <div id="work-orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-32">
+                    <div id="work-orders-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
                         ${cardsHTML}
                     </div>
                 </div>
             `;
         }
 
+        // "hoy 10:32", "ayer 13:32" o "30 oct 13:32"
+        function formatReceptionLabel(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            const time = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
+            const startOf = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+            const days = Math.round((startOf(new Date()) - startOf(d)) / 864e5);
+            if (days === 0) return `hoy ${time}`;
+            if (days === 1) return `ayer ${time}`;
+            return `${d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }).replace('.', '')} ${time}`;
+        }
+
+        // Orden de trabajo leída como una OT de papel: líneas con su precio en
+        // una sola columna y al pie Subtotal, IVA y Total, como una boleta.
         function createWorkOrderCardHTML(p) {
             const totalTasks = p.tasks.length;
             const done = p.tasks.filter(t => t.done).length;
             const pct = totalTasks === 0 ? 0 : Math.round((done / totalTasks) * 100);
-            
-            // Calculadora de Totales
+            const complete = totalTasks > 0 && done === totalTasks;
             const subtotal = p.tasks.reduce((sum, t) => sum + (parseFloat(t.price) || 0), 0);
             const iva = Math.round(subtotal * 0.19);
             const total = subtotal + iva;
-            
-            let progressColor = 'bg-blue-600';
-            let borderColor = 'border-l-blue-600';
-            if (pct === 100 && totalTasks > 0) { progressColor = 'bg-green-500'; borderColor = 'border-l-green-500'; }
-            else if (totalTasks === 0) { progressColor = 'bg-neutral-400'; borderColor = 'border-l-neutral-400'; }
+            const money = n => '$' + Math.round(n).toLocaleString('es-CL');
+            const clientLabel = getPatientClientLabel(p);
+            const isAdmin = state.currentProfile === 'administrador';
+            const plate = formatPlateLabel(p.room);
+            const metaParts = [p.otNumber ? `OT-${String(p.otNumber).padStart(4, '0')}` : '', formatReceptionLabel(p.receptionDate)].filter(Boolean);
+            const editLink = 'hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150';
+
+            const adminExtra = isAdmin ? `
+                <div class="mt-2 flex flex-col items-start gap-0.5 text-sm text-neutral-500">
+                    <button type="button" onclick="editPatientRut(${p.id})" class="${editLink}" title="Editar RUT">${p.clientRut ? 'RUT ' + escapeHtml(p.clientRut) : 'Agregar RUT'}</button>
+                    <button type="button" onclick="editPatientAddress(${p.id})" class="text-left ${editLink}" title="Editar dirección">${p.clientAddress ? escapeHtml(p.clientAddress) : 'Agregar dirección'}</button>
+                </div>` : '';
 
             const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join('');
 
-            let contactDisplay = '';
-            if (p.contact) {
-                contactDisplay = `<a href="tel:${escapeHtml(p.contact)}" class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded border border-green-200 dark:border-green-800 hover:bg-green-100 transition mt-1 w-fit">
-                    <i class="fa-solid fa-phone"></i> ${escapeHtml(p.contact)}
-                </a>`;
-            }
-
-            const clientLabel = getPatientClientLabel(p);
-            const clientDisplay = `<p onclick="editPatientClientName(${p.id})" class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-1 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-user text-[10px] mr-1 opacity-70"></i>${clientLabel ? escapeHtml(clientLabel) : 'Agregar nombre del cliente'}</p>`;
-
-            const isAdmin = state.currentProfile === 'administrador';
-            const receptionDisplay = p.receptionDate ? `<span class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600" title="Fecha y hora de recepción"><i class="fa-regular fa-clock mr-1"></i>${new Date(p.receptionDate).toLocaleString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>` : '';
-            let adminExtraDisplay = '';
-            if (isAdmin) {
-                adminExtraDisplay = `<div class="mt-1.5 pt-1.5 border-t border-dashed border-neutral-200 dark:border-neutral-700 space-y-0.5">
-                    <p onclick="editPatientRut(${p.id})" class="text-[11px] font-bold text-neutral-500 dark:text-neutral-600 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-id-card text-[10px] mr-1 opacity-70"></i>${p.clientRut ? escapeHtml(p.clientRut) : 'Agregar RUT'}</p>
-                    <p onclick="editPatientAddress(${p.id})" class="text-[11px] font-bold text-neutral-500 dark:text-neutral-600 cursor-pointer hover:text-blue-600 transition w-fit"><i class="fa-solid fa-location-dot text-[10px] mr-1 opacity-70"></i>${p.clientAddress ? escapeHtml(p.clientAddress) : 'Agregar dirección'}</p>
-                </div>`;
-            }
-
-            return `<div id="wo-card-${p.id}" class="work-order-card bg-white dark:bg-neutral-900 rounded md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-300 dark:border-neutral-700 md:dark:border-transparent border-l-4 ${borderColor} p-0 overflow-hidden flex flex-col group" data-search="${escapeHtml(getPatientVehicleLabel(p).toLowerCase())} ${escapeHtml(clientLabel.toLowerCase())} ${escapeHtml(p.room.toLowerCase())}">
-                    <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-1.5 flex-wrap mb-1">
-                                ${p.otNumber ? `<span class="inline-block px-2 py-0.5 rounded bg-neutral-800 dark:bg-neutral-700 text-white text-xs font-bold tracking-wide shadow-sm" title="N° de Orden de Trabajo">OT-${String(p.otNumber).padStart(4, '0')}</span>` : ''}
-                                <span onclick="editPatientRoom(${p.id})" class="inline-block px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold tracking-widest shadow-sm cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 hover:text-blue-700 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i>${escapeHtml(p.room)}</span>
-                                ${receptionDisplay}
-                            </div>
-                            <div class="flex items-center">
-                                <h4 onclick="editPatientVehicleModel(${p.id})" class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none cursor-pointer hover:text-blue-600 transition" title="Editar modelo">${escapeHtml(getPatientVehicleLabel(p))}</h4>
-                            </div>
-                            ${clientDisplay}
-                            ${contactDisplay}
-                            <p class="text-sm font-bold text-neutral-500 dark:text-neutral-600 mt-1 truncate"><i class="fa-solid fa-wrench text-xs mr-1 opacity-70"></i> ${escapeHtml(p.dx)}</p>
-                            ${adminExtraDisplay}
+            return `<article id="wo-card-${p.id}" class="work-order-card ${DASH_CARD} flex flex-col" data-search="${escapeHtml(getPatientVehicleLabel(p).toLowerCase())} ${escapeHtml(clientLabel.toLowerCase())} ${escapeHtml(String(p.room || '').toLowerCase())}">
+                    <div class="p-5 pb-4">
+                        <div class="flex items-center gap-3">
+                            ${plate ? `<button type="button" onclick="editPatientRoom(${p.id})" class="plate cursor-pointer" title="Editar patente">${escapeHtml(plate)}</button>` : `<button type="button" onclick="editPatientRoom(${p.id})" class="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-2">Agregar patente</button>`}
+                            <span class="flex-1 min-w-0 truncate text-sm text-neutral-500 tabular-nums">${escapeHtml(metaParts.join(' · '))}</span>
+                            <button type="button" onclick="deletePatient(${p.id})" class="w-8 h-8 -mr-1.5 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Archivar orden" aria-label="Archivar orden"><i class="fa-solid fa-box-archive text-sm"></i></button>
                         </div>
-                        <button onclick="deletePatient(${p.id})" class="w-11 h-11 flex items-center justify-center rounded-full text-neutral-300 hover:bg-red-50 hover:text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                        <h3 class="mt-3"><button type="button" onclick="editPatientVehicleModel(${p.id})" class="text-left text-lg leading-6 font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors duration-150" title="Editar modelo">${escapeHtml(getPatientVehicleLabel(p))}</button></h3>
+                        <p class="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-neutral-600 dark:text-neutral-400">
+                            <button type="button" onclick="editPatientClientName(${p.id})" class="${editLink}" title="Editar cliente">${clientLabel ? escapeHtml(clientLabel) : 'Agregar cliente'}</button>
+                            ${p.contact ? `<span aria-hidden="true">·</span><a href="tel:${escapeHtml(p.contact)}" class="tabular-nums ${editLink}">${escapeHtml(p.contact)}</a>` : ''}
+                        </p>
+                        ${adminExtra}
+                        <p class="mt-3 flex gap-2 text-sm text-neutral-600 dark:text-neutral-400"><i class="fa-solid fa-wrench text-[12px] text-neutral-400 mt-1"></i><span class="min-w-0 break-words">${escapeHtml(p.dx)}</span></p>
                     </div>
-                    <div class="h-1.5 w-full bg-neutral-200 dark:bg-neutral-700">
-                        <div class="h-full ${progressColor} transition-all duration-500" style="width: ${pct}%"></div>
+
+                    <div class="px-5">
+                        <div class="flex items-baseline justify-between text-sm">
+                            <span class="text-neutral-600 dark:text-neutral-400">${totalTasks ? `${done} de ${totalTasks} ${totalTasks === 1 ? 'lista' : 'listas'}` : 'Sin tareas todavía'}</span>
+                            ${totalTasks ? `<span class="tabular-nums ${complete ? 'text-[#16a34a] dark:text-[#4cc38a]' : 'text-neutral-500'}">${complete ? 'Lista para entregar' : pct + '%'}</span>` : ''}
+                        </div>
+                        <div class="mt-2 h-1 rounded-full bg-neutral-900/[0.08] dark:bg-white/[0.08] overflow-hidden"><div class="h-full rounded-full ${complete ? 'bg-[#16a34a] dark:bg-[#4cc38a]' : 'bg-neutral-800 dark:bg-neutral-300'}" style="width:${pct}%"></div></div>
                     </div>
-                    <div class="p-4 flex-1 flex flex-col min-h-[150px]">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-neutral-600 uppercase tracking-wide">Detalles (${done}/${totalTasks})</span>
-                            <span class="text-xs font-bold ${pct === 100 && totalTasks > 0 ? 'text-green-500' : 'text-blue-500'}">${pct}%</span>
+
+                    <ul id="wo-tasks-${p.id}" class="px-5 mt-2 divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${tasksHTML}</ul>
+
+                    <dl class="mx-5 mt-2 pt-3 border-t border-neutral-900/[0.08] dark:border-white/[0.08] text-sm tabular-nums">
+                        <div class="flex justify-between text-neutral-500"><dt>Subtotal</dt><dd>${money(subtotal)}</dd></div>
+                        <div class="flex justify-between text-neutral-500 mt-1"><dt>IVA 19%</dt><dd>${money(iva)}</dd></div>
+                        <div class="flex justify-between mt-2 text-base font-medium text-neutral-900 dark:text-neutral-100"><dt>Total</dt><dd>${money(total)}</dd></div>
+                    </dl>
+
+                    <div class="px-5 pt-4 flex items-center gap-2">
+                        <div class="flex-1 min-w-0 relative">
+                            <input type="text" id="new-task-input-${p.id}-lg" placeholder="Servicio o repuesto" aria-label="Agregar servicio o repuesto" class="w-full h-9 px-3 rounded-lg bg-neutral-100 dark:bg-white/[0.06] border border-transparent focus:border-neutral-900/[0.2] dark:focus:border-white/[0.2] outline-none text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" onkeyup="showServiceSuggestions(this.value, ${p.id})" onfocus="showServiceSuggestions(this.value, ${p.id})" onblur="setTimeout(()=>hideServiceSuggestions(${p.id}), 200)" onkeypress="if(event.key === 'Enter') document.getElementById('new-task-price-${p.id}-lg').focus()" autocomplete="off">
+                            <div id="service-suggestions-${p.id}" class="hidden absolute bottom-[110%] left-0 w-full mb-1 bg-white dark:bg-neutral-800 border border-neutral-900/[0.1] dark:border-white/[0.1] rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] max-h-40 overflow-y-auto z-20 text-sm"></div>
                         </div>
-                        <div class="flex-1 overflow-y-auto hide-scrollbar max-h-[200px] space-y-1 mb-3" id="wo-tasks-${p.id}">
-                            ${tasksHTML.length ? tasksHTML : '<p class="text-center text-xs text-neutral-300 italic py-4">Sin repuestos o servicios</p>'}
-                        </div>
-                        <div class="mt-auto pt-2 border-t border-dashed border-neutral-200 dark:border-neutral-700">
-                            <div class="flex justify-between items-end mb-3">
-                                <div class="text-xs text-neutral-500 font-bold uppercase">Sub: $${subtotal.toLocaleString('es-CL')} | IVA: $${iva.toLocaleString('es-CL')}</div>
-                                <div class="text-sm font-black text-red-600 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded border border-red-100 dark:border-red-900">Total: $${total.toLocaleString('es-CL')}</div>
-                            </div>
-                            <div class="flex items-center gap-2 mb-3 relative">
-                                <div class="flex-1 relative">
-                                    <input type="text" id="new-task-input-${p.id}-lg" placeholder="+ Detalle/Servicio..." class="w-full bg-transparent text-sm outline-none placeholder-neutral-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeyup="showServiceSuggestions(this.value, ${p.id})" onfocus="showServiceSuggestions(this.value, ${p.id})" onblur="setTimeout(()=>hideServiceSuggestions(${p.id}), 200)" onkeypress="if(event.key === 'Enter') document.getElementById('new-task-price-${p.id}-lg').focus()" autocomplete="off">
-                                    <div id="service-suggestions-${p.id}" class="hidden absolute bottom-[110%] left-0 w-full mb-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-2xl max-h-40 overflow-y-auto z-20 text-sm"></div>
-                                </div>
-                                <input type="number" id="new-task-price-${p.id}-lg" placeholder="$ Valor" class="w-20 bg-transparent text-sm outline-none placeholder-neutral-400 text-right text-red-500 font-bold" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
-                                <button onclick="addPatientTaskWrapper(${p.id})" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-paper-plane"></i></button>
-                            </div>
-                            <button onclick="downloadWorkOrderPDF(${p.id})" class="w-full bg-neutral-800 dark:bg-neutral-800 text-white text-xs py-2 rounded font-bold hover:bg-neutral-700 transition shadow flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Cotización / OT PDF</button>
-                        </div>
+                        <input type="text" inputmode="numeric" id="new-task-price-${p.id}-lg" placeholder="Valor" aria-label="Valor" class="w-20 h-9 px-2 rounded-lg bg-neutral-100 dark:bg-white/[0.06] border border-transparent focus:border-neutral-900/[0.2] dark:focus:border-white/[0.2] outline-none text-sm text-right tabular-nums text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" onkeypress="if(event.key === 'Enter') addPatientTaskWrapper(${p.id})">
+                        <button type="button" onclick="addPatientTaskWrapper(${p.id})" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150 shrink-0">Agregar</button>
                     </div>
-                </div>`;
+                    <div class="p-5 pt-3">
+                        <button type="button" onclick="downloadWorkOrderPDF(${p.id})" class="w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><i class="fa-regular fa-file-pdf text-[13px] text-neutral-500"></i>Descargar PDF</button>
+                    </div>
+                </article>`;
         }
 
         function addPatientTaskWrapper(patientId) {
@@ -3211,7 +3174,7 @@
             
             if (inputLg && inputLg.value.trim()) {
                 const text = inputLg.value.trim();
-                const price = priceLg ? (parseFloat(priceLg.value) || 0) : 0;
+                const price = priceLg ? (parseFloat(String(priceLg.value).replace(/[^0-9]/g, '')) || 0) : 0;
                 const invId = inputLg.dataset.invId ? parseFloat(inputLg.dataset.invId) : null;
                 const patient = state.patients.find(p => p.id === patientId);
                 
@@ -3271,36 +3234,8 @@
         
         function updateCardProgress(patientId) {
             const patient = state.patients.find(p => p.id === patientId);
-            if (!patient) return;
             const card = document.getElementById(`wo-card-${patientId}`);
-            if (!card) return;
-            const total = patient.tasks.length;
-            const done = patient.tasks.filter(t => t.done).length;
-            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-            const progressBar = card.querySelector('.transition-all.duration-500');
-            if (progressBar) {
-                progressBar.style.width = `${pct}%`;
-                if (pct === 100 && total > 0) {
-                    progressBar.className = 'h-full bg-green-500 transition-all duration-500';
-                    card.classList.remove('border-l-blue-600', 'border-l-neutral-400');
-                    card.classList.add('border-l-green-500');
-                } else if (total === 0) {
-                    progressBar.className = 'h-full bg-neutral-400 transition-all duration-500';
-                    card.classList.remove('border-l-blue-600', 'border-l-green-500');
-                    card.classList.add('border-l-neutral-400');
-                } else {
-                    progressBar.className = 'h-full bg-blue-600 transition-all duration-500';
-                    card.classList.remove('border-l-green-500', 'border-l-neutral-400');
-                    card.classList.add('border-l-blue-600');
-                }
-            }
-            const counterText = card.querySelector('.uppercase.tracking-wide');
-            if (counterText) counterText.innerText = `Tareas (${done}/${total})`;
-            const pctText = card.querySelector('.text-xs.font-bold:not(.uppercase)');
-            if (pctText) {
-                pctText.innerText = `${pct}%`;
-                pctText.className = `text-xs font-bold ${pct === 100 && total > 0 ? 'text-green-500' : 'text-blue-500'}`;
-            }
+            if (patient && card) card.outerHTML = createWorkOrderCardHTML(patient);
         }
 
         function openPatientModal() {
@@ -3514,13 +3449,6 @@
 
                     saveData();
 
-                    const btn = document.getElementById(`btn-ptask-${taskId}`); 
-                    const txt = document.getElementById(`txt-ptask-${taskId}`); 
-                    if(btn && txt) { 
-                        btn.className = `text-sm ${task.done ? 'text-green-600' : 'text-neutral-300 dark:text-neutral-600 hover:text-blue-500'} transition shrink-0`; 
-                        btn.innerHTML = `<i class="fa-${task.done ? 'solid' : 'regular'} fa-square-check"></i>`; 
-                        txt.className = `text-sm flex-1 bg-transparent outline-none truncate ${task.done ? 'text-neutral-600 dark:text-neutral-600 line-through' : 'text-neutral-600 dark:text-neutral-300 font-bold'} hover:bg-neutral-50 dark:hover:bg-neutral-800/30 rounded px-1 transition`; 
-                    }
                     if (state.view === 'work_orders') updateCardProgress(patientId);
                 } 
             } 
@@ -7623,7 +7551,7 @@
                 if (!invId) {
                     inputPrice.value = Math.round(price / 1.19);
                 } else {
-                    inputPrice.value = price; // El inventario ya viene en valor Neto de fábrica
+                    inputPrice.value = Math.round(price); // El inventario ya viene en valor Neto de fábrica (redondeado: el campo lee los puntos como separador de miles)
                 }
                 
                 inputName.dataset.invId = invId ? invId : '';

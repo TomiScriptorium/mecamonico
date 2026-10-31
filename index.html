@@ -512,10 +512,6 @@
                 <span class="dark:hidden">Modo noche</span>
                 <span class="hidden dark:inline">Modo día</span>
             </button>
-            <button type="button" onclick="openBackupModal()" class="sb-action-btn" title="Respaldo de datos">
-                <svg class="ic" aria-hidden="true"><use href="#i-archive"></use></svg>
-                <span>Respaldo</span>
-            </button>
             <button type="button" onclick="openSettingsModal()" class="sb-action-btn" title="Configuración">
                 <svg class="ic" aria-hidden="true"><use href="#i-settings"></use></svg>
                 <span>Configuración</span>
@@ -559,9 +555,6 @@
                 <button type="button" onclick="toggleDarkMode()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Modo día o noche" aria-label="Cambiar modo día o noche">
                     <svg class="ic text-[16px] dark:hidden" aria-hidden="true"><use href="#i-moon"></use></svg>
                     <svg class="ic text-[16px] hidden dark:inline" aria-hidden="true"><use href="#i-sun"></use></svg>
-                </button>
-                <button type="button" onclick="openBackupModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Respaldo" aria-label="Respaldo">
-                    <svg class="ic text-[16px]" aria-hidden="true"><use href="#i-archive"></use></svg>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
                 <button type="button" onclick="openSettingsModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Configuración" aria-label="Configuración">
@@ -853,13 +846,6 @@
             </div>
         </div>
     </div>
-    <div id="backup-modal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"><div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm" role="dialog" aria-labelledby="backup-title">
-        <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3"><div><h3 id="backup-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Respaldo</h3><p class="text-[13px] text-neutral-500">Un archivo ZIP con los datos y las fotos del taller</p></div><button type="button" onclick="closeBackupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
-        <div class="px-2 pb-3 flex flex-col">
-            <button type="button" onclick="downloadBackupFile()" class="w-full text-left flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-download"></use></svg></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Descargar respaldo</span><span class="block text-[13px] text-neutral-500">Guarda todo el taller en un archivo</span></span></button>
-            <label class="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150 cursor-pointer"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-upload"></use></svg></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Restaurar respaldo</span><span class="block text-[13px] text-neutral-500">Reemplaza los datos actuales por los del archivo</span></span><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label>
-        </div>
-    </div></div>
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-[#121212] z-[90] flex flex-col outline-none" tabindex="0">
         <div class="bg-[#121212] text-white pt-safe px-4 h-auto shrink-0 z-20 relative border-b border-white/[0.06]">
             <div class="h-14 flex justify-between items-center gap-3">
@@ -1182,6 +1168,14 @@
                             </select>
                         </div>
                         <p class="text-[13px] text-neutral-500">En el celular, instala la app en la pantalla de inicio y déjala abierta en segundo plano.</p>
+                    </section>
+
+                    <section class="flex flex-col gap-3 py-5 first:pt-0 border-t first:border-t-0 border-neutral-900/[0.06] dark:border-white/[0.06]">
+                        <div><h4 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Respaldo</h4><p class="text-[13px] text-neutral-500">Un archivo ZIP con los datos y las fotos del taller</p></div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="downloadBackupFile()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-download"></use></svg> Descargar respaldo</button>
+                            <label class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer" title="Reemplaza los datos actuales por los del archivo"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-upload"></use></svg> Restaurar respaldo<input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label>
+                        </div>
                     </section>
 
                     <section class="flex flex-col gap-3 py-5 first:pt-0 border-t first:border-t-0 border-neutral-900/[0.06] dark:border-white/[0.06]">
@@ -2292,8 +2286,6 @@
         function closeAppTitleModal() { document.body.classList.remove('modal-open'); document.getElementById('app-title-modal').classList.add('hidden'); }
         function saveAppTitle() { const t = document.getElementById('new-app-title').value.trim(); const s = document.getElementById('new-app-subtitle').value.trim(); if(t) state.appTitle = t; state.appSubtitle = s; saveData(); updateHeaderUI(); closeAppTitleModal(); showToast("Encabezado actualizado", "fa-check"); }
 
-        function openBackupModal() { document.getElementById('backup-modal').classList.remove('hidden'); }
-        function closeBackupModal() { document.getElementById('backup-modal').classList.add('hidden'); document.getElementById('backup-file-input').value = ''; }
         async function downloadBackupFile() { try { showToast("Preparando respaldo...", "fa-spinner fa-spin"); const { copy, missing } = await getStateForBackup(); const zip = new JSZip(); const dataStr = JSON.stringify(copy, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast(missing ? `Respaldo descargado sin ${missing} archivo${missing === 1 ? '' : 's'}: conéctate a internet para incluirlos` : "Respaldo descargado", missing ? "fa-triangle-exclamation" : "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
         async function importBackupFromFile(input) { 
             const file = input.files[0]; 
@@ -2321,7 +2313,7 @@
                         
                         saveData(); 
                         closeConfirmModal(); 
-                        closeBackupModal(); 
+                        closeSettingsModal(); 
                         state.view = null; 
                         renderView('dashboard'); 
                         showToast("Datos restaurados", "fa-check-double"); 

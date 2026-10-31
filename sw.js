@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mecamonico-v2';
+const CACHE_NAME = 'mecamonico-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -26,17 +26,38 @@ self.addEventListener('activate', event => {
   );
 });
 
+// Librerías que la app carga desde CDN (Tailwind, íconos, fuentes, etc.):
+// se guardan para que la app abra sin conexión.
+const CDN_HOSTS = [
+  'cdn.tailwindcss.com',
+  'cdnjs.cloudflare.com',
+  'cdn.jsdelivr.net',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com'
+];
+
 // Red primero, caché como respaldo: siempre intenta traer la versión más
 // nueva del servidor; si no hay internet, usa la última guardada en caché
 // (y la actualiza) para que la app funcione sin conexión.
+// Solo se guardan los archivos de la app y de esas librerías (GET). Las
+// llamadas a Supabase y a otros servicios pasan directo: así un envío fallido
+// se reporta como error y los datos del taller no quedan guardados en caché.
 self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  const isApp = url.origin === self.location.origin;
+  if (!isApp && !CDN_HOSTS.includes(url.hostname)) return;
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        // Las librerías llegan como respuestas "opaque" (sin CORS): igual se guardan.
+        if (response.ok || response.type === 'opaque') {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(request))
   );
 });

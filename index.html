@@ -900,13 +900,12 @@
         <div class="bg-neutral-800 h-safe-bottom shrink-0 pb-safe"></div>
     </div>
     <div id="inv-summary-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-blue-500 fade-enter">
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> Resumen de Bodega</h3>
-                <button onclick="closeInvSummaryModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="inv-summary-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="inv-summary-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Resumen de bodega</h3></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeInvSummaryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
             </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0 bg-neutral-50 dark:bg-neutral-800/30 overflow-y-auto hide-scrollbar" id="inv-summary-content">
-                </div>
+            <div class="px-5 pb-5 grid grid-cols-2 gap-3 overflow-y-auto hide-scrollbar" id="inv-summary-content"></div>
         </div>
     </div>
     <!-- z-[250]: por encima de todo lo demás en la app (el más alto antes era
@@ -962,287 +961,181 @@
     </div>
 
     <!-- Modal Configuración -->
-     <div id="add-inventory-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-6 border-t-4 border-green-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeAddInventoryModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-plus-circle text-green-600"></i> Ingreso a Bodega</h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Código</label>
-                    <input type="text" id="new-inv-sku" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-mono dark:text-white transition-colors" placeholder="Opcional">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Producto / Ítem *</label>
-                    <input type="text" id="new-inv-product" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Filtro Aceite">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Categoría</label>
-                    <select id="new-inv-category" onchange="toggleCategoryFields(this.value)" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 dark:text-white transition-colors">
-                        <option value="Repuestos">Repuestos</option>
+    <div id="add-inventory-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="add-inv-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="add-inv-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Ingreso a bodega</h3><p class="text-[13px] text-neutral-500">Repuesto, insumo o herramienta nueva</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeAddInventoryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="sm:col-span-2"><label for="new-inv-product" class="block text-[13px] text-neutral-500 mb-1.5">Producto</label><input type="text" id="new-inv-product" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Filtro de aceite"></div>
+                    <div class=""><label for="new-inv-category" class="block text-[13px] text-neutral-500 mb-1.5">Categoría</label><select id="new-inv-category" onchange="toggleCategoryFields(this.value)" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150"><option value="Repuestos">Repuestos</option>
                         <option value="Pastillas de freno">Pastillas de freno</option>
                         <option value="Insumos">Insumos</option>
                         <option value="Herramientas">Herramientas</option>
                         <option value="Fluidos">Fluidos</option>
-                        <option value="Otros">Otros</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Útil cuando tienes el mismo repuesto en varias marcas">Marca</label>
-                    <input type="text" id="new-inv-brand" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 font-bold dark:text-white transition-colors" placeholder="Ej: Bosch, GTX, Fric...">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Stock</label>
-                        <input type="number" id="new-inv-qty" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="0" min="0">
+                        <option value="Otros">Otros</option></select></div>
+                    <div class=""><label for="new-inv-brand" class="block text-[13px] text-neutral-500 mb-1.5">Marca</label><input type="text" id="new-inv-brand" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Bosch, GTX, Fric"></div>
+                    <div class=""><label for="new-inv-sku" class="block text-[13px] text-neutral-500 mb-1.5">Código</label><input type="text" id="new-inv-sku" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 tabular-nums" placeholder="Opcional"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class=""><label for="new-inv-qty" class="block text-[13px] text-neutral-500 mb-1.5">Stock</label><input type="number" id="new-inv-qty" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="0" min="0"></div>
+                        <div class=""><label for="new-inv-min" class="block text-[13px] text-neutral-500 mb-1.5">Mínimo</label><input type="number" id="new-inv-min" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="1" min="0" title="Avisa cuando el stock llega a este número"></div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Alerta de Stock Bajo">Mín.</label>
-                        <input type="number" id="new-inv-min" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-center font-bold dark:text-white transition-colors" placeholder="1" min="0">
-                    </div>
+                    <div class=""><label for="new-inv-price" class="block text-[13px] text-neutral-500 mb-1.5">Costo neto</label><input type="number" id="new-inv-price" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="$0" min="0" title="Costo sin IVA"></div>
+                    <div class=""><label for="new-inv-sale-price" class="block text-[13px] text-neutral-500 mb-1.5">Venta con IVA</label><input type="number" id="new-inv-sale-price" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="$0" min="0" title="Lo que le cobras al cliente"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-2 sm:col-span-2">
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Costo sin IVA">Costo Un. (Neto)</label>
-                        <input type="number" id="new-inv-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 text-right font-bold text-blue-600 dark:text-blue-400 transition-colors" placeholder="$0" min="0">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Lo que le cobras al cliente (incluye IVA)">Venta Un. (c/IVA)</label>
-                        <input type="number" id="new-inv-sale-price" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-green-500 text-right font-bold text-green-600 dark:text-green-400 transition-colors" placeholder="$0" min="0">
-                    </div>
-                </div>
-            </div>
-            <div id="extra-fields-brakes" class="hidden bg-blue-50/30 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50 mb-4">
-                <div class="mb-2 border-b border-blue-200 dark:border-blue-800/50 pb-1">
-                    <h4 class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide"><i class="fa-solid fa-car-burst"></i> Ficha Técnica: Pastillas</h4>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Eje / Posición</label>
-                        <select id="new-inv-brake-pos" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white">
-                            <option value="Delanteras">Delanteras</option>
-                            <option value="Traseras">Traseras</option>
-                            <option value="Ambas / Universal">Ambas / Universal</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Largo (mm)</label>
-                            <input type="number" id="new-inv-brake-len" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 130">
+                <div id="extra-fields-brakes" class="hidden pt-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06]">
+                    <p class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100 mb-3">Ficha de pastillas</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class=""><label for="new-inv-brake-pos" class="block text-[13px] text-neutral-500 mb-1.5">Posición</label><select id="new-inv-brake-pos" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150"><option value="Delanteras">Delanteras</option><option value="Traseras">Traseras</option><option value="Ambas / Universal">Ambas o universal</option></select></div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class=""><label for="new-inv-brake-len" class="block text-[13px] text-neutral-500 mb-1.5">Largo, mm</label><input type="number" id="new-inv-brake-len" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="130"></div>
+                            <div class=""><label for="new-inv-brake-hgt" class="block text-[13px] text-neutral-500 mb-1.5">Alto, mm</label><input type="number" id="new-inv-brake-hgt" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" placeholder="50"></div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Alto (mm)</label>
-                            <input type="number" id="new-inv-brake-hgt" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: 50">
-                        </div>
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Modelos y Años Compatibles</label>
-                        <input type="text" id="new-inv-brake-mod" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Toyota Yaris 2014-2020, Corolla 2015...">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Nota Adicional</label>
-                        <input type="text" id="new-inv-brake-not" class="w-full p-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded text-sm font-reading outline-none focus:border-blue-500 dark:text-white" placeholder="Ej: Incluye seguro, compuesto cerámico...">
+                        <div class="sm:col-span-2"><label for="new-inv-brake-mod" class="block text-[13px] text-neutral-500 mb-1.5">Vehículos compatibles</label><input type="text" id="new-inv-brake-mod" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Toyota Yaris 2014-2020, Corolla 2015"></div>
+                        <div class="sm:col-span-2"><label for="new-inv-brake-not" class="block text-[13px] text-neutral-500 mb-1.5">Nota</label><input type="text" id="new-inv-brake-not" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Compuesto cerámico, incluye sensor"></div>
                     </div>
                 </div>
             </div>
-            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <button onclick="closeAddInventoryModal()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
-                <button onclick="addInventoryItem()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow-md transition text-sm flex items-center gap-2"><i class="fa-solid fa-save"></i> Guardar Ítem</button>
-            </div>
+            <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-end gap-2 shrink-0"><button type="button" onclick="closeAddInventoryModal()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Cancelar</button><button type="button" onclick="addInventoryItem()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Guardar</button></div>
         </div>
     </div>
 
     <!-- Modal Recargo Masivo -->
     <div id="bulk-markup-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeBulkMarkupModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-percent text-orange-500"></i> Recargo Masivo</h3>
-            <p class="text-xs text-neutral-600 mb-5">Aplica un recargo a varios productos a la vez, filtrando por marca y/o categoría.</p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Marca</label>
-                    <select id="bulk-markup-brand" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Categoría</label>
-                    <select id="bulk-markup-category" onchange="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors">
-                        <option value="">Todas las categorías</option>
-                        <option value="Repuestos">Repuestos</option>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="bulk-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="bulk-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Margen masivo</h3><p class="text-[13px] text-neutral-500">Aplica un margen a varios productos a la vez</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeBulkMarkupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class=""><label for="bulk-markup-brand" class="block text-[13px] text-neutral-500 mb-1.5">Marca</label><select id="bulk-markup-brand" onchange="updateBulkMarkupPreview()" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150"></select></div>
+                    <div class=""><label for="bulk-markup-category" class="block text-[13px] text-neutral-500 mb-1.5">Categoría</label><select id="bulk-markup-category" onchange="updateBulkMarkupPreview()" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150"><option value="">Todas</option><option value="Repuestos">Repuestos</option>
                         <option value="Pastillas de freno">Pastillas de freno</option>
                         <option value="Insumos">Insumos</option>
                         <option value="Herramientas">Herramientas</option>
                         <option value="Fluidos">Fluidos</option>
-                        <option value="Otros">Otros</option>
-                    </select>
+                        <option value="Otros">Otros</option></select></div>
+                    <div class="sm:col-span-2"><label for="bulk-markup-search" class="block text-[13px] text-neutral-500 mb-1.5">Nombre, opcional</label><input type="text" id="bulk-markup-search" oninput="updateBulkMarkupPreview()" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="pastilla, filtro"></div>
                 </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Buscar por nombre (opcional)</label>
-                    <input type="text" id="bulk-markup-search" oninput="updateBulkMarkupPreview()" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm outline-none focus:border-orange-500 dark:text-white transition-colors" placeholder="Ej: pastilla, filtro...">
-                </div>
+                <fieldset class="pt-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex flex-col gap-3">
+                    <legend class="sr-only">Cómo aplicar el margen</legend>
+                    <label class="flex items-center gap-2.5 text-[15px] text-neutral-800 dark:text-neutral-200 cursor-pointer"><input type="radio" name="bulk-markup-mode" value="set" checked onchange="updateBulkMarkupPreview()" class="accent-red-600 w-4 h-4"> Dejarlo exactamente en</label>
+                    <label class="flex items-center gap-2.5 text-[15px] text-neutral-800 dark:text-neutral-200 cursor-pointer"><input type="radio" name="bulk-markup-mode" value="add" onchange="updateBulkMarkupPreview()" class="accent-red-600 w-4 h-4"> Sumarlo al margen que ya tiene cada producto</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="bulk-markup-pct" aria-label="Porcentaje" oninput="updateBulkMarkupPreview()" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 w-28 text-right tabular-nums" placeholder="60" min="0">
+                        <span class="text-[15px] text-neutral-500">%</span>
+                    </div>
+                </fieldset>
+                <p id="bulk-markup-count" class="text-[13px] text-neutral-500">Elige los filtros para ver cuántos productos cambian</p>
             </div>
-
-            <div class="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-lg p-4 mb-4">
-                <label class="block text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-2">¿Qué hacer con el recargo?</label>
-                <div class="flex flex-col gap-2 mb-3">
-                    <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
-                        <input type="radio" name="bulk-markup-mode" value="set" checked onchange="updateBulkMarkupPreview()"> Dejarlo exactamente en
-                    </label>
-                    <label class="flex items-center gap-2 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer">
-                        <input type="radio" name="bulk-markup-mode" value="add" onchange="updateBulkMarkupPreview()"> Sumarle (encima del que ya tenga cada producto)
-                    </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" id="bulk-markup-pct" oninput="updateBulkMarkupPreview()" class="w-24 p-2 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-800 rounded text-lg font-black text-center text-orange-600 dark:text-orange-400 outline-none focus:border-orange-500" placeholder="60" min="0">
-                    <span class="text-lg font-black text-orange-500">%</span>
-                </div>
-            </div>
-
-            <p id="bulk-markup-count" class="text-sm font-bold text-neutral-500 dark:text-neutral-600 mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> Elige los filtros para ver cuántos productos se van a afectar.</p>
-
-            <div class="flex justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <button onclick="closeBulkMarkupModal()" class="px-4 py-2 text-neutral-500 hover:text-neutral-700 font-bold text-sm transition">Cancelar</button>
-                <button onclick="applyBulkMarkup()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded shadow-md transition text-sm flex items-center gap-2"><i class="fa-solid fa-check"></i> Aplicar</button>
-            </div>
+            <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-end gap-2 shrink-0"><button type="button" onclick="closeBulkMarkupModal()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Cancelar</button><button type="button" onclick="applyBulkMarkup()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Aplicar</button></div>
         </div>
     </div>
 
     <!-- Modal Confirmar Venta (con opción de descuento) -->
     <div id="sell-confirm-modal" class="hidden fixed inset-0 bg-black/50 z-[85] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-6 border-t-4 border-green-600 fade-enter relative">
-            <button onclick="closeSellConfirmModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-1"><i class="fa-solid fa-hand-holding-dollar text-green-600"></i> Confirmar Venta</h3>
-            <p id="sell-confirm-item-name" class="text-sm text-neutral-500 dark:text-neutral-600 mb-4"></p>
-
-            <div id="sell-confirm-question">
-                <p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3">¿Desea agregar un descuento a esta venta?</p>
-                <div class="flex gap-3">
-                    <button onclick="confirmSaleNoDiscount()" class="flex-1 py-2.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition">No</button>
-                    <button onclick="showSellDiscountInput()" class="flex-1 py-2.5 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition">Sí</button>
-                </div>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="sell-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="sell-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Confirmar venta</h3><p id="sell-confirm-item-name" class="text-[13px] text-neutral-500 truncate"></p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeSellConfirmModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
             </div>
-
-            <div id="sell-confirm-discount" class="hidden">
-                <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Monto del descuento ($)</label>
-                <input type="number" id="sell-discount-amount" class="w-full p-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-lg font-bold text-center outline-none focus:border-green-500 dark:text-white transition-colors mb-3" placeholder="Ej: 2000" min="0" onkeypress="if(event.key === 'Enter') confirmSaleWithDiscount()">
-                <button onclick="confirmSaleWithDiscount()" class="w-full py-2.5 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition"><i class="fa-solid fa-check mr-1"></i> Confirmar Venta</button>
+            <div class="px-5 pb-5">
+                <div id="sell-confirm-question" class="flex flex-col gap-3">
+                    <p class="text-[15px] text-neutral-700 dark:text-neutral-300">¿Aplicar un descuento a esta venta?</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="showSellDiscountInput()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 h-10">Con descuento</button>
+                        <button type="button" onclick="confirmSaleNoDiscount()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Sin descuento</button>
+                    </div>
+                </div>
+                <div id="sell-confirm-discount" class="hidden flex-col gap-3 [&:not(.hidden)]:flex">
+                    <div class=""><label for="sell-discount-amount" class="block text-[13px] text-neutral-500 mb-1.5">Descuento en pesos</label><input type="number" id="sell-discount-amount" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 h-11 text-right tabular-nums" placeholder="$2.000" min="0" onkeypress="if(event.key === 'Enter') confirmSaleWithDiscount()"></div>
+                    <button type="button" onclick="confirmSaleWithDiscount()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 w-full">Confirmar venta</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal Precio de Mercado (por ítem) -->
     <div id="market-price-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-orange-500 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar">
-            <button onclick="closeMarketPriceModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-10"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-4"><i class="fa-solid fa-tags text-orange-500"></i> Precio de Mercado</h3>
-            <div id="market-price-modal-body"></div>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="market-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="market-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Precio de mercado</h3><p class="text-[13px] text-neutral-500">Comparado con Mercado Libre</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeMarketPriceModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div id="market-price-modal-body" class="px-5 pb-5 overflow-y-auto hide-scrollbar"></div>
         </div>
     </div>
-
     <div id="shopping-list-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl p-6 border-t-4 border-red-600 fade-enter relative max-h-[90vh] overflow-y-auto hide-scrollbar flex flex-col">
-            <button onclick="closeShoppingModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center z-20"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 mb-6"><i class="fa-solid fa-cart-shopping text-red-600"></i> Lista de Compras</h3>
-            
-            <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 mb-4 p-4 space-y-3 shrink-0">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Título del Documento</label>
-                    <input type="text" id="shop-title" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent text-lg font-black text-neutral-800 dark:text-neutral-100 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-red-500 transition placeholder-neutral-400" placeholder="Ej: Repuestos Motor V8">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="shop-modal-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="shop-modal-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Lista de compras</h3><p class="text-[13px] text-neutral-500">Se exporta como PDF para el proveedor</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeShoppingModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class=""><label for="shop-title" class="block text-[13px] text-neutral-500 mb-1.5">Título del documento</label><input type="text" id="shop-title" onchange="updateShopHeader('title', this.value)" class="w-full bg-transparent outline-none border-b border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-500 dark:focus:border-white/40 py-1.5 text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 transition-colors duration-150" placeholder="Repuestos semana 44"></div>
+                    <div class=""><label for="shop-address" class="block text-[13px] text-neutral-500 mb-1.5">Dirección del taller</label><input type="text" id="shop-address" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent outline-none border-b border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-500 dark:focus:border-white/40 py-1.5 text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 transition-colors duration-150" placeholder="Av. Principal 123"></div>
+                    <div class=""><label for="shop-note" class="block text-[13px] text-neutral-500 mb-1.5">Nota</label><input type="text" id="shop-note" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent outline-none border-b border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-500 dark:focus:border-white/40 py-1.5 text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 transition-colors duration-150" placeholder="Solicitar factura"></div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Dirección del Taller</label>
-                        <input type="text" id="shop-address" onchange="updateShopHeader('address', this.value)" class="w-full bg-transparent text-sm font-bold text-neutral-600 dark:text-neutral-600 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-red-500 transition placeholder-neutral-400" placeholder="Ej: Av. Principal 123">
+                <div class="flex items-center gap-3">
+                    <div id="shop-logo-preview-wrap" class="hidden w-10 h-10 rounded-lg border border-neutral-900/[0.06] dark:border-white/[0.06] bg-white overflow-hidden shrink-0">
+                        <img id="shop-logo-preview" src="" alt="Logo del taller" class="w-full h-full object-contain">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Nota / Observaciones</label>
-                        <input type="text" id="shop-note" onchange="updateShopHeader('note', this.value)" class="w-full bg-transparent text-sm font-bold font-reading text-neutral-600 dark:text-neutral-600 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-red-500 transition placeholder-neutral-400" placeholder="Ej: Solicitar factura a...">
-                    </div>
-                </div>
-                <div class="flex items-center gap-3 pt-1">
-                    <div id="shop-logo-preview-wrap" class="hidden w-12 h-12 rounded border border-neutral-300 dark:border-neutral-600 bg-white overflow-hidden shrink-0">
-                        <img id="shop-logo-preview" src="" class="w-full h-full object-contain">
-                    </div>
-                    <label class="text-xs font-bold text-neutral-600 hover:text-red-600 cursor-pointer transition flex items-center gap-1">
-                        <i class="fa-solid fa-image"></i> <span id="shop-logo-label">Agregar logo del taller (para las OT/cotizaciones en PDF)</span>
+                    <label class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-regular fa-image text-[13px] text-neutral-500"></i> <span id="shop-logo-label">Agregar logo del taller (para las OT/cotizaciones en PDF)</span>
                         <input type="file" accept="image/*" class="hidden" onchange="updateShopLogo(this)">
                     </label>
-                    <button id="shop-logo-remove-btn" onclick="removeShopLogo()" class="hidden text-xs font-bold text-neutral-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <button type="button" id="shop-logo-remove-btn" onclick="removeShopLogo()" class="hidden w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Quitar logo"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                </div>
+                <div class="rounded-xl border border-neutral-900/[0.06] dark:border-white/[0.06] overflow-x-auto hide-scrollbar mouse-drag">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-neutral-900/[0.06] dark:border-white/[0.06]">
+                                <th class="px-4 py-2.5 text-[13px] font-normal text-neutral-500 min-w-[150px]">Producto</th>
+                                <th class="px-4 py-2.5 text-[13px] font-normal text-neutral-500 text-right w-24">Cant.</th>
+                                <th class="px-2 py-2.5 w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopping-table-body"></tbody>
+                        <tfoot class="border-t border-neutral-900/[0.06] dark:border-white/[0.06] bg-neutral-50 dark:bg-white/[0.02]">
+                            <tr>
+                                <td class="px-4 py-2"><input type="text" id="new-item-product" placeholder="Agregar producto" aria-label="Producto nuevo" class="w-full min-w-[130px] bg-transparent outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()"></td>
+                                <td class="px-4 py-2"><input type="number" id="new-item-qty" placeholder="1" aria-label="Cantidad" class="w-full bg-transparent outline-none text-[15px] text-right tabular-nums text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400" min="1" onkeypress="if(event.key === 'Enter') addShoppingItem()"></td>
+                                <td class="px-2 py-2 text-center"><button type="button" onclick="addShoppingItem()" class="w-8 h-8 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center mx-auto transition-colors duration-150" aria-label="Agregar"><i class="fa-solid fa-plus text-xs"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
-
-            <div class="flex-1 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-x-auto hide-scrollbar mouse-drag mb-4 min-h-[200px]">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-600 border-b border-neutral-200 dark:border-neutral-700">
-                            <th class="p-2 sm:p-3 font-bold uppercase tracking-wide min-w-[150px]">Producto / Repuesto</th>
-                            <th class="p-2 sm:p-3 font-bold uppercase tracking-wide text-center min-w-[70px]">Cant.</th>
-                            <th class="p-2 sm:p-3 min-w-[50px]"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="shopping-table-body">
-                        </tbody>
-                    <tfoot class="bg-neutral-50 dark:bg-neutral-800/30 border-t border-neutral-200 dark:border-neutral-700">
-                        <tr>
-                            <td class="p-2 sm:p-3">
-                                <input type="text" id="new-item-product" placeholder="Agregar producto..." class="w-full min-w-[130px] bg-transparent outline-none text-sm font-bold text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()">
-                            </td>
-                            <td class="p-2 sm:p-3">
-                                <input type="number" id="new-item-qty" placeholder="1" class="w-full min-w-[50px] bg-transparent outline-none text-sm font-bold text-center text-neutral-700 dark:text-neutral-300 placeholder-neutral-400" min="1" onkeypress="if(event.key === 'Enter') addShoppingItem()">
-                            </td>
-                            <td class="p-2 sm:p-3 text-center">
-                                <button onclick="addShoppingItem()" class="bg-red-600 text-white w-7 h-7 sm:w-8 sm:h-8 rounded flex items-center justify-center hover:bg-red-700 transition shadow-sm mx-auto">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            <div class="flex justify-end gap-3 mt-auto shrink-0 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <button onclick="clearShoppingList()" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-600 font-bold rounded shadow-sm hover:bg-red-500 hover:text-white transition text-sm flex items-center gap-2"><i class="fa-solid fa-eraser"></i> Limpiar</button>
-                <button onclick="downloadShoppingPDF()" class="px-4 py-2 bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded shadow-lg hover:bg-neutral-700 transition text-sm flex items-center gap-2"><i class="fa-solid fa-share-nodes text-red-400"></i> Exportar PDF</button>
-            </div>
+            <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-between gap-2 shrink-0"><button type="button" onclick="clearShoppingList()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Vaciar lista</button><button type="button" onclick="downloadShoppingPDF()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 flex items-center gap-2"><i class="fa-solid fa-file-arrow-down text-xs"></i> Exportar PDF</button></div>
         </div>
     </div>
-     <div id="inv-report-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] border-t-4 border-green-600 fade-enter">
-            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-green-600"></i> Balance Histórico</h3>
-                <div class="flex items-center gap-2">
-                    <button onclick="downloadSalesPDF()" class="bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar PDF">
-                        <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
-                    </button>
-                    <button onclick="exportInventoryToExcel()" class="bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-2" title="Exportar a Excel (inventario + historial con fechas)">
-                        <i class="fa-solid fa-file-excel text-green-400"></i> Excel
-                    </button>
-                    <button onclick="closeInvReportModal()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-                </div>
+    <div id="inv-report-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="rep-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="rep-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Balance histórico</h3><p class="text-[13px] text-neutral-500">Todo lo comprado y vendido desde el inicio</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="downloadSalesPDF()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar PDF"><i class="fa-regular fa-file-pdf text-[13px] text-neutral-500"></i><span class="hidden sm:inline">PDF</span></button><button type="button" onclick="exportInventoryToExcel()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar a Excel (inventario e historial con fechas)"><i class="fa-solid fa-file-arrow-down text-[13px] text-neutral-500"></i><span class="hidden sm:inline">Excel</span></button><button type="button" onclick="closeInvReportModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
             </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0 bg-neutral-50 dark:bg-neutral-800/30 border-b border-neutral-200 dark:border-neutral-700" id="inv-report-kpis">
-                </div>
-            <div class="p-4 shrink-0 flex justify-between items-center">
-                <h4 class="text-xs font-bold text-neutral-600 uppercase tracking-wide">Productos Más Vendidos</h4>
-            </div>
-            <div class="flex-1 overflow-y-auto px-4 pb-4 hide-scrollbar space-y-2" id="inv-report-list">
-                </div>
+            <div class="px-5 pb-5 grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0" id="inv-report-kpis"></div>
+            <div class="px-5 py-3 border-t border-neutral-900/[0.06] dark:border-white/[0.06] shrink-0"><h4 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Más vendidos</h4></div>
+            <div class="flex-1 overflow-y-auto hide-scrollbar" id="inv-report-list"></div>
         </div>
     </div>
     <div id="price-list-modal" class="hidden fixed inset-0 bg-black/50 z-[90] flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-red-600 fade-enter flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4 shrink-0">
-                <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2"><i class="fa-solid fa-list-ul text-red-600"></i> Catálogo de Servicios</h3>
-                <button onclick="closePriceListModal()" class="w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="pl-title">
+            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                <div class="min-w-0"><h3 id="pl-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Lista de precios</h3><p class="text-[13px] text-neutral-500">Servicios frecuentes, precio final con IVA</p></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closePriceListModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
             </div>
-            <div class="flex gap-2 mb-4 shrink-0">
-                <input type="text" id="new-preset-name" placeholder="Ej: Cambio Aceite" class="flex-1 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition dark:text-white" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
-                <input type="number" id="new-preset-price" placeholder="$ Final (c/IVA)" title="Precio Final con IVA incluido" class="w-32 p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-sm font-bold outline-none focus:border-red-500 transition text-right text-red-500 dark:text-red-400" onkeypress="if(event.key === 'Enter') addPredefinedService()">
-                <button onclick="addPredefinedService()" class="bg-red-600 text-white px-4 rounded font-bold hover:bg-red-700 transition shadow-sm active:scale-95"><i class="fa-solid fa-plus"></i></button>
+            <div class="px-5 pb-4 grid grid-cols-[minmax(0,1fr)_112px_auto] gap-2 shrink-0">
+                <input type="text" id="new-preset-name" placeholder="Cambio de aceite" aria-label="Servicio" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
+                <input type="number" id="new-preset-price" placeholder="$ con IVA" aria-label="Precio final con IVA" title="Precio final con IVA incluido" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" onkeypress="if(event.key === 'Enter') addPredefinedService()">
+                <button type="button" onclick="addPredefinedService()" class="h-10 w-10 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors duration-150" aria-label="Agregar servicio"><i class="fa-solid fa-plus text-xs"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto hide-scrollbar border border-neutral-200 dark:border-neutral-700 rounded bg-neutral-50/50 dark:bg-neutral-900/50 relative" id="price-list-container">
-            </div>
+            <div class="flex-1 overflow-y-auto hide-scrollbar border-t border-neutral-900/[0.06] dark:border-white/[0.06]" id="price-list-container"></div>
         </div>
     </div>
 
@@ -4389,15 +4282,15 @@
         function getShoppingRowHTML(item) {
             const qty = parseFloat(item.qty) || 1;
             return `
-                <tr id="shop-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
-                    <td class="p-2 sm:p-3 min-w-[150px]">
-                        <input type="text" value="${escapeHtml(item.product)}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Producto">
+                <tr id="shop-row-${item.id}" class="border-b border-neutral-900/[0.06] dark:border-white/[0.06] last:border-0">
+                    <td class="px-4 py-2 min-w-[150px]">
+                        <input type="text" value="${escapeHtml(item.product)}" oninput="updateShoppingItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none text-[15px] text-neutral-900 dark:text-neutral-100" placeholder="Producto" aria-label="Producto">
                     </td>
-                    <td class="p-2 sm:p-3 w-20 min-w-[70px]">
-                        <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none font-bold text-center text-neutral-600 dark:text-neutral-600" placeholder="Cant." min="1">
+                    <td class="px-4 py-2 w-24">
+                        <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none text-[15px] text-right tabular-nums text-neutral-700 dark:text-neutral-300" placeholder="1" min="1" aria-label="Cantidad">
                     </td>
-                    <td class="p-2 sm:p-3 w-10 text-center min-w-[50px]">
-                        <button onclick="deleteShoppingItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="px-2 py-2 w-12 text-center">
+                        <button type="button" onclick="deleteShoppingItem(${item.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 mx-auto" aria-label="Quitar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
                     </td>
                 </tr>
             `;
@@ -4416,12 +4309,12 @@
             saveData();
             const row = document.getElementById(`shop-row-${id}`);
             if (row) {
-                row.classList.add('opacity-0', 'scale-95');
+                row.classList.add('opacity-0');
                 setTimeout(() => {
                     row.remove();
                     const tbody = document.getElementById('shopping-table-body');
                     if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                        tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-sm text-neutral-500">La lista está vacía</td></tr>`;
                     }
                 }, 300);
             }
@@ -4491,7 +4384,7 @@
             saveData();
             const row = document.getElementById(`service-row-${id}`);
             if (row) {
-                row.classList.add('opacity-0', 'scale-95');
+                row.classList.add('opacity-0');
                 setTimeout(() => {
                     row.remove();
                     const tbody = document.getElementById('service-table-body');
@@ -4868,31 +4761,32 @@
             let rowsHtml = '';
             if (log.length === 0) {
                 const legacyNote = (parseFloat(item.soldQty) || 0) > 0
-                    ? `<p class="text-xs mt-1 text-neutral-600">Este ítem registra ${escapeHtml(String(item.soldQty))} venta(s) antiguas, guardadas antes de activar el historial con fecha.</p>`
+                    ? `<p class="text-[13px] mt-1 text-neutral-500">Registra ${escapeHtml(String(item.soldQty))} ventas antiguas, guardadas antes de que existiera el historial con fecha.</p>`
                     : '';
-                rowsHtml = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-receipt text-4xl mb-3 text-neutral-400"></i><p class="text-sm font-bold text-neutral-500">Sin ventas registradas con fecha</p>${legacyNote}</div>`;
+                rowsHtml = `<div class="px-5 py-10 text-center"><p class="text-sm text-neutral-500">Sin ventas con fecha</p>${legacyNote}</div>`;
             } else {
-                rowsHtml = `<table class="w-full text-sm border-collapse">
-                    <thead class="sticky top-0 bg-neutral-100 dark:bg-neutral-800 text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-600">
-                        <tr>
-                            <th class="p-2 text-left font-bold">Fecha</th>
-                            <th class="p-2 text-center font-bold">Cant.</th>
-                            <th class="p-2 text-right font-bold">Precio Unit.</th>
-                            <th class="p-2 text-right font-bold">Total</th>
-                            <th class="p-2 text-center font-bold"></th>
+                const th = 'px-3 py-2.5 text-[13px] font-normal text-neutral-500';
+                rowsHtml = `<table class="w-full border-collapse">
+                    <thead class="sticky top-0 bg-white dark:bg-neutral-900">
+                        <tr class="border-b border-neutral-900/[0.06] dark:border-white/[0.06]">
+                            <th class="${th} pl-5 text-left">Fecha</th>
+                            <th class="${th} text-right">Cant.</th>
+                            <th class="${th} text-right">Precio</th>
+                            <th class="${th} text-right">Total</th>
+                            <th class="${th} pr-4 w-12"></th>
                         </tr>
                     </thead>
                     <tbody>
                         ${log.map(s => {
                             const [y, m, d] = s.date.split('-').map(Number);
-                            const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
-                            return `<tr class="border-b border-neutral-100 dark:border-neutral-800 odd:bg-white even:bg-neutral-50/60 dark:odd:bg-neutral-900 dark:even:bg-neutral-800/40">
-                                <td class="p-2 font-bold text-neutral-700 dark:text-neutral-300">${escapeHtml(dateStr)}</td>
-                                <td class="p-2 text-center font-mono">${escapeHtml(String(s.qty))}</td>
-                                <td class="p-2 text-right font-mono">$${(s.unitPrice || 0).toLocaleString('es-CL')}</td>
-                                <td class="p-2 text-right font-mono font-bold text-green-600 dark:text-green-400">$${(s.total || 0).toLocaleString('es-CL')}</td>
-                                <td class="p-2 text-center">
-                                    <button onclick="voidInventorySale(${item.id}, ${s.id})" class="w-6 h-6 rounded text-neutral-600 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 transition flex items-center justify-center mx-auto" title="Anular esta venta (devuelve el stock)"><i class="fa-solid fa-rotate-left text-xs"></i></button>
+                            const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+                            return `<tr class="border-b border-neutral-900/[0.06] dark:border-white/[0.06] last:border-0 text-[15px] tabular-nums">
+                                <td class="pl-5 pr-3 py-3 text-neutral-700 dark:text-neutral-300 whitespace-nowrap">${escapeHtml(dateStr)}${s.time ? ' · ' + escapeHtml(s.time) : ''}</td>
+                                <td class="px-3 py-3 text-right text-neutral-700 dark:text-neutral-300">${escapeHtml(String(s.qty))}</td>
+                                <td class="px-3 py-3 text-right text-neutral-700 dark:text-neutral-300 whitespace-nowrap">$${(s.unitPrice || 0).toLocaleString('es-CL')}</td>
+                                <td class="px-3 py-3 text-right text-neutral-900 dark:text-neutral-100 whitespace-nowrap">$${(s.total || 0).toLocaleString('es-CL')}</td>
+                                <td class="pl-1 pr-4 py-2">
+                                    <button type="button" onclick="voidInventorySale(${item.id}, ${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Anular esta venta (devuelve el stock)" aria-label="Anular venta"><i class="fa-solid fa-rotate-left text-[12px]"></i></button>
                                 </td>
                             </tr>`;
                         }).join('')}
@@ -4904,20 +4798,20 @@
             if (!modal) {
                 document.body.insertAdjacentHTML('beforeend', `
                     <div id="item-sales-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] border-t-4 border-blue-500 fade-enter">
-                            <div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center shrink-0">
-                                <h3 id="item-sales-title" class="text-lg font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2 truncate pr-2"><i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Historial de Ventas</h3>
-                                <button onclick="closeItemSalesHistory()" class="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center shrink-0"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]" role="dialog" aria-labelledby="item-sales-title">
+                            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                                <div class="min-w-0"><h3 id="item-sales-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 truncate">Ventas</h3><p id="item-sales-sub" class="text-[13px] text-neutral-500 tabular-nums"></p></div>
+                                <button type="button" onclick="closeItemSalesHistory()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                             </div>
-                            <div id="item-sales-content" class="flex-1 overflow-y-auto hide-scrollbar"></div>
+                            <div id="item-sales-content" class="flex-1 overflow-y-auto hide-scrollbar border-t border-neutral-900/[0.06] dark:border-white/[0.06]"></div>
                         </div>
                     </div>
                 `);
                 modal = document.getElementById('item-sales-modal');
             }
 
-            const brandSuffix = item.brand ? ` (${escapeHtml(item.brand)})` : '';
-            document.getElementById('item-sales-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Ventas: ${escapeHtml(item.product)}${brandSuffix}`;
+            document.getElementById('item-sales-title').textContent = item.brand ? `${item.product} · ${item.brand}` : item.product;
+            document.getElementById('item-sales-sub').textContent = `${log.length} ${log.length === 1 ? 'venta registrada' : 'ventas registradas'}`;
             document.getElementById('item-sales-content').innerHTML = rowsHtml;
             document.body.classList.add('modal-open');
             modal.classList.remove('hidden');
@@ -5067,7 +4961,7 @@
             saveData();
             const row = document.getElementById(`inventory-row-${id}`);
             if (row) {
-                row.classList.add('opacity-0', 'scale-95');
+                row.classList.add('opacity-0');
                 setTimeout(() => {
                     row.remove();
                     const tbody = document.getElementById('inventory-table-body');
@@ -5431,7 +5325,7 @@
             closeConfirmModal();
             const tbody = document.getElementById('shopping-table-body');
             if (tbody) {
-                tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+                tbody.innerHTML = `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-sm text-neutral-500">La lista está vacía</td></tr>`;
             }
             showToast("Lista limpia", "fa-eraser");
         });
@@ -5451,7 +5345,7 @@
         renderShopLogoPreview();
 
         const tbody = document.getElementById('shopping-table-body');
-        if (tbody) tbody.innerHTML = itemsHTML || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista está vacía</td></tr>`;
+        if (tbody) tbody.innerHTML = itemsHTML || `<tr id="empty-shop-msg"><td colspan="3" class="text-center py-8 text-sm text-neutral-500">La lista está vacía</td></tr>`;
         
         document.body.classList.add('modal-open');
         document.getElementById('shopping-list-modal').classList.remove('hidden');
@@ -5634,7 +5528,7 @@
         const countEl = document.getElementById('bulk-markup-count');
         const matches = getBulkMarkupMatches();
         if (matches.length === 0) {
-            countEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Ningún producto coincide con estos filtros.';
+            countEl.textContent = 'Ningún producto coincide con estos filtros';
             return;
         }
         const pct = parseFloat(document.getElementById('bulk-markup-pct').value);
@@ -5644,7 +5538,7 @@
         if (!isNaN(pct)) {
             extra = mode === 'set' ? ` — quedarán con un recargo de ${pct}%` : ` — se les sumará ${pct} punto(s) a su recargo actual`;
         }
-        countEl.innerHTML = `<i class="fa-solid fa-boxes-stacked text-blue-500"></i> ${matches.length} producto(s) coinciden${extra}`;
+        countEl.innerHTML = `${matches.length} ${matches.length === 1 ? 'producto coincide' : 'productos coinciden'}${extra}`;
     }
 
     function applyBulkMarkup() {
@@ -6193,14 +6087,12 @@
             const body = document.getElementById('market-price-modal-body');
             if (!body) return;
             const salePriceGross = Math.round((parseFloat(item.salePrice) || 0) * 1.19);
-            const brandSuffix = item.brand ? ` <span class="text-neutral-600 font-normal">(${escapeHtml(item.brand)})</span>` : '';
-
             let html = `
-                <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 mb-1">${escapeHtml(item.product)}${brandSuffix}</h4>
-                <p class="text-sm font-bold text-neutral-500 dark:text-neutral-600 mb-4">Tu precio de venta: <span class="text-green-600 dark:text-green-400">$${salePriceGross.toLocaleString('es-CL')}</span></p>`;
+                <p class="text-[15px] text-neutral-900 dark:text-neutral-100">${escapeHtml(item.product)}${item.brand ? `<span class="text-neutral-500"> · ${escapeHtml(item.brand)}</span>` : ''}</p>
+                <p class="text-[13px] text-neutral-500 mb-4 tabular-nums">Tu precio de venta $${salePriceGross.toLocaleString('es-CL')}</p>`;
 
             if (!hasValidSku(item)) {
-                html += `<p class="text-sm text-neutral-600 italic mb-2"><i class="fa-solid fa-circle-info mr-1"></i>Agrega un Código a este producto para poder comparar con Mercado Libre.</p>`;
+                html += `<p class="text-sm text-neutral-500">Agrega un código a este producto para compararlo con Mercado Libre.</p>`;
                 body.innerHTML = html;
                 return;
             }
@@ -6211,25 +6103,25 @@
 
             if (mp && mp.avg !== null) {
                 const diffPct = mp.avg > 0 ? Math.round(((salePriceGross - mp.avg) / mp.avg) * 100) : 0;
-                const diffColor = diffPct > 5 ? 'text-red-600 dark:text-red-400' : (diffPct < -5 ? 'text-green-600 dark:text-green-400' : 'text-neutral-500 dark:text-neutral-600');
                 const diffText = diffPct > 5 ? `${diffPct}% más caro que el mercado` : (diffPct < -5 ? `${Math.abs(diffPct)}% más barato que el mercado` : 'Similar al precio de mercado');
+                const dot = diffPct > 5 ? 'bg-red-500' : (diffPct < -5 ? 'bg-green-500' : 'bg-neutral-400');
                 const [y, m, d] = mp.checkedAt.split('-');
-                const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+                const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
                 html += `
-                    <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700 mb-4">
-                        <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Precio visto en Mercado Libre</p>
-                        <p class="text-2xl font-black text-neutral-800 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</p>
-                        <p class="text-xs text-neutral-600 mt-1">Anotado el ${dateStr}</p>
-                        <p class="text-sm font-bold ${diffColor} mt-2">${diffText}</p>
+                    <div class="rounded-xl border border-neutral-900/[0.06] dark:border-white/[0.06] p-4 mb-4">
+                        <p class="text-[13px] text-neutral-500">Precio en Mercado Libre</p>
+                        <p class="mt-1 text-[28px] leading-none font-medium tabular-nums text-neutral-900 dark:text-neutral-100">$${mp.avg.toLocaleString('es-CL')}</p>
+                        <p class="mt-3 text-[13px] text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ${dot}"></span>${diffText}</p>
+                        <p class="mt-1 text-[13px] text-neutral-500">Anotado el ${dateStr}</p>
                     </div>`;
             } else {
-                html += `<p class="text-sm text-neutral-600 italic mb-4">Aún no has anotado un precio de Mercado Libre para este producto.</p>`;
+                html += `<p class="text-sm text-neutral-500 mb-4">Todavía no anotas un precio de Mercado Libre para este producto.</p>`;
             }
 
             html += `
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center px-4 py-2.5 bg-neutral-800 dark:bg-neutral-700 text-white font-bold rounded shadow-md hover:bg-neutral-700 transition text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en ML</a>
-                    <button onclick="setManualMarketPrice(${item.id})" class="flex-1 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded shadow-md transition text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-pen"></i> ${mp && mp.avg !== null ? 'Corregir' : 'Anotar'} precio</button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 h-10"><i class="fa-solid fa-arrow-up-right-from-square text-[12px] text-neutral-500"></i> Ver en Mercado Libre</a>
+                    <button type="button" onclick="setManualMarketPrice(${item.id})" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">${mp && mp.avg !== null ? 'Corregir' : 'Anotar'} precio</button>
                 </div>`;
 
             body.innerHTML = html;
@@ -7132,41 +7024,35 @@
 
             const gananciaNeta = totalIngresos - costoVendido;
 
-            document.getElementById('inv-report-kpis').innerHTML = `
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg text-center shadow-sm">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Suma de costo de TODO lo que has comprado en la vida">Inversión Total</p>
-                    <p class="text-lg font-black text-blue-600 dark:text-blue-400">$${invHistorica.toLocaleString('es-CL')}</p>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg text-center shadow-sm">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Suma de precios de venta cobrados">Ingresos Ventas</p>
-                    <p class="text-lg font-black text-green-600 dark:text-green-400">$${totalIngresos.toLocaleString('es-CL')}</p>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg text-center shadow-sm">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1" title="Ingresos Ventas menos el Costo de lo vendido">Ganancia Neta</p>
-                    <p class="text-lg font-black ${gananciaNeta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">$${gananciaNeta.toLocaleString('es-CL')}</p>
-                </div>
-            `;
+            const kpi = (label, value, title, extra = '') => `<div class="rounded-xl border border-neutral-900/[0.06] dark:border-white/[0.06] p-4" title="${title}">
+                    <p class="text-[13px] text-neutral-500">${label}</p>
+                    <p class="mt-1 text-[22px] leading-8 font-medium tabular-nums ${extra || 'text-neutral-900 dark:text-neutral-100'}">${value}</p>
+                </div>`;
+            const fmt = v => `${v < 0 ? '−' : ''}$${Math.abs(Math.round(v)).toLocaleString('es-CL')}`;
+            document.getElementById('inv-report-kpis').innerHTML =
+                kpi('Inversión total', fmt(invHistorica), 'Costo de todo lo comprado') +
+                kpi('Ventas', fmt(totalIngresos), 'Suma de lo cobrado por repuestos') +
+                kpi('Ganancia neta', fmt(gananciaNeta), 'Ventas menos el costo de lo vendido', gananciaNeta < 0 ? 'text-red-600 dark:text-[#e5484d]' : '');
 
             // Ordenar de mayor a menor cantidad vendida
             vendidos.sort((a, b) => b.soldQty - a.soldQty);
 
             const listContainer = document.getElementById('inv-report-list');
             if (vendidos.length === 0) {
-                listContainer.innerHTML = `<div class="text-center py-8 opacity-50"><i class="fa-solid fa-box-open text-4xl mb-3 text-neutral-400"></i><p class="text-sm font-bold text-neutral-500">Aún no hay historial de ventas</p></div>`;
+                listContainer.innerHTML = `<p class="px-5 py-10 text-center text-sm text-neutral-500">Todavía no hay ventas</p>`;
             } else {
-                listContainer.innerHTML = vendidos.map(item => `
-                    <div onclick="openItemSalesHistory(${item.id})" class="flex justify-between items-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition cursor-pointer" title="Ver historial de ventas">
-                        <div class="min-w-0 flex-1 pr-4">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 truncate text-sm">${escapeHtml(item.product)}${item.brand ? ` <span class="text-neutral-600 font-normal">(${escapeHtml(item.brand)})</span>` : ''}</h4>
-                            <p class="text-xs text-neutral-500 font-mono mt-0.5"><i class="fa-solid fa-barcode mr-1"></i>${escapeHtml(item.sku || 'N/A')}</p>
-                            <p class="text-xs text-neutral-600 mt-0.5"><i class="fa-regular fa-calendar mr-1"></i>Última venta: ${escapeHtml(getLastSaleLabel(item))}</p>
-                        </div>
-                        <div class="text-right shrink-0">
-                            <p class="text-sm font-black text-neutral-800 dark:text-neutral-200">${item.soldQty} <span class="text-xs font-bold text-neutral-600 uppercase tracking-wide">Vendidos</span></p>
-                            <p class="text-[11px] font-bold ${item.profit >= 0 ? 'text-green-600' : 'text-red-600'}">Neto Obtenido: $${item.profit.toLocaleString('es-CL')}</p>
-                        </div>
-                    </div>
-                `).join('');
+                listContainer.innerHTML = `<ul class="divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${vendidos.map(item => `
+                    <li><button type="button" onclick="openItemSalesHistory(${item.id})" class="w-full text-left flex items-center gap-4 px-5 py-3 hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors duration-150" title="Ver ventas">
+                        <span class="min-w-0 flex-1">
+                            <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(item.product)}${item.brand ? `<span class="text-neutral-500"> · ${escapeHtml(item.brand)}</span>` : ''}</span>
+                            <span class="block text-[13px] text-neutral-500 truncate">${item.sku && item.sku !== 'N/A' ? escapeHtml(item.sku) + ' · ' : ''}Última venta ${escapeHtml(getLastSaleLabel(item).replace(/^Sin/, 'sin'))}</span>
+                        </span>
+                        <span class="text-right shrink-0 tabular-nums">
+                            <span class="block text-[15px] text-neutral-900 dark:text-neutral-100">${item.soldQty} ${Number(item.soldQty) === 1 ? 'vendido' : 'vendidos'}</span>
+                            <span class="block text-[13px] ${item.profit < 0 ? 'text-red-600 dark:text-[#e5484d]' : 'text-neutral-500'}">Ganancia ${fmt(item.profit)}</span>
+                        </span>
+                    </button></li>
+                `).join('')}</ul>`;
             }
         }
         
@@ -7580,21 +7466,21 @@
         function renderPriceList() {
             const container = document.getElementById('price-list-container');
             if(!state.predefinedServices || state.predefinedServices.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fa-solid fa-list-ul text-4xl mb-3 text-neutral-400"></i><p class="text-xs font-bold text-neutral-500">No hay servicios guardados</p></div>';
+                container.innerHTML = '<p class="px-5 py-10 text-center text-sm text-neutral-500">Sin servicios guardados</p>';
                 return;
             }
-            container.innerHTML = state.predefinedServices.sort((a,b)=>a.name.localeCompare(b.name)).map(s => {
+            container.innerHTML = `<ul class="divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${state.predefinedServices.sort((a,b)=>a.name.localeCompare(b.name)).map(s => {
                 const netPrice = Math.round(s.price / 1.19); // Calcula el neto para mostrarlo
                 return `
-                <div class="flex justify-between items-center bg-white dark:bg-neutral-800 p-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition">
-                    <div class="flex-1 min-w-0 pr-2">
-                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 block truncate"><i class="fa-solid fa-wrench text-xs text-neutral-400 mr-2"></i>${escapeHtml(s.name)}</span>
-                        <span class="text-[11px] text-neutral-600 font-mono block ml-5" title="Este valor irá a la O.T.">Neto a Orden: $${netPrice.toLocaleString('es-CL')}</span>
-                    </div>
-                    <span class="text-sm font-black text-red-600 dark:text-red-400 w-24 text-right pr-4" title="Precio Final con IVA">$${s.price.toLocaleString('es-CL')}</span>
-                    <button onclick="deletePredefinedService(${s.id})" class="text-neutral-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition"><i class="fa-solid fa-trash-can text-sm"></i></button>
-                </div>
-            `}).join('');
+                <li class="flex items-center gap-3 pl-5 pr-3 py-3">
+                    <span class="flex-1 min-w-0">
+                        <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(s.name)}</span>
+                        <span class="block text-[13px] text-neutral-500 tabular-nums" title="Este valor irá a la O.T.">Neto en la OT $${netPrice.toLocaleString('es-CL')}</span>
+                    </span>
+                    <span class="text-[15px] tabular-nums text-neutral-900 dark:text-neutral-100" title="Precio final con IVA">$${s.price.toLocaleString('es-CL')}</span>
+                    <button type="button" onclick="deletePredefinedService(${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Eliminar servicio"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                </li>
+            `}).join('')}</ul>`;
         }
 
         function addPredefinedService() {
@@ -7823,36 +7709,15 @@
             const totalItems = state.inventoryList.length;
             const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
 
-            document.getElementById('inv-summary-content').innerHTML = `
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-neutral-500 flex justify-between items-center group">
-                    <div>
-                        <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Catálogo</p>
-                        <p class="text-2xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${totalItems}</p>
-                    </div>
-                    <i class="fa-solid fa-boxes-stacked text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-yellow-500 flex justify-between items-center group">
-                    <div>
-                        <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Alertas Stock</p>
-                        <p class="text-2xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-300 dark:text-neutral-700'} leading-none">${lowStockCount}</p>
-                    </div>
-                    <i class="fa-solid fa-triangle-exclamation text-3xl text-neutral-100 dark:text-neutral-800 group-hover:scale-110 transition-transform"></i>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-blue-500 flex justify-between items-center group overflow-hidden">
-                    <div class="z-10 relative">
-                        <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Inversión Actual</p>
-                        <p class="text-xl font-black text-blue-600 truncate max-w-[120px] sm:max-w-full leading-none">$${totalCost.toLocaleString('es-CL')}</p>
-                    </div>
-                    <i class="fa-solid fa-money-bill-trend-up text-4xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-green-500 flex justify-between items-center group overflow-hidden">
-                    <div class="z-10 relative">
-                        <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Ganancia Real</p>
-                        <p class="text-xl font-black ${totalProfit >= 0 ? 'text-green-600' : 'text-red-500'} truncate max-w-[120px] sm:max-w-full leading-none">$${totalProfit.toLocaleString('es-CL')}</p>
-                    </div>
-                    <i class="fa-solid fa-sack-dollar text-4xl text-neutral-100 dark:text-neutral-800 absolute right-2 opacity-50 group-hover:scale-110 transition-transform"></i>
-                </div>
-            `;
+            const stat = (label, value, cls = 'text-neutral-900 dark:text-neutral-100', dot = '') => `<div class="rounded-xl border border-neutral-900/[0.06] dark:border-white/[0.06] p-4">
+                    <p class="text-[13px] text-neutral-500 flex items-center gap-1.5">${dot ? `<span class="w-1.5 h-1.5 rounded-full ${dot}"></span>` : ''}${label}</p>
+                    <p class="mt-1 text-[22px] leading-8 font-medium tabular-nums truncate ${cls}">${value}</p>
+                </div>`;
+            document.getElementById('inv-summary-content').innerHTML =
+                stat('Productos', totalItems) +
+                stat('Stock bajo', lowStockCount, lowStockCount > 0 ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400', lowStockCount > 0 ? 'bg-amber-500' : '') +
+                stat('Inversión actual', `$${totalCost.toLocaleString('es-CL')}`) +
+                stat('Ganancia real', `${totalProfit < 0 ? '−' : ''}$${Math.abs(totalProfit).toLocaleString('es-CL')}`, totalProfit < 0 ? 'text-red-600 dark:text-[#e5484d]' : 'text-neutral-900 dark:text-neutral-100');
             
             document.body.classList.add('modal-open');
             document.getElementById('inv-summary-modal').classList.remove('hidden');
@@ -7899,43 +7764,31 @@
             
             if (item.extraData.type === 'brakes') {
                 const d = item.extraData;
+                const inp = 'w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150';
                 htmlContent = `
-                    <div class="mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3">
-                        <p class="text-xs font-bold text-blue-500 uppercase tracking-wide mb-1">Pastillas de Freno (Modo Edición)</p>
-                        <h4 class="text-xl font-black text-neutral-800 dark:text-neutral-100 leading-tight">${escapeHtml(item.product)}</h4>
-                        <div class="flex items-center gap-2 mt-2">
-                            <span class="text-xs font-bold text-neutral-500 uppercase tracking-wide">Código</span>
-                            <input type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${escapeHtml(item.sku === 'N/A' ? '' : item.sku)}" placeholder="Sin código" class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded px-2 py-1.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition w-full max-w-[160px] shadow-inner">
+                    <div class="flex flex-col gap-4">
+                        <div class="grid grid-cols-1 gap-3">
+                            <div><label for="info-sku" class="block text-[13px] text-neutral-500 mb-1.5">Código</label><input id="info-sku" type="text" onchange="updateCoreItemData(${item.id}, 'sku', this.value)" value="${escapeHtml(item.sku === 'N/A' ? '' : item.sku)}" placeholder="Sin código" class="${inp} tabular-nums"></div>
                         </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col">
-                            <span class="text-xs text-neutral-600 font-bold uppercase block mb-1">Eje / Posición</span>
-                            <select onchange="updateItemExtraData(${item.id}, 'pos', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm pb-1 cursor-pointer">
-                                <option value="Delanteras" ${d.pos === 'Delanteras' ? 'selected' : ''}>Delanteras</option>
-                                <option value="Traseras" ${d.pos === 'Traseras' ? 'selected' : ''}>Traseras</option>
-                                <option value="Ambas / Universal" ${d.pos === 'Ambas / Universal' ? 'selected' : ''}>Ambas / Universal</option>
-                            </select>
-                        </div>
-                        <div class="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col">
-                            <span class="text-xs text-neutral-600 font-bold uppercase block mb-1">Dimensiones (L x A)</span>
-                            <div class="flex items-center gap-1 mt-auto">
-                                <input type="number" onchange="updateItemExtraData(${item.id}, 'len', this.value)" value="${escapeHtml(d.len || '')}" placeholder="L" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
-                                <span class="text-xs text-neutral-600">x</span>
-                                <input type="number" onchange="updateItemExtraData(${item.id}, 'hgt', this.value)" value="${escapeHtml(d.hgt || '')}" placeholder="A" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-300 dark:border-neutral-600 focus:border-blue-500 text-sm text-center pb-1">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label for="info-pos" class="block text-[13px] text-neutral-500 mb-1.5">Posición</label>
+                                <select id="info-pos" onchange="updateItemExtraData(${item.id}, 'pos', this.value)" class="${inp}">
+                                    <option value="Delanteras" ${d.pos === 'Delanteras' ? 'selected' : ''}>Delanteras</option>
+                                    <option value="Traseras" ${d.pos === 'Traseras' ? 'selected' : ''}>Traseras</option>
+                                    <option value="Ambas / Universal" ${d.pos === 'Ambas / Universal' ? 'selected' : ''}>Ambas o universal</option>
+                                </select>
+                            </div>
+                            <div><span class="block text-[13px] text-neutral-500 mb-1.5">Largo × alto, mm</span>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="number" aria-label="Largo en mm" onchange="updateItemExtraData(${item.id}, 'len', this.value)" value="${escapeHtml(d.len || '')}" placeholder="130" class="${inp} text-right tabular-nums">
+                                    <span class="text-[13px] text-neutral-400">×</span>
+                                    <input type="number" aria-label="Alto en mm" onchange="updateItemExtraData(${item.id}, 'hgt', this.value)" value="${escapeHtml(d.hgt || '')}" placeholder="50" class="${inp} text-right tabular-nums">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30 mb-3 flex flex-col">
-                        <span class="text-xs text-blue-500 font-bold uppercase block mb-1"><i class="fa-solid fa-car-side"></i> Vehículos Compatibles</span>
-                        <textarea onchange="updateItemExtraData(${item.id}, 'mod', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-blue-200 dark:border-blue-800/50 focus:border-blue-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Ej: Toyota Yaris...">${escapeHtml(d.mod || '')}</textarea>
-                    </div>
-
-                    <div class="bg-yellow-50/50 dark:bg-yellow-900/10 p-3 rounded-lg border border-yellow-100 dark:border-yellow-800/30 flex flex-col">
-                        <span class="text-xs text-yellow-600 font-bold uppercase block mb-1"><i class="fa-solid fa-sticky-note"></i> Nota</span>
-                        <textarea onchange="updateItemExtraData(${item.id}, 'not', this.value)" class="w-full bg-transparent font-bold text-neutral-700 dark:text-neutral-300 outline-none border-b border-yellow-200 dark:border-yellow-800/50 focus:border-yellow-500 text-sm resize-none hide-scrollbar" rows="2" placeholder="Observaciones extra...">${escapeHtml(d.not || '')}</textarea>
+                        <div><label for="info-mod" class="block text-[13px] text-neutral-500 mb-1.5">Vehículos compatibles</label><textarea id="info-mod" onchange="updateItemExtraData(${item.id}, 'mod', this.value)" class="${inp} h-auto py-2.5 resize-none" rows="2" placeholder="Toyota Yaris 2014-2020">${escapeHtml(d.mod || '')}</textarea></div>
+                        <div><label for="info-not" class="block text-[13px] text-neutral-500 mb-1.5">Nota</label><textarea id="info-not" onchange="updateItemExtraData(${item.id}, 'not', this.value)" class="${inp} h-auto py-2.5 resize-none" rows="2" placeholder="Compuesto cerámico">${escapeHtml(d.not || '')}</textarea></div>
+                        <p class="text-[13px] text-neutral-500">Los cambios se guardan al salir de cada campo</p>
                     </div>
                 `;
             }
@@ -7944,15 +7797,19 @@
             if (!modal) {
                 document.body.insertAdjacentHTML('beforeend', `
                     <div id="item-info-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-                        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-sm p-5 border-t-4 border-blue-500 fade-enter relative">
-                            <button onclick="closeItemInfoModal()" class="absolute top-4 right-4 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-red-500 transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-                            <div id="item-info-content"></div>
+                        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="item-info-title">
+                            <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
+                                <div class="min-w-0"><h3 id="item-info-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 truncate"></h3><p class="text-[13px] text-neutral-500">Ficha de pastillas de freno</p></div>
+                                <button type="button" onclick="closeItemInfoModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div id="item-info-content" class="px-5 pb-5 overflow-y-auto hide-scrollbar"></div>
                         </div>
                     </div>
                 `);
                 modal = document.getElementById('item-info-modal');
             }
 
+            document.getElementById('item-info-title').textContent = item.brand ? `${item.product} · ${item.brand}` : item.product;
             document.getElementById('item-info-content').innerHTML = htmlContent;
             document.body.classList.add('modal-open');
             modal.classList.remove('hidden');

@@ -12,6 +12,9 @@ on:
       - 'capacitor.config.json'
       - 'android/**'
       - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/**'
+      - 'tailwind.config.js'
       - '.github/workflows/build-android.yml'
 
 permissions:

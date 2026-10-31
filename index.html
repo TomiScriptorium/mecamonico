@@ -4303,22 +4303,6 @@
         }
         
         // --- FUNCIONES DE INVENTARIO (INVENTORY) ---
-        function getStatusBadgeHTML(qty, minQty) {
-            if (qty <= 0) return `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-xs font-bold tracking-wide border border-red-200 whitespace-nowrap">AGOTADO</span>`;
-            if (qty <= minQty) return `<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold tracking-wide border border-yellow-200 whitespace-nowrap">BAJO STOCK</span>`;
-            return `<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-xs font-bold tracking-wide border border-green-200 whitespace-nowrap">ÓPTIMO</span>`;
-        }
-
-        // Fila de "tabla vacía" reutilizada por las 3 vistas del inventario (10 columnas)
-        function getEmptyInventoryRowHTML() {
-            return `<tr id="empty-inventory-msg"><td colspan="10" class="text-center py-16 opacity-60"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-600">Bodega Vacía</p><p class="text-sm font-bold text-neutral-600 mt-1">Aún no hay repuestos ni insumos registrados.</p></td></tr>`;
-        }
-
-        // Misma "bodega vacía" pero para la lista de tarjetas del celular (sin colspan, no es tabla)
-        function getEmptyInventoryCardHTML() {
-            return `<div id="empty-inventory-cards-msg" class="text-center py-16 opacity-60 bg-white dark:bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-700"><div class="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-box-open text-2xl text-neutral-400 dark:text-neutral-500"></i></div><p class="text-lg font-black text-neutral-600 dark:text-neutral-600">Bodega Vacía</p><p class="text-sm font-bold text-neutral-600 mt-1">Aún no hay repuestos ni insumos registrados.</p></div>`;
-        }
-
         // Fecha de la venta más reciente registrada para un ítem (o aviso si es histórico sin fecha)
         function getLastSaleLabel(item) {
             if (item.salesLog && item.salesLog.length > 0) {
@@ -4442,177 +4426,130 @@
             return { laborByDay, partsByDay, laborTotal, partsRevenueTotal, partsProfitTotal, daysInMonth };
         }
 
-        function getInventoryRowHTML(item) {
+        // ===================== BODEGA: fila (PC) y tarjeta (celular) =====================
+        // Ambas comparten clases (status-badge-container, profit-text, margin-text,
+        // iva-costo, iva-venta) para que updateInventoryItem() actualice las dos a la vez.
+        // Con el candado cerrado se muestran los valores con formato ($3.808); al
+        // abrirlo (toggleEditInv) se re-renderizan como campos editables.
+        const INV_POS = 'text-neutral-900 dark:text-neutral-100';
+        const INV_NEG = 'text-red-600 dark:text-[#e5484d]';
+        const INV_INPUT = 'bg-neutral-100 dark:bg-white/[0.06] rounded-md px-1.5 h-7 outline-none border border-transparent focus:border-neutral-900/[0.25] dark:focus:border-white/[0.25] text-neutral-900 dark:text-neutral-100 tabular-nums';
+        const INV_ICON_BTN = 'rounded-lg flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150';
+
+        function getInvViewData(item) {
             const price = parseFloat(item.price) || 0;
             const salePrice = parseFloat(item.salePrice) || 0;
-            const qty = parseFloat(item.qty) || 0;
-            const minQty = parseFloat(item.minQty) || 0;
-            const soldQty = parseFloat(item.soldQty) || 0;
-
             const priceGross = Math.round(price * 1.19);
             const salePriceGross = Math.round(salePrice * 1.19);
-            const realProfit = getItemSalesStats(item).profit;
-            const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
+            return {
+                price, salePrice, priceGross, salePriceGross,
+                qty: parseFloat(item.qty) || 0,
+                minQty: parseFloat(item.minQty) || 0,
+                soldQty: parseFloat(item.soldQty) || 0,
+                profit: getItemSalesStats(item).profit,
+                margin: priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0,
+                isEditing: window.editingInvId === item.id
+            };
+        }
+        const invMoney = n => (n < 0 ? '−$' : '$') + Math.abs(Math.round(n)).toLocaleString('es-CL');
 
-            const sku = item.sku || 'N/A';
-            const category = item.category || 'Sin categoría';
-            const badgeHTML = getStatusBadgeHTML(qty, minQty);
+        // Campo editable solo con el candado abierto; si no, texto con formato.
+        function invField(item, isEditing, field, rawValue, displayText, opts) {
+            opts = opts || {};
+            if (isEditing) {
+                const type = opts.text ? 'text' : 'number';
+                return `<input type="${type}" value="${escapeHtml(String(rawValue))}" oninput="updateInventoryItem(${item.id}, '${field}', this.value)" ${type === 'number' ? 'min="0"' : ''} placeholder="${opts.placeholder || ''}" aria-label="${opts.label || field}" class="${INV_INPUT} ${opts.inputClass || 'w-full'} ${opts.align === 'right' ? 'text-right' : opts.align === 'center' ? 'text-center' : ''}">`;
+            }
+            return `<span class="${opts.textClass || ''}">${displayText}</span>`;
+        }
 
-            // LOGICA DE MODO SEGURO (CANDADO)
-            const isEditing = window.editingInvId === item.id;
-            const readOnlyAttr = isEditing ? '' : 'readonly';
-            // Si no está editando, desactiva clics (pointer-events-none) para que parezca texto normal
-            const pointerClass = isEditing ? 'border-b border-dashed border-blue-400 pb-[1px] focus:border-solid focus:border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 px-1 rounded' : 'pointer-events-none cursor-default bg-transparent';
-            const editBtnIcon = isEditing ? 'fa-solid fa-lock text-xs' : 'fa-solid fa-pencil text-xs';
-            const editBtnClass = isEditing ? 'bg-blue-500 text-white shadow-inner' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white shadow-sm';
-            const rowBg = isEditing ? 'bg-blue-50/60 dark:bg-blue-900/10 ring-1 ring-inset ring-blue-300 dark:ring-blue-800' : 'odd:bg-white even:bg-neutral-50/70 dark:odd:bg-neutral-900 dark:even:bg-neutral-800/40 hover:bg-blue-50/40 dark:hover:bg-neutral-800';
-            // Columna Código congelada (sticky) al deslizar la tabla hacia los lados en el celular,
-            // para que nunca se pierda de vista a qué producto corresponde lo que se ve a la derecha.
-            const stickyColBg = isEditing ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-neutral-900';
+        function getStatusBadgeHTML(qty, minQty) {
+            const dot = (color, label, text) => `<span class="inline-flex items-center gap-1.5 text-xs whitespace-nowrap ${text}"><span class="w-1.5 h-1.5 rounded-full ${color}"></span>${label}</span>`;
+            if (qty <= 0) return dot('bg-red-600 dark:bg-[#e5484d]', 'Agotado', 'text-red-700 dark:text-[#e5484d]');
+            if (qty <= minQty) return dot('bg-[#d97706] dark:bg-[#f5b14c]', 'Bajo stock', 'text-[#b45309] dark:text-[#f5b14c]');
+            return dot('bg-[#16a34a] dark:bg-[#4cc38a]', 'Óptimo', 'text-neutral-500');
+        }
 
+        function getEmptyInventoryRowHTML() {
+            return `<tr id="empty-inventory-msg"><td colspan="10" class="px-6 py-14 text-center"><p class="text-base font-medium text-neutral-900 dark:text-neutral-100">Bodega vacía</p><p class="mt-1 text-sm text-neutral-500">Todavía no hay repuestos ni insumos registrados</p></td></tr>`;
+        }
+        function getEmptyInventoryCardHTML() {
+            return `<div id="empty-inventory-cards-msg" class="${DASH_CARD} px-6 py-12 text-center"><p class="text-base font-medium text-neutral-900 dark:text-neutral-100">Bodega vacía</p><p class="mt-1 text-sm text-neutral-500">Todavía no hay repuestos ni insumos registrados</p></div>`;
+        }
+
+        function getInvActionButtonsHTML(item, isEditing, size) {
+            const s = size === 'lg' ? 'w-10 h-10' : 'w-8 h-8';
+            const lock = isEditing
+                ? `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} rounded-lg flex items-center justify-center bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 transition-colors duration-150" title="Terminar edición" aria-label="Terminar edición"><i class="fa-solid fa-lock text-[13px]"></i></button>`
+                : `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} ${INV_ICON_BTN}" title="Editar" aria-label="Editar"><i class="fa-solid fa-pen text-[13px]"></i></button>`;
+            return `${lock}
+                <button type="button" onclick="sellInventoryItem(${item.id})" class="${s} ${INV_ICON_BTN}" title="Vender 1 unidad" aria-label="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-[13px]"></i></button>
+                <button type="button" onclick="openMarketPriceModal(${item.id})" class="${s} ${INV_ICON_BTN}" title="Comparar con Mercado Libre" aria-label="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-[13px]"></i></button>
+                <button type="button" onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger ${s} ${INV_ICON_BTN}" title="Más acciones" aria-label="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-[13px]"></i></button>`;
+        }
+
+        function getInventoryRowHTML(item) {
+            const v = getInvViewData(item);
+            const e = v.isEditing;
+            const extraBtn = item.extraData ? `<button type="button" onclick="openItemInfoModal(${item.id})" class="mt-0.5 text-xs text-neutral-600 dark:text-neutral-400 underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100">Ficha técnica</button>` : '';
+            const td = 'px-3 py-2.5 align-middle';
             return `
-                <tr id="inventory-row-${item.id}" class="inv-row ${rowBg} border-b border-neutral-200 dark:border-neutral-800 transition-colors group align-top">
-                    <td class="p-1.5 sm:p-2 align-middle text-center sticky left-0 z-10 ${stickyColBg} shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]">
-                        <input type="text" value="${escapeHtml(sku)}" oninput="updateInventoryItem(${item.id}, 'sku', this.value)" class="w-20 sm:w-24 bg-transparent outline-none font-mono text-[11px] text-center text-neutral-500 dark:text-neutral-600 ${pointerClass}" placeholder="Código" ${readOnlyAttr}>
+                <tr id="inventory-row-${item.id}" class="inv-row border-b border-neutral-900/[0.06] dark:border-white/[0.06] last:border-0 ${e ? 'bg-neutral-50 dark:bg-white/[0.03]' : 'hover:bg-neutral-50 dark:hover:bg-white/[0.02]'} transition-colors duration-150">
+                    <td class="${td} sticky left-0 z-10 ${e ? 'bg-neutral-50 dark:bg-[#1c1c1c]' : 'bg-white dark:bg-neutral-900'} text-xs text-neutral-500 tabular-nums whitespace-nowrap">${invField(item, e, 'sku', item.sku || '', escapeHtml(item.sku || '—'), { text: true, inputClass: 'w-24', label: 'Código' })}</td>
+                    <td class="${td} min-w-[180px]">
+                        ${invField(item, e, 'product', item.product || '', escapeHtml(item.product || ''), { text: true, textClass: 'text-[15px] text-neutral-900 dark:text-neutral-100', label: 'Producto' })}
+                        ${item.category ? `<div class="text-xs text-neutral-500 mt-0.5 truncate max-w-[200px]" title="${escapeHtml(item.category)}">${escapeHtml(item.category)}</div>` : ''}
+                        ${extraBtn}
                     </td>
-                    <td class="p-1.5 sm:p-2 align-middle min-w-[170px]">
-                        <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-bold ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-sm leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
-                        <div class="text-[11px] font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-500 mt-0.5 truncate max-w-[160px]" title="${escapeHtml(category)}">${escapeHtml(category)}</div>
-                        ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="mt-1 text-[11px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95"><i class="fa-solid fa-circle-info mr-1"></i>Ficha técnica</button>` : ''}
-                    </td>
-                    <td class="p-1.5 sm:p-2 align-middle min-w-[100px]">
-                        <input type="text" value="${escapeHtml(item.brand || '')}" oninput="updateInventoryItem(${item.id}, 'brand', this.value)" class="brand-input w-full bg-transparent outline-none font-bold text-neutral-600 dark:text-neutral-300 text-xs leading-tight ${pointerClass}" placeholder="Sin marca" ${readOnlyAttr}>
-                    </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-center">
-                        <div class="status-badge-container flex justify-center mb-1">${badgeHTML}</div>
-                        <div class="flex items-center justify-center gap-1">
-                            <input type="number" value="${qty}" oninput="updateInventoryItem(${item.id}, 'qty', this.value)" class="qty-input w-12 bg-transparent outline-none font-black text-sm text-center text-neutral-700 dark:text-neutral-200 ${pointerClass}" min="0" ${readOnlyAttr} title="Stock actual">
-                            <span class="text-neutral-300 dark:text-neutral-600">/</span>
-                            <input type="number" value="${minQty}" oninput="updateInventoryItem(${item.id}, 'minQty', this.value)" class="minqty-input w-10 bg-transparent outline-none font-bold text-xs text-center text-neutral-600 dark:text-neutral-500 ${pointerClass}" min="0" ${readOnlyAttr} title="Stock mínimo (alerta)">
+                    <td class="${td} min-w-[100px] text-sm text-neutral-600 dark:text-neutral-400">${invField(item, e, 'brand', item.brand || '', escapeHtml(item.brand || '—'), { text: true, placeholder: 'Sin marca', label: 'Marca' })}</td>
+                    <td class="${td} whitespace-nowrap">
+                        <div class="status-badge-container">${getStatusBadgeHTML(v.qty, v.minQty)}</div>
+                        <div class="mt-1 flex items-center gap-1 text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
+                            ${invField(item, e, 'qty', v.qty, v.qty, { inputClass: 'w-14', align: 'center', label: 'Stock' })}
+                            <span class="text-xs text-neutral-500">/ mín.</span>
+                            ${invField(item, e, 'minQty', v.minQty, v.minQty, { inputClass: 'w-12', align: 'center', textClass: 'text-xs text-neutral-500', label: 'Stock mínimo' })}
                         </div>
                     </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-right whitespace-nowrap">
-                        <div class="flex items-center justify-end"><span class="text-xs font-bold text-neutral-600 mr-0.5">$</span><input type="number" value="${priceGross}" oninput="updateInventoryItem(${item.id}, 'priceGross', this.value)" class="w-20 bg-transparent outline-none font-bold text-sm text-right text-neutral-700 dark:text-neutral-300 ${pointerClass}" min="0" ${readOnlyAttr}></div>
-                        <p class="iva-costo text-[11px] text-neutral-600 font-mono mt-0.5">Neto: $${Math.round(price).toLocaleString('es-CL')}</p>
+                    <td class="${td} text-right whitespace-nowrap tabular-nums">
+                        <div class="text-sm text-neutral-900 dark:text-neutral-100">${invField(item, e, 'priceGross', v.priceGross, invMoney(v.priceGross), { inputClass: 'w-24', align: 'right', label: 'Costo con IVA' })}</div>
+                        <p class="iva-costo text-xs text-neutral-500 mt-0.5">Neto ${invMoney(v.price)}</p>
                     </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-right whitespace-nowrap">
-                        <div class="flex items-center justify-end"><span class="text-xs font-bold text-green-500 mr-0.5">$</span><input type="number" value="${salePriceGross}" oninput="updateInventoryItem(${item.id}, 'salePriceGross', this.value)" class="w-20 bg-transparent outline-none font-bold text-sm text-right text-green-600 dark:text-green-400 ${pointerClass}" min="0" ${readOnlyAttr}></div>
-                        <p class="iva-venta text-[11px] text-green-600/70 dark:text-green-500/70 font-mono mt-0.5">Neto: $${Math.round(salePrice).toLocaleString('es-CL')}</p>
+                    <td class="${td} text-right whitespace-nowrap tabular-nums">
+                        <div class="text-sm text-neutral-900 dark:text-neutral-100">${invField(item, e, 'salePriceGross', v.salePriceGross, invMoney(v.salePriceGross), { inputClass: 'w-24', align: 'right', label: 'Venta con IVA' })}</div>
+                        <p class="iva-venta text-xs text-neutral-500 mt-0.5">Neto ${invMoney(v.salePrice)}</p>
                     </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-center">
-                        <span class="margin-text text-xs font-black ${margin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${margin}%</span>
-                    </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-center">
-                        <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-12 bg-transparent outline-none font-black text-sm text-center text-purple-600 dark:text-purple-400 ${pointerClass}" min="0" ${readOnlyAttr}>
-                    </td>
-                    <td class="p-1.5 sm:p-2 align-middle text-right whitespace-nowrap">
-                        <span class="profit-text text-sm font-black ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">$${realProfit.toLocaleString('es-CL')}</span>
-                    </td>
-                    <td class="p-1.5 sm:p-2 align-middle">
-                        <div class="flex items-center justify-center gap-1">
-                            <button onclick="toggleEditInv(${item.id})" class="w-7 h-7 rounded ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
-                            <button onclick="sellInventoryItem(${item.id})" class="w-7 h-7 rounded bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
-                            <button onclick="openMarketPriceModal(${item.id})" class="w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
-                            <button onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger w-7 h-7 rounded bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition shadow-sm flex items-center justify-center active:scale-95" title="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-xs"></i></button>
-                        </div>
-                    </td>
+                    <td class="${td} text-right tabular-nums"><span class="margin-text text-sm ${v.margin < 0 ? INV_NEG : 'text-neutral-600 dark:text-neutral-400'}">${v.margin}%</span></td>
+                    <td class="${td} text-right tabular-nums text-sm text-neutral-900 dark:text-neutral-100">${invField(item, e, 'soldQty', v.soldQty, v.soldQty, { inputClass: 'w-14', align: 'right', label: 'Vendidos' })}</td>
+                    <td class="${td} text-right whitespace-nowrap tabular-nums"><span class="profit-text text-sm ${v.profit < 0 ? INV_NEG : INV_POS}">${invMoney(v.profit)}</span></td>
+                    <td class="${td}"><div class="flex items-center justify-end gap-0.5">${getInvActionButtonsHTML(item, e, 'sm')}</div></td>
                 </tr>
             `;
         }
 
-        // Versión en tarjeta del mismo ítem, para pantallas angostas (celular): en vez
-        // de una tabla que hay que deslizar hacia el lado, se ve todo apilado en una
-        // sola tarjeta. Usa el mismo item/estado que la fila de escritorio — comparten
-        // las mismas clases (status-badge-container, profit-text, etc.) para que
-        // updateInventoryItem() pueda actualizar ambas vistas a la vez.
         function getInventoryCardHTML(item) {
-            const price = parseFloat(item.price) || 0;
-            const salePrice = parseFloat(item.salePrice) || 0;
-            const qty = parseFloat(item.qty) || 0;
-            const minQty = parseFloat(item.minQty) || 0;
-            const soldQty = parseFloat(item.soldQty) || 0;
-
-            const priceGross = Math.round(price * 1.19);
-            const salePriceGross = Math.round(salePrice * 1.19);
-            const realProfit = getItemSalesStats(item).profit;
-            const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
-
-            const sku = item.sku || 'N/A';
-            const category = item.category || 'Sin categoría';
-            const badgeHTML = getStatusBadgeHTML(qty, minQty);
-
-            const isEditing = window.editingInvId === item.id;
-            const readOnlyAttr = isEditing ? '' : 'readonly';
-            const pointerClass = isEditing ? 'border-b border-dashed border-blue-400 pb-[1px] focus:border-solid focus:border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 px-1 rounded' : 'pointer-events-none cursor-default bg-transparent';
-            const editBtnIcon = isEditing ? 'fa-solid fa-lock text-xs' : 'fa-solid fa-pencil text-xs';
-            const editBtnClass = isEditing ? 'bg-blue-500 text-white shadow-inner' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white shadow-sm';
-
+            const v = getInvViewData(item);
+            const e = v.isEditing;
+            const meta = [item.brand, item.sku, item.category].filter(Boolean).map(x => escapeHtml(x)).join(' · ');
+            const cell = (label, inner, sub) => `<div class="min-w-0"><p class="text-xs text-neutral-500">${label}</p><div class="mt-1 text-[15px] tabular-nums text-neutral-900 dark:text-neutral-100">${inner}</div>${sub || ''}</div>`;
             return `
-                <div id="inventory-card-${item.id}" class="inv-card bg-white dark:bg-neutral-800 border ${isEditing ? 'border-blue-400 dark:border-blue-500 ring-2 ring-blue-100 dark:ring-blue-900/50' : 'border-neutral-200 dark:border-neutral-700'} rounded-xl p-3 shadow-sm transition-all group flex flex-col gap-2 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full ${isEditing ? 'bg-blue-500' : 'bg-neutral-200 dark:bg-neutral-700'} transition-colors"></div>
-
-                    <div class="flex justify-between items-start gap-2 border-b border-neutral-100 dark:border-neutral-700/50 pb-2 pl-2">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-[11px] font-mono bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-600 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 shadow-sm"><i class="fa-solid fa-barcode mr-1 opacity-50"></i>${escapeHtml(sku)}</span>
-                                <span class="text-[11px] font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-500"><i class="fa-solid fa-tag mr-1 opacity-50"></i>${escapeHtml(category)}</span>
-                                ${item.extraData ? `<button onclick="openItemInfoModal(${item.id})" class="text-[11px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-200 transition shadow-sm active:scale-95 z-10 relative"><i class="fa-solid fa-circle-info mr-1"></i>+ Info</button>` : ''}
-                            </div>
-                            <input type="text" value="${escapeHtml(item.product)}" oninput="updateInventoryItem(${item.id}, 'product', this.value)" class="w-full bg-transparent outline-none font-black ${isEditing ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-800 dark:text-neutral-100'} text-base transition-colors leading-tight ${pointerClass}" placeholder="Nombre del Ítem" ${readOnlyAttr}>
-                            <input type="text" value="${escapeHtml(item.brand || '')}" oninput="updateInventoryItem(${item.id}, 'brand', this.value)" class="brand-input w-full bg-transparent outline-none font-bold text-neutral-500 dark:text-neutral-600 text-xs leading-tight mt-0.5 ${pointerClass}" placeholder="Sin marca" ${readOnlyAttr}>
+                <div id="inventory-card-${item.id}" class="inv-card ${DASH_CARD} p-4 flex flex-col gap-4 ${e ? 'ring-1 ring-neutral-900/[0.2] dark:ring-white/[0.2]' : ''}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            ${invField(item, e, 'product', item.product || '', escapeHtml(item.product || ''), { text: true, textClass: 'block text-[15px] font-medium text-neutral-900 dark:text-neutral-100', label: 'Producto' })}
+                            ${e ? `<div class="mt-2 grid grid-cols-2 gap-2">${invField(item, e, 'brand', item.brand || '', '', { text: true, placeholder: 'Marca', label: 'Marca' })}${invField(item, e, 'sku', item.sku || '', '', { text: true, placeholder: 'Código', label: 'Código' })}</div>` : (meta ? `<p class="mt-0.5 text-sm text-neutral-500 truncate">${meta}</p>` : '')}
+                            ${item.extraData ? `<button type="button" onclick="openItemInfoModal(${item.id})" class="mt-1 text-xs text-neutral-600 dark:text-neutral-400 underline underline-offset-2">Ficha técnica</button>` : ''}
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0 mt-0.5 relative z-10 flex-wrap justify-end max-w-[130px]">
-                            <button onclick="toggleEditInv(${item.id})" class="w-11 h-11 rounded-lg ${editBtnClass} transition flex items-center justify-center active:scale-95 border border-blue-200 dark:border-blue-800/50" title="Editar/Bloquear"><i class="${editBtnIcon}"></i></button>
-                            <button onclick="sellInventoryItem(${item.id})" class="w-11 h-11 rounded-lg bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95 border border-green-200 dark:border-green-800/50" title="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-xs"></i></button>
-                            <button onclick="openMarketPriceModal(${item.id})" class="w-11 h-11 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-orange-500 hover:text-white transition shadow-sm flex items-center justify-center active:scale-95" title="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-xs"></i></button>
-                            <button onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger w-11 h-11 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition shadow-sm flex items-center justify-center active:scale-95" title="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-xs"></i></button>
-                        </div>
+                        <div class="status-badge-container shrink-0 pt-0.5">${getStatusBadgeHTML(v.qty, v.minQty)}</div>
                     </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-1.5">
-                        <div class="flex flex-col bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800 relative justify-between">
-                            <div class="flex justify-between items-start mb-0.5">
-                                <span class="text-[11px] text-neutral-600 font-bold uppercase tracking-wide">Stock</span>
-                                <div class="status-badge-container scale-[0.80] origin-top-right -mt-0.5 -mr-0.5">${badgeHTML}</div>
-                            </div>
-                            <div class="flex items-center gap-1 mt-auto">
-                                <input type="number" value="${qty}" oninput="updateInventoryItem(${item.id}, 'qty', this.value)" class="qty-input w-full bg-transparent outline-none font-black text-lg text-neutral-700 dark:text-neutral-200 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr}>
-                                <span class="text-neutral-300 dark:text-neutral-600 text-xs">/</span>
-                                <input type="number" value="${minQty}" oninput="updateInventoryItem(${item.id}, 'minQty', this.value)" class="minqty-input w-8 bg-transparent outline-none font-bold text-xs text-neutral-600 dark:text-neutral-500 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr} title="Stock mínimo">
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800 justify-between">
-                            <span class="text-[11px] text-neutral-600 font-bold uppercase tracking-wide mb-0.5">Costo c/IVA</span>
-                            <div class="flex items-center mt-auto">
-                                <span class="text-xs font-bold text-neutral-600 mr-0.5">$</span>
-                                <input type="number" value="${priceGross}" oninput="updateInventoryItem(${item.id}, 'priceGross', this.value)" class="w-full bg-transparent outline-none font-black text-lg text-neutral-700 dark:text-neutral-300 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr}>
-                            </div>
-                            <p class="iva-costo text-[11px] text-neutral-600 font-mono mt-0.5">Neto: $${Math.round(price).toLocaleString('es-CL')}</p>
-                        </div>
-
-                        <div class="flex flex-col bg-green-50/50 dark:bg-green-900/10 p-2 rounded-lg border border-green-100/50 dark:border-green-800/30 justify-between">
-                            <div class="flex justify-between items-start mb-0.5">
-                                <span class="text-[11px] text-green-600/70 dark:text-green-500/70 font-bold uppercase tracking-wide">Venta c/IVA</span>
-                                <span class="margin-text text-[11px] font-black ${margin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}" title="Recargo sobre el costo">${margin}%</span>
-                            </div>
-                            <div class="flex items-center mt-auto">
-                                <span class="text-xs font-bold text-green-600 dark:text-green-400 mr-0.5">$</span>
-                                <input type="number" value="${salePriceGross}" oninput="updateInventoryItem(${item.id}, 'salePriceGross', this.value)" class="w-full bg-transparent outline-none font-black text-lg text-green-600 dark:text-green-400 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr}>
-                            </div>
-                            <p class="iva-venta text-[11px] text-green-600/70 dark:text-green-500/70 font-mono mt-0.5">Neto: $${Math.round(salePrice).toLocaleString('es-CL')}</p>
-                        </div>
-
-                        <div class="flex flex-col bg-purple-50/50 dark:bg-purple-900/10 p-2 rounded-lg border border-purple-100/50 dark:border-purple-800/30 justify-between">
-                            <span class="text-[11px] text-purple-500/70 font-bold uppercase tracking-wide mb-1">Vendidos</span>
-                            <input type="number" value="${soldQty}" oninput="updateInventoryItem(${item.id}, 'soldQty', this.value)" class="sold-input w-full bg-transparent outline-none font-black text-lg text-purple-600 dark:text-purple-400 transition leading-none ${pointerClass}" min="0" ${readOnlyAttr}>
-                        </div>
-
-                        <div class="flex flex-col bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800 justify-between">
-                            <span class="text-[11px] text-neutral-600 font-bold uppercase tracking-wide mb-1">Ganancia</span>
-                            <span class="profit-text text-base ${realProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-black tracking-tight leading-none block truncate" title="$${realProfit.toLocaleString('es-CL')}">$${realProfit.toLocaleString('es-CL')}</span>
-                        </div>
+                    <div class="grid grid-cols-3 gap-x-3 gap-y-4">
+                        ${cell('Stock', `<span class="flex items-baseline gap-1">${invField(item, e, 'qty', v.qty, v.qty, { inputClass: 'w-12', align: 'center', label: 'Stock' })}<span class="text-xs text-neutral-500">/ ${e ? '' : v.minQty}</span>${e ? invField(item, e, 'minQty', v.minQty, '', { inputClass: 'w-10', align: 'center', label: 'Stock mínimo' }) : ''}</span>`)}
+                        ${cell('Costo c/IVA', invField(item, e, 'priceGross', v.priceGross, invMoney(v.priceGross), { label: 'Costo con IVA' }), `<p class="iva-costo mt-0.5 text-xs text-neutral-500 tabular-nums">Neto ${invMoney(v.price)}</p>`)}
+                        ${cell('Venta c/IVA', invField(item, e, 'salePriceGross', v.salePriceGross, invMoney(v.salePriceGross), { label: 'Venta con IVA' }), `<p class="iva-venta mt-0.5 text-xs text-neutral-500 tabular-nums">Neto ${invMoney(v.salePrice)}</p>`)}
+                        ${cell('Recargo', `<span class="margin-text ${v.margin < 0 ? INV_NEG : ''}">${v.margin}%</span>`)}
+                        ${cell('Vendidos', invField(item, e, 'soldQty', v.soldQty, v.soldQty, { label: 'Vendidos' }))}
+                        ${cell('Ganancia', `<span class="profit-text ${v.profit < 0 ? INV_NEG : INV_POS}">${invMoney(v.profit)}</span>`)}
                     </div>
+                    <div class="flex items-center justify-end gap-1 -mb-1 -mr-1 pt-3 border-t border-neutral-900/[0.06] dark:border-white/[0.06]">${getInvActionButtonsHTML(item, e, 'lg')}</div>
                 </div>
             `;
         }
@@ -4646,30 +4583,24 @@
                 const profitEl = container.querySelector('.profit-text');
                 if (profitEl) {
                     const profit = getItemSalesStats(item).profit;
-                    profitEl.innerText = `$${profit.toLocaleString('es-CL')}`;
-                    profitEl.title = `$${profit.toLocaleString('es-CL')}`;
-                    profitEl.classList.toggle('text-green-600', profit >= 0);
-                    profitEl.classList.toggle('dark:text-green-400', profit >= 0);
-                    profitEl.classList.toggle('text-red-600', profit < 0);
-                    profitEl.classList.toggle('dark:text-red-400', profit < 0);
+                    profitEl.innerText = invMoney(profit);
+                    INV_NEG.split(' ').forEach(c => profitEl.classList.toggle(c, profit < 0));
+                    INV_POS.split(' ').forEach(c => profitEl.classList.toggle(c, profit >= 0));
                 }
 
                 const marginEl = container.querySelector('.margin-text');
                 if (marginEl) {
                     const margin = priceGross > 0 ? Math.round(((salePriceGross - priceGross) / priceGross) * 100) : 0;
                     marginEl.innerText = `${margin}%`;
-                    marginEl.classList.toggle('text-green-600', margin >= 0);
-                    marginEl.classList.toggle('dark:text-green-400', margin >= 0);
-                    marginEl.classList.toggle('text-red-600', margin < 0);
-                    marginEl.classList.toggle('dark:text-red-400', margin < 0);
+                    INV_NEG.split(' ').forEach(c => marginEl.classList.toggle(c, margin < 0));
                 }
 
                 // Redondeo visual seguro para la pantalla
                 const ivaTextCosto = container.querySelector('.iva-costo');
-                if (ivaTextCosto) ivaTextCosto.innerText = `Neto: $${Math.round(parseFloat(item.price) || 0).toLocaleString('es-CL')}`;
+                if (ivaTextCosto) ivaTextCosto.innerText = `Neto ${invMoney(parseFloat(item.price) || 0)}`;
 
                 const ivaTextVenta = container.querySelector('.iva-venta');
-                if (ivaTextVenta) ivaTextVenta.innerText = `Neto: $${Math.round(parseFloat(item.salePrice) || 0).toLocaleString('es-CL')}`;
+                if (ivaTextVenta) ivaTextVenta.innerText = `Neto ${invMoney(parseFloat(item.salePrice) || 0)}`;
             });
             updateInventoryTotal();
         }
@@ -5007,29 +4938,20 @@
             
             const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
             
-            const kpiItems = document.getElementById('inv-kpi-items');
-            if(kpiItems) kpiItems.innerText = state.inventoryList.length;
-            
-            const kpiAlerts = document.getElementById('inv-kpi-alerts');
-            if(kpiAlerts) {
-                const alertCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
-                kpiAlerts.innerText = alertCount;
-                kpiAlerts.className = `text-lg sm:text-xl font-black ${alertCount > 0 ? 'text-yellow-600' : 'text-neutral-800 dark:text-neutral-100'} leading-none`;
-            }
-            
-            const kpiCost = document.getElementById('inv-kpi-cost');
-            if(kpiCost) {
-                kpiCost.innerText = `$${totalCost.toLocaleString('es-CL')}`;
-                kpiCost.title = `$${totalCost.toLocaleString('es-CL')}`;
-            }
-
-            const kpiProfit = document.getElementById('inv-kpi-profit');
-            if(kpiProfit) {
-                kpiProfit.innerText = `$${totalProfit.toLocaleString('es-CL')}`;
-                kpiProfit.title = `$${totalProfit.toLocaleString('es-CL')}`;
-                if (totalProfit < 0) kpiProfit.className = "text-lg sm:text-xl font-black text-red-500 truncate max-w-[100px] sm:max-w-full leading-none";
-                else kpiProfit.className = "text-lg sm:text-xl font-black text-green-600 truncate max-w-[100px] sm:max-w-full leading-none";
-            }
+            const setKpi = (id, text, negative, warn) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerText = text; el.title = text;
+                const color = negative ? INV_NEG : (warn ? 'text-[#b45309] dark:text-[#f5b14c]' : 'text-neutral-900 dark:text-neutral-100');
+                el.className = `mt-1 text-2xl leading-8 font-medium tabular-nums truncate ${color}`;
+            };
+            const alertCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
+            setKpi('inv-kpi-items', String(state.inventoryList.length));
+            setKpi('inv-kpi-alerts', String(alertCount), false, alertCount > 0);
+            setKpi('inv-kpi-cost', invMoney(totalCost));
+            setKpi('inv-kpi-profit', invMoney(totalProfit), totalProfit < 0);
+            const subtitle = document.getElementById('inv-subtitle');
+            if (subtitle) subtitle.innerHTML = getBodegaSubtitleHTML();
         }
 
         function clearInventoryList() {
@@ -5117,126 +5039,87 @@
 
         function getInvSortTh(label, field, extraClass) {
             const isActive = invSortState.field === field;
-            const iconClass = isActive ? (invSortState.dir === 'asc' ? 'fa-sort-up text-blue-500' : 'fa-sort-down text-blue-500') : 'fa-sort text-neutral-300 dark:text-neutral-600';
-            return `<th onclick="sortInventoryTable('${field}')" class="p-2 font-bold uppercase tracking-wide cursor-pointer select-none hover:text-blue-600 dark:hover:text-blue-400 transition whitespace-nowrap ${extraClass || ''}">${label}<i id="inv-sort-icon-${field}" class="inv-sort-icon fa-solid ${iconClass} ml-1 text-xs"></i></th>`;
+            const iconClass = isActive ? (invSortState.dir === 'asc' ? 'fa-arrow-up text-neutral-700 dark:text-neutral-300' : 'fa-arrow-down text-neutral-700 dark:text-neutral-300') : 'fa-sort text-neutral-300 dark:text-neutral-600';
+            return `<th onclick="sortInventoryTable('${field}')" class="px-3 py-2.5 font-normal cursor-pointer select-none hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150 whitespace-nowrap ${isActive ? 'text-neutral-900 dark:text-neutral-100' : ''} ${extraClass || ''}">${label}<i id="inv-sort-icon-${field}" class="inv-sort-icon fa-solid ${iconClass} ml-1.5 text-[10px]"></i></th>`;
         }
+
+    function getBodegaSubtitleHTML() {
+        const total = state.inventoryList.length;
+        const low = state.inventoryList.filter(i => (parseFloat(i.qty) || 0) <= (parseFloat(i.minQty) || 0)).length;
+        return `<span class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">${total}</span> ${total === 1 ? 'producto' : 'productos'}${low ? ` · <span class="text-[#b45309] dark:text-[#f5b14c]">${low} con stock bajo</span>` : ''}`;
+    }
 
     function getShoppingListHTML() {
     const sortedList = getSortedInventoryList();
     const inventoryHTML = sortedList.map((item) => getInventoryRowHTML(item)).join('');
     // En celular se usan tarjetas apiladas en vez de la tabla (que obliga a deslizar
-    // hacia el lado); en pantallas grandes (lg+) se muestra la tabla tipo Excel.
+    // hacia el lado); en pantallas grandes (lg+) se muestra la tabla.
     const inventoryCardsHTML = sortedList.map((item) => getInventoryCardHTML(item)).join('');
 
     const totalCost = state.inventoryList.reduce((sum, item) => sum + (Math.round((parseFloat(item.price) || 0) * 1.19) * (parseFloat(item.qty) || 0)), 0);
     const totalProfit = state.inventoryList.reduce((sum, item) => sum + getItemSalesStats(item).profit, 0);
     const lowStockCount = state.inventoryList.filter(i => (parseFloat(i.qty)||0) <= (parseFloat(i.minQty)||0)).length;
+    const btn2 = 'h-9 px-3.5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150';
+    const kpi = (id, label, value, cls) => `<div class="${DASH_CARD} px-4 py-3.5 min-w-0"><p class="text-sm text-neutral-600 dark:text-neutral-400">${label}</p><p id="${id}" class="mt-1 text-2xl leading-8 font-medium tabular-nums truncate ${cls}" title="${value}">${value}</p></div>`;
 
     return `
-        <div class="pb-24 fade-enter">
-            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 sm:gap-4 mb-4">
-                <h2 class="text-3xl font-black text-neutral-800 dark:text-neutral-100 tracking-tighter flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-green-600"></i> Bodega Central
-                </h2>
-
-                <div class="grid grid-cols-2 sm:flex sm:flex-row flex-wrap gap-2 w-full xl:w-auto">
-
-                    <button onclick="openInvSummaryModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-chart-pie text-blue-500"></i>
-                        <span>Resumen</span>
-                    </button>
-
-                    <button onclick="openShoppingModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-cart-shopping text-purple-500"></i>
-                        <span><span class="hidden sm:inline">Lista de </span>Compras</span>
-                    </button>
-
-                    <button onclick="downloadInventoryPDF()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-pdf text-red-400"></i>
-                        <span>PDF</span>
-                    </button>
-
-                    <button onclick="exportInventoryToExcel()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-neutral-700 dark:hover:bg-neutral-600 transition flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-file-excel text-green-400"></i>
-                        <span>Excel</span>
-                    </button>
-
-                    <button onclick="triggerInventoryImport()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Subir un Excel editado para actualizar el inventario">
-                        <i class="fa-solid fa-file-import text-blue-500"></i>
-                        <span>Importar</span>
-                    </button>
+        <div class="w-full max-w-7xl mx-auto lg:px-2 lg:pt-2 pb-32 lg:pb-8 flex flex-col gap-5 fade-enter">
+            <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100">Bodega</h1>
+                    <p id="inv-subtitle" class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">${getBodegaSubtitleHTML()}</p>
+                </div>
+                <div class="grid grid-cols-3 lg:flex gap-2">
+                    <button type="button" onclick="openInvSummaryModal()" class="${btn2}"><i class="fa-solid fa-chart-pie text-[13px] text-neutral-500"></i>Resumen</button>
+                    <button type="button" onclick="openShoppingModal()" class="${btn2}"><i class="fa-solid fa-cart-shopping text-[13px] text-neutral-500"></i><span class="lg:hidden">Compras</span><span class="hidden lg:inline">Lista de compras</span></button>
+                    <button type="button" onclick="toggleBodegaMoreMenu(this)" class="inv-actions-trigger ${btn2}" aria-haspopup="menu"><i class="fa-solid fa-ellipsis text-[13px] text-neutral-500"></i>Más</button>
+                    <button type="button" onclick="openAddInventoryModal()" class="col-span-3 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><i class="fa-solid fa-plus text-[13px]"></i>Nuevo producto</button>
                     <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
-
-                    <button onclick="openBulkMarkupModal()" class="bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 px-3 py-2.5 rounded text-sm font-bold shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 active:scale-95" title="Aplicar un recargo a varios productos a la vez, filtrando por marca y/o categoría">
-                        <i class="fa-solid fa-percent text-orange-500"></i>
-                        <span>Recargo <span class="hidden sm:inline">Masivo</span></span>
-                    </button>
-
-                    <button onclick="openAddInventoryModal()" class="bg-green-600 text-white px-3 py-2.5 rounded text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center justify-center gap-2 active:scale-95 col-span-2 sm:col-span-1">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Nuevo<span class="hidden sm:inline"> Ítem</span></span>
-                    </button>
-
                 </div>
+            </header>
+
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                ${kpi('inv-kpi-items', 'Productos', state.inventoryList.length, 'text-neutral-900 dark:text-neutral-100')}
+                ${kpi('inv-kpi-alerts', 'Stock bajo', lowStockCount, lowStockCount > 0 ? 'text-[#b45309] dark:text-[#f5b14c]' : 'text-neutral-900 dark:text-neutral-100')}
+                ${kpi('inv-kpi-cost', 'Inversión en stock', invMoney(totalCost), 'text-neutral-900 dark:text-neutral-100')}
+                ${kpi('inv-kpi-profit', 'Ganancia histórica', invMoney(totalProfit), totalProfit < 0 ? INV_NEG : 'text-neutral-900 dark:text-neutral-100')}
+            </section>
+
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500"></i>
+                <input type="text" id="inventory-search" placeholder="Buscar código, producto o marca" aria-label="Buscar en bodega" class="w-full h-10 pl-10 pr-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" oninput="filterInventory(this.value)">
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-neutral-500">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Ítems en Catálogo</p>
-                    <p id="inv-kpi-items" class="text-lg sm:text-xl font-black text-neutral-800 dark:text-neutral-100 leading-none">${state.inventoryList.length}</p>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-yellow-500">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Alertas de Stock</p>
-                    <p id="inv-kpi-alerts" class="text-lg sm:text-xl font-black ${lowStockCount > 0 ? 'text-yellow-600' : 'text-neutral-800 dark:text-neutral-100'} leading-none">${lowStockCount}</p>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-blue-500">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Inversión en Stock</p>
-                    <p id="inv-kpi-cost" class="text-lg sm:text-xl font-black text-blue-600 truncate max-w-[100px] sm:max-w-full leading-none" title="$${totalCost.toLocaleString('es-CL')}">$${totalCost.toLocaleString('es-CL')}</p>
-                </div>
-                <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-3 rounded-lg shadow-sm border-l-4 border-l-green-500">
-                    <p class="text-xs font-bold text-neutral-600 uppercase tracking-wide mb-1">Ganancia Histórica</p>
-                    <p id="inv-kpi-profit" class="text-lg sm:text-xl font-black ${totalProfit < 0 ? 'text-red-500' : 'text-green-600'} truncate max-w-[100px] sm:max-w-full leading-none" title="$${totalProfit.toLocaleString('es-CL')}">$${totalProfit.toLocaleString('es-CL')}</p>
-                </div>
-            </div>
-
-            <div class="mb-4 flex gap-2 relative">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" id="inventory-search" placeholder="Buscar por Código, nombre o categoría..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-green-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInventory(this.value)">
-                </div>
-                <button onclick="openInvReportModal()" class="w-[46px] h-[46px] bg-neutral-800 dark:bg-neutral-700 text-white rounded flex items-center justify-center hover:bg-neutral-700 transition shadow-sm shrink-0" title="Reporte Histórico">
-                    <i class="fa-solid fa-chart-line text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Tarjetas: solo en celular (pantallas angostas) -->
-            <div id="inventory-cards-body" class="lg:hidden flex flex-col gap-2">
+            <!-- Tarjetas: solo en celular -->
+            <div id="inventory-cards-body" class="lg:hidden flex flex-col gap-3">
                 ${inventoryCardsHTML || getEmptyInventoryCardHTML()}
             </div>
 
-            <!-- Tabla tipo Excel: solo en escritorio (lg y más grande) -->
-            <div class="hidden lg:block bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-x-auto hide-scrollbar mouse-drag">
-                <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                    <thead class="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-500 dark:text-neutral-600 border-b border-neutral-200 dark:border-neutral-700">
-                        <tr>
-                            ${getInvSortTh('Código', 'sku', 'sticky left-0 z-20 bg-neutral-100 dark:bg-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.15)]')}
-                            ${getInvSortTh('Producto', 'product')}
-                            ${getInvSortTh('Marca', 'brand')}
-                            ${getInvSortTh('Stock / Mín.', 'qty', 'text-center')}
-                            ${getInvSortTh('Costo +IVA', 'priceGross', 'text-right')}
-                            ${getInvSortTh('Venta +IVA', 'salePriceGross', 'text-right')}
-                            ${getInvSortTh('Recargo', 'margin', 'text-center')}
-                            ${getInvSortTh('Vendidos', 'soldQty', 'text-center')}
-                            ${getInvSortTh('Ganancia', 'profit', 'text-right')}
-                            <th class="p-2 font-bold uppercase tracking-wide text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-table-body">
-                        ${inventoryHTML || getEmptyInventoryRowHTML()}
-                    </tbody>
-                </table>
+            <!-- Tabla: solo en escritorio -->
+            <div class="hidden lg:block">
+                <div class="${DASH_CARD} overflow-x-auto hide-scrollbar mouse-drag">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="text-xs text-neutral-500 border-b border-neutral-900/[0.08] dark:border-white/[0.08]">
+                            <tr>
+                                ${getInvSortTh('Código', 'sku', 'sticky left-0 z-20 bg-white dark:bg-neutral-900')}
+                                ${getInvSortTh('Producto', 'product')}
+                                ${getInvSortTh('Marca', 'brand')}
+                                ${getInvSortTh('Stock', 'qty')}
+                                ${getInvSortTh('Costo c/IVA', 'priceGross', 'text-right')}
+                                ${getInvSortTh('Venta c/IVA', 'salePriceGross', 'text-right')}
+                                ${getInvSortTh('Recargo', 'margin', 'text-right')}
+                                ${getInvSortTh('Vendidos', 'soldQty', 'text-right')}
+                                ${getInvSortTh('Ganancia', 'profit', 'text-right')}
+                                <th class="px-3 py-2.5 font-normal"><span class="sr-only">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            ${inventoryHTML || getEmptyInventoryRowHTML()}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-2 text-xs text-neutral-500">Toca un encabezado para ordenar la tabla</p>
             </div>
-            <p class="hidden lg:flex text-xs text-neutral-600 mt-2 items-center gap-1"><i class="fa-solid fa-circle-info"></i> Toca el encabezado de una columna para ordenar. Desliza la tabla hacia los lados para ver todas las columnas — el Código queda siempre visible.</p>
         </div>
     `;
 }
@@ -5428,9 +5311,35 @@
         menu.classList.remove('hidden');
     }
 
+    // Menú "Más" del encabezado de Bodega: reutiliza el mismo menú flotante
+    // que el de cada producto (se cierra igual al hacer clic afuera).
+    function toggleBodegaMoreMenu(btnEl) {
+        const menu = document.getElementById('inv-actions-menu');
+        const wasOpen = menu.dataset.forId === 'bodega-more' && !menu.classList.contains('hidden');
+        closeInvActionsMenu();
+        if (wasOpen) return;
+        const opt = (fn, icon, label) => `<button type="button" onclick="closeInvActionsMenu(); ${fn}" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2.5 text-neutral-700 dark:text-neutral-200"><i class="fa-solid ${icon} w-4 text-center text-neutral-400"></i>${label}</button>`;
+        menu.innerHTML = opt('openInvReportModal()', 'fa-chart-line', 'Reporte histórico')
+            + opt('openBulkMarkupModal()', 'fa-percent', 'Recargo masivo')
+            + '<div class="border-t border-neutral-100 dark:border-neutral-700 my-1"></div>'
+            + opt('downloadInventoryPDF()', 'fa-file-pdf', 'Descargar PDF')
+            + opt('exportInventoryToExcel()', 'fa-file-excel', 'Exportar a Excel')
+            + opt('triggerInventoryImport()', 'fa-file-import', 'Importar desde Excel');
+        const rect = btnEl.getBoundingClientRect();
+        const menuWidth = 208;
+        menu.style.width = menuWidth + 'px';
+        let left = Math.min(Math.max(8, rect.right - menuWidth), window.innerWidth - menuWidth - 8);
+        let top = rect.bottom + 4;
+        if (top + 220 > window.innerHeight) top = Math.max(8, rect.top - 4 - 220);
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        menu.dataset.forId = 'bodega-more';
+        menu.classList.remove('hidden');
+    }
+
     function closeInvActionsMenu() {
         const menu = document.getElementById('inv-actions-menu');
-        if (menu) { menu.classList.add('hidden'); menu.dataset.forId = ''; }
+        if (menu) { menu.classList.add('hidden'); menu.dataset.forId = ''; menu.style.width = ''; }
     }
 
     // --- RECARGO MASIVO: aplicar un % de recargo a varios productos a la vez,

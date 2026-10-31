@@ -2207,13 +2207,16 @@
         async function handlePdfUpload(input) { const file = input.files[0]; if(!file) return; if(file.size > 25 * 1024 * 1024) { showToast("Máx 25MB", "fa-triangle-exclamation"); input.value = ''; return; } try { showToast("Procesando...", "fa-spinner fa-spin"); const base64 = await processFileBase64(file); const newPdf = { id: Date.now(), title: file.name.replace('.pdf', ''), data: base64 }; if(!state.pdfs) state.pdfs = []; state.pdfs.push(newPdf); await saveData(); 
             const list = document.getElementById('pdfs-list');
             if (list) {
-                const emptyMsg = list.querySelector('.text-center.opacity-40');
+                const emptyMsg = list.querySelector('[data-empty]');
                 if(emptyMsg) emptyMsg.remove();
                 list.insertAdjacentHTML('afterbegin', createPdfHTML(newPdf));
+                refreshInfoChrome();
+                const tabCount = document.querySelector('#tab-btn-pdf span');
+                if (tabCount) tabCount.textContent = state.pdfs.length;
             } else {
                 renderView('links'); 
             }
-            showToast("Manual Agregado", "fa-file-pdf"); } catch(e) { console.error(e); showToast("Error al leer", "fa-times"); } input.value = ''; }
+            showToast("Manual agregado", "fa-file-pdf"); } catch(e) { console.error(e); showToast("Error al leer", "fa-times"); } input.value = ''; }
         function processFileBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
         
         function renamePdf(id) {
@@ -2251,58 +2254,132 @@
             closeRenamePdfModal();
         }
 
-        function deletePdf(id) { showConfirmModal("¿Eliminar Manual?", "Acción irreversible.", "Eliminar", () => { state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
+        function deletePdf(id) { showConfirmModal("¿Eliminar manual?", "No se puede deshacer.", "Eliminar", () => { state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
 
         function setInfoTab(tab) {
             state.activeInfoTab = tab;
-            const webBtn = document.getElementById('tab-btn-web'); const pdfBtn = document.getElementById('tab-btn-pdf'); const webContent = document.getElementById('tab-content-web'); const pdfContent = document.getElementById('tab-content-pdf');
-            if (webBtn && pdfBtn && webContent && pdfContent) {
-                webContent.classList.add('hidden'); webContent.classList.remove('fade-enter'); pdfContent.classList.add('hidden'); pdfContent.classList.remove('fade-enter');
-                const inactiveClass = 'flex-1 py-2 text-sm font-bold rounded transition text-neutral-500 hover:text-neutral-700 bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-600 dark:hover:text-neutral-200'; 
-                const activeClass = 'flex-1 py-2 text-sm font-bold rounded transition bg-red-600 text-white shadow-md';
-                webBtn.className = inactiveClass; pdfBtn.className = inactiveClass;
-                if (tab === 'web') { webContent.classList.remove('hidden'); void webContent.offsetWidth; webContent.classList.add('fade-enter'); webBtn.className = activeClass; } else { pdfContent.classList.remove('hidden'); void pdfContent.offsetWidth; pdfContent.classList.add('fade-enter'); pdfBtn.className = activeClass; }
-                const searchEl = document.getElementById('info-search');
-                if (searchEl) { searchEl.value = ''; filterInfo(''); }
-            } else { renderView('links'); }
+            renderView('links');
         }
         
-        function getLinksHTML() {
-            const isWeb = state.activeInfoTab === 'web';
-            const linksHTML = (state.links || []).map(l => createLinkHTML(l)).join('');
-            const webContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0"><h3 class="text-xs font-bold text-neutral-600 dark:text-neutral-500 mb-3">Nuevo Recurso</h3><div class="flex flex-col gap-3"><input type="text" id="link-title" placeholder="Nombre (ej: Foro, Manual)" class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full font-bold dark:text-white"><div class="flex flex-col gap-2"><input type="url" id="link-url" placeholder="https://..." class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none transition w-full dark:text-white"><button onclick="addLink()" class="bg-neutral-800 dark:bg-neutral-700 text-white px-4 py-3 rounded font-bold hover:bg-neutral-700 dark:hover:bg-neutral-600 transition shadow-lg text-sm w-full mt-1"><i class="fa-solid fa-plus mr-2"></i> Guardar</button></div></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-600 dark:text-neutral-500 mb-3">Biblioteca Web</h3><div id="links-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${linksHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin enlaces guardados</div>'}</div></div></div>`;
-            const pdfsHTML = (state.pdfs || []).map(p => createPdfHTML(p)).join('');
-            const pdfContent = `<div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 shrink-0"><div class="bg-white dark:bg-neutral-900 p-5 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 sticky top-0 text-center"><h3 class="text-xs font-bold text-neutral-600 dark:text-neutral-500 mb-3 text-left">Subir Manual Técnico</h3><div class="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer group flex flex-col items-center justify-center gap-2 h-64" onclick="triggerPdfInput()"><div class="w-16 h-16 rounded bg-neutral-100 dark:bg-neutral-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center transition mb-2"><i class="fa-solid fa-file-arrow-up text-3xl text-neutral-400 dark:text-neutral-500 group-hover:text-red-500 transition"></i></div><p class="text-lg font-bold text-neutral-500 dark:text-neutral-300 group-hover:text-red-600 transition">Toca para subir</p><p class="text-xs text-neutral-600 dark:text-neutral-500 font-mono">PDF (Máx 25MB)</p><input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)"></div></div></div><div class="lg:w-2/3"><h3 class="hidden lg:block text-xs font-bold text-neutral-600 dark:text-neutral-500 mb-3">Manuales Guardados</h3><div id="pdfs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 pb-32">${pdfsHTML || '<div class="text-center opacity-40 py-10 col-span-full font-mono text-xs dark:text-white">Sin documentos guardados</div>'}</div></div></div>`;
-            
-            const activeClass = "bg-red-600 text-white shadow-md";
-            const inactiveClass = "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-600 hover:text-neutral-700 dark:hover:text-neutral-200";
+        const INFO_INPUT = 'w-full h-11 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150';
+        const INFO_ICON_BTN = 'w-9 h-9 shrink-0 flex items-center justify-center rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150';
 
-            return `<div><h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-toolbox text-red-600"></i> Información Técnica</h2><div class="flex p-1 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 shadow-inner">
-                <button id="tab-btn-web" onclick="setInfoTab('web')" class="flex-1 py-2 text-sm font-bold rounded transition ${isWeb ? activeClass : inactiveClass}">Enlaces Web</button>
-                <button id="tab-btn-pdf" onclick="setInfoTab('pdf')" class="flex-1 py-2 text-sm font-bold rounded transition ${!isWeb ? activeClass : inactiveClass}">Manuales PDF</button>
-            </div><div class="mb-4 relative"><i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i><input type="text" id="info-search" placeholder="Buscar manual o recurso..." class="w-full pl-10 pr-4 py-3 rounded bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-red-500 outline-none text-neutral-700 dark:text-neutral-200 font-bold transition shadow-sm" onkeyup="filterInfo(this.value)"></div><div id="tab-content-web" class="${isWeb ? 'fade-enter' : 'hidden'}">${webContent}</div><div id="tab-content-pdf" class="${!isWeb ? 'fade-enter' : 'hidden'}">${pdfContent}</div></div>`;
+        function getInfoSubtitleHTML() {
+            const l = (state.links || []).length, p = (state.pdfs || []).length;
+            return `${l} ${l === 1 ? 'enlace' : 'enlaces'} · ${p} ${p === 1 ? 'manual' : 'manuales'}`;
         }
+
+        function refreshInfoChrome() {
+            const sub = document.getElementById('info-subtitle');
+            if (sub) sub.textContent = getInfoSubtitleHTML();
+        }
+
+        function getInfoEmptyHTML(text) {
+            return `<li data-empty class="px-5 py-12 text-center text-sm text-neutral-500">${text}</li>`;
+        }
+
+        function getLinksHTML() {
+            const isWeb = state.activeInfoTab !== 'pdf';
+            const links = state.links || [];
+            const pdfs = state.pdfs || [];
+            const tabBtn = (tab, label, count, active) => `<button id="tab-btn-${tab}" type="button" onclick="setInfoTab('${tab}')" class="flex-1 sm:flex-none h-9 px-4 rounded-md text-sm transition-colors duration-150 ${active ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'}">${label} <span class="tabular-nums text-neutral-400">${count}</span></button>`;
+
+            const listCard = (id, itemsHTML, emptyText) => `<ul id="${id}" class="${DASH_CARD} divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06] overflow-hidden">${itemsHTML || getInfoEmptyHTML(emptyText)}</ul>`;
+
+            const webSide = `<div class="${DASH_CARD} p-5 flex flex-col gap-3 lg:sticky lg:top-2">
+                <h2 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Nuevo enlace</h2>
+                <input type="text" id="link-title" placeholder="Nombre, ej: foro Hilux" class="${INFO_INPUT}">
+                <input type="url" id="link-url" placeholder="https://" class="${INFO_INPUT}" onkeydown="if(event.key==='Enter') addLink()">
+                <button type="button" onclick="addLink()" class="h-11 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[15px] font-medium transition-colors duration-150">Guardar</button>
+            </div>`;
+
+            const pdfSide = `<div class="${DASH_CARD} p-5 flex flex-col gap-3 lg:sticky lg:top-2">
+                <h2 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Subir manual</h2>
+                <button type="button" onclick="triggerPdfInput()" class="h-32 rounded-lg border border-dashed border-neutral-900/[0.16] dark:border-white/[0.16] flex flex-col items-center justify-center gap-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors duration-150">
+                    <i class="fa-solid fa-arrow-up-from-bracket text-base"></i>
+                    <span class="text-[15px]">Elegir archivo PDF</span>
+                    <span class="text-[13px] text-neutral-400">Hasta 25 MB</span>
+                </button>
+                <input type="file" id="pdf-input-file" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)">
+            </div>`;
+
+            const panel = (side, list) => `<div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">${list}${side}</div>`;
+
+            return `<div class="w-full max-w-7xl mx-auto lg:px-2 lg:pt-2 pb-32 lg:pb-8 flex flex-col gap-5 fade-enter">
+                <header class="flex flex-col gap-1">
+                    <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100">Información</h1>
+                    <p id="info-subtitle" class="text-[15px] text-neutral-500 tabular-nums">${getInfoSubtitleHTML()}</p>
+                </header>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex p-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] border border-neutral-900/[0.06] dark:border-white/[0.06]">
+                        ${tabBtn('web', 'Enlaces', links.length, isWeb)}
+                        ${tabBtn('pdf', 'Manuales PDF', pdfs.length, !isWeb)}
+                    </div>
+                    <div class="relative flex-1 sm:max-w-sm">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-neutral-400"></i>
+                        <input type="search" id="info-search" placeholder="Buscar" oninput="filterInfo(this.value)" class="${INFO_INPUT} pl-9">
+                    </div>
+                </div>
+                <div id="tab-content-web" class="${isWeb ? '' : 'hidden'}">${panel(webSide, listCard('links-list', links.map(createLinkHTML).join(''), 'Sin enlaces guardados'))}</div>
+                <div id="tab-content-pdf" class="${isWeb ? 'hidden' : ''}">${panel(pdfSide, listCard('pdfs-list', pdfs.map(createPdfHTML).join(''), 'Sin manuales guardados'))}</div>
+            </div>`;
+        }
+
+        function formatPdfSize(dataUrl) {
+            const bytes = Math.max(0, ((dataUrl || '').length - ((dataUrl || '').indexOf(',') + 1)) * 0.75);
+            if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+            return `${(bytes / (1024 * 1024)).toLocaleString('es-CL', { maximumFractionDigits: 1 })} MB`;
+        }
+
         function createPdfHTML(pdf) {
-            return `<div class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group cursor-pointer h-full" onclick="openPdfReader(${pdf.id})"><div class="w-12 h-12 rounded bg-neutral-100 dark:bg-neutral-800 text-red-500 flex items-center justify-center mr-4 text-2xl group-hover:scale-110 transition border border-neutral-200 dark:border-neutral-700"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-1 min-w-0"><h4 class="text-neutral-800 dark:text-neutral-200 font-bold truncate text-base tracking-tight">${escapeHtml(pdf.title)}</h4><p class="text-xs text-neutral-600 dark:text-neutral-500 font-mono">TOCA PARA LEER</p></div>
-            <button onclick="event.stopPropagation(); renamePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-600 dark:text-neutral-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="event.stopPropagation(); sharePdfFile(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-600 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
-            <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; 
+            return `<li id="pdf-${pdf.id}" class="flex items-center gap-3 px-4 sm:px-5 py-3 ${DASH_HOVER}">
+                <button type="button" onclick="openPdfReader(${pdf.id})" class="flex-1 min-w-0 flex items-center gap-3 text-left">
+                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center"><i class="fa-regular fa-file-pdf text-[15px]"></i></span>
+                    <span class="min-w-0">
+                        <span class="block text-[15px] leading-snug text-neutral-900 dark:text-neutral-100 break-words line-clamp-2 sm:line-clamp-1">${escapeHtml(pdf.title)}</span>
+                        <span class="block text-[13px] text-neutral-500 tabular-nums">PDF · ${formatPdfSize(pdf.data)}</span>
+                    </span>
+                </button>
+                <button type="button" onclick="renamePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Renombrar" aria-label="Renombrar"><i class="fa-solid fa-pen text-[13px]"></i></button>
+                <button type="button" onclick="sharePdfFile(${pdf.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><i class="fa-solid fa-share-nodes text-[13px]"></i></button>
+                <button type="button" onclick="deletePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+            </li>`;
+        }
+
+        function createLinkHTML(link) {
+            const safeUrl = sanitizeUrl(link.url);
+            let host = link.url;
+            try { host = new URL(safeUrl).hostname.replace(/^www\./, ''); } catch (e) {}
+            const favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64`;
+            return `<li id="link-${link.id}" class="flex items-center gap-3 px-4 sm:px-5 py-3 ${DASH_HOVER}">
+                <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 flex items-center gap-3">
+                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center overflow-hidden">
+                        <i class="fa-solid fa-link text-[13px] hidden"></i>
+                        <img src="${escapeHtml(favicon)}" alt="" class="w-5 h-5 object-contain" onerror="this.previousElementSibling.classList.remove('hidden'); this.remove()">
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block text-[15px] leading-snug text-neutral-900 dark:text-neutral-100 break-words line-clamp-2 sm:line-clamp-1">${escapeHtml(link.title)}</span>
+                        <span class="block text-[13px] text-neutral-500 truncate">${escapeHtml(host)}</span>
+                    </span>
+                </a>
+                <button type="button" onclick="shareLink(${link.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><i class="fa-solid fa-share-nodes text-[13px]"></i></button>
+                <button type="button" onclick="confirmDelete('link', ${link.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+            </li>`;
         }
         
-        function createLinkHTML(link) { const safeUrl = sanitizeUrl(link.url); const favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(safeUrl)}&sz=64`; return `<div id="link-${link.id}" class="flex items-center bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition hover:border-red-400 dark:hover:border-red-500 group h-full"><img src="${escapeHtml(favicon)}" class="w-10 h-10 rounded bg-neutral-50 dark:bg-neutral-800 p-1.5 mr-4 object-contain grayscale group-hover:grayscale-0 transition" onerror="this.src='https://via.placeholder.co/32'"><a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-neutral-700 dark:text-neutral-200 font-bold hover:text-red-600 dark:hover:text-red-400 transition truncate pr-4"><span class="text-base tracking-tight">${escapeHtml(link.title)}</span><div class="text-xs text-neutral-600 dark:text-neutral-500 font-mono truncate mt-0.5">${escapeHtml(link.url)}</div></a>
-        <button onclick="shareLink(${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-600 dark:text-neutral-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition mr-1"><i class="fa-solid fa-share-nodes"></i></button>
-        <button onclick="confirmDelete('link', ${link.id})" class="w-10 h-10 flex items-center justify-center rounded text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`; }
-        
-        function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!u.startsWith('http')) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); 
+        function addLink() { const t = document.getElementById('link-title').value.trim(); let u = document.getElementById('link-url').value.trim(); if (!t || !u) return; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; const newLink = { id: Date.now(), title: t, url: u }; state.links.push(newLink); saveData(); 
             const list = document.getElementById('links-list');
             if(list) {
-                const emptyMsg = list.querySelector('.text-center.opacity-40');
+                const emptyMsg = list.querySelector('[data-empty]');
                 if(emptyMsg) emptyMsg.remove();
                 list.insertAdjacentHTML('beforeend', createLinkHTML(newLink));
+                refreshInfoChrome();
+                const tabCount = document.querySelector('#tab-btn-web span');
+                if (tabCount) tabCount.textContent = state.links.length;
             } else {
                 renderView('links'); 
             }
-            showToast("Recurso añadido", "fa-bookmark"); 
+            showToast("Enlace guardado", "fa-bookmark"); 
             document.getElementById('link-title').value = '';
             document.getElementById('link-url').value = '';
         }
@@ -6523,7 +6600,7 @@
             const list = document.getElementById(listId);
             if (!list) return;
             Array.from(list.children).forEach(child => {
-                if (child.classList.contains('opacity-40')) return; 
+                if (child.hasAttribute('data-empty')) return; 
                 const text = child.innerText.toLowerCase();
                 child.style.display = text.includes(term) ? '' : 'none';
             });

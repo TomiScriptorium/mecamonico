@@ -9,11 +9,41 @@ const root = path.join(__dirname, '..');
 const wwwDir = path.join(root, 'www');
 const files = ['index.html', 'sw.js', 'manifest.json', 'iconomecamonico.png'];
 
+const { execFileSync } = require('child_process');
+
 fs.mkdirSync(wwwDir, { recursive: true });
 for (const file of files) {
     fs.copyFileSync(path.join(root, file), path.join(wwwDir, file));
     console.log(`Copiado: ${file} -> www/${file}`);
 }
+
+// Tailwind compilado: en vez de armar los estilos en el teléfono/PC desde el
+// CDN cada vez que se abre la app (lento, se ve un instante sin estilos y no
+// funciona sin internet), se genera www/tailwind.css con las mismas clases y
+// colores, y en www/index.html el bloque del CDN se cambia por un <link>.
+const tailwindCli = require.resolve('tailwindcss/lib/cli.js');
+execFileSync(process.execPath, [
+    tailwindCli,
+    '-c', path.join(root, 'tailwind.config.js'),
+    '-i', path.join(__dirname, 'tailwind.input.css'),
+    '-o', path.join(wwwDir, 'tailwind.css'),
+    '--minify'
+], { stdio: 'inherit' });
+
+const wwwIndex = path.join(wwwDir, 'index.html');
+let html = fs.readFileSync(wwwIndex, 'utf8');
+const cdnBlock = /<!-- tailwind-cdn:start[\s\S]*?<!-- tailwind-cdn:end -->/;
+if (!cdnBlock.test(html)) throw new Error('No se encontró el bloque tailwind-cdn en index.html');
+// El <link> va justo antes de </head>, igual que el <style> que inyecta el
+// CDN al final de la cabecera: así las clases de Tailwind (por ejemplo
+// "hidden") siguen ganándole a Font Awesome y a los estilos propios.
+if (!html.includes('</head>')) throw new Error('index.html no tiene </head>');
+html = html
+    .replace(cdnBlock, '')
+    .replace('</head>', '    <link rel="stylesheet" href="tailwind.css">\n</head>')
+    .replace(' https://cdn.tailwindcss.com', '');
+fs.writeFileSync(wwwIndex, html);
+console.log('Generado: www/tailwind.css (index.html ya no usa el CDN de Tailwind)');
 
 // Número de esta compilación (lo pone build-android.yml antes de este script,
 // con el número de ejecución del workflow). La app de Android lo usa para

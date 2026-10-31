@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
          Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
          pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com https://via.placeholder.co; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.github.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.github.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -47,6 +47,11 @@
         document.head.appendChild(themeStyle);
     </script>
     
+    <!-- tailwind-cdn:start
+         En la web, Tailwind se arma en el navegador desde su CDN. En las apps de
+         Android y Windows, scripts/build-www.js compila este mismo config a un
+         archivo tailwind.css local y reemplaza todo este bloque por un <link>,
+         así la app abre con estilos al instante y también sin internet. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -78,6 +83,7 @@
             }
         }
     </script>
+    <!-- tailwind-cdn:end -->
     
     <!-- JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1270,7 +1276,7 @@
             // protegido con un PIN opcional. Arranca siempre en 'mecanico' por
             // seguridad (ver checkUserSession).
             currentProfile: 'mecanico',
-            adminPin: '',
+            adminPin: '', adminPinHash: '',
             shopLogo: null,
             nextOtNumber: 1,
             // Notas rápidas de Inicio, solo para el perfil Mecánico (avisos de
@@ -1344,6 +1350,7 @@
 
             // 5. Correcciones únicas de datos antiguos (ya con los datos definitivos cargados)
             try { migrateGtxBrandFromProductNames(); } catch (err) { console.error(err); }
+            try { await migrateAdminPin(); } catch (err) { console.error(err); }
         }
 
         // --- MIGRACIÓN ÚNICA: separar el prefijo "GTX" del nombre de las pastillas de freno ---
@@ -1414,6 +1421,7 @@
                     // El perfil no se guarda: la app siempre abre en Mecánico.
                     saved.currentProfile = 'mecanico';
                     if (saved.adminPin === undefined) saved.adminPin = '';
+                    if (saved.adminPinHash === undefined) saved.adminPinHash = '';
                     if (saved.shopLogo === undefined) saved.shopLogo = null;
                     if (!saved.mechanicNotes) saved.mechanicNotes = [];
                     if (saved.nextOtNumber === undefined) {
@@ -2418,12 +2426,12 @@
                 }
                 showToast(toastMsg, toastIcon);
             };
-            if (!state.adminPin) {
+            if (!hasAdminPin()) {
                 enterAdmin("Perfil: Administrador (configura un PIN en Ajustes)", "fa-triangle-exclamation");
                 return;
             }
-            showPinPrompt("Ingresa el PIN de Administrador", (pin) => {
-                if (pin && pin === state.adminPin) {
+            showPinPrompt("Ingresa el PIN de Administrador", async (pin) => {
+                if (pin && await verifyAdminPin(pin)) {
                     enterAdmin("Perfil: Administrador", "fa-user-shield");
                 } else {
                     showToast("PIN incorrecto", "fa-circle-xmark");
@@ -2445,15 +2453,72 @@
 
         // Configura o cambia el PIN de Administrador desde Ajustes (solo se
         // puede hacer estando ya en el perfil Administrador).
+        // --- PIN de Administrador ---
+        // El PIN no se guarda tal cual: se guarda una huella (PBKDF2-SHA256 con
+        // una sal al azar), así no se puede leer desde la nube, un respaldo ZIP
+        // o el almacenamiento del navegador. Sigue siendo una barrera entre
+        // personas de confianza: un PIN de 4 a 6 números se puede adivinar
+        // probando, así que no reemplaza a la contraseña de la cuenta.
+        const PIN_HASH_ITERATIONS = 150000;
+
+        function bytesToB64(bytes) { return btoa(String.fromCharCode(...new Uint8Array(bytes))); }
+        function b64ToBytes(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
+
+        async function derivePinHash(pin, saltBytes, iterations) {
+            const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+            const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: saltBytes, iterations }, key, 256);
+            return bytesToB64(bits);
+        }
+
+        async function makePinHash(pin) {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            return `pbkdf2$${PIN_HASH_ITERATIONS}$${bytesToB64(salt)}$${await derivePinHash(pin, salt, PIN_HASH_ITERATIONS)}`;
+        }
+
+        function canHashPin() {
+            return !!(window.crypto && crypto.subtle && crypto.getRandomValues);
+        }
+
+        function hasAdminPin() {
+            return !!(state.adminPinHash || state.adminPin);
+        }
+
+        async function verifyAdminPin(pin) {
+            if (state.adminPinHash) {
+                const [scheme, iter, salt, hash] = String(state.adminPinHash).split('$');
+                if (scheme !== 'pbkdf2' || !canHashPin()) return false;
+                return (await derivePinHash(pin, b64ToBytes(salt), parseInt(iter, 10))) === hash;
+            }
+            // PIN de una versión anterior, guardado tal cual: se acepta una vez y se
+            // cambia por la huella para que deje de estar a la vista.
+            const ok = !!state.adminPin && pin === state.adminPin;
+            if (ok) await migrateAdminPin();
+            return ok;
+        }
+
+        async function migrateAdminPin() {
+            if (!state.adminPin || !canHashPin()) return;
+            state.adminPinHash = await makePinHash(state.adminPin);
+            state.adminPin = '';
+            saveData();
+        }
+
         function changeAdminPin() {
-            showTextPrompt("Nuevo PIN de Administrador (4 a 6 números)", "", (newPin) => {
+            showTextPrompt("Nuevo PIN de Administrador (4 a 6 números)", "", async (newPin) => {
                 const clean = newPin.trim();
                 if (!/^\d{4,6}$/.test(clean)) {
                     showToast("El PIN debe tener entre 4 y 6 números", "fa-triangle-exclamation");
                     return;
                 }
-                state.adminPin = clean;
+                if (!canHashPin()) {
+                    showToast("Este dispositivo no permite guardar el PIN de forma segura", "fa-triangle-exclamation");
+                    return;
+                }
+                state.adminPinHash = await makePinHash(clean);
+                state.adminPin = '';
                 saveData();
+                const label = document.getElementById('admin-pin-btn-label');
+                if (label) label.innerText = 'Cambiar PIN';
                 showToast("PIN de Administrador actualizado", "fa-check");
             });
         }
@@ -6809,7 +6874,7 @@
             const adminCard = document.getElementById('admin-pin-settings-card');
             if (adminCard) {
                 adminCard.classList.toggle('hidden', state.currentProfile !== 'administrador');
-                document.getElementById('admin-pin-btn-label').innerText = state.adminPin ? 'Cambiar PIN' : 'Configurar PIN';
+                document.getElementById('admin-pin-btn-label').innerText = hasAdminPin() ? 'Cambiar PIN' : 'Configurar PIN';
             }
             document.getElementById('toggle-finance-widget').checked = state.showFinanceWidget;
             // Cargar la configuración de calidad (por defecto 'medium')
@@ -7414,7 +7479,7 @@
                 userProfileImage: null, userName: 'Usuario', userTitle: 'Estudiante', currentDate: new Date(), currentFolderId: 'all', editingNoteId: null, activeInfoTab: 'web',
                 darkMode: false, showFinanceWidget: true,
                 visibleModules: ['dashboard', 'work_orders', 'shopping_list', 'todo', 'turnario', 'notes', 'links'],
-                currentProfile: 'mecanico', adminPin: '', shopLogo: null, nextOtNumber: 1, mechanicNotes: []
+                currentProfile: 'mecanico', adminPin: '', adminPinHash: '', shopLogo: null, nextOtNumber: 1, mechanicNotes: []
             };
             try { await idbKeyval.set(APP_KEY, state); } catch(e) {}
             // ------------------------------------------------------

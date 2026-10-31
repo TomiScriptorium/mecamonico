@@ -4109,30 +4109,79 @@
 
         function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const el = document.getElementById(`note-${id}`); if(el) { el.classList.add('item-leave'); setTimeout(() => el.remove(), 300); } showToast("Nota eliminada", "fa-trash"); }
         
-        function getTodoHTML() { const todosHTML = state.todos.length === 0 ? `<div id="empty-todo-msg" class="text-center py-12 opacity-50"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-600 dark:text-neutral-500">Sin tareas pendientes</p></div>` : state.todos.sort((a,b) => a.done - b.done).map(t => createTodoItemHTML(t)).join(''); return `<div><div class="bg-blue-600 text-white p-6 rounded mb-6 shadow-lg relative overflow-hidden border-l-4 border-red-500"><div class="relative z-10"><h2 class="text-3xl font-black mb-1 tracking-tighter">Lista de Tareas</h2><p class="text-blue-100 text-sm font-mono">Objetivos y mantenimientos.</p></div><i class="fa-solid fa-list-check absolute -right-2 -bottom-4 text-9xl text-blue-800 opacity-30 rotate-12"></i></div><div class="flex gap-2 mb-6 bg-white dark:bg-neutral-900 p-2 rounded shadow-sm border border-neutral-300 dark:border-neutral-700"><input type="text" id="new-todo" placeholder="Agregar nueva tarea..." class="flex-1 p-3 bg-transparent outline-none text-neutral-700 dark:text-neutral-200 font-bold placeholder-neutral-400 dark:placeholder-neutral-500 text-sm" onkeypress="if(event.key === 'Enter') addTodo()"><button onclick="addTodo()" class="bg-red-500 text-white w-12 rounded hover:bg-red-600 transition shadow-sm font-bold text-xl">+</button></div><ul id="todo-list" class="space-y-3 pb-32">${todosHTML}</ul></div>`; }
-        function createTodoItemHTML(todo) { const doneClass = todo.done ? "opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500"; const textClass = todo.done ? "line-through text-neutral-600 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-200 font-bold"; const iconClass = todo.done ? "fa-solid fa-square-check text-green-500" : "fa-regular fa-square text-neutral-600 dark:text-neutral-500 group-hover:text-blue-500"; return `<li id="todo-${todo.id}" class="flex items-center gap-4 p-4 rounded shadow-sm border ${doneClass} transition-all group item-enter"><button onclick="toggleTodo(${todo.id})" class="text-2xl focus:outline-none transform active:scale-90 transition"><i id="icon-${todo.id}" class="${iconClass}"></i></button><span id="text-${todo.id}" class="flex-1 ${textClass} text-sm cursor-pointer select-none" onclick="toggleTodo(${todo.id})">${escapeHtml(todo.text)}</span><button onclick="confirmDelete('todo', ${todo.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-neutral-300 dark:text-neutral-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button></li>`; }
-        
-        function addTodo() { 
-            const input = document.getElementById('new-todo'); 
-            const text = input.value.trim(); 
-            if (!text) return; 
-            const newTodo = { id: Date.now(), text, done: false }; 
-            state.todos.unshift(newTodo); 
-            saveData(); 
-            
-            const list = document.getElementById('todo-list'); 
-            if(list) { 
-                const emptyMsg = document.getElementById('empty-todo-msg'); 
-                if(emptyMsg) emptyMsg.remove(); 
-                list.insertAdjacentHTML('afterbegin', createTodoItemHTML(newTodo)); 
-            } 
-            input.value = ''; 
-            showToast("Tarea añadida", "fa-plus"); 
+        // ===================== TAREAS =====================
+        function getTodoSubtitleHTML() {
+            const pending = state.todos.filter(t => !t.done).length;
+            const done = state.todos.length - pending;
+            return `<span class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">${pending}</span> ${pending === 1 ? 'pendiente' : 'pendientes'}${done ? ` · ${done} ${done === 1 ? 'hecha' : 'hechas'}` : ''}`;
         }
 
-        function toggleTodo(id) { const todo = state.todos.find(t => t.id === id); if (!todo) return; todo.done = !todo.done; saveData(); const item = document.getElementById(`todo-${id}`); const icon = document.getElementById(`icon-${id}`); const textSpan = document.getElementById(`text-${id}`); if(item && icon && textSpan) { if(todo.done) { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border opacity-60 bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all group"; icon.className = "fa-solid fa-square-check text-green-500"; textSpan.className = "flex-1 line-through text-neutral-600 dark:text-neutral-500 text-sm cursor-pointer select-none"; } else { item.className = "flex items-center gap-4 p-4 rounded shadow-sm border bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 border-l-4 border-l-blue-500 transition-all group"; icon.className = "fa-regular fa-square text-neutral-600 dark:text-neutral-500 group-hover:text-blue-500"; textSpan.className = "flex-1 text-neutral-800 dark:text-neutral-200 font-bold text-sm cursor-pointer select-none"; } } }
-        function deleteTodo(id) { state.todos = state.todos.filter(t => t.id !== id); saveData(); const el = document.getElementById(`todo-${id}`); if (el) { el.classList.add('item-leave'); setTimeout(() => { el.remove(); const list = document.getElementById('todo-list'); if(list && list.children.length === 0) { list.innerHTML = `<div id="empty-todo-msg" class="text-center py-12 opacity-50 fade-enter"><i class="fa-solid fa-clipboard-check text-4xl mb-2 text-neutral-300 dark:text-neutral-600"></i><p class="text-sm font-bold text-neutral-600 dark:text-neutral-500">Sin tareas pendientes</p></div>`; } }, 300); } }
-        
+        function getTodoListInnerHTML() {
+            if (state.todos.length === 0) {
+                return `<li id="empty-todo-msg" class="px-5 py-10 text-center"><p class="text-base font-medium text-neutral-900 dark:text-neutral-100">Sin tareas pendientes</p><p class="mt-1 text-sm text-neutral-500">Escribe una arriba para no olvidarla</p></li>`;
+            }
+            const pending = state.todos.filter(t => !t.done);
+            const done = state.todos.filter(t => t.done);
+            return pending.map(createTodoItemHTML).join('')
+                + (done.length ? `<li class="px-5 pt-5 pb-2 text-sm text-neutral-500">Hechas</li>` + done.map(createTodoItemHTML).join('') : '');
+        }
+
+        function refreshTodoView() {
+            const list = document.getElementById('todo-list');
+            if (list) list.innerHTML = getTodoListInnerHTML();
+            const sub = document.getElementById('todo-subtitle');
+            if (sub) sub.innerHTML = getTodoSubtitleHTML();
+        }
+
+        function getTodoHTML() {
+            return `<div class="w-full max-w-7xl mx-auto lg:px-2 lg:pt-2 pb-32 lg:pb-8 fade-enter">
+                <div class="max-w-3xl flex flex-col gap-5">
+                    <header>
+                        <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100">Tareas</h1>
+                        <p id="todo-subtitle" class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">${getTodoSubtitleHTML()}</p>
+                    </header>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-todo" placeholder="Nueva tarea" aria-label="Nueva tarea" class="flex-1 min-w-0 h-10 px-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" onkeypress="if(event.key === 'Enter') addTodo()">
+                        <button type="button" onclick="addTodo()" class="h-10 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 shrink-0">Agregar</button>
+                    </div>
+                    <ul id="todo-list" class="${DASH_CARD} divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${getTodoListInnerHTML()}</ul>
+                </div>
+            </div>`;
+        }
+
+        function createTodoItemHTML(todo) {
+            return `<li id="todo-${todo.id}" class="group flex items-center gap-3 px-5 py-3">
+                <button type="button" onclick="toggleTodo(${todo.id})" aria-label="${todo.done ? 'Marcar como pendiente' : 'Marcar como hecha'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${todo.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${todo.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}</button>
+                <span onclick="toggleTodo(${todo.id})" class="flex-1 min-w-0 text-[15px] leading-6 break-words cursor-pointer select-none ${todo.done ? 'text-neutral-500 line-through decoration-neutral-400' : 'text-neutral-900 dark:text-neutral-100'}">${escapeHtml(todo.text)}</span>
+                <button type="button" onclick="confirmDelete('todo', ${todo.id})" aria-label="Eliminar tarea" title="Eliminar tarea" class="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </li>`;
+        }
+
+        function addTodo() {
+            const input = document.getElementById('new-todo');
+            const text = input.value.trim();
+            if (!text) return;
+            state.todos.unshift({ id: Date.now(), text, done: false });
+            saveData();
+            refreshTodoView();
+            input.value = '';
+            input.focus();
+        }
+
+        function toggleTodo(id) {
+            const todo = state.todos.find(t => t.id === id);
+            if (!todo) return;
+            todo.done = !todo.done;
+            saveData();
+            refreshTodoView();
+        }
+
+        function deleteTodo(id) {
+            state.todos = state.todos.filter(t => t.id !== id);
+            saveData();
+            refreshTodoView();
+        }
+
         function getShoppingRowHTML(item) {
             const qty = parseFloat(item.qty) || 1;
             return `
@@ -6208,7 +6257,7 @@
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
-            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
+            if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario' || viewName === 'todo') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
             let contentHTML = '';
             try { 
                 switch(viewName) { 

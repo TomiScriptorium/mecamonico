@@ -1351,6 +1351,7 @@
             // 5. Correcciones únicas de datos antiguos (ya con los datos definitivos cargados)
             try { migrateGtxBrandFromProductNames(); } catch (err) { console.error(err); }
             try { await migrateAdminPin(); } catch (err) { console.error(err); }
+            if (canSyncCloud()) runSync(async () => { if (await migrateFilesToStorage()) scheduleCloudPush(0); });
         }
 
         // --- MIGRACIÓN ÚNICA: separar el prefijo "GTX" del nombre de las pastillas de freno ---
@@ -1566,6 +1567,7 @@
 
         async function pushToCloud(attempt = 0) {
             if (!canSyncCloud()) return;
+            if (attempt === 0) await migrateFilesToStorage();
             const data = stripLocalOnly(state);
             data.owner_id = currentUser.id;
             const updatedAt = new Date().toISOString();
@@ -1750,6 +1752,185 @@
         window.addEventListener('online', () => { pullIfStale(); if (cloudSyncFailed) runSync(() => pushToCloud()); });
         setInterval(() => { if (document.visibilityState === 'visible') pullIfStale(); }, 60 * 1000);
 
+        // --- ARCHIVOS EN SUPABASE STORAGE ---
+        // Los manuales PDF y las fotos de los apuntes ya no viajan dentro de los
+        // datos que se sincronizan (antes se subía todo, PDF de hasta 25 MB
+        // incluidos, en cada cambio). Se guardan como archivos en el bucket
+        // FILE_BUCKET, en una carpeta por cuenta (la regla del bucket solo deja
+        // a cada cuenta ver y modificar su carpeta), y en los datos queda solo
+        // una referencia "sb:<ruta>". Cada dispositivo guarda una copia en
+        // IndexedDB la primera vez que abre un archivo, así después abre sin
+        // internet y no lo vuelve a descargar.
+        // Lo nuevo se guarda primero tal cual (también sin internet) y
+        // migrateFilesToStorage() lo sube antes de la siguiente sincronización.
+        // Si el bucket no existe o falla la subida, los datos siguen como antes
+        // y se reintenta más tarde: nunca se pierde un archivo.
+        const FILE_BUCKET = 'taller-archivos';
+        const FILE_REF = 'sb:';
+        const FILE_CACHE_PREFIX = 'file:';
+        const FILE_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        const fileObjectUrls = new Map();
+        let fileMigrationRunning = false;
+        let fileMigrationRetryAt = 0;
+
+        function isFileRef(v) { return typeof v === 'string' && v.startsWith(FILE_REF); }
+        function fileRefPath(ref) { return ref.slice(FILE_REF.length); }
+        function isDataUrl(v) { return typeof v === 'string' && v.startsWith('data:'); }
+
+        function dataUrlToBlob(dataUrl) {
+            const comma = dataUrl.indexOf(',');
+            const type = (dataUrl.slice(0, comma).match(/data:([^;,]+)/) || [])[1] || 'application/octet-stream';
+            const bin = atob(dataUrl.slice(comma + 1));
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type });
+        }
+
+        function blobToDataUrl(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function getFileBlob(ref) {
+            const path = fileRefPath(ref);
+            try {
+                const cached = await idbKeyval.get(FILE_CACHE_PREFIX + path);
+                if (cached) return cached;
+            } catch (e) {}
+            if (!supabaseClient || !currentUser) throw new Error('offline');
+            const { data, error } = await supabaseClient.storage.from(FILE_BUCKET).download(path);
+            if (error) throw error;
+            try { await idbKeyval.set(FILE_CACHE_PREFIX + path, data); } catch (e) {}
+            return data;
+        }
+
+        async function getFileObjectUrl(ref) {
+            if (fileObjectUrls.has(ref)) return fileObjectUrls.get(ref);
+            const url = URL.createObjectURL(await getFileBlob(ref));
+            fileObjectUrls.set(ref, url);
+            return url;
+        }
+
+        // Devuelve el contenido como data URL (para jsPDF, respaldos, etc.).
+        async function resolveFileData(value) {
+            return isFileRef(value) ? blobToDataUrl(await getFileBlob(value)) : value;
+        }
+
+        // Atributos de un <img> para una foto que puede ser data URL o referencia.
+        // Las referencias se completan solas al aparecer en pantalla (ver el
+        // MutationObserver de más abajo).
+        function fileImgAttrs(value) {
+            return isFileRef(value)
+                ? `src="${FILE_PLACEHOLDER}" data-file="${escapeHtml(value)}"`
+                : `src="${escapeHtml(value)}"`;
+        }
+
+        function hydrateFileImages(root) {
+            const imgs = root.matches && root.matches('img[data-file]') ? [root] : (root.querySelectorAll ? root.querySelectorAll('img[data-file]') : []);
+            imgs.forEach(img => {
+                const ref = img.getAttribute('data-file');
+                img.removeAttribute('data-file');
+                getFileObjectUrl(ref).then(url => { img.src = url; }).catch(() => {
+                    img.alt = 'Foto no disponible sin conexión';
+                    img.classList.add('bg-neutral-100', 'dark:bg-white/[0.04]');
+                });
+            });
+        }
+        new MutationObserver(mutations => {
+            mutations.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) hydrateFileImages(n); }));
+        }).observe(document.documentElement, { childList: true, subtree: true });
+
+        async function uploadFileToStorage(blob, folder, ext) {
+            const path = `${currentUser.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const { error } = await supabaseClient.storage.from(FILE_BUCKET).upload(path, blob, { contentType: blob.type || undefined, upsert: false });
+            if (error) throw error;
+            try { await idbKeyval.set(FILE_CACHE_PREFIX + path, blob); } catch (e) {}
+            return FILE_REF + path;
+        }
+
+        // Borra archivos que ya no usa ningún dato (manual o apunte eliminado,
+        // foto quitada de un apunte). Si falla, el archivo queda huérfano en el
+        // bucket, sin afectar a la app.
+        async function deleteStoredFiles(values) {
+            const paths = (values || []).filter(isFileRef).map(fileRefPath);
+            if (!paths.length) return;
+            paths.forEach(path => {
+                try { idbKeyval.del(FILE_CACHE_PREFIX + path); } catch (e) {}
+                const url = fileObjectUrls.get(FILE_REF + path);
+                if (url) { URL.revokeObjectURL(url); fileObjectUrls.delete(FILE_REF + path); }
+            });
+            if (!canSyncCloud()) return;
+            try { await supabaseClient.storage.from(FILE_BUCKET).remove(paths); } catch (e) { console.warn('No se pudo borrar del almacenamiento:', e); }
+        }
+
+        function noteImageList(note) {
+            return (note.images && note.images.length) ? note.images : (note.image ? [note.image] : []);
+        }
+
+        async function migrateFilesToStorage() {
+            if (fileMigrationRunning || !canSyncCloud() || Date.now() < fileMigrationRetryAt) return;
+            fileMigrationRunning = true;
+            let changed = false;
+            try {
+                for (const pdf of (state.pdfs || []).slice()) {
+                    if (!isDataUrl(pdf.data)) continue;
+                    const blob = dataUrlToBlob(pdf.data);
+                    const ref = await uploadFileToStorage(blob, 'manuales', 'pdf');
+                    // Se busca de nuevo: una sincronización pudo reemplazar el objeto mientras subía.
+                    const cur = (state.pdfs || []).find(x => x.id === pdf.id);
+                    if (cur && cur.data === pdf.data) { cur.file = ref; cur.size = blob.size; delete cur.data; changed = true; }
+                    else deleteStoredFiles([ref]);
+                }
+                for (const note of (state.notes || []).slice()) {
+                    const list = noteImageList(note);
+                    if (!list.some(isDataUrl)) {
+                        if (note.image !== undefined) { const cur = state.notes.find(x => x.id === note.id); if (cur) { if (!cur.images || !cur.images.length) cur.images = list; delete cur.image; changed = true; } }
+                        continue;
+                    }
+                    const out = [];
+                    for (const img of list) out.push(isDataUrl(img) ? await uploadFileToStorage(dataUrlToBlob(img), 'fotos', 'jpg') : img);
+                    const cur = (state.notes || []).find(x => x.id === note.id);
+                    if (cur && JSON.stringify(noteImageList(cur)) === JSON.stringify(list)) { cur.images = out; delete cur.image; changed = true; }
+                    else deleteStoredFiles(out.filter((r, i) => r !== list[i]));
+                }
+            } catch (e) {
+                // Sin bucket, sin permisos o sin conexión: los archivos siguen en los datos; se reintenta en 10 min.
+                console.warn('Archivos: se reintentará la subida', e);
+                fileMigrationRetryAt = Date.now() + 10 * 60 * 1000;
+            } finally {
+                fileMigrationRunning = false;
+            }
+            if (changed) {
+                state.last_updated = Date.now();
+                try { await idbKeyval.set(APP_KEY, stripLocalOnly(state)); } catch (e) {}
+            }
+            return changed;
+        }
+
+        // Respaldo ZIP autosuficiente: lleva el contenido de los archivos, no
+        // solo las referencias, para poder restaurarlo en cualquier cuenta.
+        async function getStateForBackup() {
+            const copy = JSON.parse(JSON.stringify(state));
+            let missing = 0;
+            for (const pdf of copy.pdfs || []) {
+                if (!isFileRef(pdf.file)) continue;
+                try { pdf.data = await resolveFileData(pdf.file); delete pdf.file; } catch (e) { missing++; }
+            }
+            for (const note of copy.notes || []) {
+                const list = noteImageList(note);
+                const out = [];
+                for (const img of list) {
+                    try { out.push(await resolveFileData(img)); } catch (e) { missing++; out.push(img); }
+                }
+                note.images = out; delete note.image;
+            }
+            return { copy, missing };
+        }
+
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
             applyTheme();
@@ -1928,7 +2109,7 @@
             if(oldCanvas) { const ctx = oldCanvas.getContext('2d'); ctx.clearRect(0, 0, oldCanvas.width, oldCanvas.height); oldCanvas.style.width = '100%'; }
             title.innerHTML = `<i class="fa-solid fa-file-pdf mr-2 text-white"></i> <span class="truncate">${escapeHtml(pdf.title)}</span>`;
             loader.classList.remove('hidden'); modal.classList.remove('hidden'); modal.focus(); currentZoom = 1.0; 
-            try { const loadingTask = pdfjsLib.getDocument(pdf.data); pdfDoc = await loadingTask.promise; document.getElementById('pdf-page-count').textContent = pdfDoc.numPages; pageNum = 1; renderPage(pageNum); } catch (error) { console.error(error); showToast("Error al abrir PDF", "fa-bug"); closePdfReader(); }
+            try { const source = isFileRef(pdf.file) ? { data: new Uint8Array(await (await getFileBlob(pdf.file)).arrayBuffer()) } : pdf.data; const loadingTask = pdfjsLib.getDocument(source); pdfDoc = await loadingTask.promise; document.getElementById('pdf-page-count').textContent = pdfDoc.numPages; pageNum = 1; renderPage(pageNum); } catch (error) { console.error(error); showToast(error && error.message === 'offline' ? "Este manual no está descargado en este dispositivo y no hay conexión" : "No se pudo abrir el PDF", "fa-triangle-exclamation"); closePdfReader(); }
         }
         function closePdfReader() { document.getElementById('pdf-reader-modal').classList.add('hidden'); if(renderTask) { renderTask.cancel(); renderTask = null; } pdfDoc = null; pageNum = 1; pageRendering = false; pageNumPending = null; }
 
@@ -1960,7 +2141,7 @@
 
         function openBackupModal() { document.getElementById('backup-modal').classList.remove('hidden'); }
         function closeBackupModal() { document.getElementById('backup-modal').classList.add('hidden'); document.getElementById('backup-file-input').value = ''; }
-        async function downloadBackupFile() { try { showToast("Comprimiendo...", "fa-spinner fa-spin"); const zip = new JSZip(); const dataStr = JSON.stringify(state, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast("Backup Descargado", "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
+        async function downloadBackupFile() { try { showToast("Preparando respaldo...", "fa-spinner fa-spin"); const { copy, missing } = await getStateForBackup(); const zip = new JSZip(); const dataStr = JSON.stringify(copy, null, 2); zip.file("mecamonico_data.json", dataStr); const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } }); const downloadAnchorNode = document.createElement('a'); const fileName = "mecanica_backup_" + new Date().toISOString().slice(0,10) + ".zip"; downloadAnchorNode.href = URL.createObjectURL(content); downloadAnchorNode.setAttribute("download", fileName); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(downloadAnchorNode.href); showToast(missing ? `Respaldo descargado sin ${missing} archivo${missing === 1 ? '' : 's'}: conéctate a internet para incluirlos` : "Respaldo descargado", missing ? "fa-triangle-exclamation" : "fa-file-zipper"); } catch (err) { showToast("Error al comprimir", "fa-triangle-exclamation"); } }
         async function importBackupFromFile(input) { 
             const file = input.files[0]; 
             if (!file) return; 
@@ -2052,7 +2233,7 @@
             closeRenamePdfModal();
         }
 
-        function deletePdf(id) { showConfirmModal("¿Eliminar manual?", "No se puede deshacer.", "Eliminar", () => { state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
+        function deletePdf(id) { showConfirmModal("¿Eliminar manual?", "No se puede deshacer.", "Eliminar", () => { const removed = state.pdfs.find(p => p.id === id); if (removed) deleteStoredFiles([removed.file]); state.pdfs = state.pdfs.filter(p => p.id !== id); saveData(); closeConfirmModal(); renderView('links'); showToast("Manual eliminado", "fa-trash"); }); }
 
         function setInfoTab(tab) {
             state.activeInfoTab = tab;
@@ -2123,8 +2304,9 @@
             </div>`;
         }
 
-        function formatPdfSize(dataUrl) {
-            const bytes = Math.max(0, ((dataUrl || '').length - ((dataUrl || '').indexOf(',') + 1)) * 0.75);
+        function formatPdfSize(pdf) {
+            const dataUrl = (pdf && pdf.data) || '';
+            const bytes = pdf && pdf.size ? pdf.size : Math.max(0, (dataUrl.length - (dataUrl.indexOf(',') + 1)) * 0.75);
             if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
             return `${(bytes / (1024 * 1024)).toLocaleString('es-CL', { maximumFractionDigits: 1 })} MB`;
         }
@@ -2135,7 +2317,7 @@
                     <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center"><i class="fa-regular fa-file-pdf text-[15px]"></i></span>
                     <span class="min-w-0">
                         <span class="block text-[15px] leading-snug text-neutral-900 dark:text-neutral-100 break-words line-clamp-2 sm:line-clamp-1">${escapeHtml(pdf.title)}</span>
-                        <span class="block text-[13px] text-neutral-500 tabular-nums">PDF · ${formatPdfSize(pdf.data)}</span>
+                        <span class="block text-[13px] text-neutral-500 tabular-nums">PDF · ${formatPdfSize(pdf)}</span>
                     </span>
                 </button>
                 <button type="button" onclick="renamePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Renombrar" aria-label="Renombrar"><i class="fa-solid fa-pen text-[13px]"></i></button>
@@ -2209,8 +2391,7 @@
 
             try {
                 showToast("Preparando archivo...", "fa-spinner fa-spin");
-                const res = await fetch(pdf.data);
-                const blob = await res.blob();
+                const blob = isFileRef(pdf.file) ? await getFileBlob(pdf.file) : await (await fetch(pdf.data)).blob();
                 const file = new File([blob], `${pdf.title}.pdf`, { type: "application/pdf" });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -2222,16 +2403,17 @@
                     showToast("Archivo compartido", "fa-file-pdf");
                 } else {
                     const a = document.createElement('a');
-                    a.href = pdf.data;
+                    a.href = URL.createObjectURL(blob);
                     a.download = `${pdf.title}.pdf`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
                     showToast("Descargando archivo...", "fa-download");
                 }
             } catch (e) {
                 console.error(e);
-                showToast("Error al compartir", "fa-triangle-exclamation");
+                showToast(e && e.message === 'offline' ? "Este manual no está descargado en este dispositivo y no hay conexión" : "Error al compartir", "fa-triangle-exclamation");
             }
         }
 
@@ -2319,8 +2501,8 @@
                     const wrap = document.createElement('div');
                     wrap.className = "relative flex-shrink-0 group w-24 h-24";
                     wrap.innerHTML = `
-                        <img src="${imgSrc}" class="w-full h-full rounded border border-neutral-300 dark:border-neutral-700 object-cover shadow-sm">
-                        <button onclick="removeImageFromPreview(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform scale-90 shadow hover:bg-red-600 transition"><i class="fa-solid fa-xmark text-xs"></i></button>
+                        <img ${fileImgAttrs(imgSrc)} alt="" class="w-full h-full rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-cover">
+                        <button type="button" onclick="removeImageFromPreview(${index})" class="absolute -top-2 -right-2 bg-neutral-900 dark:bg-neutral-700 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-150" aria-label="Quitar foto"><i class="fa-solid fa-xmark text-[10px]"></i></button>
                     `;
                     container.appendChild(wrap);
                 });
@@ -2939,11 +3121,11 @@
             if (note.images && note.images.length > 0) {
                 imagesCont.classList.remove('hidden');
                 note.images.forEach(src => {
-                    imagesCont.insertAdjacentHTML('beforeend', `<img src="${escapeHtml(src)}" alt="Foto del apunte" onclick="openImagePreviewModal(this.src)" class="max-w-[48%] h-auto max-h-60 rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-150">`);
+                    imagesCont.insertAdjacentHTML('beforeend', `<img ${fileImgAttrs(src)} alt="Foto del apunte" onclick="openImagePreviewModal(this.src)" class="max-w-[48%] h-auto max-h-60 rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-150">`);
                 });
             } else if (note.image) {
                 imagesCont.classList.remove('hidden');
-                imagesCont.insertAdjacentHTML('beforeend', `<img src="${escapeHtml(note.image)}" alt="Foto del apunte" onclick="openImagePreviewModal(this.src)" class="max-w-[80%] h-auto max-h-80 rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-150">`);
+                imagesCont.insertAdjacentHTML('beforeend', `<img ${fileImgAttrs(note.image)} alt="Foto del apunte" onclick="openImagePreviewModal(this.src)" class="max-w-[80%] h-auto max-h-80 rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-150">`);
             } else {
                 imagesCont.classList.add('hidden');
             }
@@ -4147,7 +4329,7 @@
             const actBtn = 'w-7 h-7 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150';
             return `
             <article id="note-${note.id}" onclick="openPreviewNoteModal(${note.id})" class="group ${DASH_CARD} ${DASH_HOVER} overflow-hidden flex flex-col cursor-pointer">
-                ${images.length ? `<img src="${escapeHtml(images[0])}" alt="" class="w-full h-32 object-cover border-b border-neutral-900/[0.06] dark:border-white/[0.06]">` : ''}
+                ${images.length ? `<img ${fileImgAttrs(images[0])} alt="" class="w-full h-32 object-cover border-b border-neutral-900/[0.06] dark:border-white/[0.06]">` : ''}
                 <div class="p-4 flex flex-col gap-3 flex-1">
                     <p class="text-[15px] leading-6 text-neutral-900 dark:text-neutral-100 line-clamp-4 break-words">${escapeHtml(note.text)}</p>
                     <div class="mt-auto flex items-center justify-between gap-2">
@@ -4222,8 +4404,10 @@
         const noteIndex = state.notes.findIndex(n => n.id === state.editingNoteId); 
         if (noteIndex > -1) { 
             state.notes[noteIndex].text = text; 
+            const removedImages = noteImageList(state.notes[noteIndex]).filter(img => !currentNoteImages.includes(img));
             state.notes[noteIndex].images = [...currentNoteImages];
-            state.notes[noteIndex].image = currentNoteImages.length > 0 ? currentNoteImages[0] : null;
+            delete state.notes[noteIndex].image; // antes se guardaba repetida la primera foto
+            deleteStoredFiles(removedImages);
 
             const oldEl = document.getElementById(`note-${state.editingNoteId}`);
             if (oldEl) oldEl.outerHTML = createNoteHTML(state.notes[noteIndex]);
@@ -4236,7 +4420,6 @@
             id: Date.now(), 
             text, 
             images: [...currentNoteImages], 
-            image: currentNoteImages.length > 0 ? currentNoteImages[0] : null,
             folderId: targetFolder 
         }; 
         state.notes.unshift(newNote); 
@@ -4261,7 +4444,7 @@
     }
 }
 
-        function deleteNote(id) { state.notes = state.notes.filter(n => n.id !== id); saveData(); const list = document.getElementById('notes-list'); if (list) { const searchEl = document.getElementById('notes-search'); list.innerHTML = generateNotesListHTML(searchEl ? searchEl.value : ''); } refreshNotesChrome(); showToast("Nota eliminada", "fa-trash"); }
+        function deleteNote(id) { const removed = state.notes.find(n => n.id === id); if (removed) deleteStoredFiles(noteImageList(removed)); state.notes = state.notes.filter(n => n.id !== id); saveData(); const list = document.getElementById('notes-list'); if (list) { const searchEl = document.getElementById('notes-search'); list.innerHTML = generateNotesListHTML(searchEl ? searchEl.value : ''); } refreshNotesChrome(); showToast("Nota eliminada", "fa-trash"); }
         
         // ===================== TAREAS =====================
         function getTodoSubtitleHTML() {
@@ -6324,7 +6507,7 @@
                 let imagesToProcess = note.images && note.images.length > 0 ? note.images : (note.image ? [note.image] : []);
 
                 for (let i = 0; i < imagesToProcess.length; i++) {
-                    const base64Img = imagesToProcess[i];
+                    const base64Img = await resolveFileData(imagesToProcess[i]);
                     const imgProps = doc.getImageProperties(base64Img);
                     
                     const maxWidth = pageWidth - margin * 2;

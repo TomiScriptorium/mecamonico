@@ -6,7 +6,7 @@
     <!-- SEGURIDAD: Content-Security-Policy - limita scripts/conexiones/objetos a orígenes conocidos.
          Mitiga el impacto de un XSS (p.ej. vía un backup importado manipulado) al impedir que
          pueda cargar scripts externos arbitrarios o exfiltrar datos a servidores no autorizados. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://www.google.com; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.github.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google.com; connect-src 'self' https://hvzzgymodvfspdkauvjq.supabase.co wss://hvzzgymodvfspdkauvjq.supabase.co https://api.github.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'self'; frame-src 'none';">
     <title>Mecamonico</title>
     <link rel="manifest" href="manifest.json">
     
@@ -107,9 +107,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Chart.js: gráficos de mano de obra / repuestos en el Panel de Administrador -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -139,6 +136,20 @@
             box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 3px rgba(17, 17, 17, 0.1);
             font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
             font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+
+        /* Íconos de línea (Lucide): toman el tamaño del texto (1em) y su color. */
+        .ic {
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            flex-shrink: 0;
+            vertical-align: -0.125em;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         input, textarea, button, select {
@@ -349,15 +360,15 @@
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
             color: #fafafa;
         }
-        .sb-nav-btn .sb-icon, .sb-action-btn i {
+        .sb-nav-btn .sb-icon, .sb-action-btn .ic {
             width: 20px;
-            text-align: center;
-            font-size: 15px;
+            font-size: 16px;
             color: #737373;
             flex-shrink: 0;
             transition: color 150ms ease-out;
         }
-        .sb-nav-btn:hover .sb-icon, .sb-action-btn:hover i { color: #a3a3a3; }
+        .sb-nav-btn .sb-icon { display: flex; justify-content: center; }
+        .sb-nav-btn:hover .sb-icon, .sb-action-btn:hover .ic { color: #a3a3a3; }
         .sb-nav-btn.active .sb-icon { color: rgb(var(--theme-500)); }
         .sb-nav-btn:focus-visible, .sb-action-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: -2px; }
 
@@ -400,18 +411,20 @@
             /* Los módulos apagados en Configuración siguen ocultos */
             body.sidebar-collapsed .sb-nav-btn.hidden { display: none !important; }
             
-            body.sidebar-collapsed #toggle-sidebar-btn i { 
+            body.sidebar-collapsed #toggle-sidebar-btn .ic { 
                 transform: rotate(180deg); 
             }
         }
     </style>
 </head>
 <body class="text-neutral-700 dark:text-neutral-200 h-screen sm:h-screen h-[100dvh] flex flex-col overflow-hidden relative transition-colors duration-300">
+    <!-- Íconos: Lucide (lucide.dev, licencia ISC), incluidos aquí para que se vean sin internet. Se usan con ico() o <svg class="ic"><use href="#i-nombre">. -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol id="i-archive" viewBox="0 0 24 24"><rect width="20" height="5" x="2" y="3" rx="1" /> <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" /> <path d="M10 12h4" /></symbol><symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /></symbol><symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7" /> <path d="M12 19V5" /></symbol><symbol id="i-barcode" viewBox="0 0 24 24"><path d="M3 5v14" /> <path d="M8 5v14" /> <path d="M12 5v14" /> <path d="M17 5v14" /> <path d="M21 5v14" /></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></symbol><symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5" /> <path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="m2 2 20 20" /></symbol><symbol id="i-book-open" viewBox="0 0 24 24"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></symbol><symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></symbol><symbol id="i-bug" viewBox="0 0 24 24"><path d="m8 2 1.88 1.88" /> <path d="M14.12 3.88 16 2" /> <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" /> <path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6" /> <path d="M12 20v-9" /> <path d="M6.53 9C4.6 8.8 3 7.1 3 5" /> <path d="M6 13H2" /> <path d="M3 21c0-2.1 1.7-3.9 3.8-4" /> <path d="M20.97 5c0 2.1-1.6 3.8-3.5 4" /> <path d="M22 13h-4" /> <path d="M17.2 17c2.1.1 3.8 1.9 3.8 4" /></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="m9 16 2 2 4-4" /></symbol><symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="M8 14h.01" /> <path d="M12 14h.01" /> <path d="M16 14h.01" /> <path d="M8 18h.01" /> <path d="M12 18h.01" /> <path d="M16 18h.01" /></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /> <circle cx="7" cy="17" r="2" /> <path d="M9 17h6" /> <circle cx="17" cy="17" r="2" /></symbol><symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="m19 9-5 5-4-4-3 3" /></symbol><symbol id="i-chart-pie" viewBox="0 0 24 24"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z" /> <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-check-check" viewBox="0 0 24 24"><path d="M18 6 7 17l-5-5" /> <path d="m22 10-7.5 7.5L13 16" /></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6" /></symbol><symbol id="i-chevrons-up-down" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5" /> <path d="m7 9 5-5 5 5" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></symbol><symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></symbol><symbol id="i-cloud-download" viewBox="0 0 24 24"><path d="M12 13v8l-4-4" /> <path d="m12 21 4-4" /> <path d="M4.393 15.269A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.436 8.284" /></symbol><symbol id="i-cloud-upload" viewBox="0 0 24 24"><path d="M12 13v8" /> <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" /> <path d="m8 17 4-4 4 4" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <polyline points="7 10 12 15 17 10" /> <line x1="12" x2="12" y1="15" y2="3" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /> <circle cx="19" cy="12" r="1" /> <circle cx="5" cy="12" r="1" /></symbol><symbol id="i-ellipsis-vertical" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></symbol><symbol id="i-eraser" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" /> <path d="M22 21H7" /> <path d="m5 11 9 9" /></symbol><symbol id="i-external-link" viewBox="0 0 24 24"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol><symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /> <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /> <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /> <path d="m2 2 20 20" /></symbol><symbol id="i-file-archive" viewBox="0 0 24 24"><path d="M10 12v-1" /> <path d="M10 18v-2" /> <path d="M10 7V6" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M15.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 .274 1.01" /> <circle cx="10" cy="20" r="2" /></symbol><symbol id="i-file-down" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M12 18v-6" /> <path d="m9 15 3 3 3-3" /></symbol><symbol id="i-file-input" viewBox="0 0 24 24"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M2 15h10" /> <path d="m9 18 3-3-3-3" /></symbol><symbol id="i-file-spreadsheet" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M8 13h2" /> <path d="M14 13h2" /> <path d="M8 17h2" /> <path d="M14 17h2" /></symbol><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></symbol><symbol id="i-folder-plus" viewBox="0 0 24 24"><path d="M12 10v6" /> <path d="M9 13h6" /> <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol><symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" /> <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" /> <path d="m2 16 6 6" /> <circle cx="16" cy="9" r="2.9" /> <circle cx="6" cy="5" r="3" /></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></symbol><symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol id="i-id-card" viewBox="0 0 24 24"><path d="M16 10h2" /> <path d="M16 14h2" /> <path d="M6.17 15a3 3 0 0 1 5.66 0" /> <circle cx="9" cy="11" r="2" /> <rect x="2" y="5" width="20" height="14" rx="2" /></symbol><symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /> <circle cx="9" cy="9" r="2" /> <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol><symbol id="i-key" viewBox="0 0 24 24"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" /> <path d="m21 2-9.6 9.6" /> <circle cx="7.5" cy="15.5" r="5.5" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /> <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01" /> <path d="M3 18h.01" /> <path d="M3 6h.01" /> <path d="M8 12h13" /> <path d="M8 18h13" /> <path d="M8 6h13" /></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4" /> <path d="m3 7 2 2 4-4" /> <path d="M13 6h8" /> <path d="M13 12h8" /> <path d="M13 18h8" /></symbol><symbol id="i-loader-circle" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /> <polyline points="10 17 15 12 10 7" /> <line x1="15" x2="3" y1="12" y2="12" /></symbol><symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></symbol><symbol id="i-maximize-2" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9" /> <polyline points="9 21 3 21 3 15" /> <line x1="21" x2="14" y1="3" y2="10" /> <line x1="3" x2="10" y1="21" y2="14" /></symbol><symbol id="i-minimize-2" viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20" /> <polyline points="20 10 14 10 14 4" /> <line x1="14" x2="21" y1="10" y2="3" /> <line x1="3" x2="10" y1="21" y2="14" /></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /> <path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-package-open" viewBox="0 0 24 24"><path d="M12 22v-9" /> <path d="M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z" /> <path d="M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13" /> <path d="M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z" /></symbol><symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /> <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></symbol><symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></symbol><symbol id="i-percent" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19" /> <circle cx="6.5" cy="6.5" r="2.5" /> <circle cx="17.5" cy="17.5" r="2.5" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol><symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></symbol><symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /> <polyline points="16 6 12 2 8 6" /> <line x1="12" x2="12" y1="2" y2="15" /></symbol><symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /> <circle cx="6" cy="12" r="3" /> <circle cx="18" cy="19" r="3" /> <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /> <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></symbol><symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-shopping-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" /> <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></symbol><symbol id="i-square-pen" viewBox="0 0 24 24"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></symbol><symbol id="i-tags" viewBox="0 0 24 24"><path d="m15 5 6.3 6.3a2.4 2.4 0 0 1 0 3.4L17 19" /> <path d="M9.586 5.586A2 2 0 0 0 8.172 5H3a1 1 0 0 0-1 1v5.172a2 2 0 0 0 .586 1.414L8.29 18.29a2.426 2.426 0 0 0 3.42 0l3.58-3.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="6.5" cy="9.5" r=".5" fill="currentColor" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol><symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <polyline points="17 8 12 3 7 8" /> <line x1="12" x2="12" y1="3" y2="15" /></symbol><symbol id="i-user-cog" viewBox="0 0 24 24"><circle cx="18" cy="15" r="3" /> <circle cx="9" cy="7" r="4" /> <path d="M10 15H6a4 4 0 0 0-4 4v2" /> <path d="m21.7 16.4-.9-.3" /> <path d="m15.2 13.9-.9-.3" /> <path d="m16.6 18.7.3-.9" /> <path d="m19.1 12.2.3-.9" /> <path d="m19.6 18.7-.4-1" /> <path d="m16.8 12.3-.4-1" /> <path d="m14.3 16.6 1-.4" /> <path d="m20.7 13.8 1-.4" /></symbol><symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01" /> <path d="M2 8.82a15 15 0 0 1 20 0" /> <path d="M5 12.859a10 10 0 0 1 14 0" /> <path d="M8.5 16.429a5 5 0 0 1 7 0" /></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <line x1="21" x2="16.65" y1="21" y2="16.65" /> <line x1="11" x2="11" y1="8" y2="14" /> <line x1="8" x2="14" y1="11" y2="11" /></symbol><symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <line x1="21" x2="16.65" y1="21" y2="16.65" /> <line x1="8" x2="14" y1="11" y2="11" /></symbol></svg>
 <div id="auth-screen" class="fixed inset-0 bg-[#0a0a0a] z-[200] flex flex-col items-center justify-center p-4 overflow-y-auto">
         <div class="w-full max-w-sm flex flex-col gap-8">
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 bg-red-600 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-car text-[18px] text-white"></i>
+                    <svg class="logo-car text-[18px] text-white" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true" style="width:1em;height:1em;"><path d="M135.2 117.4L109.1 192H402.9l-26.1-74.6C372.3 104.6 360.2 96 346.6 96H165.4c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32H346.6c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2V400v48c0 17.7-14.3 32-32 32H448c-17.7 0-32-14.3-32-32V400H96v48c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V400 256c0-26.7 16.4-49.6 39.6-59.2zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>
                 </div>
                 <div>
                     <h1 class="text-[22px] leading-7 font-medium text-white">Mecamonico</h1>
@@ -449,7 +462,7 @@
         <!-- Logo + nombre del taller (clic en el nombre para editarlo) -->
         <div id="sidebar-logo-area" class="relative" style="overflow: visible !important;">
             <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio">
-                <i class="fa-solid fa-car" style="color:white; font-size:16px;"></i>
+                <svg class="logo-car " viewBox="0 0 512 512" fill="currentColor" aria-hidden="true" style="width:1em;height:1em;color:white;font-size:16px;"><path d="M135.2 117.4L109.1 192H402.9l-26.1-74.6C372.3 104.6 360.2 96 346.6 96H165.4c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32H346.6c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2V400v48c0 17.7-14.3 32-32 32H448c-17.7 0-32-14.3-32-32V400H96v48c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V400 256c0-26.7 16.4-49.6 39.6-59.2zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>
             </div>
             <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller">
                 <div id="sb-app-title">Mecamonico</div>
@@ -457,7 +470,7 @@
             </div>
             
             <button id="toggle-sidebar-btn" type="button" onclick="toggleSidebar()" class="absolute -right-3 top-5 w-6 h-6 bg-neutral-800 border border-white/10 rounded-full flex items-center justify-center text-neutral-400 hover:text-white z-50 transition-colors duration-150 outline-none cursor-pointer" title="Contraer o expandir menú" aria-label="Contraer o expandir menú">
-                <i class="fa-solid fa-angle-left text-[11px]"></i>
+                <svg class="ic text-[14px]" aria-hidden="true"><use href="#i-chevron-left"></use></svg>
             </button>
         </div>
 
@@ -465,46 +478,46 @@
         <nav id="sidebar-nav">
             <div class="sb-section-label">Módulos</div>
             <button type="button" onclick="renderView('dashboard')" class="sb-nav-btn nav-btn" data-target="dashboard" title="Inicio">
-                <span class="sb-icon"><i class="fa-solid fa-warehouse"></i></span><span class="sb-label">Inicio</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-house"></use></svg></span><span class="sb-label">Inicio</span>
             </button>
             <button type="button" onclick="renderView('work_orders')" class="sb-nav-btn nav-btn" data-target="work_orders" title="Taller">
-                <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span><span class="sb-label">Taller</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-car"></use></svg></span><span class="sb-label">Taller</span>
             </button>
             <button type="button" onclick="renderView('shopping_list')" class="sb-nav-btn nav-btn" data-target="shopping_list" title="Gestión">
-                <span class="sb-icon"><i class="fa-solid fa-boxes-stacked"></i></span><span class="sb-label">Gestión</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-package"></use></svg></span><span class="sb-label">Gestión</span>
             </button>
             <button type="button" onclick="renderView('todo')" class="sb-nav-btn nav-btn" data-target="todo" title="Tareas">
-                <span class="sb-icon"><i class="fa-solid fa-clipboard-list"></i></span><span class="sb-label">Tareas</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-list-checks"></use></svg></span><span class="sb-label">Tareas</span>
             </button>
             <button type="button" onclick="renderView('turnario')" class="sb-nav-btn nav-btn" data-target="turnario" title="Calendario">
-                <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span><span class="sb-label">Calendario</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg></span><span class="sb-label">Calendario</span>
             </button>
             <button type="button" onclick="renderView('notes')" class="sb-nav-btn nav-btn" data-target="notes" title="Apuntes">
-                <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span><span class="sb-label">Apuntes</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-notebook-pen"></use></svg></span><span class="sb-label">Apuntes</span>
             </button>
             <button type="button" onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links" title="Información">
-                <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span><span class="sb-label">Información</span>
+                <span class="sb-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg></span><span class="sb-label">Información</span>
             </button>
         </nav>
 
         <!-- Acciones al fondo -->
         <div id="sidebar-footer">
             <button type="button" onclick="toggleProfile()" id="sb-profile-btn" class="sb-action-btn" title="Cambiar entre perfil Mecánico y Administrador">
-                <i class="fa-solid fa-user-gear" id="sb-profile-icon"></i>
+                <svg class="ic" id="sb-profile-icon" aria-hidden="true"><use href="#i-user-cog"></use></svg>
                 <span id="sb-profile-label">Perfil: Mecánico</span>
             </button>
             <button type="button" onclick="toggleDarkMode()" class="sb-action-btn" title="Cambiar modo día o noche">
-                <i class="fa-solid fa-moon dark:hidden"></i>
-                <i class="fa-solid fa-sun hidden dark:inline-block"></i>
+                <svg class="ic dark:hidden" aria-hidden="true"><use href="#i-moon"></use></svg>
+                <svg class="ic hidden dark:inline-block" aria-hidden="true"><use href="#i-sun"></use></svg>
                 <span class="dark:hidden">Modo noche</span>
                 <span class="hidden dark:inline">Modo día</span>
             </button>
             <button type="button" onclick="openBackupModal()" class="sb-action-btn" title="Respaldo de datos">
-                <i class="fa-solid fa-box-archive"></i>
+                <svg class="ic" aria-hidden="true"><use href="#i-archive"></use></svg>
                 <span>Respaldo</span>
             </button>
             <button type="button" onclick="openSettingsModal()" class="sb-action-btn" title="Configuración">
-                <i class="fa-solid fa-gear"></i>
+                <svg class="ic" aria-hidden="true"><use href="#i-settings"></use></svg>
                 <span>Configuración</span>
             </button>
         </div>
@@ -515,7 +528,7 @@
             <!-- LOGO -->
             <div class="flex items-center gap-3 shrink-0 min-w-0 md:hidden">
                 <button type="button" class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0 active:bg-red-700 transition-colors duration-150" onclick="renderView('dashboard')" title="Ir a Inicio" aria-label="Ir a Inicio">
-                    <i class="fa-solid fa-car text-[15px] text-white"></i>
+                    <svg class="logo-car text-[15px] text-white" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true" style="width:1em;height:1em;"><path d="M135.2 117.4L109.1 192H402.9l-26.1-74.6C372.3 104.6 360.2 96 346.6 96H165.4c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32H346.6c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2V400v48c0 17.7-14.3 32-32 32H448c-17.7 0-32-14.3-32-32V400H96v48c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V400 256c0-26.7 16.4-49.6 39.6-59.2zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>
                 </button>
                 <div class="cursor-pointer min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar nombre del taller">
                     <h1 id="header-app-title" class="text-[16px] leading-5 font-medium text-neutral-100 truncate">Mecamonico</h1>
@@ -525,28 +538,28 @@
 
             <!-- BUSCADOR UNIVERSAL (Escritorio) -->
             <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl hidden md:block z-10">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-neutral-500"></i>
+                <svg class="ic absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-search"></use></svg>
                 <input type="search" id="desktop-search-input" placeholder="Buscar patente, repuesto o nota" class="w-full h-10 pl-10 pr-4 bg-white/[0.06] border border-white/[0.08] rounded-lg text-[15px] text-white focus:border-white/25 outline-none transition-colors duration-150 placeholder-neutral-500" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
                 <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-900/[0.08] dark:border-white/[0.08] overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
 
             <div class="flex items-center gap-1 shrink-0 ml-auto relative z-20">
                 <button type="button" onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Buscar" aria-label="Buscar">
-                    <i class="fa-solid fa-magnifying-glass text-[15px]"></i>
+                    <svg class="ic text-[16px]" aria-hidden="true"><use href="#i-search"></use></svg>
                 </button>
                 <button type="button" onclick="toggleProfile()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Cambiar entre perfil Mecánico y Administrador" aria-label="Cambiar perfil">
-                    <i class="fa-solid fa-user-gear text-[15px]" id="mobile-profile-icon"></i>
+                    <svg class="ic text-[16px]" id="mobile-profile-icon" aria-hidden="true"><use href="#i-user-cog"></use></svg>
                 </button>
                 <button type="button" onclick="toggleDarkMode()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Modo día o noche" aria-label="Cambiar modo día o noche">
-                    <i class="fa-solid fa-moon text-[15px] dark:hidden"></i>
-                    <i class="fa-solid fa-sun text-[15px] hidden dark:inline"></i>
+                    <svg class="ic text-[16px] dark:hidden" aria-hidden="true"><use href="#i-moon"></use></svg>
+                    <svg class="ic text-[16px] hidden dark:inline" aria-hidden="true"><use href="#i-sun"></use></svg>
                 </button>
                 <button type="button" onclick="openBackupModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Respaldo" aria-label="Respaldo">
-                    <i class="fa-solid fa-box-archive text-[15px]"></i>
+                    <svg class="ic text-[16px]" aria-hidden="true"><use href="#i-archive"></use></svg>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
                 <button type="button" onclick="openSettingsModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Configuración" aria-label="Configuración">
-                    <i class="fa-solid fa-gear text-[15px]"></i>
+                    <svg class="ic text-[16px]" aria-hidden="true"><use href="#i-settings"></use></svg>
                 </button>
             </div>
         </div>
@@ -555,11 +568,11 @@
         <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-[#121212] z-[100] border-b border-white/[0.06] md:hidden">
             <div class="flex items-center gap-2 p-3">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-neutral-500"></i>
+                    <svg class="ic absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-search"></use></svg>
                     <input type="search" id="mobile-search-input" placeholder="Buscar patente, repuesto o nota" class="w-full h-11 pl-10 pr-4 bg-white/[0.06] border border-white/[0.08] rounded-lg text-[16px] text-white focus:border-white/25 outline-none transition-colors duration-150 placeholder-neutral-500" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
                     <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-900/[0.08] dark:border-white/[0.08] overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
                 </div>
-                <button type="button" onclick="toggleMobileSearch()" class="w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150 shrink-0" title="Cerrar" aria-label="Cerrar búsqueda"><i class="fa-solid fa-xmark text-[17px]"></i></button>
+                <button type="button" onclick="toggleMobileSearch()" class="w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150 shrink-0" title="Cerrar" aria-label="Cerrar búsqueda"><svg class="ic text-[18px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
         </div>
     </header>
@@ -571,31 +584,31 @@
     <div id="mobile-nav-wrapper" class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
         <nav id="nav-menu" aria-label="Secciones" class="relative bg-[#121212] mx-4 mb-4 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-white/[0.08] p-1 pointer-events-auto flex justify-start items-center gap-0.5 overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
             <button type="button" onclick="renderView('dashboard')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="dashboard">
-                <i class="fa-solid fa-warehouse text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-house"></use></svg>
                 <span class="text-[11px] leading-4">Inicio</span>
             </button>
             <button type="button" onclick="renderView('work_orders')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="work_orders">
-                <i class="fa-solid fa-car-side text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-car"></use></svg>
                 <span class="text-[11px] leading-4">Taller</span>
             </button>
             <button type="button" onclick="renderView('shopping_list')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="shopping_list">
-                <i class="fa-solid fa-boxes-stacked text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-package"></use></svg>
                 <span class="text-[11px] leading-4">Gestión</span>
             </button>
             <button type="button" onclick="renderView('todo')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="todo">
-                <i class="fa-solid fa-clipboard-list text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-list-checks"></use></svg>
                 <span class="text-[11px] leading-4">Tareas</span>
             </button>
             <button type="button" onclick="renderView('turnario')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="turnario">
-                <i class="fa-regular fa-calendar-days text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-calendar-days"></use></svg>
                 <span class="text-[11px] leading-4">Calendario</span>
             </button>
             <button type="button" onclick="renderView('notes')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="notes">
-                <i class="fa-solid fa-book-open text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-notebook-pen"></use></svg>
                 <span class="text-[11px] leading-4">Apuntes</span>
             </button>
             <button type="button" onclick="renderView('links')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="links">
-                <i class="fa-solid fa-toolbox text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <svg class="ic text-[18px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150" aria-hidden="true"><use href="#i-book-open"></use></svg>
                 <span class="text-[11px] leading-4">Información</span>
             </button>
         </nav>
@@ -605,7 +618,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="modal-date-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <h3 id="modal-date-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Editar evento</h3>
-                <button type="button" onclick="closeModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
             <div class="px-5 pb-5 flex flex-col gap-4 overflow-y-auto hide-scrollbar">
                 <div>
@@ -626,11 +639,11 @@
                 <div id="modal-client-container" class="hidden"><label for="modal-car-client" class="block text-[13px] text-neutral-500 mb-1.5">Cliente o modelo</label><input type="text" id="modal-car-client" class="w-full h-11 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Pedro Soto, Corolla 2018"></div>
                 <div><label for="modal-note-input" class="block text-[13px] text-neutral-500 mb-1.5">Servicio o motivo</label><input type="text" id="modal-note-input" class="w-full h-11 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" placeholder="Cambio de embrague"></div>
                 <div id="btn-send-to-workshop" class="hidden">
-                    <button type="button" onclick="sendAgendadoToWorkshop()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 w-full"><i class="fa-solid fa-arrow-right-to-bracket text-[13px] text-neutral-500"></i> Ingresar a Taller y crear OT</button>
+                    <button type="button" onclick="sendAgendadoToWorkshop()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 w-full"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-log-in"></use></svg> Ingresar a Taller y crear OT</button>
                 </div>
             </div>
             <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex items-center justify-between gap-2 shrink-0">
-                <button type="button" onclick="deleteCurrentShift()" class="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar evento" aria-label="Eliminar evento"><i class="fa-regular fa-trash-can text-[14px]"></i></button>
+                <button type="button" onclick="deleteCurrentShift()" class="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar evento" aria-label="Eliminar evento"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                 <div class="flex gap-2">
                     <button type="button" onclick="closeModal()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Cancelar</button>
                     <button type="button" onclick="saveShift()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Guardar</button>
@@ -679,7 +692,7 @@
         <div class="shrink-0 bg-[#121212] text-white pt-safe border-b border-white/[0.06]">
             <div class="px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-user-shield text-[15px]"></i></div>
+                    <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0"><svg class="ic text-[16px]" aria-hidden="true"><use href="#i-shield-check"></use></svg></div>
                     <div class="min-w-0">
                         <h2 class="text-[16px] leading-5 font-medium text-neutral-100 truncate">Panel de Administrador</h2>
                         <p id="admin-panel-date" class="text-xs leading-4 text-neutral-500 truncate"></p>
@@ -687,10 +700,10 @@
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <button type="button" onclick="changeAdminPin()" class="h-9 px-3 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-white/[0.06] transition-colors duration-150 flex items-center gap-2" title="Configurar o cambiar el PIN">
-                        <i class="fa-solid fa-key text-[13px] text-neutral-500"></i><span class="hidden sm:inline">PIN</span>
+                        <svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-key"></use></svg><span class="hidden sm:inline">PIN</span>
                     </button>
                     <button type="button" onclick="toggleProfile()" class="h-9 px-3 rounded-lg text-sm text-neutral-100 bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.08] transition-colors duration-150 flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-right-from-bracket text-[13px] text-neutral-400"></i> <span><span class="hidden sm:inline">Volver a </span>Mecánico</span>
+                        <svg class="ic text-[14px] text-neutral-400" aria-hidden="true"><use href="#i-log-out"></use></svg> <span><span class="hidden sm:inline">Volver a </span>Mecánico</span>
                     </button>
                 </div>
             </div>
@@ -698,22 +711,22 @@
         <div id="admin-panel-body" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"></div>
     </div>
     <div id="image-modal" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-2 sm:p-4" onclick="closeImageModal()">
-        <button type="button" onclick="closeImageModal()" class="absolute top-4 right-4 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors duration-150 z-10" aria-label="Cerrar"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button type="button" onclick="closeImageModal()" class="absolute top-4 right-4 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors duration-150 z-10" aria-label="Cerrar"><svg class="ic text-[18px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
         <img id="modal-image-content" src="" alt="Foto adjunta" class="max-w-full max-h-[90vh] object-contain rounded-lg" onclick="event.stopPropagation()">
     </div>
     <div id="preview-note-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-3 sm:p-6" onclick="closePreviewNoteModal()">
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-label="Apunte" onclick="event.stopPropagation()">
             <div class="px-5 sm:px-6 pt-5 pb-3 flex items-center justify-between gap-3 shrink-0">
                 <span id="preview-note-folder" class="text-[13px] text-neutral-500"></span>
-                <button type="button" onclick="closePreviewNoteModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closePreviewNoteModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
             <div class="px-5 sm:px-6 pb-6 overflow-y-auto hide-scrollbar">
                 <div id="preview-note-images" class="mb-5 flex flex-wrap gap-3"></div>
                 <p id="preview-note-text" class="text-[17px] leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-wrap"></p>
             </div>
             <div class="px-5 sm:px-6 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-end gap-2 shrink-0">
-                <button type="button" id="preview-btn-edit" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2"><i class="fa-solid fa-pen text-[12px] text-neutral-500"></i> Editar</button>
-                <button type="button" id="preview-btn-share" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 flex items-center gap-2"><i class="fa-solid fa-share-nodes text-xs"></i> Compartir</button>
+                <button type="button" id="preview-btn-edit" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-pencil"></use></svg> Editar</button>
+                <button type="button" id="preview-btn-share" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 flex items-center gap-2"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg> Compartir</button>
             </div>
         </div>
     </div>
@@ -786,11 +799,11 @@
                     <h3 id="history-modal-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Historial de vehículos</h3>
                     <p id="history-count" class="text-[13px] text-neutral-500 tabular-nums"></p>
                 </div>
-                <button type="button" onclick="closeHistoryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeHistoryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
             <div class="px-5 pb-4 shrink-0">
                 <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-neutral-400"></i>
+                    <svg class="ic absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-neutral-400" aria-hidden="true"><use href="#i-search"></use></svg>
                     <input type="search" id="history-search-input" placeholder="Buscar patente, modelo o cliente" class="w-full h-11 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 pl-9" oninput="renderHistoryList(this.value)">
                 </div>
             </div>
@@ -805,7 +818,7 @@
                     <h3 id="patient-modal-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Ingresar vehículo</h3>
                     <p class="text-[13px] text-neutral-500">Se crea una orden de trabajo nueva</p>
                 </div>
-                <button type="button" onclick="closePatientModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closePatientModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
             <div class="px-5 pb-5 flex flex-col gap-4 overflow-y-auto hide-scrollbar">
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-3">
@@ -835,30 +848,30 @@
         </div>
     </div>
     <div id="backup-modal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"><div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm" role="dialog" aria-labelledby="backup-title">
-        <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3"><div><h3 id="backup-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Respaldo</h3><p class="text-[13px] text-neutral-500">Un archivo ZIP con los datos y las fotos del taller</p></div><button type="button" onclick="closeBackupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3"><div><h3 id="backup-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Respaldo</h3><p class="text-[13px] text-neutral-500">Un archivo ZIP con los datos y las fotos del taller</p></div><button type="button" onclick="closeBackupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
         <div class="px-2 pb-3 flex flex-col">
-            <button type="button" onclick="downloadBackupFile()" class="w-full text-left flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-download text-[14px]"></i></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Descargar respaldo</span><span class="block text-[13px] text-neutral-500">Guarda todo el taller en un archivo</span></span></button>
-            <label class="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150 cursor-pointer"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-upload text-[14px]"></i></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Restaurar respaldo</span><span class="block text-[13px] text-neutral-500">Reemplaza los datos actuales por los del archivo</span></span><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label>
+            <button type="button" onclick="downloadBackupFile()" class="w-full text-left flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-download"></use></svg></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Descargar respaldo</span><span class="block text-[13px] text-neutral-500">Guarda todo el taller en un archivo</span></span></button>
+            <label class="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150 cursor-pointer"><span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 flex items-center justify-center shrink-0"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-upload"></use></svg></span><span><span class="block text-[15px] text-neutral-900 dark:text-neutral-100">Restaurar respaldo</span><span class="block text-[13px] text-neutral-500">Reemplaza los datos actuales por los del archivo</span></span><input type="file" id="backup-file-input" accept=".zip" class="hidden" onchange="importBackupFromFile(this)"></label>
         </div>
     </div></div>
     <div id="pdf-reader-modal" class="hidden fixed inset-0 bg-[#121212] z-[90] flex flex-col outline-none" tabindex="0">
         <div class="bg-[#121212] text-white pt-safe px-4 h-auto shrink-0 z-20 relative border-b border-white/[0.06]">
             <div class="h-14 flex justify-between items-center gap-3">
                 <h3 id="pdf-reader-title" class="text-[16px] font-medium text-neutral-100 truncate min-w-0">Manual</h3>
-                <button type="button" onclick="closePdfReader()" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button type="button" onclick="closePdfReader()" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Cerrar"><svg class="ic text-[18px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
         </div>
         <div class="bg-[#121212] text-white px-2 py-2 flex justify-center items-center gap-1 shrink-0 z-10 border-b border-white/[0.06]">
-            <button type="button" onclick="changePdfPage(-1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Página anterior"><i class="fa-solid fa-chevron-left text-sm"></i></button>
+            <button type="button" onclick="changePdfPage(-1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Página anterior"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-chevron-left"></use></svg></button>
             <div class="flex items-center gap-1.5 text-sm text-neutral-400 tabular-nums px-2">
                 <span>Página</span>
                 <input type="number" id="pdf-page-num" aria-label="Número de página" class="w-12 h-8 rounded-md bg-white/[0.06] border border-white/[0.08] text-center text-white outline-none focus:border-white/30 tabular-nums" value="1" min="1" onchange="jumpToPdfPage(this.value)">
                 <span>de <span id="pdf-page-count">--</span></span>
             </div>
-            <button type="button" onclick="changePdfPage(1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Página siguiente"><i class="fa-solid fa-chevron-right text-sm"></i></button>
+            <button type="button" onclick="changePdfPage(1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Página siguiente"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-chevron-right"></use></svg></button>
             <div class="w-px h-5 bg-white/10 mx-1"></div>
-            <button type="button" onclick="manualZoom(-0.2)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Alejar"><i class="fa-solid fa-magnifying-glass-minus text-sm"></i></button>
-            <button type="button" onclick="manualZoom(0.2)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Acercar"><i class="fa-solid fa-magnifying-glass-plus text-sm"></i></button>
+            <button type="button" onclick="manualZoom(-0.2)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Alejar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-zoom-out"></use></svg></button>
+            <button type="button" onclick="manualZoom(0.2)" class="w-10 h-10 flex items-center justify-center rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors duration-150" aria-label="Acercar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-zoom-in"></use></svg></button>
         </div>
         <div class="flex-1 bg-neutral-700 relative overflow-auto flex justify-center items-start p-4" id="pdf-scroll-container">
             <canvas id="the-canvas" class="shadow-lg transition-transform duration-100 ease-out origin-top-left"></canvas>
@@ -874,7 +887,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="inv-summary-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="inv-summary-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Resumen de bodega</h3></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeInvSummaryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeInvSummaryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5 grid grid-cols-2 gap-3 overflow-y-auto hide-scrollbar" id="inv-summary-content"></div>
         </div>
@@ -884,7 +897,7 @@
          inválidas" tiene que verse SIEMPRE, incluso arriba de la pantalla de
          inicio de sesión; antes quedaba tapado detrás de ella y nunca se veía. -->
     <div id="toast" role="status" aria-live="polite" class="fixed top-20 left-1/2 -translate-x-1/2 max-w-[calc(100vw-32px)] bg-neutral-900 dark:bg-neutral-800 text-white pl-3 pr-4 py-2.5 rounded-xl shadow-lg border border-white/[0.08] opacity-0 transition-[opacity,transform] duration-200 ease-out pointer-events-none z-[250] flex items-center gap-2.5 text-sm translate-y-4">
-        <div class="w-5 h-5 flex items-center justify-center text-[13px] text-neutral-400 shrink-0"><i class="fa-solid fa-check"></i></div>
+        <div class="w-5 h-5 flex items-center justify-center text-[13px] text-neutral-400 shrink-0"><svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg></div>
         <span id="toast-msg">Notificación</span>
     </div>
 
@@ -893,12 +906,12 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]" role="dialog" aria-labelledby="finance-modal-title">
             <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-3 shrink-0">
                 <div class="flex items-center gap-1 -ml-2">
-                    <button type="button" onclick="changeFinanceMonth(-1)" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Mes anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                    <button type="button" onclick="changeFinanceMonth(-1)" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Mes anterior"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-chevron-left"></use></svg></button>
                     <h3 id="finance-month-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 min-w-[136px] text-center">Cargando</h3>
-                    <button type="button" onclick="changeFinanceMonth(1)" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Mes siguiente"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                    <button type="button" onclick="changeFinanceMonth(1)" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Mes siguiente"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-chevron-right"></use></svg></button>
                 </div>
                 <span id="finance-modal-title" class="sr-only">Finanzas del mes</span>
-                <button type="button" onclick="closeFinanceModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeFinanceModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
 
             <div class="px-5 pb-5 shrink-0">
@@ -936,7 +949,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="add-inv-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="add-inv-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Ingreso a bodega</h3><p class="text-[13px] text-neutral-500">Repuesto, insumo o herramienta nueva</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeAddInventoryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeAddInventoryModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -978,7 +991,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="bulk-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="bulk-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Margen masivo</h3><p class="text-[13px] text-neutral-500">Aplica un margen a varios productos a la vez</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeBulkMarkupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeBulkMarkupModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1011,7 +1024,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="sell-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="sell-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Confirmar venta</h3><p id="sell-confirm-item-name" class="text-[13px] text-neutral-500 truncate"></p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeSellConfirmModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeSellConfirmModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5">
                 <div id="sell-confirm-question" class="flex flex-col gap-3">
@@ -1034,7 +1047,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="market-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="market-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Precio de mercado</h3><p class="text-[13px] text-neutral-500">Comparado con Mercado Libre</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeMarketPriceModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeMarketPriceModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div id="market-price-modal-body" class="px-5 pb-5 overflow-y-auto hide-scrollbar"></div>
         </div>
@@ -1043,7 +1056,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="shop-modal-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="shop-modal-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Lista de compras</h3><p class="text-[13px] text-neutral-500">Se exporta como PDF para el proveedor</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeShoppingModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closeShoppingModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5 overflow-y-auto hide-scrollbar flex flex-col gap-5">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1056,10 +1069,10 @@
                         <img id="shop-logo-preview" src="" alt="Logo del taller" class="w-full h-full object-contain">
                     </div>
                     <label class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer">
-                        <i class="fa-regular fa-image text-[13px] text-neutral-500"></i> <span id="shop-logo-label">Agregar logo del taller (para las OT/cotizaciones en PDF)</span>
+                        <svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-image"></use></svg> <span id="shop-logo-label">Agregar logo del taller (para las OT/cotizaciones en PDF)</span>
                         <input type="file" accept="image/*" class="hidden" onchange="updateShopLogo(this)">
                     </label>
-                    <button type="button" id="shop-logo-remove-btn" onclick="removeShopLogo()" class="hidden w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Quitar logo"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                    <button type="button" id="shop-logo-remove-btn" onclick="removeShopLogo()" class="hidden w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Quitar logo"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                 </div>
                 <div class="rounded-xl border border-neutral-900/[0.06] dark:border-white/[0.06] overflow-x-auto hide-scrollbar mouse-drag">
                     <table class="w-full text-left border-collapse">
@@ -1075,20 +1088,20 @@
                             <tr>
                                 <td class="px-4 py-2"><input type="text" id="new-item-product" placeholder="Agregar producto" aria-label="Producto nuevo" class="w-full min-w-[130px] bg-transparent outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400" onkeypress="if(event.key === 'Enter') document.getElementById('new-item-qty').focus()"></td>
                                 <td class="px-4 py-2"><input type="number" id="new-item-qty" placeholder="1" aria-label="Cantidad" class="w-full bg-transparent outline-none text-[15px] text-right tabular-nums text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400" min="1" onkeypress="if(event.key === 'Enter') addShoppingItem()"></td>
-                                <td class="px-2 py-2 text-center"><button type="button" onclick="addShoppingItem()" class="w-8 h-8 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center mx-auto transition-colors duration-150" aria-label="Agregar"><i class="fa-solid fa-plus text-xs"></i></button></td>
+                                <td class="px-2 py-2 text-center"><button type="button" onclick="addShoppingItem()" class="w-8 h-8 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center mx-auto transition-colors duration-150" aria-label="Agregar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg></button></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-between gap-2 shrink-0"><button type="button" onclick="clearShoppingList()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Vaciar lista</button><button type="button" onclick="downloadShoppingPDF()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 flex items-center gap-2"><i class="fa-solid fa-file-arrow-down text-xs"></i> Exportar PDF</button></div>
+            <div class="px-5 py-4 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex justify-between gap-2 shrink-0"><button type="button" onclick="clearShoppingList()" class="h-10 px-4 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">Vaciar lista</button><button type="button" onclick="downloadShoppingPDF()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150 flex items-center gap-2"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-file-down"></use></svg> Exportar PDF</button></div>
         </div>
     </div>
     <div id="inv-report-modal" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="rep-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="rep-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Balance histórico</h3><p class="text-[13px] text-neutral-500">Todo lo comprado y vendido desde el inicio</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="downloadSalesPDF()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar PDF"><i class="fa-regular fa-file-pdf text-[13px] text-neutral-500"></i><span class="hidden sm:inline">PDF</span></button><button type="button" onclick="exportInventoryToExcel()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar a Excel (inventario e historial con fechas)"><i class="fa-solid fa-file-arrow-down text-[13px] text-neutral-500"></i><span class="hidden sm:inline">Excel</span></button><button type="button" onclick="closeInvReportModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="downloadSalesPDF()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar PDF"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-file-text"></use></svg><span class="hidden sm:inline">PDF</span></button><button type="button" onclick="exportInventoryToExcel()" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2" title="Exportar a Excel (inventario e historial con fechas)"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-file-down"></use></svg><span class="hidden sm:inline">Excel</span></button><button type="button" onclick="closeInvReportModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-5 grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0" id="inv-report-kpis"></div>
             <div class="px-5 py-3 border-t border-neutral-900/[0.06] dark:border-white/[0.06] shrink-0"><h4 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Más vendidos</h4></div>
@@ -1099,12 +1112,12 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="pl-title">
             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <div class="min-w-0"><h3 id="pl-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Lista de precios</h3><p class="text-[13px] text-neutral-500">Servicios frecuentes, precio final con IVA</p></div>
-                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closePriceListModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="flex items-center gap-2 shrink-0"><button type="button" onclick="closePriceListModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
             </div>
             <div class="px-5 pb-4 grid grid-cols-[minmax(0,1fr)_112px_auto] gap-2 shrink-0">
                 <input type="text" id="new-preset-name" placeholder="Cambio de aceite" aria-label="Servicio" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150" onkeypress="if(event.key === 'Enter') document.getElementById('new-preset-price').focus()">
                 <input type="number" id="new-preset-price" placeholder="$ con IVA" aria-label="Precio final con IVA" title="Precio final con IVA incluido" class="w-full h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 text-right tabular-nums" onkeypress="if(event.key === 'Enter') addPredefinedService()">
-                <button type="button" onclick="addPredefinedService()" class="h-10 w-10 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors duration-150" aria-label="Agregar servicio"><i class="fa-solid fa-plus text-xs"></i></button>
+                <button type="button" onclick="addPredefinedService()" class="h-10 w-10 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors duration-150" aria-label="Agregar servicio"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg></button>
             </div>
             <div class="flex-1 overflow-y-auto hide-scrollbar border-t border-neutral-900/[0.06] dark:border-white/[0.06]" id="price-list-container"></div>
         </div>
@@ -1117,7 +1130,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm md:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="settings-title">
             <div class="px-5 sm:px-6 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                 <h3 id="settings-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100">Configuración</h3>
-                <button type="button" onclick="closeSettingsModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeSettingsModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </div>
             <div class="px-5 sm:px-6 pb-6 overflow-y-auto hide-scrollbar flex flex-col md:flex-row gap-6 md:gap-8">
                 <div class="flex-1 min-w-0 flex flex-col">
@@ -1128,7 +1141,7 @@
 
                     <section id="admin-pin-settings-card" class="hidden flex flex-col gap-3 py-5 first:pt-0 border-t first:border-t-0 border-neutral-900/[0.06] dark:border-white/[0.06] [&:not(.hidden)]:flex">
                         <div><h4 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">PIN de Administrador</h4><p class="text-[13px] text-neutral-500">Protege los datos del cliente (RUT y dirección) para que solo Administrador los vea</p></div>
-                        <button type="button" onclick="changeAdminPin()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 self-start"><i class="fa-solid fa-key text-[12px] text-neutral-500"></i> <span id="admin-pin-btn-label">Configurar PIN</span></button>
+                        <button type="button" onclick="changeAdminPin()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 self-start"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-key"></use></svg> <span id="admin-pin-btn-label">Configurar PIN</span></button>
                     </section>
 
                     <section class="flex flex-col gap-3 py-5 first:pt-0 border-t first:border-t-0 border-neutral-900/[0.06] dark:border-white/[0.06]">
@@ -1153,7 +1166,7 @@
                             <span id="notif-status-badge" class="text-[13px] text-neutral-500 shrink-0">Desactivados</span>
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" id="btn-notif-toggle" onclick="requestNotificationPermission()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 flex-1"><i class="fa-regular fa-bell text-[13px] text-neutral-500"></i> Activar</button>
+                            <button type="button" id="btn-notif-toggle" onclick="requestNotificationPermission()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 flex-1"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-bell"></use></svg> Activar</button>
                             <select id="notif-time-select" onchange="updateNotifTime(this.value)" class="h-10 px-3 rounded-lg bg-neutral-50 dark:bg-white/[0.04] border border-neutral-900/[0.08] dark:border-white/[0.08] text-[15px] text-neutral-900 dark:text-neutral-100 outline-none focus:border-neutral-400 dark:focus:border-white/30 transition-colors duration-150 cursor-pointer w-32" title="Minutos de anticipación" aria-label="Anticipación">
                                 <option value="5">5 min antes</option>
                                 <option value="10">10 min antes</option>
@@ -1167,7 +1180,7 @@
 
                     <section class="flex flex-col gap-3 py-5 first:pt-0 border-t first:border-t-0 border-neutral-900/[0.06] dark:border-white/[0.06]">
                         <div><h4 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Cuenta</h4><p class="text-[13px] text-neutral-500">Tus datos se sincronizan con la nube</p></div>
-                        <button type="button" onclick="logoutUser()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 self-start text-red-600 dark:text-[#e5484d]"><i class="fa-solid fa-arrow-right-from-bracket text-[12px]"></i> Cerrar sesión</button>
+                        <button type="button" onclick="logoutUser()" class="h-10 px-4 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 self-start text-red-600 dark:text-[#e5484d]"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-log-out"></use></svg> Cerrar sesión</button>
                     </section>
                 </div>
 
@@ -1181,6 +1194,48 @@
     </div>
 
     <script>
+
+        // --- ÍCONOS ---
+        // Los nombres de Font Awesome que ya usaba la app (fa-car, fa-pen...) se
+        // traducen a su equivalente de Lucide, así los datos y llamadas como
+        // showToast('...', 'fa-check') siguen funcionando igual.
+        const FA_TO_LUCIDE = {"angle-left": "chevron-left", "arrow-down": "arrow-down", "arrow-right-from-bracket": "log-out", "arrow-right-to-bracket": "log-in", "arrow-up": "arrow-up", "arrow-up-from-bracket": "upload", "arrow-up-right-from-square": "external-link", "barcode": "barcode", "bell": "bell", "bell-slash": "bell-off", "book-open": "book-open", "bookmark": "bookmark", "box": "package", "box-archive": "archive", "box-open": "package-open", "boxes-stacked": "package", "broom": "eraser", "bug": "bug", "calendar-check": "calendar-check", "calendar-days": "calendar-days", "camera": "camera", "car": "car", "car-side": "car", "cart-plus": "shopping-cart", "cart-shopping": "shopping-cart", "chart-line": "chart-line", "chart-pie": "chart-pie", "check": "check", "check-double": "check-check", "chevron-left": "chevron-left", "chevron-right": "chevron-right", "circle-info": "info", "circle-xmark": "circle-x", "clipboard-check": "clipboard-check", "clipboard-list": "list-checks", "clock": "clock", "clock-rotate-left": "history", "cloud": "cloud", "cloud-arrow-down": "cloud-download", "cloud-arrow-up": "cloud-upload", "compress": "minimize-2", "copy": "copy", "download": "download", "ellipsis": "ellipsis", "ellipsis-vertical": "ellipsis-vertical", "eraser": "eraser", "expand": "maximize-2", "eye-slash": "eye-off", "file-arrow-down": "file-down", "file-excel": "file-spreadsheet", "file-import": "file-input", "file-pdf": "file-text", "file-zipper": "file-archive", "folder-plus": "folder-plus", "gear": "settings", "hand-holding-dollar": "hand-coins", "id-card": "id-card", "image": "image", "info-circle": "info", "key": "key", "link": "link", "list-ul": "list", "lock": "lock", "magnifying-glass": "search", "magnifying-glass-minus": "zoom-out", "magnifying-glass-plus": "zoom-in", "moon": "moon", "palette": "palette", "pen": "pencil", "pen-to-square": "square-pen", "percent": "percent", "plus": "plus", "rotate": "refresh-cw", "rotate-left": "rotate-ccw", "share-from-square": "share", "share-nodes": "share-2", "sort": "chevrons-up-down", "sort-down": "chevron-down", "sort-up": "chevron-up", "spinner": "loader-circle", "sun": "sun", "tag": "tag", "tags": "tags", "times": "x", "toolbox": "book-open", "trash": "trash-2", "trash-can": "trash-2", "triangle-exclamation": "triangle-alert", "upload": "upload", "user-gear": "user-cog", "user-shield": "shield-check", "warehouse": "house", "wifi": "wifi", "wrench": "wrench", "xmark": "x", "arrow-down-wide-short": "arrow-down", "camera-retro": "camera"};
+        const ICON_SIZE = {"text-[10px]": "text-[14px]", "text-[11px]": "text-[14px]", "text-[12px]": "text-[14px]", "text-xs": "text-[14px]", "text-[13px]": "text-[14px]", "text-sm": "text-[14px]", "text-[14px]": "text-[14px]", "text-[15px]": "text-[16px]", "text-base": "text-[16px]", "text-[16px]": "text-[16px]", "text-[17px]": "text-[18px]", "text-lg": "text-[18px]", "text-[18px]": "text-[18px]", "text-xl": "text-[18px]", "text-2xl": "text-[24px]", "text-3xl": "text-[24px]", "text-4xl": "text-[24px]"};
+        const ICON_COLOR = /^text-(blue|green|yellow|amber|orange|purple|indigo|teal)-\d{2,3}$/;
+
+        let lucideSymbols = null;
+        function isLucideSymbol(t) {
+            if (!lucideSymbols) lucideSymbols = new Set([...document.querySelectorAll('symbol[id^="i-"]')].map(el => el.id.slice(2)));
+            return lucideSymbols.has(t);
+        }
+
+        // Acepta un nombre de Font Awesome (fa-car) o de Lucide (notebook-pen).
+        function lucideName(name) {
+            const tokens = String(name || '').split(/\s+/);
+            const fa = tokens.find(t => t.startsWith('fa-') && !['fa-solid', 'fa-regular', 'fa-brands', 'fa-spin', 'fa-fw'].includes(t));
+            if (fa) return FA_TO_LUCIDE[fa.slice(3)] || 'circle';
+            return tokens.find(isLucideSymbol) || 'circle';
+        }
+
+        // ico('fa-pen text-xs') o ico('fa-pen', 'text-neutral-500') → <svg> con el ícono.
+        function ico(name, cls = '', attrs = '') {
+            const tokens = `${name || ''} ${cls || ''}`.split(/\s+/).filter(Boolean);
+            const keep = [];
+            let spin = false;
+            tokens.forEach(t => {
+                if (t === 'fa-spin') spin = true;
+                else if (t.startsWith('fa-') || isLucideSymbol(t)) return;
+                else keep.push(ICON_SIZE[t] || (ICON_COLOR.test(t) ? 'text-neutral-400' : t));
+            });
+            if (spin) keep.unshift('animate-spin');
+            return `<svg class="ic ${keep.join(' ')}"${attrs ? ' ' + attrs : ''} aria-hidden="true"><use href="#i-${lucideName(name)}"></use></svg>`;
+        }
+
+        function setIco(el, name) {
+            const use = el && el.querySelector('use');
+            if (use) use.setAttribute('href', '#i-' + lucideName(name));
+        }
+
         const APP_KEY = 'mecamonico_data_v1'; 
 
         // --- SEGURIDAD: Escapar HTML para prevenir XSS ---
@@ -2124,13 +2179,13 @@
             const modal = document.getElementById('pdf-reader-modal'); const title = document.getElementById('pdf-reader-title'); const loader = document.getElementById('pdf-loader');
             const oldCanvas = document.getElementById('the-canvas');
             if(oldCanvas) { const ctx = oldCanvas.getContext('2d'); ctx.clearRect(0, 0, oldCanvas.width, oldCanvas.height); oldCanvas.style.width = '100%'; }
-            title.innerHTML = `<i class="fa-solid fa-file-pdf mr-2 text-white"></i> <span class="truncate">${escapeHtml(pdf.title)}</span>`;
+            title.innerHTML = `<svg class="ic mr-2 text-white" aria-hidden="true"><use href="#i-file-text"></use></svg> <span class="truncate">${escapeHtml(pdf.title)}</span>`;
             loader.classList.remove('hidden'); modal.classList.remove('hidden'); modal.focus(); currentZoom = 1.0; 
             try { const source = isFileRef(pdf.file) ? { data: new Uint8Array(await (await getFileBlob(pdf.file)).arrayBuffer()) } : pdf.data; const loadingTask = pdfjsLib.getDocument(source); pdfDoc = await loadingTask.promise; document.getElementById('pdf-page-count').textContent = pdfDoc.numPages; pageNum = 1; renderPage(pageNum); } catch (error) { console.error(error); showToast(error && error.message === 'offline' ? "Este manual no está descargado en este dispositivo y no hay conexión" : "No se pudo abrir el PDF", "fa-triangle-exclamation"); closePdfReader(); }
         }
         function closePdfReader() { document.getElementById('pdf-reader-modal').classList.add('hidden'); if(renderTask) { renderTask.cancel(); renderTask = null; } pdfDoc = null; pageNum = 1; pageRendering = false; pageNumPending = null; }
 
-        function showToast(msg, icon = 'fa-info-circle') { const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; toast.querySelector('div').innerHTML = `<i class="fa-solid ${icon}"></i>`; toast.classList.remove('opacity-0', 'translate-y-4'); toast.classList.add('translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); toast.classList.remove('translate-y-0'); }, 3000); }
+        function showToast(msg, icon = 'fa-info-circle') { const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; toast.querySelector('div').innerHTML = `${ico(`fa-solid ${icon}`, ``, ``)}`; toast.classList.remove('opacity-0', 'translate-y-4'); toast.classList.add('translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); toast.classList.remove('translate-y-0'); }, 3000); }
         async function updateProfileImage(input) { if (input.files && input.files[0]) { try { const base64 = await processImage(input.files[0]); state.userProfileImage = base64; saveData(); renderView('dashboard'); showToast("Foto actualizada", "fa-camera"); } catch (e) { showToast("Error al procesar imagen", "fa-triangle-exclamation"); } } }
         
         function openNameModal() { document.getElementById('new-user-name').value = state.userName || ''; document.body.classList.add('modal-open'); document.getElementById('name-modal').classList.remove('hidden'); document.getElementById('new-user-name').focus(); }
@@ -2292,7 +2347,7 @@
             const pdfSide = `<div class="${DASH_CARD} p-5 flex flex-col gap-3 lg:sticky lg:top-2">
                 <h2 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Subir manual</h2>
                 <button type="button" onclick="triggerPdfInput()" class="h-32 rounded-lg border border-dashed border-neutral-900/[0.16] dark:border-white/[0.16] flex flex-col items-center justify-center gap-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors duration-150">
-                    <i class="fa-solid fa-arrow-up-from-bracket text-base"></i>
+                    <svg class="ic text-[16px]" aria-hidden="true"><use href="#i-upload"></use></svg>
                     <span class="text-[15px]">Elegir archivo PDF</span>
                     <span class="text-[13px] text-neutral-400">Hasta 25 MB</span>
                 </button>
@@ -2312,7 +2367,7 @@
                         ${tabBtn('pdf', 'Manuales PDF', pdfs.length, !isWeb)}
                     </div>
                     <div class="relative flex-1 sm:max-w-sm">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-neutral-400"></i>
+                        <svg class="ic absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-neutral-400" aria-hidden="true"><use href="#i-search"></use></svg>
                         <input type="search" id="info-search" placeholder="Buscar" oninput="filterInfo(this.value)" class="${INFO_INPUT} pl-9">
                     </div>
                 </div>
@@ -2331,15 +2386,15 @@
         function createPdfHTML(pdf) {
             return `<li id="pdf-${pdf.id}" class="flex items-center gap-3 px-4 sm:px-5 py-3 ${DASH_HOVER}">
                 <button type="button" onclick="openPdfReader(${pdf.id})" class="flex-1 min-w-0 flex items-center gap-3 text-left">
-                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center"><i class="fa-regular fa-file-pdf text-[15px]"></i></span>
+                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center"><svg class="ic text-[16px]" aria-hidden="true"><use href="#i-file-text"></use></svg></span>
                     <span class="min-w-0">
                         <span class="block text-[15px] leading-snug text-neutral-900 dark:text-neutral-100 break-words line-clamp-2 sm:line-clamp-1">${escapeHtml(pdf.title)}</span>
                         <span class="block text-[13px] text-neutral-500 tabular-nums">PDF · ${formatPdfSize(pdf)}</span>
                     </span>
                 </button>
-                <button type="button" onclick="renamePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Renombrar" aria-label="Renombrar"><i class="fa-solid fa-pen text-[13px]"></i></button>
-                <button type="button" onclick="sharePdfFile(${pdf.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><i class="fa-solid fa-share-nodes text-[13px]"></i></button>
-                <button type="button" onclick="deletePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                <button type="button" onclick="renamePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Renombrar" aria-label="Renombrar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+                <button type="button" onclick="sharePdfFile(${pdf.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg></button>
+                <button type="button" onclick="deletePdf(${pdf.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
             </li>`;
         }
 
@@ -2351,7 +2406,7 @@
             return `<li id="link-${link.id}" class="flex items-center gap-3 px-4 sm:px-5 py-3 ${DASH_HOVER}">
                 <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 flex items-center gap-3">
                     <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center overflow-hidden">
-                        <i class="fa-solid fa-link text-[13px] hidden"></i>
+                        <svg class="ic text-[14px] hidden" aria-hidden="true"><use href="#i-link"></use></svg>
                         <img src="${escapeHtml(favicon)}" alt="" class="w-5 h-5 object-contain" onerror="this.previousElementSibling.classList.remove('hidden'); this.remove()">
                     </span>
                     <span class="min-w-0">
@@ -2359,8 +2414,8 @@
                         <span class="block text-[13px] text-neutral-500 truncate">${escapeHtml(host)}</span>
                     </span>
                 </a>
-                <button type="button" onclick="shareLink(${link.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><i class="fa-solid fa-share-nodes text-[13px]"></i></button>
-                <button type="button" onclick="confirmDelete('link', ${link.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                <button type="button" onclick="shareLink(${link.id})" class="${INFO_ICON_BTN}" title="Compartir" aria-label="Compartir"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg></button>
+                <button type="button" onclick="confirmDelete('link', ${link.id})" class="${INFO_ICON_BTN}" title="Eliminar" aria-label="Eliminar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
             </li>`;
         }
         
@@ -2519,7 +2574,7 @@
                     wrap.className = "relative flex-shrink-0 group w-24 h-24";
                     wrap.innerHTML = `
                         <img ${fileImgAttrs(imgSrc)} alt="" class="w-full h-full rounded-lg border border-neutral-900/[0.08] dark:border-white/[0.08] object-cover">
-                        <button type="button" onclick="removeImageFromPreview(${index})" class="absolute -top-2 -right-2 bg-neutral-900 dark:bg-neutral-700 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-150" aria-label="Quitar foto"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                        <button type="button" onclick="removeImageFromPreview(${index})" class="absolute -top-2 -right-2 bg-neutral-900 dark:bg-neutral-700 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-150" aria-label="Quitar foto"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                     `;
                     container.appendChild(wrap);
                 });
@@ -2645,9 +2700,9 @@
             const sbIcon = document.getElementById('sb-profile-icon');
             const sbLabel = document.getElementById('sb-profile-label');
             const mobileIcon = document.getElementById('mobile-profile-icon');
-            if (sbIcon) sbIcon.className = `fa-solid ${icon}`;
+            if (sbIcon) setIco(sbIcon, icon);
             if (sbLabel) sbLabel.innerText = label;
-            if (mobileIcon) mobileIcon.className = `fa-solid ${icon}`;
+            if (mobileIcon) setIco(mobileIcon, icon);
         }
 
         // Configura o cambia el PIN de Administrador desde Ajustes (solo se
@@ -2892,8 +2947,8 @@
                         <p class="text-[13px] text-neutral-500">${escapeHtml(receptionInfo)}</p>
                     </div>
                     ${p ? `<div class="flex gap-2">
-                        <button type="button" onclick="downloadWorkOrderPDF(${p.id})" class="${ADMIN_BTN2}"><i class="fa-regular fa-file-pdf text-[13px] text-neutral-500"></i> PDF</button>
-                        <button type="button" onclick="archiveAdminPanelOT(${p.id})" class="${ADMIN_BTN2}"><i class="fa-solid fa-box-archive text-[13px] text-neutral-500"></i> Archivar</button>
+                        <button type="button" onclick="downloadWorkOrderPDF(${p.id})" class="${ADMIN_BTN2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-file-text"></use></svg> PDF</button>
+                        <button type="button" onclick="archiveAdminPanelOT(${p.id})" class="${ADMIN_BTN2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-archive"></use></svg> Archivar</button>
                     </div>` : ''}
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
@@ -2919,7 +2974,7 @@
                 <section class="${DASH_CARD} p-2">
                     <div class="flex items-center justify-between gap-2 px-2 pt-2 pb-3">
                         <h3 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">Órdenes activas <span class="font-normal text-neutral-400 tabular-nums">${activePatients.length}</span></h3>
-                        <button type="button" onclick="selectAdminPanelOT(null)" class="h-8 px-2.5 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center gap-1.5"><i class="fa-solid fa-plus text-[11px]"></i> Nueva</button>
+                        <button type="button" onclick="selectAdminPanelOT(null)" class="h-8 px-2.5 rounded-lg text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center gap-1.5"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg> Nueva</button>
                     </div>
                     <div class="px-2 pb-2"><input type="search" placeholder="Buscar" class="${ADMIN_INPUT} h-9" oninput="filterAdminPanelOtList(this.value)"></div>
                     <div id="admin-panel-ot-list" class="flex flex-col gap-0.5 max-h-[60vh] overflow-y-auto hide-scrollbar">${otListHTML}</div>
@@ -2969,7 +3024,7 @@
                     <td class="${td} text-right text-neutral-900 dark:text-neutral-100 whitespace-nowrap">$${Math.round(s.total).toLocaleString('es-CL')}</td>
                 </tr>`).join('');
 
-            const navBtn = (delta, icon, title) => `<button type="button" onclick="shiftAdminPanelAccountingMonth(${delta})" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="${title}" aria-label="${title}"><i class="fa-solid ${icon} text-xs"></i></button>`;
+            const navBtn = (delta, icon, title) => `<button type="button" onclick="shiftAdminPanelAccountingMonth(${delta})" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="${title}" aria-label="${title}">${ico(`fa-solid ${icon} text-xs`, ``, ``)}</button>`;
             const chartCard = (title, total, id) => `<section class="${DASH_CARD} p-5">
                 <div class="flex items-baseline justify-between gap-3 mb-4">
                     <h3 class="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">${title}</h3>
@@ -2985,7 +3040,7 @@
                         <h2 class="min-w-[150px] text-center text-[20px] leading-7 font-medium text-neutral-900 dark:text-neutral-100">${monthLabel}</h2>
                         ${navBtn(1, 'fa-chevron-right', 'Mes siguiente')}
                     </div>
-                    <button type="button" onclick="exportAccountingToExcel()" class="${ADMIN_BTN2}"><i class="fa-solid fa-file-arrow-down text-[13px] text-neutral-500"></i> Exportar Excel</button>
+                    <button type="button" onclick="exportAccountingToExcel()" class="${ADMIN_BTN2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-file-down"></use></svg> Exportar Excel</button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-[1.4fr_1fr_1fr] gap-4">
@@ -3233,7 +3288,7 @@
                 ? `<p class="py-2 text-sm text-neutral-500">Sin avisos por ahora</p>`
                 : `<ul class="divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06]">${notes.slice().reverse().map(n => {
                     const statusHTML = n.seen
-                        ? `<span class="text-xs text-neutral-500 flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-check text-[10px]"></i>Visto</span>`
+                        ? `<span class="text-xs text-neutral-500 flex items-center gap-1 whitespace-nowrap"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-check"></use></svg>Visto</span>`
                         : (isWriter
                             ? `<span class="text-xs text-neutral-500 whitespace-nowrap">Sin ver</span>`
                             : `<button type="button" onclick="markMechanicNoteSeen(${n.id})" class="h-7 px-2.5 rounded-md text-xs text-neutral-700 dark:text-neutral-200 border border-neutral-900/[0.12] dark:border-white/[0.12] hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap">Marcar visto</button>`);
@@ -3242,7 +3297,7 @@
                         <p class="flex-1 min-w-0 text-[15px] leading-6 break-words ${n.seen ? 'text-neutral-500' : 'text-neutral-900 dark:text-neutral-100'}">${escapeHtml(n.text)}</p>
                         <span class="flex items-center gap-1 shrink-0 min-h-6">
                             ${statusHTML}
-                            <button type="button" onclick="deleteMechanicNote(${n.id})" class="w-7 h-7 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar aviso" aria-label="Eliminar aviso"><i class="fa-solid fa-xmark text-sm"></i></button>
+                            <button type="button" onclick="deleteMechanicNote(${n.id})" class="w-7 h-7 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar aviso" aria-label="Eliminar aviso"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                         </span>
                     </li>`;
                 }).join('')}</ul>`;
@@ -3305,7 +3360,7 @@
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
                             <button type="button" onclick="openFinanceModal()" class="h-8 px-3 rounded-lg text-sm text-neutral-700 dark:text-neutral-300 ${DASH_HOVER} hover:bg-neutral-100 dark:hover:bg-white/[0.06]">Ver mes</button>
-                            <button type="button" onclick="hideFinanceWidgetDirectly(event)" title="Ocultar balance" aria-label="Ocultar balance" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 ${DASH_HOVER} hover:bg-neutral-100 dark:hover:bg-white/[0.06]"><i class="fa-regular fa-eye-slash text-sm"></i></button>
+                            <button type="button" onclick="hideFinanceWidgetDirectly(event)" title="Ocultar balance" aria-label="Ocultar balance" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 ${DASH_HOVER} hover:bg-neutral-100 dark:hover:bg-white/[0.06]"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-eye-off"></use></svg></button>
                         </div>
                     </div>
                     <div class="flex flex-col gap-3">
@@ -3354,7 +3409,7 @@
                 <li>
                     <button type="button" onclick="renderView('turnario')" class="w-full flex items-center gap-3 sm:gap-4 px-5 py-3 text-left ${DASH_HOVER}">
                         <span class="w-11 shrink-0 text-sm tabular-nums text-neutral-600 dark:text-neutral-400">${ev.eventTime ? escapeHtml(ev.eventTime) : '—'}</span>
-                        <span class="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 items-center justify-center"><i class="fa-solid ${shiftType(ev.type).icon} text-[13px]"></i></span>
+                        <span class="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 items-center justify-center">${ico(`fa-solid ${shiftType(ev.type).icon} text-[13px]`, ``, ``)}</span>
                         <span class="flex-1 min-w-0">
                             <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(ev.note || 'Evento agendado')}</span>
                             ${ev.client ? `<span class="block text-sm text-neutral-500 truncate">${escapeHtml(ev.client)}</span>` : ''}
@@ -3387,7 +3442,7 @@
 
             const quickAction = (onclick, icon, label) => `
                 <button type="button" onclick="${onclick}" class="${DASH_CARD} ${DASH_HOVER} p-3 lg:px-4 flex flex-col lg:flex-row items-center gap-2 lg:gap-3 text-center lg:text-left">
-                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-600 dark:text-neutral-300 flex items-center justify-center"><i class="fa-solid ${icon} text-[15px]"></i></span>
+                    <span class="w-9 h-9 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-600 dark:text-neutral-300 flex items-center justify-center">${ico(`fa-solid ${icon} text-[15px]`, ``, ``)}</span>
                     <span class="text-[13px] leading-4 text-neutral-700 dark:text-neutral-300">${label}</span>
                 </button>`;
 
@@ -3395,7 +3450,7 @@
                 <header class="flex items-center gap-4">
                     <label for="profile-upload" class="relative w-12 h-12 shrink-0 rounded-full overflow-hidden cursor-pointer group" title="Cambiar foto">
                         ${avatarHTML}
-                        <span class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center text-white"><i class="fa-solid fa-camera text-xs"></i></span>
+                        <span class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center text-white"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-camera"></use></svg></span>
                     </label>
                     <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="updateProfileImage(this)">
                     <div class="min-w-0">
@@ -3423,7 +3478,7 @@
                             <div class="grid grid-cols-4 lg:grid-cols-2 gap-3">
                                 ${quickAction("renderView('work_orders'); setTimeout(() => openPatientModal(), 100);", 'fa-car-side', 'Nuevo vehículo')}
                                 ${quickAction("setActiveShopTab('items')", 'fa-cart-shopping', 'Lista de compras')}
-                                ${quickAction("renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)", 'fa-pen', 'Escribir apunte')}
+                                ${quickAction("renderView('notes'); setTimeout(()=> {document.getElementById('new-note-text').focus();}, 300)", 'notebook-pen', 'Escribir apunte')}
                                 ${quickAction("setInfoTab('pdf'); if(state.view !== 'links') renderView('links');", 'fa-book-open', 'Abrir manual')}
                             </div>
                         </section>
@@ -3436,10 +3491,10 @@
             const price = parseFloat(t.price) || 0;
             const isProduct = !!t.invId;
             return `<li id="patient-task-${t.id}" class="group/task flex items-center gap-2 py-2">
-                <button type="button" onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" aria-label="${t.done ? 'Marcar como pendiente' : 'Marcar como lista'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${t.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${t.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}</button>
-                ${isProduct ? '<i class="fa-solid fa-box text-[11px] text-neutral-400 shrink-0" title="Repuesto de bodega"></i>' : ''}
+                <button type="button" onclick="togglePatientTask(${patientId}, ${t.id})" id="btn-ptask-${t.id}" aria-label="${t.done ? 'Marcar como pendiente' : 'Marcar como lista'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${t.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${t.done ? '<svg class="ic text-[14px]" aria-hidden="true"><use href="#i-check"></use></svg>' : ''}</button>
+                ${isProduct ? '<svg class="ic text-[14px] text-neutral-400 shrink-0" title="Repuesto de bodega" aria-hidden="true"><use href="#i-package"></use></svg>' : ''}
                 <input type="text" id="txt-ptask-${t.id}" value="${escapeHtml(t.text)}" onchange="updatePatientTask(${patientId}, ${t.id}, 'text', this.value)" aria-label="Descripción" class="flex-1 min-w-0 bg-transparent outline-none text-[15px] truncate rounded px-1 -mx-1 focus:bg-neutral-100 dark:focus:bg-white/[0.06] ${t.done ? 'text-neutral-500 line-through decoration-neutral-400' : 'text-neutral-900 dark:text-neutral-100'}" placeholder="Descripción">
-                <button type="button" onclick="deletePatientTask(${patientId}, ${t.id})" aria-label="Eliminar línea" title="Eliminar línea" class="w-6 h-6 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover/task:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><i class="fa-solid fa-xmark text-xs"></i></button>
+                <button type="button" onclick="deletePatientTask(${patientId}, ${t.id})" aria-label="Eliminar línea" title="Eliminar línea" class="w-6 h-6 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover/task:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                 <input type="text" inputmode="numeric" value="${price ? '$' + price.toLocaleString('es-CL') : ''}" placeholder="$0" aria-label="Valor" onchange="updatePatientTask(${patientId}, ${t.id}, 'price', this.value.replace(/[^0-9]/g, ''))" class="w-20 shrink-0 bg-transparent outline-none text-right text-sm tabular-nums rounded px-0.5 focus:bg-neutral-100 dark:focus:bg-white/[0.06] ${t.done ? 'text-neutral-500' : 'text-neutral-700 dark:text-neutral-300'}">
             </li>`;
         }
@@ -3468,13 +3523,13 @@
                             <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400"><span class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">${totalCars}</span> ${totalCars === 1 ? 'vehículo' : 'vehículos'} en taller${readyCount ? ` · ${readyCount} ${readyCount === 1 ? 'orden lista' : 'órdenes listas'} para entregar` : ''}</p>
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" onclick="openPriceListModal()" class="${btn2}"><i class="fa-solid fa-list-ul text-[13px] text-neutral-500"></i><span class="lg:hidden">Precios</span><span class="hidden lg:inline">Lista de precios</span></button>
-                            <button type="button" onclick="openHistoryModal()" class="${btn2}"><i class="fa-solid fa-clock-rotate-left text-[13px] text-neutral-500"></i>Historial</button>
-                            <button type="button" onclick="openPatientModal()" class="flex-1 lg:flex-none h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><i class="fa-solid fa-plus text-[13px]"></i>Nueva orden</button>
+                            <button type="button" onclick="openPriceListModal()" class="${btn2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-list"></use></svg><span class="lg:hidden">Precios</span><span class="hidden lg:inline">Lista de precios</span></button>
+                            <button type="button" onclick="openHistoryModal()" class="${btn2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-history"></use></svg>Historial</button>
+                            <button type="button" onclick="openPatientModal()" class="flex-1 lg:flex-none h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg>Nueva orden</button>
                         </div>
                     </header>
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500"></i>
+                        <svg class="ic absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-search"></use></svg>
                         <input type="text" placeholder="Buscar modelo, patente o cliente" aria-label="Buscar órdenes" class="w-full h-10 pl-10 pr-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" oninput="filterWorkOrders(this.value)">
                     </div>
                     <div id="work-orders-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
@@ -3526,7 +3581,7 @@
                         <div class="flex items-center gap-3">
                             ${plate ? `<button type="button" onclick="editPatientRoom(${p.id})" class="plate cursor-pointer" title="Editar patente">${escapeHtml(plate)}</button>` : `<button type="button" onclick="editPatientRoom(${p.id})" class="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-2">Agregar patente</button>`}
                             <span class="flex-1 min-w-0 truncate text-sm text-neutral-500 tabular-nums">${escapeHtml(metaParts.join(' · '))}</span>
-                            <button type="button" onclick="deletePatient(${p.id})" class="w-8 h-8 -mr-1.5 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Archivar orden" aria-label="Archivar orden"><i class="fa-solid fa-box-archive text-sm"></i></button>
+                            <button type="button" onclick="deletePatient(${p.id})" class="w-8 h-8 -mr-1.5 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Archivar orden" aria-label="Archivar orden"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-archive"></use></svg></button>
                         </div>
                         <h3 class="mt-3"><button type="button" onclick="editPatientVehicleModel(${p.id})" class="text-left text-lg leading-6 font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors duration-150" title="Editar modelo">${escapeHtml(getPatientVehicleLabel(p))}</button></h3>
                         <p class="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-neutral-600 dark:text-neutral-400">
@@ -3534,7 +3589,7 @@
                             ${p.contact ? `<span aria-hidden="true">·</span><a href="tel:${escapeHtml(p.contact)}" class="tabular-nums ${editLink}">${escapeHtml(p.contact)}</a>` : ''}
                         </p>
                         ${adminExtra}
-                        <p class="mt-3 flex gap-2 text-sm text-neutral-600 dark:text-neutral-400"><i class="fa-solid fa-wrench text-[12px] text-neutral-400 mt-1"></i><span class="min-w-0 break-words">${escapeHtml(p.dx)}</span></p>
+                        <p class="mt-3 flex gap-2 text-sm text-neutral-600 dark:text-neutral-400"><svg class="ic text-[14px] text-neutral-400 mt-1" aria-hidden="true"><use href="#i-wrench"></use></svg><span class="min-w-0 break-words">${escapeHtml(p.dx)}</span></p>
                     </div>
 
                     <div class="px-5">
@@ -3562,7 +3617,7 @@
                         <button type="button" onclick="addPatientTaskWrapper(${p.id})" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150 shrink-0">Agregar</button>
                     </div>
                     <div class="p-5 pt-3">
-                        <button type="button" onclick="downloadWorkOrderPDF(${p.id})" class="w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><i class="fa-regular fa-file-pdf text-[13px] text-neutral-500"></i>Descargar PDF</button>
+                        <button type="button" onclick="downloadWorkOrderPDF(${p.id})" class="w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-file-text"></use></svg>Descargar PDF</button>
                     </div>
                 </article>`;
         }
@@ -3939,7 +3994,7 @@
             const year = state.currentDate.getFullYear();
             const month = state.currentDate.getMonth();
             const monthLabel = new Date(year, month, 1).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }).replace(' de ', ' ');
-            const navBtn = (delta, icon, label) => `<button type="button" onclick="changeMonth(${delta})" aria-label="${label}" title="${label}" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150"><i class="fa-solid ${icon} text-sm"></i></button>`;
+            const navBtn = (delta, icon, label) => `<button type="button" onclick="changeMonth(${delta})" aria-label="${label}" title="${label}" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150">${ico(`fa-solid ${icon} text-sm`, ``, ``)}</button>`;
             const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div class="text-xs text-neutral-500 text-center py-1">${d}</div>`).join('');
             const legend = Object.values(SHIFT_TYPES).map(t => `<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${t.dot}"></span>${t.short}</span>`).join('');
 
@@ -4007,13 +4062,13 @@
                     <div class="flex items-center justify-between gap-3">
                         <span class="flex items-center gap-2 text-xs text-neutral-500"><span class="w-2 h-2 rounded-full ${t.dot}"></span>${t.name}</span>
                         <span class="flex gap-0.5 -mr-1.5">
-                            <button type="button" onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Editar evento" aria-label="Editar evento"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button type="button" onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Eliminar evento" aria-label="Eliminar evento"><i class="fa-solid fa-xmark text-sm"></i></button>
+                            <button type="button" onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Editar evento" aria-label="Editar evento"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+                            <button type="button" onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Eliminar evento" aria-label="Eliminar evento"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                         </span>
                     </div>
                     <p class="mt-1 text-[15px] font-medium text-neutral-900 dark:text-neutral-100 break-words">${escapeHtml(shift.note || 'Sin motivo')}</p>
                     ${(shift.plate || meta) ? `<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">${plateHTML(shift.plate)}${meta ? `<span>${meta}</span>` : ''}</div>` : ''}
-                    ${shift.type === 'libre' ? `<button type="button" onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="mt-3 w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><i class="fa-solid fa-car-side text-[13px] text-neutral-500"></i>Ingresar a Taller y crear OT</button>` : ''}
+                    ${shift.type === 'libre' ? `<button type="button" onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="mt-3 w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-car"></use></svg>Ingresar a Taller y crear OT</button>` : ''}
                 </li>`;
             }).join('');
 
@@ -4023,7 +4078,7 @@
                         <h2 class="text-base font-medium text-neutral-900 dark:text-neutral-100 first-letter:uppercase">${escapeHtml(dateTitle)}</h2>
                         <p class="text-sm text-neutral-500">${dayShifts.length ? `${dayShifts.length} ${dayShifts.length === 1 ? 'evento' : 'eventos'}` : 'Sin eventos'}</p>
                     </div>
-                    <button type="button" onclick="openShiftModal('${dateKey}')" class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center gap-2 transition-colors duration-150 shrink-0"><i class="fa-solid fa-plus text-[13px]"></i>Agregar</button>
+                    <button type="button" onclick="openShiftModal('${dateKey}')" class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center gap-2 transition-colors duration-150 shrink-0"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg>Agregar</button>
                 </div>
                 ${dayShifts.length
                     ? `<ul class="border-t border-neutral-900/[0.06] dark:border-white/[0.06] divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06] max-h-[600px] overflow-y-auto hide-scrollbar">${items}</ul>`
@@ -4221,7 +4276,7 @@
                         <div class="flex items-center justify-between gap-3 mb-3">
                             <h2 id="notes-list-title" class="text-base font-medium text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(getNotesListTitle())}</h2>
                             <div class="relative w-44 sm:w-56 shrink-0">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500"></i>
+                                <svg class="ic absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-search"></use></svg>
                                 <input type="text" id="notes-search" placeholder="Buscar" aria-label="Buscar apuntes" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" oninput="filterNotes(this.value)">
                             </div>
                         </div>
@@ -4233,14 +4288,14 @@
                             <div class="flex items-center justify-between mb-3">
                                 <h2 id="editor-title" class="text-base font-medium text-neutral-900 dark:text-neutral-100">Nueva nota</h2>
                                 <div class="flex items-center gap-0.5 -mr-1.5">
-                                    <button type="button" onclick="toggleZenMode()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Modo enfoque" aria-label="Modo enfoque"><i id="zen-icon" class="fa-solid fa-expand text-xs"></i></button>
-                                    <button type="button" id="editor-cancel-btn" onclick="cancelEdit()" class="hidden w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Cancelar edición" aria-label="Cancelar edición"><i class="fa-solid fa-xmark text-sm"></i></button>
+                                    <button type="button" onclick="toggleZenMode()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Modo enfoque" aria-label="Modo enfoque"><svg class="ic text-[14px]" id="zen-icon" aria-hidden="true"><use href="#i-maximize-2"></use></svg></button>
+                                    <button type="button" id="editor-cancel-btn" onclick="cancelEdit()" class="hidden w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Cancelar edición" aria-label="Cancelar edición"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                                 </div>
                             </div>
                             <textarea id="new-note-text" aria-label="Texto de la nota" class="flex-1 w-full bg-transparent border-none outline-none resize-none text-[15px] leading-6 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 hide-scrollbar" placeholder="Torques, códigos, procedimientos, datos de proveedores"></textarea>
                             <div id="image-preview-container" class="hidden mt-3 relative w-full"></div>
                             <div class="flex items-center justify-between mt-3 pt-3 border-t border-neutral-900/[0.06] dark:border-white/[0.06]">
-                                <label for="new-note-images" class="cursor-pointer h-8 px-2 -ml-2 rounded-lg inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150"><i class="fa-regular fa-image text-[13px]"></i>Adjuntar foto</label>
+                                <label for="new-note-images" class="cursor-pointer h-8 px-2 -ml-2 rounded-lg inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-image"></use></svg>Adjuntar foto</label>
                                 <input type="file" id="new-note-images" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)">
                                 <button type="button" id="editor-save-btn" onclick="saveNote()" class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">Guardar</button>
                             </div>
@@ -4263,12 +4318,12 @@
             const iconBtn = 'w-7 h-7 hidden lg:flex items-center justify-center rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-[opacity,color] duration-150';
             const folders = (state.folders || []).map(f => {
                 const extra = f.id === 'general' ? '' : `<span class="flex pr-1 shrink-0">
-                    <button type="button" onclick="event.stopPropagation(); renameFolder('${escapeJsAttr(f.id)}')" class="${iconBtn}" title="Renombrar sección" aria-label="Renombrar sección"><i class="fa-solid fa-pen text-[11px]"></i></button>
-                    <button type="button" onclick="event.stopPropagation(); deleteFolder('${escapeJsAttr(f.id)}')" class="${iconBtn}" title="Borrar sección" aria-label="Borrar sección"><i class="fa-solid fa-xmark text-xs"></i></button>
+                    <button type="button" onclick="event.stopPropagation(); renameFolder('${escapeJsAttr(f.id)}')" class="${iconBtn}" title="Renombrar sección" aria-label="Renombrar sección"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+                    <button type="button" onclick="event.stopPropagation(); deleteFolder('${escapeJsAttr(f.id)}')" class="${iconBtn}" title="Borrar sección" aria-label="Borrar sección"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                 </span>`;
                 return row(f.id, f.name, state.currentFolderId === f.id, extra);
             }).join('');
-            const add = `<button type="button" onclick="openFolderModal()" class="shrink-0 h-9 px-3 rounded-lg flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-900/[0.04] dark:hover:bg-white/[0.04] transition-colors duration-150 whitespace-nowrap"><i class="fa-solid fa-plus text-[11px]"></i>Nueva sección</button>`;
+            const add = `<button type="button" onclick="openFolderModal()" class="shrink-0 h-9 px-3 rounded-lg flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-900/[0.04] dark:hover:bg-white/[0.04] transition-colors duration-150 whitespace-nowrap"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg>Nueva sección</button>`;
             return row('all', 'Todas', state.currentFolderId === 'all') + folders + add;
         }
 
@@ -4297,9 +4352,9 @@
                     <div class="mt-auto flex items-center justify-between gap-2">
                         <span class="text-xs text-neutral-500 truncate">${escapeHtml(folderName)}${images.length > 1 ? ` · ${images.length} fotos` : ''}</span>
                         <span class="flex gap-0.5 -mr-1.5 lg:opacity-0 lg:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
-                            <button type="button" onclick="event.stopPropagation(); startEditNote(${note.id})" class="${actBtn}" title="Editar" aria-label="Editar"><i class="fa-solid fa-pen text-[11px]"></i></button>
-                            <button type="button" onclick="event.stopPropagation(); shareNote(${note.id})" class="${actBtn}" title="Compartir" aria-label="Compartir"><i class="fa-solid fa-share-nodes text-xs"></i></button>
-                            <button type="button" onclick="event.stopPropagation(); confirmDelete('note', ${note.id})" class="${actBtn}" title="Eliminar" aria-label="Eliminar"><i class="fa-solid fa-xmark text-sm"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); startEditNote(${note.id})" class="${actBtn}" title="Editar" aria-label="Editar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+                            <button type="button" onclick="event.stopPropagation(); shareNote(${note.id})" class="${actBtn}" title="Compartir" aria-label="Compartir"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg></button>
+                            <button type="button" onclick="event.stopPropagation(); confirmDelete('note', ${note.id})" class="${actBtn}" title="Eliminar" aria-label="Eliminar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
                         </span>
                     </div>
                 </div>
@@ -4336,7 +4391,7 @@
             editor.className = isZen ? NOTE_EDITOR_CLASS : NOTE_EDITOR_ZEN_CLASS;
             textarea.classList.toggle('text-lg', !isZen);
             textarea.classList.toggle('text-[15px]', isZen);
-            icon.className = isZen ? 'fa-solid fa-expand text-xs' : 'fa-solid fa-compress text-xs';
+            setIco(icon, isZen ? 'fa-expand' : 'fa-compress');
             editor.setAttribute('data-zen', isZen ? 'false' : 'true');
             document.body.style.overflow = isZen ? '' : 'hidden';
         }
@@ -4450,9 +4505,9 @@
 
         function createTodoItemHTML(todo) {
             return `<li id="todo-${todo.id}" class="group flex items-center gap-3 px-5 py-3">
-                <button type="button" onclick="toggleTodo(${todo.id})" aria-label="${todo.done ? 'Marcar como pendiente' : 'Marcar como hecha'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${todo.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${todo.done ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}</button>
+                <button type="button" onclick="toggleTodo(${todo.id})" aria-label="${todo.done ? 'Marcar como pendiente' : 'Marcar como hecha'}" class="w-5 h-5 shrink-0 rounded-[5px] border flex items-center justify-center transition-colors duration-150 ${todo.done ? 'bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900' : 'border-neutral-900/[0.25] dark:border-white/[0.25] hover:border-neutral-900/[0.5] dark:hover:border-white/[0.5]'}">${todo.done ? '<svg class="ic text-[14px]" aria-hidden="true"><use href="#i-check"></use></svg>' : ''}</button>
                 <span onclick="toggleTodo(${todo.id})" class="flex-1 min-w-0 text-[15px] leading-6 break-words cursor-pointer select-none ${todo.done ? 'text-neutral-500 line-through decoration-neutral-400' : 'text-neutral-900 dark:text-neutral-100'}">${escapeHtml(todo.text)}</span>
-                <button type="button" onclick="confirmDelete('todo', ${todo.id})" aria-label="Eliminar tarea" title="Eliminar tarea" class="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><i class="fa-solid fa-xmark text-sm"></i></button>
+                <button type="button" onclick="confirmDelete('todo', ${todo.id})" aria-label="Eliminar tarea" title="Eliminar tarea" class="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition-[opacity,color,background-color] duration-150"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-x"></use></svg></button>
             </li>`;
         }
 
@@ -4492,7 +4547,7 @@
                         <input type="number" value="${qty}" oninput="updateShoppingItem(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none text-[15px] text-right tabular-nums text-neutral-700 dark:text-neutral-300" placeholder="1" min="1" aria-label="Cantidad">
                     </td>
                     <td class="px-2 py-2 w-12 text-center">
-                        <button type="button" onclick="deleteShoppingItem(${item.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 mx-auto" aria-label="Quitar"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                        <button type="button" onclick="deleteShoppingItem(${item.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150 mx-auto" aria-label="Quitar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                     </td>
                 </tr>
             `;
@@ -4733,12 +4788,12 @@
         function getInvActionButtonsHTML(item, isEditing, size) {
             const s = size === 'lg' ? 'w-10 h-10' : 'w-8 h-8';
             const lock = isEditing
-                ? `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} rounded-lg flex items-center justify-center bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 transition-colors duration-150" title="Terminar edición" aria-label="Terminar edición"><i class="fa-solid fa-lock text-[13px]"></i></button>`
-                : `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} ${INV_ICON_BTN}" title="Editar" aria-label="Editar"><i class="fa-solid fa-pen text-[13px]"></i></button>`;
+                ? `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} rounded-lg flex items-center justify-center bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 transition-colors duration-150" title="Terminar edición" aria-label="Terminar edición"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-lock"></use></svg></button>`
+                : `<button type="button" onclick="toggleEditInv(${item.id})" class="${s} ${INV_ICON_BTN}" title="Editar" aria-label="Editar"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-pencil"></use></svg></button>`;
             return `${lock}
-                <button type="button" onclick="sellInventoryItem(${item.id})" class="${s} ${INV_ICON_BTN}" title="Vender 1 unidad" aria-label="Vender 1 unidad"><i class="fa-solid fa-hand-holding-dollar text-[13px]"></i></button>
-                <button type="button" onclick="openMarketPriceModal(${item.id})" class="${s} ${INV_ICON_BTN}" title="Comparar con Mercado Libre" aria-label="Comparar con Mercado Libre"><i class="fa-solid fa-tags text-[13px]"></i></button>
-                <button type="button" onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger ${s} ${INV_ICON_BTN}" title="Más acciones" aria-label="Más acciones"><i class="fa-solid fa-ellipsis-vertical text-[13px]"></i></button>`;
+                <button type="button" onclick="sellInventoryItem(${item.id})" class="${s} ${INV_ICON_BTN}" title="Vender 1 unidad" aria-label="Vender 1 unidad"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-hand-coins"></use></svg></button>
+                <button type="button" onclick="openMarketPriceModal(${item.id})" class="${s} ${INV_ICON_BTN}" title="Comparar con Mercado Libre" aria-label="Comparar con Mercado Libre"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-tags"></use></svg></button>
+                <button type="button" onclick="toggleInvActionsMenu(${item.id}, this)" class="inv-actions-trigger ${s} ${INV_ICON_BTN}" title="Más acciones" aria-label="Más acciones"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-ellipsis-vertical"></use></svg></button>`;
         }
 
         function getInventoryRowHTML(item) {
@@ -4893,7 +4948,7 @@
                                 <td class="px-3 py-3 text-right text-neutral-700 dark:text-neutral-300 whitespace-nowrap">$${(s.unitPrice || 0).toLocaleString('es-CL')}</td>
                                 <td class="px-3 py-3 text-right text-neutral-900 dark:text-neutral-100 whitespace-nowrap">$${(s.total || 0).toLocaleString('es-CL')}</td>
                                 <td class="pl-1 pr-4 py-2">
-                                    <button type="button" onclick="voidInventorySale(${item.id}, ${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Anular esta venta (devuelve el stock)" aria-label="Anular venta"><i class="fa-solid fa-rotate-left text-[12px]"></i></button>
+                                    <button type="button" onclick="voidInventorySale(${item.id}, ${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Anular esta venta (devuelve el stock)" aria-label="Anular venta"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-rotate-ccw"></use></svg></button>
                                 </td>
                             </tr>`;
                         }).join('')}
@@ -4908,7 +4963,7 @@
                         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]" role="dialog" aria-labelledby="item-sales-title">
                             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                                 <div class="min-w-0"><h3 id="item-sales-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 truncate">Ventas</h3><p id="item-sales-sub" class="text-[13px] text-neutral-500 tabular-nums"></p></div>
-                                <button type="button" onclick="closeItemSalesHistory()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                                <button type="button" onclick="closeItemSalesHistory()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
                             </div>
                             <div id="item-sales-content" class="flex-1 overflow-y-auto hide-scrollbar border-t border-neutral-900/[0.06] dark:border-white/[0.06]"></div>
                         </div>
@@ -5264,9 +5319,9 @@
             if (cardsBody) {
                 cardsBody.innerHTML = sorted.length ? sorted.map(item => getInventoryCardHTML(item)).join('') : getEmptyInventoryCardHTML();
             }
-            document.querySelectorAll('.inv-sort-icon').forEach(el => { el.className = 'inv-sort-icon fa-solid fa-sort text-neutral-300 dark:text-neutral-600 ml-1 text-xs'; });
+            document.querySelectorAll('.inv-sort-icon').forEach(el => { setIco(el, 'fa-sort'); el.classList.remove('text-neutral-700', 'dark:text-neutral-300'); el.classList.add('text-neutral-300', 'dark:text-neutral-600'); });
             const activeIcon = document.getElementById(`inv-sort-icon-${field}`);
-            if (activeIcon) activeIcon.className = `inv-sort-icon fa-solid ${invSortState.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'} text-blue-500 ml-1 text-xs`;
+            if (activeIcon) { setIco(activeIcon, invSortState.dir === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'); activeIcon.classList.remove('text-neutral-300', 'dark:text-neutral-600'); activeIcon.classList.add('text-neutral-700', 'dark:text-neutral-300'); }
             // Reaplicar el filtro de búsqueda activo, si había uno
             const searchEl = document.getElementById('inventory-search');
             if (searchEl && searchEl.value) filterInventory(searchEl.value);
@@ -5275,7 +5330,7 @@
         function getInvSortTh(label, field, extraClass) {
             const isActive = invSortState.field === field;
             const iconClass = isActive ? (invSortState.dir === 'asc' ? 'fa-arrow-up text-neutral-700 dark:text-neutral-300' : 'fa-arrow-down text-neutral-700 dark:text-neutral-300') : 'fa-sort text-neutral-300 dark:text-neutral-600';
-            return `<th onclick="sortInventoryTable('${field}')" class="px-3 py-2.5 font-normal cursor-pointer select-none hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150 whitespace-nowrap ${isActive ? 'text-neutral-900 dark:text-neutral-100' : ''} ${extraClass || ''}">${label}<i id="inv-sort-icon-${field}" class="inv-sort-icon fa-solid ${iconClass} ml-1.5 text-[10px]"></i></th>`;
+            return `<th onclick="sortInventoryTable('${field}')" class="px-3 py-2.5 font-normal cursor-pointer select-none hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150 whitespace-nowrap ${isActive ? 'text-neutral-900 dark:text-neutral-100' : ''} ${extraClass || ''}">${label}${ico(`inv-sort-icon fa-solid ${iconClass} ml-1.5 text-[10px]`, ``, `id="inv-sort-icon-${field}"`)}</th>`;
         }
 
     function getBodegaSubtitleHTML() {
@@ -5305,10 +5360,10 @@
                     <p id="inv-subtitle" class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">${getBodegaSubtitleHTML()}</p>
                 </div>
                 <div class="grid grid-cols-3 lg:flex gap-2">
-                    <button type="button" onclick="openInvSummaryModal()" class="${btn2}"><i class="fa-solid fa-chart-pie text-[13px] text-neutral-500"></i>Resumen</button>
-                    <button type="button" onclick="openShoppingModal()" class="${btn2}"><i class="fa-solid fa-cart-shopping text-[13px] text-neutral-500"></i><span class="lg:hidden">Compras</span><span class="hidden lg:inline">Lista de compras</span></button>
-                    <button type="button" onclick="toggleBodegaMoreMenu(this)" class="inv-actions-trigger ${btn2}" aria-haspopup="menu"><i class="fa-solid fa-ellipsis text-[13px] text-neutral-500"></i>Más</button>
-                    <button type="button" onclick="openAddInventoryModal()" class="col-span-3 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><i class="fa-solid fa-plus text-[13px]"></i>Nuevo producto</button>
+                    <button type="button" onclick="openInvSummaryModal()" class="${btn2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-chart-pie"></use></svg>Resumen</button>
+                    <button type="button" onclick="openShoppingModal()" class="${btn2}"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-shopping-cart"></use></svg><span class="lg:hidden">Compras</span><span class="hidden lg:inline">Lista de compras</span></button>
+                    <button type="button" onclick="toggleBodegaMoreMenu(this)" class="inv-actions-trigger ${btn2}" aria-haspopup="menu"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-ellipsis"></use></svg>Más</button>
+                    <button type="button" onclick="openAddInventoryModal()" class="col-span-3 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-150"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-plus"></use></svg>Nuevo producto</button>
                     <input type="file" id="inventory-import-file" accept=".xlsx,.xls" class="hidden" onchange="handleInventoryImportFile(this)">
                 </div>
             </header>
@@ -5321,7 +5376,7 @@
             </section>
 
             <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500"></i>
+                <svg class="ic absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-search"></use></svg>
                 <input type="text" id="inventory-search" placeholder="Buscar código, producto o marca" aria-label="Buscar en bodega" class="w-full h-10 pl-10 pr-3 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-900/[0.1] dark:border-white/[0.1] focus:border-neutral-900/[0.3] dark:focus:border-white/[0.3] outline-none text-[15px] text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 transition-colors duration-150" oninput="filterInventory(this.value)">
             </div>
 
@@ -5525,10 +5580,10 @@
         if (!item) return;
 
         menu.innerHTML = `
-            <button onclick="closeInvActionsMenu(); openItemSalesHistory(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-clock-rotate-left w-4 text-center text-neutral-400"></i> Historial de ventas</button>
-            <button onclick="closeInvActionsMenu(); duplicateInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><i class="fa-solid fa-copy w-4 text-center text-neutral-400"></i> Duplicar</button>
+            <button onclick="closeInvActionsMenu(); openItemSalesHistory(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><svg class="ic w-4 text-center text-neutral-400" aria-hidden="true"><use href="#i-history"></use></svg> Historial de ventas</button>
+            <button onclick="closeInvActionsMenu(); duplicateInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2 text-neutral-700 dark:text-neutral-200"><svg class="ic w-4 text-center text-neutral-400" aria-hidden="true"><use href="#i-copy"></use></svg> Duplicar</button>
             <div class="border-t border-neutral-100 dark:border-neutral-700 my-1"></div>
-            <button onclick="closeInvActionsMenu(); deleteInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-500"><i class="fa-solid fa-trash-can w-4 text-center"></i> Eliminar ítem</button>
+            <button onclick="closeInvActionsMenu(); deleteInventoryItem(${id})" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-500"><svg class="ic w-4 text-center" aria-hidden="true"><use href="#i-trash-2"></use></svg> Eliminar ítem</button>
         `;
 
         const rect = btnEl.getBoundingClientRect();
@@ -5553,7 +5608,7 @@
         const wasOpen = menu.dataset.forId === 'bodega-more' && !menu.classList.contains('hidden');
         closeInvActionsMenu();
         if (wasOpen) return;
-        const opt = (fn, icon, label) => `<button type="button" onclick="closeInvActionsMenu(); ${fn}" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2.5 text-neutral-700 dark:text-neutral-200"><i class="fa-solid ${icon} w-4 text-center text-neutral-400"></i>${label}</button>`;
+        const opt = (fn, icon, label) => `<button type="button" onclick="closeInvActionsMenu(); ${fn}" class="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center gap-2.5 text-neutral-700 dark:text-neutral-200">${ico(`fa-solid ${icon} w-4 text-center text-neutral-400`, ``, ``)}${label}</button>`;
         menu.innerHTML = opt('openInvReportModal()', 'fa-chart-line', 'Reporte histórico')
             + opt('openBulkMarkupModal()', 'fa-percent', 'Recargo masivo')
             + '<div class="border-t border-neutral-100 dark:border-neutral-700 my-1"></div>'
@@ -5697,12 +5752,12 @@
                 const modalHtml = `
                     <div id="${modalId}" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" role="dialog" aria-label="Documento listo">
                         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-xs p-5 relative">
-                            <button type="button" id="btn-close-top-${modalId}" class="absolute top-4 right-4 w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                            <button type="button" id="btn-close-top-${modalId}" class="absolute top-4 right-4 w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
                             <h3 class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 pr-10">Documento listo</h3>
                             <p class="text-[13px] text-neutral-500 truncate mb-5">${escapeHtml(fileName)}</p>
                             <div class="flex flex-col gap-3">
-                                <button type="button" id="btn-share-${modalId}" class="w-full h-11 px-5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors duration-150 flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes text-xs"></i> Compartir</button>
-                                <button type="button" id="btn-down-${modalId}" class="w-full h-11 px-5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center justify-center gap-2"><i class="fa-solid fa-download text-xs text-neutral-500"></i> Guardar en el dispositivo</button>
+                                <button type="button" id="btn-share-${modalId}" class="w-full h-11 px-5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg> Compartir</button>
+                                <button type="button" id="btn-down-${modalId}" class="w-full h-11 px-5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-download"></use></svg> Guardar en el dispositivo</button>
                             </div>
                         </div>
                     </div>
@@ -6149,7 +6204,7 @@
 
             html += `
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 h-10"><i class="fa-solid fa-arrow-up-right-from-square text-[12px] text-neutral-500"></i> Ver en Mercado Libre</a>
+                    <a href="${escapeHtml(mlUrl)}" target="_blank" rel="noopener noreferrer" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.08] transition-colors duration-150 flex items-center justify-center gap-2 h-10"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-external-link"></use></svg> Ver en Mercado Libre</a>
                     <button type="button" onclick="setManualMarketPrice(${item.id})" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors duration-150">${mp && mp.avg !== null ? 'Corregir' : 'Anotar'} precio</button>
                 </div>`;
 
@@ -6349,12 +6404,12 @@
                     const modalHtml = `
                         <div id="${modalId}" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" role="dialog" aria-label="Documento listo">
                             <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-xs p-5 relative">
-                                <button type="button" id="btn-close-top-${modalId}" class="absolute top-4 right-4 w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                                <button type="button" id="btn-close-top-${modalId}" class="absolute top-4 right-4 w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
                                 <h3 class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 pr-10">Documento listo</h3>
                                 <p class="text-[13px] text-neutral-500 truncate mb-5">${escapeHtml(fileName)}</p>
                                 <div class="flex flex-col gap-3">
-                                    <button type="button" id="btn-share-${modalId}" class="w-full h-11 px-5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors duration-150 flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes text-xs"></i> Compartir</button>
-                                    <button type="button" id="btn-down-${modalId}" class="w-full h-11 px-5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center justify-center gap-2"><i class="fa-solid fa-download text-xs text-neutral-500"></i> Guardar en el dispositivo</button>
+                                    <button type="button" id="btn-share-${modalId}" class="w-full h-11 px-5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-share-2"></use></svg> Compartir</button>
+                                    <button type="button" id="btn-down-${modalId}" class="w-full h-11 px-5 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center justify-center gap-2"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-download"></use></svg> Guardar en el dispositivo</button>
                                 </div>
                             </div>
                         </div>`;
@@ -6537,7 +6592,7 @@
                 if (n.text.toLowerCase().includes(term)) {
                     let preview = n.text.replace(/\n/g, ' ');
                     if(preview.length > 40) preview = preview.substring(0, 40) + '...';
-                    results.push({ type: 'Apunte', title: preview, desc: 'Notas', icon: 'fa-book-open', color: 'text-yellow-600 dark:text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30', 
+                    results.push({ type: 'Apunte', title: preview, desc: 'Notas', icon: 'notebook-pen', color: 'text-yellow-600 dark:text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30', 
                     action: () => { 
                         state.currentFolderId = 'all'; // Forzamos ir a la vista general de notas
                         renderView('notes'); 
@@ -6585,20 +6640,17 @@
             });
 
             if (results.length === 0) {
-                resultsContainer.innerHTML = `<div class="p-5 text-sm font-bold text-neutral-600 dark:text-neutral-500 text-center"><i class="fa-solid fa-magnifying-glass-minus mb-2 text-2xl opacity-50 block"></i> No hay resultados para "${escapeHtml(query)}"</div>`;
+                resultsContainer.innerHTML = `<div class="px-5 py-6 text-sm text-neutral-500 text-center">Sin resultados para "${escapeHtml(query)}"</div>`;
             } else {
                 window.globalSearchActions = results.slice(0, 15); // Limitar a 15 resultados para no saturar
                 resultsContainer.innerHTML = window.globalSearchActions.map((r, idx) => `
-                    <div class="p-3 border-b border-neutral-100 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 cursor-pointer flex items-center gap-3 transition" onmousedown="executeGlobalSearch(${idx}, '${mode}')">
-                        <div class="w-10 h-10 rounded-lg ${r.bg} flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid ${r.icon} ${r.color} text-lg"></i></div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-0.5">
-                                <p class="text-[11px] font-black uppercase tracking-wide ${r.color} opacity-90">${escapeHtml(r.type)}</p>
-                            </div>
-                            <p class="text-sm font-bold truncate leading-tight">${escapeHtml(r.title)}</p>
-                            <p class="text-[11px] text-neutral-500 dark:text-neutral-600 truncate mt-0.5">${escapeHtml(r.desc)}</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-neutral-300 dark:text-neutral-600 text-xs shrink-0"></i>
+                    <div class="px-3 py-2.5 border-b border-neutral-900/[0.06] dark:border-white/[0.06] last:border-0 hover:bg-neutral-50 dark:hover:bg-white/[0.04] cursor-pointer flex items-center gap-3 transition-colors duration-150" onmousedown="executeGlobalSearch(${idx}, '${mode}')">
+                        <span class="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 flex items-center justify-center shrink-0">${ico(r.icon, 'text-[16px]')}</span>
+                        <span class="flex-1 min-w-0">
+                            <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(r.title)}</span>
+                            <span class="block text-[13px] text-neutral-500 truncate">${escapeHtml(r.type)} · ${escapeHtml(r.desc)}</span>
+                        </span>
+                        ${ico('fa-chevron-right', 'text-[14px] text-neutral-300 dark:text-neutral-600')}
                     </div>
                 `).join('');
             }
@@ -6723,7 +6775,7 @@
                             <span class="block text-[13px] text-neutral-500 tabular-nums">${dateStr}${t.time ? ' · ' + escapeHtml(t.time) : ''}</span>
                         </span>
                         <span class="shrink-0 text-[15px] tabular-nums ${isInc ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500'}">${isInc ? '+' : '−'}$${t.amount.toLocaleString('es-CL')}</span>
-                        <button type="button" onclick="deleteTransaction(${t.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Eliminar movimiento"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                        <button type="button" onclick="deleteTransaction(${t.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Eliminar movimiento"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                     </li>`;
                 }).join('')}</ul>`;
             }
@@ -6804,7 +6856,7 @@
             'shopping_list': { icon: 'fa-boxes-stacked', name: 'Gestión', locked: false },
             'todo': { icon: 'fa-clipboard-list', name: 'Tareas', locked: false },
             'turnario': { icon: 'fa-calendar-days', name: 'Calendario', locked: false },
-            'notes': { icon: 'fa-book-open', name: 'Apuntes', locked: false },
+            'notes': { icon: 'notebook-pen', name: 'Apuntes', locked: false },
             'links': { icon: 'fa-toolbox', name: 'Información', locked: false }
         };
 
@@ -6869,7 +6921,7 @@
                 if (Notification.permission === 'granted') {
                     notifBadge.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Activados</span>';
                     notifBadge.className = 'text-[13px] text-neutral-700 dark:text-neutral-300 shrink-0';
-                    notifBtn.innerHTML = '<i class="fa-solid fa-check text-[13px] text-neutral-500"></i> Permitidos';
+                    notifBtn.innerHTML = '<svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-check"></use></svg> Permitidos';
                 } else if (Notification.permission === 'denied') {
                     notifBadge.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Bloqueados en el navegador</span>';
                     notifBadge.className = 'text-[13px] text-neutral-700 dark:text-neutral-300 shrink-0';
@@ -6881,7 +6933,7 @@
             const list = document.getElementById('modules-settings-list');
             list.innerHTML = Object.entries(moduleNames).map(([key, data]) => `
                 <label class="flex items-center justify-between gap-3 py-3 ${data.locked ? 'cursor-not-allowed' : 'cursor-pointer'}">
-                    <span class="text-[15px] text-neutral-900 dark:text-neutral-100 flex items-center gap-3"><i class="fa-solid ${data.icon} text-[14px] text-neutral-400 w-5 text-center"></i> ${data.name}${data.locked ? '<span class="text-[13px] text-neutral-400">siempre visible</span>' : ''}</span>
+                    <span class="text-[15px] text-neutral-900 dark:text-neutral-100 flex items-center gap-3">${ico(`fa-solid ${data.icon} text-[14px] text-neutral-400 w-5 text-center`, ``, ``)} ${data.name}${data.locked ? '<span class="text-[13px] text-neutral-400">siempre visible</span>' : ''}</span>
                     <input type="checkbox" ${state.visibleModules.includes(key) ? 'checked' : ''} ${data.locked ? 'disabled' : ''} onchange="toggleModuleSetting('${key}', this.checked)" class="w-5 h-5 accent-red-600 shrink-0">
                 </label>
             `).join('');
@@ -7139,13 +7191,13 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
-                            <button type="button" onclick="restorePatient(${p.id})" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center gap-2" title="Devolver al taller"><i class="fa-solid fa-rotate-left text-[12px] text-neutral-500"></i><span class="hidden sm:inline">Restaurar</span></button>
-                            <button type="button" onclick="permanentlyDeletePatient(${p.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar definitivamente" aria-label="Eliminar definitivamente"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                            <button type="button" onclick="restorePatient(${p.id})" class="h-9 px-3 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/[0.06] transition-colors duration-150 flex items-center gap-2" title="Devolver al taller"><svg class="ic text-[14px] text-neutral-500" aria-hidden="true"><use href="#i-rotate-ccw"></use></svg><span class="hidden sm:inline">Restaurar</span></button>
+                            <button type="button" onclick="permanentlyDeletePatient(${p.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" title="Eliminar definitivamente" aria-label="Eliminar definitivamente"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                         </div>
                     </div>
                     ${p.dx || tasks.length ? `<div class="text-[14px] text-neutral-600 dark:text-neutral-400 flex flex-col gap-1">
                         ${p.dx ? `<p><span class="text-neutral-500">Servicio:</span> ${escapeHtml(p.dx)}</p>` : ''}
-                        ${tasks.length ? `<ul class="flex flex-col gap-1">${tasks.map(t => `<li class="flex items-start gap-2"><i class="fa-solid fa-check text-[11px] text-neutral-400 mt-1.5"></i><span>${escapeHtml(t.text)}</span></li>`).join('')}</ul>` : ''}
+                        ${tasks.length ? `<ul class="flex flex-col gap-1">${tasks.map(t => `<li class="flex items-start gap-2"><svg class="ic text-[14px] text-neutral-400 mt-1.5" aria-hidden="true"><use href="#i-check"></use></svg><span>${escapeHtml(t.text)}</span></li>`).join('')}</ul>` : ''}
                     </div>` : ''}
                 </li>`;
             }).join('')}</ul>`;
@@ -7505,7 +7557,7 @@
                         <span class="block text-[13px] text-neutral-500 tabular-nums" title="Este valor irá a la O.T.">Neto en la OT $${netPrice.toLocaleString('es-CL')}</span>
                     </span>
                     <span class="text-[15px] tabular-nums text-neutral-900 dark:text-neutral-100" title="Precio final con IVA">$${s.price.toLocaleString('es-CL')}</span>
-                    <button type="button" onclick="deletePredefinedService(${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Eliminar servicio"><i class="fa-regular fa-trash-can text-[13px]"></i></button>
+                    <button type="button" onclick="deletePredefinedService(${s.id})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Eliminar servicio"><svg class="ic text-[14px]" aria-hidden="true"><use href="#i-trash-2"></use></svg></button>
                 </li>
             `}).join('')}</ul>`;
         }
@@ -7567,7 +7619,7 @@
                 if (s.type === 'service') {
                     return `
                     <div class="px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" onmousedown="selectServiceSuggestion(${patientId}, '${escapeJsAttr(s.name)}', ${s.price}, null)">
-                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate pr-2"><i class="fa-solid fa-wrench text-xs text-blue-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}</span>
+                        <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate pr-2"><svg class="ic text-[14px] text-neutral-400 mr-2 opacity-70" aria-hidden="true"><use href="#i-wrench"></use></svg>${escapeHtml(s.name)}</span>
                         <div class="text-right">
                             <span class="text-sm font-black text-blue-600 dark:text-blue-400">$${s.price.toLocaleString('es-CL')}</span>
                             <p class="text-[11px] text-neutral-600 font-bold leading-none mt-0.5">IVA INCLUIDO</p>
@@ -7589,7 +7641,7 @@
                     return `
                     <div class="px-4 py-2.5 ${pointerClass} flex justify-between items-center transition border-b border-neutral-100 dark:border-neutral-700 last:border-0" ${clickAction}>
                         <div class="flex-1 min-w-0 pr-2 leading-tight">
-                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><i class="fa-solid fa-box text-xs text-green-500 mr-2 opacity-70"></i>${escapeHtml(s.name)}${s.brand ? ` <span class="text-neutral-600 font-normal">(${escapeHtml(s.brand)})</span>` : ''}</span>
+                            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-300 truncate block"><svg class="ic text-[14px] text-neutral-400 mr-2 opacity-70" aria-hidden="true"><use href="#i-package"></use></svg>${escapeHtml(s.name)}${s.brand ? ` <span class="text-neutral-600 font-normal">(${escapeHtml(s.brand)})</span>` : ''}</span>
                             <span class="text-[11px] font-bold ${stockColor} uppercase tracking-wide ml-5">${stockText}</span>
                         </div>
                         <div class="text-right">
@@ -7827,7 +7879,7 @@
                         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-900/[0.08] dark:border-white/[0.08] shadow-xl w-full max-w-sm max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="item-info-title">
                             <div class="px-5 pt-5 pb-4 flex items-start justify-between gap-3 shrink-0">
                                 <div class="min-w-0"><h3 id="item-info-title" class="text-[18px] leading-6 font-medium text-neutral-900 dark:text-neutral-100 truncate"></h3><p class="text-[13px] text-neutral-500">Ficha de pastillas de freno</p></div>
-                                <button type="button" onclick="closeItemInfoModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                                <button type="button" onclick="closeItemInfoModal()" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
                             </div>
                             <div id="item-info-content" class="px-5 pb-5 overflow-y-auto hide-scrollbar"></div>
                         </div>

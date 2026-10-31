@@ -197,12 +197,6 @@
         #pdf-scroll-container { -webkit-overflow-scrolling: touch; }
         canvas { transform-origin: 0 0; }
         
-        @keyframes wrench-turn {
-            0%, 100% { transform: rotate(0deg); }
-            25%, 75% { transform: rotate(-15deg); }
-            50% { transform: rotate(0deg); }
-        }
-        .wrench-anim { display: inline-block; animation: wrench-turn 2s ease-in-out infinite; }
 
         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes spin-reverse-slow { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
@@ -249,7 +243,7 @@
             /* Resetear el flex-col del body y usar grid */
             body {
                 display: grid !important;
-                grid-template-columns: 200px 1fr; /* <-- Barra más delgada y elegante */
+                grid-template-columns: 232px 1fr;
                 grid-template-rows: 64px 1fr;
                 grid-template-areas:
                     "sidebar header"
@@ -261,7 +255,6 @@
 
             body > header {
                 grid-area: header;
-                border-left: 1px solid #1f1f1f;
             }
 
             #app-container {
@@ -276,7 +269,7 @@
             flex-direction: column;
             height: 100dvh;
             background: #121212;
-            border-right: 1px solid #262626;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
             overflow: hidden;
             z-index: 50;
         }
@@ -291,57 +284,55 @@
             .header-sidebar-dup { display: none !important; }
         }
 
-        /* ---- Estilos del sidebar (se aplican siempre pero solo se ven en lg) ---- */
+        /* ---- Estilos del sidebar (se aplican siempre pero solo se ven en md+) ---- */
+        /* Marco oscuro y neutro en ambos modos; el rojo queda solo en el logo y
+           en el ícono de la sección activa. */
 
         #sidebar-logo-area {
             display: flex;
             align-items: center;
-            gap: 11px;
-            padding: 0 14px;
+            gap: 12px;
+            padding: 0 16px;
             height: 64px;
-            border-bottom: 1px solid #1f1f1f;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             flex-shrink: 0;
         }
 
         #sidebar-logo-icon {
             width: 36px;
             height: 36px;
-            background: rgb(var(--theme-700));
-            border: 1px solid rgba(var(--theme-500), 0.4);
+            background: rgb(var(--theme-600));
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background-color 150ms ease-out;
         }
-        #sidebar-logo-icon:hover { background: rgb(var(--theme-600)); }
+        #sidebar-logo-icon:hover { background: rgb(var(--theme-700)); }
 
         #sidebar-title-area {
             cursor: pointer;
             flex: 1;
             min-width: 0;
         }
-        #sidebar-title-area:hover #sb-app-title { color: rgb(var(--theme-400)); }
+        #sidebar-title-area:hover #sb-app-title { color: #ffffff; }
 
         #sb-app-title {
-            font-size: 0.95rem;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-            transition: color 0.2s;
+            font-size: 15px;
+            font-weight: 500;
+            color: #f5f5f5;
+            line-height: 20px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         #sb-app-subtitle {
-            font-size: 0.55rem; /* Texto apenas más pequeño */
-            font-weight: 700;
-            color: #404040;
-            text-transform: uppercase;
-            letter-spacing: 0.05em; /* Letras un poco más juntas para que quepa bien */
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            color: #8f8f8f;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -351,172 +342,103 @@
         #sidebar-nav {
             flex: 1;
             overflow-y: auto;
-            padding: 8px 0;
+            padding: 8px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             scrollbar-width: none;
         }
         #sidebar-nav::-webkit-scrollbar { display: none; }
 
         .sb-section-label {
-            padding: 8px 16px 4px;
-            font-size: 0.58rem;
-            font-weight: 800;
-            color: #2a2a2a;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            padding: 8px 12px 6px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #6f6f6f;
         }
 
-        .sb-nav-btn {
+        .sb-nav-btn, .sb-action-btn {
             display: flex;
             align-items: center;
-            gap: 10px; /* Ícono y texto un poco más juntos */
-            width: calc(100% - 16px); /* Aprovecha mejor el ancho de la barra angosta */
-            margin: 2px 8px; /* Menos espacio muerto entre botones */
-            padding: 8px 12px; /* Botón más compacto y estilizado */
-            border-radius: 10px;
+            gap: 10px;
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 8px;
             border: none;
             background: transparent;
-            color: #737373;
-            font-size: 0.8rem; /* Letra un toque más sutil */
-            font-weight: 700;
+            color: #a3a3a3;
+            font-size: 14px;
+            font-weight: 400;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background-color 150ms ease-out, color 150ms ease-out;
             text-align: left;
+            white-space: nowrap;
             font-family: 'Roboto Condensed', sans-serif;
         }
-        .sb-nav-btn:hover {
-            background: #1a1a1a;
-            color: #d4d4d4;
+        .sb-nav-btn:hover, .sb-action-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e5e5e5;
         }
         .sb-nav-btn.active {
-            background: rgba(var(--theme-600), 0.18);
-            color: rgb(var(--theme-400));
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+            color: #fafafa;
         }
-        .sb-nav-btn .sb-icon {
-            width: 26px; /* Cuadrito más delicado */
-            height: 26px;
-            border-radius: 6px;
-            background: #181818;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem; /* Ícono proporcional al nuevo tamaño */
+        .sb-nav-btn .sb-icon, .sb-action-btn i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+            color: #737373;
             flex-shrink: 0;
-            transition: background 0.15s;
+            transition: color 150ms ease-out;
         }
-        .sb-nav-btn:hover .sb-icon { background: #222; }
-        .sb-nav-btn.active .sb-icon {
-            background: rgba(var(--theme-600), 0.3);
-            color: rgb(var(--theme-400));
-        }
+        .sb-nav-btn:hover .sb-icon, .sb-action-btn:hover i { color: #a3a3a3; }
+        .sb-nav-btn.active .sb-icon { color: rgb(var(--theme-500)); }
+        .sb-nav-btn:focus-visible, .sb-action-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: -2px; }
 
         /* Footer */
         #sidebar-footer {
-            border-top: 1px solid #1a1a1a;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             flex-shrink: 0;
         }
-        .sb-action-btn {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: none;
-            background: transparent;
-            color: #404040;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            text-align: left;
-            font-family: 'Roboto Condensed', sans-serif;
-        }
-        .sb-action-btn:hover {
-            background: #1a1a1a;
-            color: #a3a3a3;
-        }
-        .sb-action-btn i { width: 16px; text-align: center; }
 
-        /* Scrollbar bonito para el main en PC */
-
-        /* --- OPTIMIZACIÓN DE BARRA LATERAL (NORMAL Y CONTRAÍDA) --- */
+        /* --- BARRA LATERAL CONTRAÍDA --- */
         @media (min-width: 768px) {
-            body { 
-                transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            }
             body.sidebar-collapsed { 
-                grid-template-columns: 80px 1fr !important; 
-            }
-            
-            /* Ajustes modo NORMAL */
-            .sb-nav-btn, .sb-action-btn {
-                font-size: 0.92rem !important;
-                gap: 14px !important;
-                padding: 10px 16px !important;
-            }
-            .sb-nav-btn .sb-icon, .sb-action-btn i {
-                font-size: 1.15rem !important;
+                grid-template-columns: 64px 1fr !important; 
             }
 
-            /* --- MODO CONTRAÍDO --- */
-            
-            /* Ocultar títulos, textos de secciones y los textos de botones inferiores */
             body.sidebar-collapsed #sidebar-title-area,
             body.sidebar-collapsed .sb-section-label,
+            body.sidebar-collapsed .sb-nav-btn .sb-label,
             body.sidebar-collapsed .sb-action-btn span { 
                 display: none !important; 
             }
             
             body.sidebar-collapsed #sidebar-logo-area { 
-                padding: 1.25rem 0 !important; 
+                padding: 0 !important; 
                 justify-content: center !important; 
             }
-            body.sidebar-collapsed #sidebar-logo-icon {
-                margin: 0 auto !important;
-            }
             
-            /* CENTRADO PERFECTO DE ÍCONOS */
             body.sidebar-collapsed .sb-nav-btn,
             body.sidebar-collapsed .sb-action-btn {
-                font-size: 0 !important; 
-                gap: 0 !important; 
-                display: flex !important;
-                justify-content: center !important; 
-                align-items: center !important;     
-                width: 48px !important;
-                height: 48px !important;
-                padding: 0 !important;
-                margin: 5px auto !important;
-                border-radius: 12px !important;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                margin: 0 auto;
             }
-
-            /* --- SOLUCIÓN AL BUG DE MÓDULOS OCULTOS --- */
-            /* Esta regla asegura que los módulos que apagaste NO vuelvan a aparecer */
-            body.sidebar-collapsed .sb-nav-btn.hidden,
-            body.sidebar-collapsed .sb-action-btn.hidden,
-            body.sidebar-collapsed .sb-nav-btn[style*="display: none"],
-            body.sidebar-collapsed .sb-action-btn[style*="display: none"] {
-                display: none !important;
-            }
-            /* ------------------------------------------ */
+            /* Los módulos apagados en Configuración siguen ocultos */
+            body.sidebar-collapsed .sb-nav-btn.hidden { display: none !important; }
             
-            /* Restaurar tamaño solo para los íconos */
-            body.sidebar-collapsed .sb-nav-btn .sb-icon,
-            body.sidebar-collapsed .sb-action-btn i { 
-                font-size: 1.3rem !important; 
-                margin: 0 !important; 
-                padding: 0 !important;
-            }
-            
-            /* Girar flecha del botón */
             body.sidebar-collapsed #toggle-sidebar-btn i { 
                 transform: rotate(180deg); 
             }
-        }
-        
-        #toggle-sidebar-btn i { 
-            transition: transform 0.3s ease; 
         }
     </style>
 </head>
@@ -566,17 +488,17 @@
     <!-- ========== SIDEBAR DE ESCRITORIO (solo visible en lg+) ========== -->
     <aside id="desktop-sidebar">
 
-        <!-- Logo + Título clickeable -->
-        <div id="sidebar-logo-area" class="relative flex items-center px-4 py-5 border-b border-neutral-200 dark:border-neutral-800" style="overflow: visible !important;">
-            <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio" class="cursor-pointer flex items-center justify-center transition-all">
-                <i class="fa-solid fa-car" style="color:white; font-size:1.15rem;"></i>
+        <!-- Logo + nombre del taller (clic en el nombre para editarlo) -->
+        <div id="sidebar-logo-area" class="relative" style="overflow: visible !important;">
+            <div id="sidebar-logo-icon" onclick="renderView('dashboard')" title="Ir a Inicio">
+                <i class="fa-solid fa-car" style="color:white; font-size:16px;"></i>
             </div>
-            <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller" class="ml-3 cursor-pointer">
-                <div id="sb-app-title" class="font-bold text-white text-sm">Mecamonico <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.6rem;"></i></div>
-                <div id="sb-app-subtitle" class="text-xs text-neutral-600">Gestión de Taller & Estudio</div>
+            <div id="sidebar-title-area" onclick="openAppTitleModal()" title="Editar nombre del taller">
+                <div id="sb-app-title">Mecamonico</div>
+                <div id="sb-app-subtitle">Gestión de Taller & Estudio</div>
             </div>
             
-            <button id="toggle-sidebar-btn" onclick="toggleSidebar()" class="absolute -right-2.5 top-6 w-5 h-5 bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-800 dark:hover:text-white shadow-sm z-50 transition-all duration-200 outline-none cursor-pointer" title="Contraer/Expandir menú">
+            <button id="toggle-sidebar-btn" type="button" onclick="toggleSidebar()" class="absolute -right-3 top-5 w-6 h-6 bg-neutral-800 border border-white/10 rounded-full flex items-center justify-center text-neutral-400 hover:text-white z-50 transition-colors duration-150 outline-none cursor-pointer" title="Contraer o expandir menú" aria-label="Contraer o expandir menú">
                 <i class="fa-solid fa-angle-left text-[11px]"></i>
             </button>
         </div>
@@ -584,104 +506,102 @@
         <!-- Navegación principal -->
         <nav id="sidebar-nav">
             <div class="sb-section-label">Módulos</div>
-
-            <button onclick="renderView('dashboard')" class="sb-nav-btn nav-btn" data-target="dashboard">
-                <span class="sb-icon"><i class="fa-solid fa-warehouse"></i></span> Inicio
+            <button type="button" onclick="renderView('dashboard')" class="sb-nav-btn nav-btn" data-target="dashboard" title="Inicio">
+                <span class="sb-icon"><i class="fa-solid fa-warehouse"></i></span><span class="sb-label">Inicio</span>
             </button>
-            <button onclick="renderView('work_orders')" class="sb-nav-btn nav-btn" data-target="work_orders">
-                <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span> Taller
+            <button type="button" onclick="renderView('work_orders')" class="sb-nav-btn nav-btn" data-target="work_orders" title="Taller">
+                <span class="sb-icon"><i class="fa-solid fa-car-side"></i></span><span class="sb-label">Taller</span>
             </button>
-            <button onclick="renderView('shopping_list')" class="sb-nav-btn nav-btn" data-target="shopping_list">
-                <span class="sb-icon"><i class="fa-solid fa-boxes-stacked"></i></span> Gestión
+            <button type="button" onclick="renderView('shopping_list')" class="sb-nav-btn nav-btn" data-target="shopping_list" title="Gestión">
+                <span class="sb-icon"><i class="fa-solid fa-boxes-stacked"></i></span><span class="sb-label">Gestión</span>
             </button>
-            <button onclick="renderView('todo')" class="sb-nav-btn nav-btn" data-target="todo">
-                <span class="sb-icon"><i class="fa-solid fa-clipboard-list"></i></span> Tareas
+            <button type="button" onclick="renderView('todo')" class="sb-nav-btn nav-btn" data-target="todo" title="Tareas">
+                <span class="sb-icon"><i class="fa-solid fa-clipboard-list"></i></span><span class="sb-label">Tareas</span>
             </button>
-            <button onclick="renderView('turnario')" class="sb-nav-btn nav-btn" data-target="turnario">
-                <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span> Calendario
+            <button type="button" onclick="renderView('turnario')" class="sb-nav-btn nav-btn" data-target="turnario" title="Calendario">
+                <span class="sb-icon"><i class="fa-regular fa-calendar-days"></i></span><span class="sb-label">Calendario</span>
             </button>
-            <button onclick="renderView('notes')" class="sb-nav-btn nav-btn" data-target="notes">
-                <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span> Apuntes
+            <button type="button" onclick="renderView('notes')" class="sb-nav-btn nav-btn" data-target="notes" title="Apuntes">
+                <span class="sb-icon"><i class="fa-solid fa-book-open"></i></span><span class="sb-label">Apuntes</span>
             </button>
-            <button onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links">
-                <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span> Información
+            <button type="button" onclick="renderView('links')" class="sb-nav-btn nav-btn" data-target="links" title="Información">
+                <span class="sb-icon"><i class="fa-solid fa-toolbox"></i></span><span class="sb-label">Información</span>
             </button>
         </nav>
 
         <!-- Acciones al fondo -->
         <div id="sidebar-footer">
-            <button onclick="toggleProfile()" id="sb-profile-btn" class="sb-action-btn" title="Cambiar entre perfil Mecánico y Administrador">
+            <button type="button" onclick="toggleProfile()" id="sb-profile-btn" class="sb-action-btn" title="Cambiar entre perfil Mecánico y Administrador">
                 <i class="fa-solid fa-user-gear" id="sb-profile-icon"></i>
                 <span id="sb-profile-label">Perfil: Mecánico</span>
             </button>
-            <button onclick="toggleDarkMode()" class="sb-action-btn">
+            <button type="button" onclick="toggleDarkMode()" class="sb-action-btn" title="Cambiar modo día o noche">
                 <i class="fa-solid fa-moon dark:hidden"></i>
-                <i class="fa-solid fa-sun hidden dark:inline" style="color:#facc15;"></i>
-                <span>Modo Noche</span>
+                <i class="fa-solid fa-sun hidden dark:inline-block"></i>
+                <span class="dark:hidden">Modo noche</span>
+                <span class="hidden dark:inline">Modo día</span>
             </button>
-            <button onclick="openBackupModal()" class="sb-action-btn">
-                <i class="fa-solid fa-database" style="color:rgb(var(--theme-500));"></i>
-                <span>Base de Datos</span>
+            <button type="button" onclick="openBackupModal()" class="sb-action-btn" title="Respaldo de datos">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Respaldo</span>
             </button>
-            <button onclick="openSettingsModal()" class="sb-action-btn">
+            <button type="button" onclick="openSettingsModal()" class="sb-action-btn" title="Configuración">
                 <i class="fa-solid fa-gear"></i>
                 <span>Configuración</span>
             </button>
         </div>
     </aside>
     <!-- ========== FIN SIDEBAR ========== -->
-    <header class="bg-neutral-900/95 md:backdrop-blur-md text-white pt-safe shadow-md md:shadow-sm z-[60] shrink-0 relative overflow-visible border-b-4 md:border-b border-red-600 md:border-neutral-800 transition-colors">
-        <div class="px-3 sm:px-4 h-[64px] flex justify-between items-center relative z-20 gap-2 sm:gap-6">
+    <header class="bg-[#121212] text-white pt-safe z-[60] shrink-0 relative overflow-visible border-b border-white/[0.06]">
+        <div class="px-3 sm:px-4 h-14 md:h-16 flex justify-between items-center relative z-20 gap-2 sm:gap-6">
             <!-- LOGO -->
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 md:hidden">
-                <div class="bg-red-700 p-2 sm:p-2.5 rounded-md shadow-md border border-red-500 cursor-pointer active:scale-95 transition-transform shrink-0" onclick="renderView('dashboard')" title="Ir a Inicio">
-                    <i class="fa-solid fa-car text-base sm:text-xl text-white"></i>
-                </div>
-                <div class="cursor-pointer group min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar Encabezado">
-                    <h1 class="text-base sm:text-xl lg:text-2xl font-bold flex items-center gap-1 sm:gap-2 group-hover:text-red-400 transition-colors truncate">
-                        <span id="header-app-title" class="truncate">Mecamonico</span> <i class="fa-solid fa-wrench wrench-anim text-red-500 text-xs sm:text-sm shrink-0"></i>
-                    </h1>
-                    <p id="header-app-subtitle" class="text-[11px] sm:text-xs lg:text-xs text-neutral-600 font-bold group-hover:text-neutral-300 transition-colors truncate">Gestión de Taller & Estudio</p>
+            <div class="flex items-center gap-3 shrink-0 min-w-0 md:hidden">
+                <button type="button" class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0 active:bg-red-700 transition-colors duration-150" onclick="renderView('dashboard')" title="Ir a Inicio" aria-label="Ir a Inicio">
+                    <i class="fa-solid fa-car text-[15px] text-white"></i>
+                </button>
+                <div class="cursor-pointer min-w-0 flex-1" onclick="openAppTitleModal()" title="Editar nombre del taller">
+                    <h1 id="header-app-title" class="text-[16px] leading-5 font-medium text-neutral-100 truncate">Mecamonico</h1>
+                    <p id="header-app-subtitle" class="text-xs leading-4 text-neutral-500 truncate">Gestión de Taller & Estudio</p>
                 </div>
             </div>
 
             <!-- BUSCADOR UNIVERSAL (Escritorio) -->
-            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl hidden md:block z-10">
-                <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                <input type="text" id="desktop-search-input" placeholder="Buscar vehículos, inventario, notas, manuales..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-base text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-neutral-500 shadow-inner" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
-                <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl hidden md:block z-10">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-neutral-500"></i>
+                <input type="search" id="desktop-search-input" placeholder="Buscar patente, repuesto o nota" class="w-full h-10 pl-10 pr-4 bg-white/[0.06] border border-white/[0.08] rounded-lg text-[15px] text-white focus:border-white/25 outline-none transition-colors duration-150 placeholder-neutral-500" oninput="handleUniversalSearch(this.value, 'desktop')" onblur="hideUniversalSearch('desktop')" onfocus="handleUniversalSearch(this.value, 'desktop')" autocomplete="off">
+                <div id="desktop-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-900/[0.08] dark:border-white/[0.08] overflow-y-auto z-[70] hidden flex-col max-h-[400px] search-scroll text-neutral-800 dark:text-neutral-200"></div>
             </div>
 
-            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto relative z-20">
-                <button onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Buscador Universal">
-                    <i class="fa-solid fa-search"></i>
+            <div class="flex items-center gap-1 shrink-0 ml-auto relative z-20">
+                <button type="button" onclick="toggleMobileSearch()" class="mobile-search-btn md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Buscar" aria-label="Buscar">
+                    <i class="fa-solid fa-magnifying-glass text-[15px]"></i>
                 </button>
-                <button onclick="toggleProfile()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Cambiar entre perfil Mecánico y Administrador">
-                    <i class="fa-solid fa-user-gear" id="mobile-profile-icon"></i>
+                <button type="button" onclick="toggleProfile()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Cambiar entre perfil Mecánico y Administrador" aria-label="Cambiar perfil">
+                    <i class="fa-solid fa-user-gear text-[15px]" id="mobile-profile-icon"></i>
                 </button>
-                <button onclick="toggleDarkMode()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Modo Noche">
-                    <i class="fa-solid fa-moon dark:hidden"></i>
-                    <i class="fa-solid fa-sun hidden dark:inline text-yellow-400"></i>
+                <button type="button" onclick="toggleDarkMode()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Modo día o noche" aria-label="Cambiar modo día o noche">
+                    <i class="fa-solid fa-moon text-[15px] dark:hidden"></i>
+                    <i class="fa-solid fa-sun text-[15px] hidden dark:inline"></i>
                 </button>
-                <button onclick="openBackupModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded border border-neutral-600 active:scale-95 flex items-center gap-1.5" title="Base de Datos">
-                    <i class="fa-solid fa-database text-red-500"></i> <span class="hidden sm:inline">Backup</span>
+                <button type="button" onclick="openBackupModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Respaldo" aria-label="Respaldo">
+                    <i class="fa-solid fa-box-archive text-[15px]"></i>
                 </button>
                 <!-- BOTÓN CONFIGURACIÓN -->
-                <button onclick="openSettingsModal()" class="lg:hidden text-xs sm:text-sm font-bold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded border border-neutral-600 active:scale-95 transition-colors" title="Configuración">
-                    <i class="fa-solid fa-gear"></i>
+                <button type="button" onclick="openSettingsModal()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150" title="Configuración" aria-label="Configuración">
+                    <i class="fa-solid fa-gear text-[15px]"></i>
                 </button>
             </div>
         </div>
         
         <!-- BUSCADOR UNIVERSAL (Móvil Expandible - Ahora como Overlay Flotante Fijo) -->
-        <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-neutral-900/95 backdrop-blur-md z-[100] border-b border-neutral-800 md:hidden shadow-2xl">
+        <div id="mobile-search-container" class="hidden fixed top-0 left-0 w-full pt-safe bg-[#121212] z-[100] border-b border-white/[0.06] md:hidden">
             <div class="flex items-center gap-2 p-3">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
-                    <input type="text" id="mobile-search-input" placeholder="Buscar en la app..." class="w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-[16px] text-white focus:ring-2 focus:ring-red-500 outline-none transition shadow-inner" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
-                    <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-800 rounded-lg shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-neutral-500"></i>
+                    <input type="search" id="mobile-search-input" placeholder="Buscar patente, repuesto o nota" class="w-full h-11 pl-10 pr-4 bg-white/[0.06] border border-white/[0.08] rounded-lg text-[16px] text-white focus:border-white/25 outline-none transition-colors duration-150 placeholder-neutral-500" oninput="handleUniversalSearch(this.value, 'mobile')" onblur="hideUniversalSearch('mobile')" autocomplete="off">
+                    <div id="mobile-search-results" class="absolute left-0 right-0 top-[110%] bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-900/[0.08] dark:border-white/[0.08] overflow-y-auto z-[80] hidden flex-col max-h-[60vh] search-scroll text-neutral-800 dark:text-neutral-200"></div>
                 </div>
-                <button onclick="toggleMobileSearch()" class="text-neutral-600 hover:text-white shrink-0 px-2 py-1 flex items-center justify-center"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                <button type="button" onclick="toggleMobileSearch()" class="w-9 h-9 flex items-center justify-center rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-colors duration-150 shrink-0" title="Cerrar" aria-label="Cerrar búsqueda"><i class="fa-solid fa-xmark text-[17px]"></i></button>
             </div>
         </div>
     </header>
@@ -691,48 +611,34 @@
 
     <!-- Nav Bar (solo móvil/tablet) -->
     <div id="mobile-nav-wrapper" class="fixed bottom-0 w-full z-30 pb-safe pointer-events-none">
-        <nav id="nav-menu" class="bg-neutral-900 mx-4 mb-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-neutral-700 p-1 pointer-events-auto flex justify-start items-center overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
-            
-            <button onclick="renderView('dashboard')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="dashboard">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-warehouse text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Inicio</span>
+        <nav id="nav-menu" aria-label="Secciones" class="relative bg-[#121212] mx-4 mb-4 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-white/[0.08] p-1 pointer-events-auto flex justify-start items-center gap-0.5 overflow-x-auto hide-scrollbar snap-x snap-mandatory mouse-drag">
+            <button type="button" onclick="renderView('dashboard')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="dashboard">
+                <i class="fa-solid fa-warehouse text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Inicio</span>
             </button>
-            
-            <button onclick="renderView('work_orders')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="work_orders">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-car-side text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Taller</span>
+            <button type="button" onclick="renderView('work_orders')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="work_orders">
+                <i class="fa-solid fa-car-side text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Taller</span>
             </button>
-
-            <button onclick="renderView('shopping_list')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="shopping_list">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-boxes-stacked text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Gestión</span>
+            <button type="button" onclick="renderView('shopping_list')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="shopping_list">
+                <i class="fa-solid fa-boxes-stacked text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Gestión</span>
             </button>
-            
-            <button onclick="renderView('todo')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="todo">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-clipboard-list text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Tareas</span>
+            <button type="button" onclick="renderView('todo')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="todo">
+                <i class="fa-solid fa-clipboard-list text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Tareas</span>
             </button>
-            
-            <button onclick="renderView('turnario')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="turnario">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-regular fa-calendar-days text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Calendario</span>
+            <button type="button" onclick="renderView('turnario')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="turnario">
+                <i class="fa-regular fa-calendar-days text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Calendario</span>
             </button>
-            
-            <button onclick="renderView('notes')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="notes">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-book-open text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Apuntes</span>
+            <button type="button" onclick="renderView('notes')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="notes">
+                <i class="fa-solid fa-book-open text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Apuntes</span>
             </button>
-            
-            <button onclick="renderView('links')" class="nav-btn group relative p-2 min-w-[25%] flex-shrink-0 snap-start flex flex-col items-center gap-1 rounded-lg hover:bg-neutral-800 transition-colors" data-target="links">
-                <div class="w-full h-0.5 bg-red-600 absolute bottom-0 scale-x-0 group-[.active]:scale-x-75 transition-transform duration-300"></div>
-                <i class="fa-solid fa-toolbox text-xl mb-0.5 text-neutral-500 group-[.active]:text-red-500 transition-colors"></i>
-                <span class="text-xs font-bold text-neutral-500 group-[.active]:text-white">Información</span>
+            <button type="button" onclick="renderView('links')" class="nav-btn group min-w-[22%] flex-shrink-0 snap-start flex flex-col items-center gap-1 py-2 rounded-xl text-neutral-400 [&.active]:bg-white/[0.07] [&.active]:text-white transition-colors duration-150" data-target="links">
+                <i class="fa-solid fa-toolbox text-[17px] h-5 flex items-center text-neutral-500 group-[.active]:text-red-500 transition-colors duration-150"></i>
+                <span class="text-[11px] leading-4">Información</span>
             </button>
         </nav>
     </div>
@@ -2152,7 +2058,7 @@
             const sbTitle = document.getElementById('sb-app-title');
             const sbSubtitle = document.getElementById('sb-app-subtitle');
             if (sbTitle) {
-                sbTitle.innerHTML = escapeHtml(state.appTitle || 'Mecamonico') + ' <i class="fa-solid fa-wrench wrench-anim" style="color:rgb(var(--theme-500)); font-size:0.6rem;"></i>';
+                sbTitle.textContent = state.appTitle || 'Mecamonico';
             }
             if (sbSubtitle) sbSubtitle.innerText = state.appSubtitle || 'Gestión de Taller & Estudio';
         }
@@ -6520,6 +6426,13 @@
             sessionStorage.setItem('currentView', viewName); // <-- NUEVO: Memoria de Sesión (Diferencia F5 de Cerrar App)
             state.editingNoteId = null; 
             document.querySelectorAll('.nav-btn').forEach(btn => { if(btn.dataset.target === viewName) btn.classList.add('active'); else btn.classList.remove('active'); });
+            // En el celular la barra inferior se desliza hasta la sección activa si quedó fuera de la vista.
+            const mobileNav = document.getElementById('nav-menu');
+            const activeTab = mobileNav && mobileNav.querySelector(`.nav-btn[data-target="${viewName}"]`);
+            if (mobileNav && activeTab && mobileNav.offsetParent) {
+                const left = activeTab.offsetLeft, right = left + activeTab.offsetWidth;
+                if (left < mobileNav.scrollLeft || right > mobileNav.scrollLeft + mobileNav.clientWidth) mobileNav.scrollTo({ left: Math.max(0, right - mobileNav.clientWidth + 4), behavior: 'smooth' });
+            }
             let containerClass = "app-view-wrapper fade-enter min-h-full "; 
             if (viewName === 'dashboard' || viewName === 'notes' || viewName === 'links' || viewName === 'work_orders' || viewName === 'shopping_list' || viewName === 'turnario' || viewName === 'todo') containerClass += "w-full max-w-7xl mx-auto"; else containerClass += "max-w-md mx-auto";
             let contentHTML = '';

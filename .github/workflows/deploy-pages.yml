@@ -1,0 +1,68 @@
+name: Publicar la web
+
+# Publica la versión web en GitHub Pages con los estilos de Tailwind ya
+# compilados (www/tailwind.css), igual que las apps de Android y Windows, en
+# vez de armarlos en el navegador desde el CDN cada vez que se abre la página.
+# Requiere Settings → Pages → Source: "GitHub Actions".
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.json'
+      - 'iconomecamonico.png'
+      - 'scripts/**'
+      - 'tailwind.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Una sola publicación a la vez; si llega un cambio nuevo, se cancela la anterior.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      # --ignore-scripts: no hace falta descargar Electron ni nada de las apps,
+      # solo Tailwind para compilar los estilos.
+      - name: Instalar dependencias
+        run: npm ci --ignore-scripts
+
+      - name: Armar la web (copia los archivos y compila Tailwind)
+        run: node scripts/build-www.js
+
+      - name: Preparar los archivos para Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

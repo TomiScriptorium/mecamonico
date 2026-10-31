@@ -10,6 +10,9 @@ on:
       - 'manifest.json'
       - 'iconomecamonico.png'
       - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/**'
+      - 'tailwind.config.js'
       - 'electron/**'
       - '.github/workflows/build-windows.yml'
 

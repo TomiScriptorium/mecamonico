@@ -3517,183 +3517,133 @@
             } 
         }
 
-        function getTurnarioHTML() { 
-            // Si no hay fecha seleccionada, usamos el día de hoy
-            if (!selectedDateKey) {
-                const today = state.currentDate || new Date();
-                selectedDateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-            }
+        // ===================== CALENDARIO =====================
+        // Cada tipo de evento se distingue solo con un punto de color (los
+        // días ya no se pintan enteros); el acento rojo marca el día de hoy.
+        const SHIFT_TYPES = {
+            guardia: { dot: 'bg-red-500', icon: 'fa-wrench', name: 'Práctica taller', short: 'Taller' },
+            dia: { dot: 'bg-blue-500', icon: 'fa-file-export', name: 'Entrega informe', short: 'Informe' },
+            noche: { dot: 'bg-indigo-500', icon: 'fa-file-signature', name: 'Certamen', short: 'Certamen' },
+            post: { dot: 'bg-yellow-500', icon: 'fa-book', name: 'Estudio / teoría', short: 'Teoría' },
+            libre: { dot: 'bg-green-500', icon: 'fa-car-side', name: 'Vehículo agendado', short: 'Agendado' }
+        };
+        const shiftType = t => SHIFT_TYPES[t] || { dot: 'bg-neutral-400', icon: 'fa-calendar-check', name: 'Evento', short: 'Evento' };
 
-            const year = state.currentDate.getFullYear(); 
-            const month = state.currentDate.getMonth(); 
-            // Usamos las 12:00 (mediodía) para evitar saltos por zona horaria de Chile
-            const firstDay = new Date(year, month, 1, 12, 0, 0); 
-            const lastDay = new Date(year, month + 1, 0, 12, 0, 0); 
-            const daysInMonth = lastDay.getDate(); 
-            let startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; 
-
-            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
-            
-            // 1. DIBUJAR CALENDARIO (Lado Izquierdo)
-            let calendarHTML = `<div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-300 dark:border-neutral-700 overflow-hidden"><div class="bg-neutral-100 dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center"><button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-600 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-left text-lg"></i></button><div class="text-center"><h2 class="text-xl font-black text-neutral-800 dark:text-neutral-100 tracking-wide">${monthNames[month]}</h2><p class="text-sm text-neutral-500 dark:text-neutral-600 font-bold font-mono">${year}</p></div><button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center text-neutral-500 dark:text-neutral-600 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-neutral-700 rounded transition shadow-sm border border-transparent hover:border-neutral-300"><i class="fa-solid fa-chevron-right text-lg"></i></button></div><div class="p-3"><div class="grid grid-cols-7 gap-1 mb-2 text-center"><div class="text-xs font-bold text-neutral-600 dark:text-neutral-500">L</div><div class="text-xs font-bold text-neutral-600 dark:text-neutral-500">M</div><div class="text-xs font-bold text-neutral-600 dark:text-neutral-500">X</div><div class="text-xs font-bold text-neutral-600 dark:text-neutral-500">J</div><div class="text-xs font-bold text-neutral-600 dark:text-neutral-500">V</div><div class="text-xs font-bold text-red-400">S</div><div class="text-xs font-bold text-red-400">D</div></div><div class="grid grid-cols-7 gap-1.5">`; 
-            
-            for (let i = 0; i < startingDay; i++) { calendarHTML += `<div></div>`; } 
-            for (let day = 1; day <= daysInMonth; day++) { 
-                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; 
-                calendarHTML += createDayCellHTML(dateKey, day); 
-            } 
-            
-            calendarHTML += `</div></div><div class="bg-neutral-100 dark:bg-neutral-800 p-3 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-3 gap-2 text-xs font-bold text-neutral-500 dark:text-neutral-600 tracking-wide"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-red-500"></span> Taller</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-blue-500"></span> Informe</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-indigo-600"></span> Certamen</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-yellow-500"></span> Teoría</span><span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-green-500"></span> Agendado</span></div></div>`; 
-            
-            // 2. OBTENER PANEL DE AGENDA (Lado Derecho)
-            let agendaHTML = getAgendaPanelHTML(selectedDateKey);
-
-            // 3. UNIR AMBOS
-            return `<div class="flex flex-col lg:flex-row gap-6 h-full pb-32 lg:pb-0 fade-enter max-w-6xl mx-auto">
-                        <div class="lg:w-7/12 shrink-0">${calendarHTML}</div>
-                        <div class="lg:w-5/12 flex flex-col shrink-0" id="agenda-panel">${agendaHTML}</div>
-                    </div>`; 
-        }
-
-        function createDayCellHTML(dateKey, day) { 
+        function getDayShifts(dateKey) {
             let dayShifts = state.shifts[dateKey];
             if (dayShifts && !Array.isArray(dayShifts)) { dayShifts = [dayShifts]; state.shifts[dateKey] = dayShifts; }
-            dayShifts = dayShifts || [];
+            return dayShifts || [];
+        }
 
-            let bgClass = "calendar-day-cell bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"; 
-            let content = `<span class="text-lg font-bold z-10 relative font-mono pointer-events-none">${day}</span>`; 
-            
-            const [year, month, dayOfMonth] = dateKey.split('-').map(Number);
-            const dateObj = new Date(year, month - 1, dayOfMonth);
-            const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1; 
+        function getCalendarCellsHTML() {
+            const year = state.currentDate.getFullYear();
+            const month = state.currentDate.getMonth();
+            const firstDay = new Date(year, month, 1, 12, 0, 0);
+            const daysInMonth = new Date(year, month + 1, 0, 12, 0, 0).getDate();
+            const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            let html = '';
+            for (let i = 0; i < startingDay; i++) html += `<div></div>`;
+            for (let day = 1; day <= daysInMonth; day++) {
+                html += createDayCellHTML(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`, day);
+            }
+            return html;
+        }
 
-            if (dayOfWeek >= 5) { bgClass += " text-red-500 dark:text-red-400"; }
-            
-            if (dayShifts.length > 0) { 
-                const shift = dayShifts[0]; // Toma color del evento principal
-                if (shift.type === 'guardia') bgClass = "calendar-day-cell bg-red-500 text-white border-red-600 shadow-md"; 
-                else if (shift.type === 'dia') bgClass = "calendar-day-cell bg-blue-600 text-white border-blue-700 shadow-md"; 
-                else if (shift.type === 'noche') bgClass = "calendar-day-cell bg-indigo-600 text-white border-indigo-700 shadow-md"; 
-                else if (shift.type === 'post') { bgClass = "calendar-day-cell bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800"; content += `<i class="fa-solid fa-book absolute text-xs bottom-1 opacity-50 pointer-events-none"></i>`; } 
-                else if (shift.type === 'libre') { bgClass = "calendar-day-cell bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800"; content += `<i class="fa-solid fa-calendar-check absolute text-xs bottom-1 opacity-50 pointer-events-none"></i>`; }
-                
-                if (shift.type !== 'post' && shift.type !== 'libre' && shift.type !== null) bgClass = bgClass.replace(' text-red-500 dark:text-red-400', '');
-            } 
-            
-            const now = new Date();
-            const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            if (dateKey === selectedDateKey) { bgClass += " ring-4 ring-red-500 ring-offset-2 dark:ring-offset-neutral-900 z-30 scale-105 shadow-lg"; } 
-            else if (dateKey === todayKey) { bgClass += " ring-2 ring-red-500/50 ring-offset-1 z-20"; } 
-            
-            let dots = ""; 
-            if (dayShifts.length > 0) { 
-                dots = `<div class="absolute top-1 right-1 flex gap-0.5 pointer-events-none">`;
-                for(let i=0; i<Math.min(dayShifts.length, 3); i++) { dots += `<div class="w-1.5 h-1.5 rounded-full bg-red-500 border border-white dark:border-neutral-800"></div>`; }
-                if(dayShifts.length > 3) dots += `<span class="text-[10px] font-black text-red-500 leading-none">+</span>`;
-                dots += `</div>`;
-            } 
-            
-            return `<div data-date="${dateKey}" onclick="selectAgendaDay('${dateKey}')" class="aspect-square rounded flex items-center justify-center relative cursor-pointer transition-all duration-200 active:scale-90 ${bgClass}">${content}${dots}</div>`; 
+        function getTurnarioHTML() {
+            if (!selectedDateKey) selectedDateKey = getTodayKey();
+            const year = state.currentDate.getFullYear();
+            const month = state.currentDate.getMonth();
+            const monthLabel = new Date(year, month, 1).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }).replace(' de ', ' ');
+            const navBtn = (delta, icon, label) => `<button type="button" onclick="changeMonth(${delta})" aria-label="${label}" title="${label}" class="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150"><i class="fa-solid ${icon} text-sm"></i></button>`;
+            const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div class="text-xs text-neutral-500 text-center py-1">${d}</div>`).join('');
+            const legend = Object.values(SHIFT_TYPES).map(t => `<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${t.dot}"></span>${t.short}</span>`).join('');
+
+            return `<div class="w-full max-w-7xl mx-auto lg:px-2 lg:pt-2 pb-32 lg:pb-8 flex flex-col gap-5 fade-enter">
+                <header>
+                    <h1 class="text-[26px] lg:text-[30px] leading-tight font-medium text-neutral-900 dark:text-neutral-100">Calendario</h1>
+                </header>
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-6 items-start">
+                    <section class="${DASH_CARD} p-4 sm:p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 first-letter:uppercase">${monthLabel}</h2>
+                            <div class="flex gap-1">${navBtn(-1, 'fa-chevron-left', 'Mes anterior')}${navBtn(1, 'fa-chevron-right', 'Mes siguiente')}</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 mb-1">${weekdays}</div>
+                        <div id="cal-grid" class="grid grid-cols-7 gap-1">${getCalendarCellsHTML()}</div>
+                        <div class="mt-4 pt-3 border-t border-neutral-900/[0.06] dark:border-white/[0.06] flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-neutral-600 dark:text-neutral-400">${legend}</div>
+                    </section>
+                    <div id="agenda-panel" class="min-w-0">${getAgendaPanelHTML(selectedDateKey)}</div>
+                </div>
+            </div>`;
+        }
+
+        function createDayCellHTML(dateKey, day) {
+            const dayShifts = getDayShifts(dateKey);
+            const isToday = dateKey === getTodayKey();
+            const isSelected = dateKey === selectedDateKey;
+            const [y, m, d] = dateKey.split('-').map(Number);
+            const isWeekend = [0, 6].includes(new Date(y, m - 1, d).getDay());
+            const cellClass = isSelected
+                ? 'bg-neutral-900 dark:bg-neutral-100'
+                : 'hover:bg-neutral-100 dark:hover:bg-white/[0.06]';
+            const numClass = isToday
+                ? 'bg-red-600 text-white'
+                : isSelected ? 'text-white dark:text-neutral-900' : (isWeekend ? 'text-neutral-500' : 'text-neutral-900 dark:text-neutral-100');
+            const dots = dayShifts.length
+                ? `<span class="flex items-center gap-1">${dayShifts.slice(0, 3).map(s => `<span class="w-1.5 h-1.5 rounded-full ${shiftType(s.type).dot}"></span>`).join('')}${dayShifts.length > 3 ? `<span class="text-[10px] leading-none ${isSelected ? 'text-white dark:text-neutral-900' : 'text-neutral-500'}">+${dayShifts.length - 3}</span>` : ''}</span>`
+                : '';
+            const label = `${d} de ${new Date(y, m - 1, d).toLocaleDateString('es-CL', { month: 'long' })}${dayShifts.length ? `, ${dayShifts.length} ${dayShifts.length === 1 ? 'evento' : 'eventos'}` : ''}`;
+            return `<button type="button" data-date="${dateKey}" onclick="selectAgendaDay('${dateKey}')" aria-label="${label}" ${isSelected ? 'aria-current="date"' : ''} class="calendar-day-cell h-12 sm:h-16 lg:h-20 rounded-lg flex flex-col items-center justify-between py-1.5 sm:py-2 transition-colors duration-150 ${cellClass}">
+                <span class="w-7 h-7 rounded-full flex items-center justify-center text-sm tabular-nums ${numClass}">${d}</span>
+                <span class="h-1.5 flex items-center">${dots}</span>
+            </button>`;
         }
 
         function selectAgendaDay(dateKey) {
             selectedDateKey = dateKey;
-            
-            // 1. REEMPLAZO FLUIDO DEL PANEL DERECHO (Elimina el parpadeo de pantalla)
             const panel = document.getElementById('agenda-panel');
             if (panel) panel.innerHTML = getAgendaPanelHTML(dateKey);
-
-            // 2. MOVER EL ANILLO ROJO FLUIDAMENTE
-            document.querySelectorAll('.calendar-day-cell').forEach(cell => {
-                cell.classList.remove('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'z-30', 'scale-105', 'shadow-lg');
-                if (cell.dataset.date === dateKey) {
-                    cell.classList.add('ring-4', 'ring-red-500', 'ring-offset-2', 'dark:ring-offset-neutral-900', 'z-30', 'scale-105', 'shadow-lg');
-                }
-            });
+            const grid = document.getElementById('cal-grid');
+            if (grid) grid.innerHTML = getCalendarCellsHTML();
         }
 
         function getAgendaPanelHTML(dateKey) {
-            let dayShifts = state.shifts[dateKey];
-            if (dayShifts && !Array.isArray(dayShifts)) dayShifts = [dayShifts];
-            dayShifts = dayShifts || [];
+            const dayShifts = getDayShifts(dateKey);
+            const [y, m, d] = dateKey.split('-').map(Number);
+            const dateTitle = new Date(y, m - 1, d).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
+            const iconBtn = 'w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.06] transition-colors duration-150';
 
-            const [y, m, d] = dateKey.split('-');
-            const dateObj = new Date(y, m-1, d);
-            const dateTitle = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-
-            let contentHTML = '';
-
-            if (dayShifts.length === 0) {
-                contentHTML = `
-                    <div class="flex flex-col items-center justify-center py-16 opacity-50 text-center">
-                        <i class="fa-regular fa-calendar-xmark text-6xl mb-4 text-neutral-300 dark:text-neutral-600"></i>
-                        <p class="text-xl font-black text-neutral-500 dark:text-neutral-600 tracking-tight">Día Libre</p>
-                        <p class="text-sm mt-1 text-neutral-600">Sin vehículos ni eventos en agenda.</p>
+            const items = dayShifts.slice().sort((a, b) => (a.eventTime || '24:00').localeCompare(b.eventTime || '24:00')).map(shift => {
+                const index = dayShifts.indexOf(shift);
+                const t = shiftType(shift.type);
+                const eventIdParam = shift.id ? `'${escapeJsAttr(String(shift.id))}'` : index;
+                const meta = [shift.eventTime ? `${escapeHtml(shift.eventTime)} hrs` : '', shift.client ? escapeHtml(shift.client) : ''].filter(Boolean).join(' · ');
+                return `<li class="px-5 py-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="flex items-center gap-2 text-xs text-neutral-500"><span class="w-2 h-2 rounded-full ${t.dot}"></span>${t.name}</span>
+                        <span class="flex gap-0.5 -mr-1.5">
+                            <button type="button" onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Editar evento" aria-label="Editar evento"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button type="button" onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="${iconBtn}" title="Eliminar evento" aria-label="Eliminar evento"><i class="fa-solid fa-xmark text-sm"></i></button>
+                        </span>
                     </div>
-                `;
-            } else {
-                contentHTML = `<div class="space-y-3 overflow-y-auto pr-1 hide-scrollbar">`;
-                dayShifts.forEach((shift, index) => {
-                    let icon = 'fa-calendar-check'; let color = 'text-blue-500'; let bg = 'bg-blue-50 dark:bg-blue-900/20'; let typeName = 'Evento';
-                    if (shift.type === 'guardia') { icon = 'fa-wrench'; color = 'text-red-500'; bg = 'bg-red-50 dark:bg-red-900/20'; typeName = 'Práctica Taller'; }
-                    else if (shift.type === 'dia') { icon = 'fa-file-export'; color = 'text-blue-500'; bg = 'bg-blue-50 dark:bg-blue-900/20'; typeName = 'Entrega Informe'; }
-                    else if (shift.type === 'noche') { icon = 'fa-file-signature'; color = 'text-indigo-500'; bg = 'bg-indigo-50 dark:bg-indigo-900/20'; typeName = 'Certamen'; }
-                    else if (shift.type === 'post') { icon = 'fa-book'; color = 'text-yellow-600'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; typeName = 'Estudio / Teoría'; }
-                    else if (shift.type === 'libre') { icon = 'fa-car-side'; color = 'text-green-600'; bg = 'bg-green-50 dark:bg-green-900/20'; typeName = 'Vehículo Agendado'; }
+                    <p class="mt-1 text-[15px] font-medium text-neutral-900 dark:text-neutral-100 break-words">${escapeHtml(shift.note || 'Sin motivo')}</p>
+                    ${(shift.plate || meta) ? `<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">${plateHTML(shift.plate)}${meta ? `<span>${meta}</span>` : ''}</div>` : ''}
+                    ${shift.type === 'libre' ? `<button type="button" onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="mt-3 w-full h-9 rounded-lg border border-neutral-900/[0.1] dark:border-white/[0.1] text-sm text-neutral-800 dark:text-neutral-200 inline-flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-white/[0.04] transition-colors duration-150"><i class="fa-solid fa-car-side text-[13px] text-neutral-500"></i>Ingresar a Taller y crear OT</button>` : ''}
+                </li>`;
+            }).join('');
 
-                    let plateHtml = shift.plate ? `<span class="inline-block px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-xs font-black tracking-widest mb-3 shadow-sm border border-neutral-300 dark:border-neutral-600"><i class="fa-solid fa-hashtag text-xs mr-1 opacity-50"></i>${escapeHtml(shift.plate)}</span>` : '';
-                    let clientHtml = shift.client ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-1.5"><i class="fa-solid fa-user text-xs mr-2 opacity-50 text-neutral-400"></i> ${escapeHtml(shift.client)}</p>` : '';
-                    let timeHtml = shift.eventTime ? `<p class="text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-3"><i class="fa-regular fa-clock text-xs mr-2 opacity-50 text-neutral-400"></i> ${shift.eventTime} hrs</p>` : '';
-
-                    const eventIdParam = shift.id ? `'${shift.id}'` : index;
-                    let workshopBtn = '';
-                    if (shift.type === 'libre') {
-                        workshopBtn = `
-                            <button onclick="sendAgendadoToWorkshop('${dateKey}', ${eventIdParam})" class="w-full mt-3 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm active:scale-95">
-                                <i class="fa-solid fa-share-from-square"></i> Ingresar a Taller (Crear O.T.)
-                            </button>
-                        `;
-                    }
-
-                    contentHTML += `
-                        <div class="bg-white dark:bg-neutral-900 p-5 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm relative overflow-hidden group">
-                            <div class="absolute top-2 right-2 flex gap-1 z-10">
-                                <button onclick="openShiftModal('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-blue-100 text-neutral-500 hover:text-blue-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button onclick="deleteSpecificShift('${dateKey}', ${eventIdParam})" class="w-8 h-8 rounded bg-neutral-100 hover:bg-red-100 text-neutral-500 hover:text-red-600 dark:bg-neutral-800 transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
-                            </div>
-                            <div class="absolute top-0 left-0 w-2 h-full ${bg.split(' ')[0].replace('bg-', 'bg-')}"></div>
-                            <div class="flex items-center gap-4 mb-4 pr-16">
-                                <div class="w-12 h-12 rounded-xl ${bg} ${color} flex items-center justify-center text-xl shrink-0 shadow-inner">
-                                    <i class="fa-solid ${icon}"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-neutral-600 mb-0.5">${typeName}</p>
-                                    <h4 class="text-lg font-black text-neutral-800 dark:text-neutral-100 leading-tight truncate">${escapeHtml(shift.note || 'Sin motivo')}</h4>
-                                </div>
-                            </div>
-                            <div class="pl-2 border-l-2 border-neutral-100 dark:border-neutral-800 ml-5">
-                                ${plateHtml}
-                                ${clientHtml}
-                                ${timeHtml}
-                            </div>
-                            ${workshopBtn}
-                        </div>
-                    `;
-                });
-                contentHTML += `</div>`;
-            }
-
-            return `
-                <div class="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-t-xl border border-neutral-300 dark:border-neutral-700 border-b-0 flex justify-between items-center shadow-inner shrink-0">
-                    <h3 class="font-bold text-neutral-800 dark:text-neutral-200 capitalize tracking-tight flex items-center gap-2"><i class="fa-regular fa-calendar-days text-red-500 text-lg"></i> ${dateTitle}</h3>
-                    <button onclick="openShiftModal('${dateKey}')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition shadow-sm flex items-center gap-1 active:scale-95">
-                        <i class="fa-solid fa-plus"></i> Añadir
-                    </button>
+            return `<section class="${DASH_CARD}">
+                <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
+                    <div class="min-w-0">
+                        <h2 class="text-base font-medium text-neutral-900 dark:text-neutral-100 first-letter:uppercase">${escapeHtml(dateTitle)}</h2>
+                        <p class="text-sm text-neutral-500">${dayShifts.length ? `${dayShifts.length} ${dayShifts.length === 1 ? 'evento' : 'eventos'}` : 'Sin eventos'}</p>
+                    </div>
+                    <button type="button" onclick="openShiftModal('${dateKey}')" class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center gap-2 transition-colors duration-150 shrink-0"><i class="fa-solid fa-plus text-[13px]"></i>Agregar</button>
                 </div>
-                <div class="bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-b-xl border border-neutral-300 dark:border-neutral-700 shadow-sm flex-1 flex flex-col max-h-[600px]">
-                    ${contentHTML}
-                </div>
-            `;
+                ${dayShifts.length
+                    ? `<ul class="border-t border-neutral-900/[0.06] dark:border-white/[0.06] divide-y divide-neutral-900/[0.06] dark:divide-white/[0.06] max-h-[600px] overflow-y-auto hide-scrollbar">${items}</ul>`
+                    : `<p class="px-5 pb-5 text-sm text-neutral-500">Nada agendado este día</p>`}
+            </section>`;
         }
 
         function changeMonth(delta) { 

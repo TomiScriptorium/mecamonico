@@ -746,10 +746,10 @@
              <div class="p-5">
                 <label class="block text-sm font-bold text-neutral-600 mb-2 flex items-center gap-2"><i class="fa-solid fa-tag"></i> Tipo de Evento:</label>
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-red-500 hover:text-red-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-wrench text-lg"></i> Práctica</button>
-                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-blue-500 hover:text-blue-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-export text-lg"></i> Informe</button>
-                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-indigo-500 hover:text-indigo-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-file-signature text-lg"></i> Certamen</button>
-                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-yellow-500 hover:text-yellow-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-book text-lg"></i> Estudio</button>
+                    <button onclick="setShiftType('guardia')" data-type="guardia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-red-500 hover:text-red-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-wrench text-lg"></i> Taller</button>
+                    <button onclick="setShiftType('dia')" data-type="dia" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-blue-500 hover:text-blue-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-key text-lg"></i> Retiro</button>
+                    <button onclick="setShiftType('noche')" data-type="noche" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-indigo-500 hover:text-indigo-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-box text-lg"></i> Repuestos</button>
+                    <button onclick="setShiftType('post')" data-type="post" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-yellow-500 hover:text-yellow-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm"><i class="fa-solid fa-clipboard-check text-lg"></i> Revisión técnica</button>
                     <button onclick="setShiftType('libre')" data-type="libre" class="shift-type-btn p-2 rounded bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-600 hover:border-green-500 hover:text-green-600 font-bold text-xs transition-all flex flex-col items-center gap-1 shadow-sm col-span-2"><i class="fa-solid fa-calendar-check text-lg"></i> Vehículo Agendado</button>
                     <button onclick="setShiftType(null)" data-type="null" class="hidden"></button>
                 </div>
@@ -1494,7 +1494,8 @@
 
         const idbKeyval = {
             async get(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readonly'); const store = tx.objectStore('store'); const req = store.get(key); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
-            async set(key, val) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.put(val, key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); }
+            async set(key, val) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.put(val, key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); },
+            async del(key) { return new Promise((resolve, reject) => { const request = indexedDB.open('mecamonico-db', 1); request.onupgradeneeded = () => request.result.createObjectStore('store'); request.onerror = () => reject(request.error); request.onsuccess = () => { const db = request.result; const tx = db.transaction('store', 'readwrite'); const store = tx.objectStore('store'); const req = store.delete(key); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); tx.oncomplete = () => db.close(); }; }); }
         };
 
         async function init() {
@@ -1620,7 +1621,8 @@
 
                     if (!saved.activeShopTab) saved.activeShopTab = 'items';
 
-                    if (!saved.currentProfile) saved.currentProfile = 'mecanico';
+                    // El perfil no se guarda: la app siempre abre en Mecánico.
+                    saved.currentProfile = 'mecanico';
                     if (saved.adminPin === undefined) saved.adminPin = '';
                     if (saved.shopLogo === undefined) saved.shopLogo = null;
                     if (!saved.mechanicNotes) saved.mechanicNotes = [];
@@ -1651,27 +1653,304 @@
             }
         }
 
+        // --- SINCRONIZACIÓN CON LA NUBE ---
+        // Cada guardado queda al instante en el dispositivo y se sube a la nube
+        // agrupado (unos segundos después del último cambio), en vez de subir
+        // todo el estado en cada clic.
+        // Para que dos dispositivos abiertos a la vez no se borren el trabajo,
+        // cada uno recuerda cómo estaban los datos en la nube la última vez que
+        // sincronizó (syncBase). La subida solo se acepta si la nube sigue en
+        // esa versión; si otro dispositivo guardó antes, se bajan sus cambios,
+        // se mezclan elemento por elemento (OT, tareas, ventas, notas...) y se
+        // vuelve a subir. Si los dos cambiaron el mismo dato, gana el de este
+        // dispositivo.
+        const SYNC_BASE_KEY = APP_KEY + '_syncbase';
+        // Datos de este dispositivo o de esta sesión: no viajan a la nube. El
+        // perfil activo va aquí para que nadie quede en Administrador sin PIN
+        // porque otro dispositivo lo dejó así.
+        const LOCAL_ONLY_KEYS = ['currentDate', 'editingNoteId', 'view', 'currentProfile'];
+        const CLOUD_PUSH_DELAY = 1500;
+        let syncBase = null;
+        let syncBaseUpdatedAt = null;
+        let forceNextPush = false;
+        let cloudPushTimer = null;
+        let cloudRetryTimer = null;
+        let cloudSyncFailed = false;
+        let syncChain = Promise.resolve();
+
+        function stripLocalOnly(data) {
+            const copy = { ...data };
+            LOCAL_ONLY_KEYS.forEach(k => delete copy[k]);
+            return copy;
+        }
+
+        function cloneData(data) {
+            return JSON.parse(JSON.stringify(data));
+        }
+
         async function saveData() {
             state.last_updated = Date.now(); 
             const toSave = { ...state }; 
             delete toSave.currentDate; 
             delete toSave.editingNoteId; 
+            delete toSave.currentProfile;
             
             try { await idbKeyval.set(APP_KEY, toSave); } catch (e) { console.error("Error local:", e); }
-            
-            // SOLO subimos si es seguro (evita que una cuenta sobreescriba a otra con datos vacíos)
-            if (supabaseClient && currentUser && isSafeToSync) {
-                const { error } = await supabaseClient.from('user_data').upsert({
-                    user_id: currentUser.id,
-                    app_data: toSave,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id' }); 
-                
-                if (error) {
-                    console.error("Error subida a nube:", error.message);
-                }
-            }
+            scheduleCloudPush();
         }
+
+        // SOLO subimos si es seguro (evita que una cuenta sobreescriba a otra con datos vacíos)
+        function canSyncCloud() {
+            return !!(supabaseClient && currentUser && isSafeToSync);
+        }
+
+        function runSync(task) {
+            syncChain = syncChain.then(task).catch(e => console.error("Sincronización:", e));
+            return syncChain;
+        }
+
+        function scheduleCloudPush(delay = CLOUD_PUSH_DELAY) {
+            if (!canSyncCloud()) return;
+            clearTimeout(cloudPushTimer);
+            cloudPushTimer = setTimeout(() => {
+                cloudPushTimer = null;
+                runSync(() => pushToCloud());
+            }, delay);
+        }
+
+        // Sube enseguida lo que esté esperando (al salir de la app o minimizarla).
+        function flushCloudPush() {
+            if (!cloudPushTimer) return;
+            clearTimeout(cloudPushTimer);
+            cloudPushTimer = null;
+            runSync(() => pushToCloud());
+        }
+
+        async function persistSyncBase() {
+            try {
+                await idbKeyval.set(SYNC_BASE_KEY, { ownerId: currentUser ? currentUser.id : null, updatedAt: syncBaseUpdatedAt, data: syncBase });
+            } catch (e) { console.error("Error local:", e); }
+        }
+
+        async function loadSyncBase() {
+            syncBase = null;
+            syncBaseUpdatedAt = null;
+            try {
+                const saved = await idbKeyval.get(SYNC_BASE_KEY);
+                if (saved && currentUser && saved.ownerId === currentUser.id) {
+                    syncBase = saved.data || null;
+                    syncBaseUpdatedAt = saved.updatedAt || null;
+                }
+            } catch (e) {}
+        }
+
+        async function clearSyncBase() {
+            syncBase = null;
+            syncBaseUpdatedAt = null;
+            forceNextPush = false;
+            clearTimeout(cloudPushTimer); cloudPushTimer = null;
+            clearTimeout(cloudRetryTimer); cloudRetryTimer = null;
+            try { await idbKeyval.del(SYNC_BASE_KEY); } catch (e) {}
+        }
+
+        function setCloudSyncFailed(failed, detail) {
+            if (failed) {
+                if (detail) console.error("Error subida a nube:", detail);
+                if (!cloudSyncFailed) showToast("Sin sincronizar: se reintentará al volver la conexión", "fa-cloud");
+                clearTimeout(cloudRetryTimer);
+                cloudRetryTimer = setTimeout(() => runSync(() => pushToCloud()), 30000);
+            } else {
+                if (cloudSyncFailed) showToast("Nube sincronizada", "fa-cloud-arrow-up");
+                clearTimeout(cloudRetryTimer); cloudRetryTimer = null;
+            }
+            cloudSyncFailed = failed;
+        }
+
+        async function pushToCloud(attempt = 0) {
+            if (!canSyncCloud()) return;
+            const data = stripLocalOnly(state);
+            data.owner_id = currentUser.id;
+            const updatedAt = new Date().toISOString();
+            let result;
+            try {
+                if (syncBaseUpdatedAt && !forceNextPush) {
+                    // Solo escribe si nadie más subió cambios desde la última sincronización.
+                    result = await supabaseClient.from('user_data')
+                        .update({ app_data: data, updated_at: updatedAt })
+                        .eq('user_id', currentUser.id)
+                        .eq('updated_at', syncBaseUpdatedAt)
+                        .select('updated_at');
+                    if (!result.error && (!result.data || result.data.length === 0)) {
+                        if (attempt >= 3) return setCloudSyncFailed(true, "conflicto repetido");
+                        await pullFromCloud();
+                        return pushToCloud(attempt + 1);
+                    }
+                } else {
+                    result = await supabaseClient.from('user_data')
+                        .upsert({ user_id: currentUser.id, app_data: data, updated_at: updatedAt }, { onConflict: 'user_id' })
+                        .select('updated_at');
+                }
+            } catch (e) {
+                return setCloudSyncFailed(true, e.message);
+            }
+            if (result.error) return setCloudSyncFailed(true, result.error.message);
+
+            forceNextPush = false;
+            syncBase = cloneData(data);
+            syncBaseUpdatedAt = (result.data && result.data[0] && result.data[0].updated_at) || updatedAt;
+            await persistSyncBase();
+            setCloudSyncFailed(false);
+        }
+
+        // Baja la versión de la nube si cambió y la mezcla con la local.
+        // Devuelve true si después de mezclar quedan cambios locales por subir.
+        async function pullFromCloud() {
+            const { data, error } = await supabaseClient.from('user_data')
+                .select('app_data, updated_at')
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+            if (error) throw error;
+            if (!data || !data.app_data || data.updated_at === syncBaseUpdatedAt) return false;
+            return applyCloudData(data.app_data, data.updated_at);
+        }
+
+        // Revisa la nube al volver a la app y cada minuto mientras está a la
+        // vista. Primero pide solo la fecha de la última subida, que es liviana.
+        function pullIfStale() {
+            if (!canSyncCloud()) return;
+            runSync(async () => {
+                const { data, error } = await supabaseClient.from('user_data')
+                    .select('updated_at')
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
+                if (error || !data || data.updated_at === syncBaseUpdatedAt) return;
+                if (await pullFromCloud()) scheduleCloudPush(0);
+            });
+        }
+
+        // Compara contenido sin importar el orden de las claves (la nube puede
+        // devolver los objetos con las claves en otro orden).
+        function stableStringify(v) {
+            if (Array.isArray(v)) return '[' + v.map(x => x === undefined ? 'null' : stableStringify(x)).join(',') + ']';
+            if (v !== null && typeof v === 'object') {
+                return '{' + Object.keys(v).sort().filter(k => v[k] !== undefined).map(k => JSON.stringify(k) + ':' + stableStringify(v[k])).join(',') + '}';
+            }
+            return v === undefined ? 'undefined' : JSON.stringify(v);
+        }
+
+        function syncEqual(a, b) {
+            return a === b || stableStringify(a) === stableStringify(b);
+        }
+
+        function isPlainObject(v) {
+            return v !== null && typeof v === 'object' && !Array.isArray(v);
+        }
+
+        function isIdList(arr) {
+            return Array.isArray(arr) && arr.every(x => isPlainObject(x) && x.id !== undefined && x.id !== null);
+        }
+
+        // Mezcla de tres vías: base es cómo estaba la nube en la última
+        // sincronización. Lo que cambió solo de un lado se toma de ese lado;
+        // si cambió en los dos, se mezcla por dentro (listas por id, objetos
+        // por campo) y, si es un valor simple, gana el local.
+        function mergeSyncValue(base, local, cloud) {
+            if (syncEqual(local, cloud)) return local;
+            if (syncEqual(local, base)) return cloud;
+            if (syncEqual(cloud, base)) return local;
+            if (isIdList(local) && isIdList(cloud)) return mergeSyncLists(isIdList(base) ? base : [], local, cloud);
+            if (isPlainObject(local) && isPlainObject(cloud)) {
+                const b = isPlainObject(base) ? base : {};
+                const out = {};
+                new Set([...Object.keys(local), ...Object.keys(cloud)]).forEach(k => {
+                    const v = mergeSyncValue(b[k], local[k], cloud[k]);
+                    if (v !== undefined) out[k] = v;
+                });
+                return out;
+            }
+            return local;
+        }
+
+        function mergeSyncLists(base, local, cloud) {
+            const byId = arr => new Map(arr.map(x => [String(x.id), x]));
+            const B = byId(base), C = byId(cloud);
+            const result = [];
+            const seen = new Set();
+            local.forEach(item => {
+                const id = String(item.id);
+                if (seen.has(id)) return;
+                seen.add(id);
+                const v = mergeSyncValue(B.get(id), item, C.get(id));
+                if (v !== undefined) result.push(v);
+            });
+            // Lo que solo está en la nube (agregado en otro dispositivo) se
+            // ubica antes del elemento que le sigue en el orden de la nube.
+            cloud.forEach((item, idx) => {
+                const id = String(item.id);
+                if (seen.has(id)) return;
+                seen.add(id);
+                const v = mergeSyncValue(B.get(id), undefined, item);
+                if (v === undefined) return;
+                let at = result.length;
+                for (let j = idx + 1; j < cloud.length; j++) {
+                    const pos = result.findIndex(r => String(r.id) === String(cloud[j].id));
+                    if (pos !== -1) { at = pos; break; }
+                }
+                result.splice(at, 0, v);
+            });
+            return result;
+        }
+
+        function mergeSyncData(base, local, cloud) {
+            if (!base) {
+                // Sin una sincronización previa con la que comparar: gana la versión más nueva.
+                return (cloud.last_updated || 0) > (local.last_updated || 0) ? cloud : local;
+            }
+            const merged = mergeSyncValue(base, local, cloud);
+            // Los correlativos nunca bajan, para no repetir números de OT.
+            merged.nextOtNumber = Math.max(local.nextOtNumber || 1, cloud.nextOtNumber || 1);
+            merged.last_updated = Math.max(local.last_updated || 0, cloud.last_updated || 0);
+            return merged;
+        }
+
+        // Aplica una versión bajada de la nube. Devuelve true si quedan
+        // cambios locales que la nube todavía no tiene.
+        async function applyCloudData(cloudRaw, cloudUpdatedAt) {
+            const cloud = stripLocalOnly(cloudRaw);
+            const local = stripLocalOnly(state);
+            delete local.owner_id; delete cloud.owner_id;
+            const merged = mergeSyncData(syncBase, local, cloud);
+            const localChanged = !syncEqual(merged, local);
+
+            state = { ...state, ...merged, owner_id: currentUser.id };
+            syncBase = cloneData({ ...cloud, owner_id: currentUser.id });
+            syncBaseUpdatedAt = cloudUpdatedAt;
+            await persistSyncBase();
+            try { await idbKeyval.set(APP_KEY, stripLocalOnly(state)); } catch (e) {}
+
+            if (localChanged) refreshAfterCloudChange();
+            return !syncEqual(merged, cloud);
+        }
+
+        // Vuelve a dibujar la pantalla con los datos nuevos, salvo que el
+        // usuario esté escribiendo o tenga una ventana abierta (se verán al
+        // cambiar de pantalla).
+        function refreshAfterCloudChange() {
+            applyTheme(); updateHeaderUI(); updateNavVisibility(); updateProfileSwitcherUI();
+            const active = document.activeElement;
+            const typing = active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName);
+            if (typing || document.body.classList.contains('modal-open')) return;
+            const panel = document.getElementById('admin-panel-screen');
+            if (panel && !panel.classList.contains('hidden')) renderAdminPanelBody();
+            if (state.view) renderView(state.view);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flushCloudPush();
+            else pullIfStale();
+        });
+        window.addEventListener('online', () => { pullIfStale(); if (cloudSyncFailed) runSync(() => pushToCloud()); });
+        setInterval(() => { if (document.visibilityState === 'visible') pullIfStale(); }, 60 * 1000);
 
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
@@ -1897,7 +2176,8 @@
                 
                 if (data && (data.todos || data.notes || data.shifts)) { 
                     showConfirmModal("Restaurar desde ZIP", "Se reemplazará toda la información actual.", "Restaurar", function() { 
-                        state = { ...state, ...data, currentDate: new Date() }; 
+                        state = { ...state, ...stripLocalOnly(data), currentDate: new Date(), currentProfile: state.currentProfile }; 
+                        forceNextPush = true; // el respaldo reemplaza lo que haya en la nube
                         
                         // --- PARCHE DE DUEÑO PARA RESPALDOS ---
                         if (typeof currentUser !== 'undefined' && currentUser) {
@@ -2909,12 +3189,11 @@
                     title = 'Próxima agenda, ' + new Date(y, m - 1, d).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric' }).replace(',', '');
                 }
             }
-            const typeIcon = { guardia: 'fa-wrench', dia: 'fa-file-export', noche: 'fa-file-signature', post: 'fa-book', libre: 'fa-car-side' };
             const rows = events.slice().sort((a, b) => (a.eventTime || '24:00').localeCompare(b.eventTime || '24:00')).map(ev => `
                 <li>
                     <button type="button" onclick="renderView('turnario')" class="w-full flex items-center gap-3 sm:gap-4 px-5 py-3 text-left ${DASH_HOVER}">
                         <span class="w-11 shrink-0 text-sm tabular-nums text-neutral-600 dark:text-neutral-400">${ev.eventTime ? escapeHtml(ev.eventTime) : '—'}</span>
-                        <span class="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 items-center justify-center"><i class="fa-solid ${typeIcon[ev.type] || 'fa-calendar-check'} text-[13px]"></i></span>
+                        <span class="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-neutral-100 dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 items-center justify-center"><i class="fa-solid ${shiftType(ev.type).icon} text-[13px]"></i></span>
                         <span class="flex-1 min-w-0">
                             <span class="block text-[15px] text-neutral-900 dark:text-neutral-100 truncate">${escapeHtml(ev.note || 'Evento agendado')}</span>
                             ${ev.client ? `<span class="block text-sm text-neutral-500 truncate">${escapeHtml(ev.client)}</span>` : ''}
@@ -3521,10 +3800,10 @@
         // Cada tipo de evento se distingue solo con un punto de color (los
         // días ya no se pintan enteros); el acento rojo marca el día de hoy.
         const SHIFT_TYPES = {
-            guardia: { dot: 'bg-red-500', icon: 'fa-wrench', name: 'Práctica taller', short: 'Taller' },
-            dia: { dot: 'bg-blue-500', icon: 'fa-file-export', name: 'Entrega informe', short: 'Informe' },
-            noche: { dot: 'bg-indigo-500', icon: 'fa-file-signature', name: 'Certamen', short: 'Certamen' },
-            post: { dot: 'bg-yellow-500', icon: 'fa-book', name: 'Estudio / teoría', short: 'Teoría' },
+            guardia: { dot: 'bg-red-500', icon: 'fa-wrench', name: 'Trabajo en taller', short: 'Taller' },
+            dia: { dot: 'bg-blue-500', icon: 'fa-key', name: 'Retiro de vehículo', short: 'Retiro' },
+            noche: { dot: 'bg-indigo-500', icon: 'fa-box', name: 'Llegada de repuestos', short: 'Repuestos' },
+            post: { dot: 'bg-yellow-500', icon: 'fa-clipboard-check', name: 'Revisión técnica', short: 'Revisión' },
             libre: { dot: 'bg-green-500', icon: 'fa-car-side', name: 'Vehículo agendado', short: 'Agendado' }
         };
         const shiftType = t => SHIFT_TYPES[t] || { dot: 'bg-neutral-400', icon: 'fa-calendar-check', name: 'Evento', short: 'Evento' };
@@ -7085,14 +7364,16 @@
         async function syncFromCloud() {
             if (!supabaseClient || !currentUser) return;
             showToast("Verificando Nube...", "fa-rotate fa-spin");
+            await loadSyncBase();
             try {
-                const { data, error } = await supabaseClient.from('user_data').select('app_data').eq('user_id', currentUser.id).single();
+                const { data, error } = await supabaseClient.from('user_data').select('app_data, updated_at').eq('user_id', currentUser.id).single();
                 
                 if (error) {
                     if (error.code === 'PGRST116') {
                         // Cuenta nueva, sin datos previos
                         state.owner_id = currentUser.id;
                         isSafeToSync = true;
+                        await clearSyncBase();
                         saveData();
                         showToast("Nube inicializada", "fa-cloud");
                     } else {
@@ -7100,7 +7381,7 @@
                         console.error("Error de conexión:", error);
                         if (state.owner_id !== currentUser.id) {
                             // Peligro: Cambio de cuenta y no hay internet para bajar sus datos.
-                            showToast("¡Atención! Sin internet para cargar esta cuenta.", "fa-triangle-exclamation");
+                            showToast("Sin internet para cargar esta cuenta", "fa-triangle-exclamation");
                             isSafeToSync = false; // Bloquea la subida para no sobreescribir la nube
                         } else {
                             // Mismo usuario, trabajando offline (Seguro usar la app)
@@ -7113,28 +7394,28 @@
                 // DESCARGA EXITOSA
                 isSafeToSync = true;
                 if (data && data.app_data && Object.keys(data.app_data).length > 0) {
-                    const cloudData = data.app_data;
-                    const localTime = state.last_updated || 0;
-                    const cloudTime = cloudData.last_updated || 0;
-
-                    // Si la memoria local NO es de este usuario (cambio de cuenta), LA NUBE GANA SIEMPRE.
-                    if (state.owner_id !== currentUser.id || cloudTime > localTime) {
-                        state = { ...state, ...cloudData, currentDate: new Date(), owner_id: currentUser.id };
-                        await idbKeyval.set(APP_KEY, state); 
-                        
-                        const activeView = sessionStorage.getItem('currentView') || 'dashboard';
-                        state.view = activeView;
-                        
-                        applyTheme(); updateHeaderUI(); updateNavVisibility(); updateProfileSwitcherUI();
-                        renderView(activeView);
-                        showToast("Taller Sincronizado", "fa-cloud-arrow-down");
-                    } else if (localTime > cloudTime) {
-                        state.owner_id = currentUser.id;
-                        showToast("Actualizando Nube...", "fa-cloud-arrow-up");
-                        saveData(); 
+                    if (state.owner_id !== currentUser.id) {
+                        // La memoria local NO es de este usuario (cambio de cuenta): LA NUBE GANA SIEMPRE.
+                        await clearSyncBase();
+                        state = { ...state, ...stripLocalOnly(data.app_data), currentDate: new Date(), owner_id: currentUser.id };
+                        syncBase = cloneData(stripLocalOnly(data.app_data));
+                        syncBaseUpdatedAt = data.updated_at;
+                        await persistSyncBase();
+                        try { await idbKeyval.set(APP_KEY, stripLocalOnly(state)); } catch (e) {}
+                        state.view = sessionStorage.getItem('currentView') || 'dashboard';
+                        refreshAfterCloudChange();
+                        showToast("Taller sincronizado", "fa-cloud-arrow-down");
+                    } else {
+                        await runSync(async () => {
+                            const before = stripLocalOnly(state);
+                            const needsPush = await applyCloudData(data.app_data, data.updated_at);
+                            if (needsPush) scheduleCloudPush(0);
+                            if (!syncEqual(before, stripLocalOnly(state))) showToast("Taller sincronizado", "fa-cloud-arrow-down");
+                        });
                     }
                 } else {
                     state.owner_id = currentUser.id;
+                    syncBaseUpdatedAt = null; // fila vacía: la primera subida la reemplaza
                     saveData(); 
                 }
             } catch (e) {
@@ -7246,6 +7527,7 @@
             // --- PARCHE CRÍTICO: LIMPIAR MEMORIA LOCAL AL SALIR ---
             // Esto evita que los datos de esta cuenta se pasen a la siguiente
             isSafeToSync = false;
+            await clearSyncBase();
             state = {
                 owner_id: null,
                 view: 'dashboard', todos: [], notes: [], folders: [{id: 'general', name: 'General'}], links: [], pdfs: [], shifts: {}, patients: [], 

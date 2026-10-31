@@ -19,6 +19,15 @@ const loadURL = serve({ directory: path.join(__dirname, '..', 'www') });
 
 let mainWindow = null;
 
+function isWebUrl(url) {
+    try {
+        const { protocol } = new URL(url);
+        return protocol === 'http:' || protocol === 'https:';
+    } catch (e) {
+        return false;
+    }
+}
+
 async function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -48,9 +57,19 @@ async function createWindow() {
     // Los enlaces que la app abre en pestaña nueva (target="_blank", como "Ver
     // en ML" del comparador de precios) deben abrir en el navegador del sistema,
     // no como una ventana nueva dentro de la propia app.
+    // Solo se abren direcciones web (http/https): abrir otros esquemas (file:,
+    // ms-settings:, etc.) con openExternal puede ejecutar programas en el PC.
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-        shell.openExternal(url);
+        if (isWebUrl(url)) shell.openExternal(url);
         return { action: 'deny' };
+    });
+
+    // La ventana nunca sale de la app: un enlace externo sin target="_blank"
+    // se abre en el navegador en vez de reemplazar la app.
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+        if (url.startsWith('app://')) return;
+        event.preventDefault();
+        if (isWebUrl(url)) shell.openExternal(url);
     });
 
     await loadURL(mainWindow);

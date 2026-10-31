@@ -141,30 +141,8 @@
             font-variant-numeric: tabular-nums; white-space: nowrap;
         }
 
-        input, textarea, button, select, .font-handwriting {
+        input, textarea, button, select {
             font-family: 'Roboto Condensed', sans-serif !important;
-        }
-
-        /* Para campos de texto largo (notas, diagnósticos, observaciones):
-           la fuente condensada de arriba se lee bien en botones y números
-           cortos, pero cuesta más en párrafos. Esta clase (más específica
-           que el selector de arriba) los pasa a una tipografía normal. */
-        .font-reading {
-            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
-        }
-
-        .work-order {
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #d4d4d4;
-            position: relative;
-            border-left: 4px solid var(--mech-primary);
-        }
-
-        .dark .work-order {
-            background: #171717;
-            border-color: #404040;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -187,16 +165,8 @@
         .fade-leave { animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
-        .item-enter { animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        .btn-pill { border-radius: 4px; transition: all 0.2s; letter-spacing: 0.02em; }
-        .btn-pill:active { transform: scale(0.95); }
-
-        .item-leave { transition: all 0.3s ease-in; opacity: 0; transform: scale(0.9); height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
-        
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         .pt-safe { padding-top: env(safe-area-inset-top); }
 
@@ -204,21 +174,11 @@
         canvas { transform-origin: 0 0; }
         
 
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin-reverse-slow { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        
-        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
-        .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
-
         #nav-menu {
             -webkit-overflow-scrolling: touch; 
             scroll-behavior: smooth; 
         }
         
-        .tab-content-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
-        .tab-content-enter { opacity: 1; transform: translateY(0); }
-        .tab-content-leave { opacity: 0; transform: translateY(10px); }
-
         /* Estilo para el scroll del buscador */
         .search-scroll::-webkit-scrollbar { width: 6px; }
         .search-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -286,8 +246,6 @@
             #mobile-search-container { display: none !important; }
             /* Botón búsqueda móvil */
             .mobile-search-btn { display: none !important; }
-            /* Botones duplicados del header que ya están en sidebar */
-            .header-sidebar-dup { display: none !important; }
         }
 
         /* ---- Estilos del sidebar (se aplican siempre pero solo se ven en md+) ---- */
@@ -3486,48 +3444,7 @@
             </li>`;
         }
 
-        function createPatientCardHTML(p) { 
-            const tasksHTML = p.tasks.map(t => createPatientTaskHTML(t, p.id)).join(''); 
-            
-            let contactBtn = '';
-            if (p.contact) {
-                contactBtn = `<a href="tel:${escapeHtml(p.contact)}" class="ml-2 w-9 h-9 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center hover:bg-green-200 shrink-0" title="Llamar: ${escapeHtml(p.contact)}"><i class="fa-solid fa-phone text-xs"></i></a>`;
-            }
 
-            const clientLabel = getPatientClientLabel(p);
-            return `<div id="patient-card-${p.id}" class="bg-white dark:bg-neutral-900 p-4 rounded shadow-sm border border-neutral-300 dark:border-neutral-700 hover:shadow-md transition group relative mb-3 fade-enter border-l-4 border-l-blue-600">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="flex gap-2 mb-1 flex-wrap">
-                            ${p.otNumber ? `<span class="bg-neutral-800 dark:bg-neutral-700 text-white px-2 py-0.5 rounded text-xs font-bold tracking-wide" title="N° de Orden de Trabajo">OT-${String(p.otNumber).padStart(4, '0')}</span>` : ''}
-                            <span onclick="editPatientRoom(${p.id})" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded text-xs font-bold tracking-wide border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-300 transition" title="Editar Patente"><i class="fa-solid fa-pen text-[10px] mr-1"></i> ${escapeHtml(p.room)}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <h4 class="font-bold text-neutral-800 dark:text-neutral-100 text-xl leading-none tracking-tight">${escapeHtml(getPatientVehicleLabel(p))}</h4>
-                            ${contactBtn}
-                        </div>
-                        ${clientLabel ? `<p class="text-xs font-bold text-neutral-500 dark:text-neutral-600 mt-1"><i class="fa-solid fa-user text-[10px] mr-1 opacity-70"></i>${escapeHtml(clientLabel)}</p>` : ''}
-                        <p class="text-sm font-bold text-red-600 mt-1"><i class="fa-solid fa-screwdriver-wrench text-xs"></i> ${escapeHtml(p.dx)}</p>
-                    </div>
-                    <button onclick="deletePatient(${p.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                </div>
-                <div class="mt-3 pl-1 border-l-2 border-neutral-100 dark:border-neutral-800">
-                    <div id="patient-tasks-${p.id}">${tasksHTML}</div>
-                    <div class="flex items-center gap-2 mt-2">
-                        <input type="text" id="new-task-input-${p.id}" placeholder="+ Tarea (ej: Cambiar filtro)..." class="bg-transparent text-sm outline-none w-full placeholder-neutral-400 dark:placeholder-neutral-500 focus:placeholder-blue-400 text-neutral-700 dark:text-neutral-200 font-bold" onkeypress="if(event.key === 'Enter') addPatientTask(${p.id})">
-                        <button onclick="addPatientTask(${p.id})" class="text-blue-500 hover:text-blue-700 text-lg"><i class="fa-solid fa-plus-square"></i></button>
-                    </div>
-                </div>
-            </div>`; 
-        }
-
-        function generatePatientsHTML() { 
-            const activePatients = (state.patients || []).filter(p => p.status !== 'archivada');
-            if (activePatients.length === 0) {
-                return `<div id="empty-patients-msg" class="bg-white dark:bg-neutral-900 p-8 rounded border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-center flex flex-col items-center justify-center h-48 fade-enter"><i class="fa-solid fa-car-on text-4xl text-neutral-300 dark:text-neutral-700 mb-2"></i><p class="text-neutral-600 dark:text-neutral-500 font-bold text-sm">Sin vehículos en taller</p><p class="text-neutral-600 dark:text-neutral-600 text-xs">Ingresa una orden para comenzar</p></div>`;
-            }
-            return activePatients.map(p => createPatientCardHTML(p)).join('');
-        }
 
         function getWorkOrdersHTML() {
             const patients = (state.patients || []).filter(p => p.status !== 'archivada');
@@ -3772,14 +3689,7 @@
                     renderView('work_orders'); 
                 }
             } else {
-                const container = document.getElementById('patients-list-container'); 
-                if (container) { 
-                    const emptyMsg = document.getElementById('empty-patients-msg'); 
-                    if (emptyMsg) emptyMsg.remove(); 
-                    container.insertAdjacentHTML('afterbegin', createPatientCardHTML(newPatient)); 
-                } else { 
-                    renderView('dashboard'); 
-                } 
+                renderView(state.view || 'dashboard');
             }
             showToast("Vehículo Ingresado", "fa-check"); 
         }
@@ -3872,13 +3782,6 @@
                         const grid = document.getElementById('work-orders-grid');
                         if(grid && grid.children.length === 0) renderView('work_orders');
                     }, 300);
-                } else if (card) { 
-                    card.classList.add('item-leave'); 
-                    setTimeout(() => { 
-                        card.remove(); 
-                        const container = document.getElementById('patients-list-container'); 
-                        if (container && container.children.length === 0) container.innerHTML = generatePatientsHTML(); 
-                    }, 300); 
                 } else { 
                     renderView('dashboard'); 
                 } 
@@ -4645,107 +4548,12 @@
             showToast("Producto agregado", "fa-cart-plus");
         }
 
-        function updateShoppingTotal() {
-            // Función desactivada intencionalmente
-        }
 
-        function getServiceRowHTML(item) {
-            const price = parseFloat(item.price) || 0;
-            return `
-                <tr id="service-row-${item.id}" class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition item-enter">
-                    <td class="p-2 sm:p-3 min-w-[180px]">
-                        <input type="text" value="${escapeHtml(item.service)}" oninput="updateServiceItem(${item.id}, 'service', this.value)" class="w-full bg-transparent outline-none font-bold text-neutral-800 dark:text-neutral-200" placeholder="Descripción del Servicio">
-                    </td>
-                    <td class="p-2 sm:p-3 w-32 min-w-[100px]">
-                        <input type="number" value="${price}" oninput="updateServiceItem(${item.id}, 'price', this.value)" class="w-full bg-transparent outline-none font-bold text-right text-red-600 dark:text-red-400" placeholder="Precio" min="0">
-                    </td>
-                    <td class="p-2 sm:p-3 w-10 text-center min-w-[50px]">
-                        <button onclick="deleteServiceItem(${item.id})" class="text-neutral-300 dark:text-neutral-600 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                </tr>
-            `;
-        }
 
-        function updateServiceItem(id, field, value) {
-            const item = state.serviceList.find(i => i.id === id);
-            if (!item) return;
-            if (field === 'price') {
-                item[field] = parseFloat(value) || 0;
-            } else {
-                item[field] = value;
-            }
-            saveData();
-            updateServiceTotal();
-        }
 
-        function deleteServiceItem(id) {
-            state.serviceList = state.serviceList.filter(i => i.id !== id);
-            saveData();
-            const row = document.getElementById(`service-row-${id}`);
-            if (row) {
-                row.classList.add('opacity-0');
-                setTimeout(() => {
-                    row.remove();
-                    const tbody = document.getElementById('service-table-body');
-                    if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
-                    }
-                }, 300);
-            }
-            updateServiceTotal();
-        }
         
-        function addServiceItem() {
-            const serviceInput = document.getElementById('new-service-desc');
-            const priceInput = document.getElementById('new-service-price');
-            const service = serviceInput.value.trim();
-            const price = parseFloat(priceInput.value) || 0;
 
-            if (!service) return;
 
-            const newItem = { id: Date.now() + Math.random(), service, price };
-            state.serviceList.push(newItem);
-            saveData();
-            
-            const tbody = document.getElementById('service-table-body');
-            if (tbody) {
-                const emptyMsg = document.getElementById('empty-service-msg');
-                if (emptyMsg) emptyMsg.remove();
-                tbody.insertAdjacentHTML('beforeend', getServiceRowHTML(newItem));
-            }
-
-            serviceInput.value = '';
-            priceInput.value = '';
-            serviceInput.focus();
-            
-            showToast("Servicio agregado", "fa-tools");
-            updateServiceTotal();
-        }
-
-        function updateServiceTotal() {
-            const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
-            const iva = Math.round(subtotal * 0.19);
-            const total = subtotal + iva;
-            const totalEl = document.getElementById('service-total');
-            if (totalEl) {
-                totalEl.innerHTML = `$${total.toLocaleString('es-CL', { minimumFractionDigits: 0 })}<div class="text-xs text-neutral-500 font-normal mt-1 leading-none tracking-normal">+ IVA (19%): $${iva.toLocaleString('es-CL')} | Sub: $${subtotal.toLocaleString('es-CL')}</div>`;
-            }
-        }
-
-        function clearServiceList() {
-            if (state.serviceList.length === 0) return;
-            showConfirmModal("¿Limpiar Servicios?", "Se borrarán todos los costos de servicio.", "Limpiar Todo", function() {
-                state.serviceList = [];
-                saveData();
-                closeConfirmModal();
-                const tbody = document.getElementById('service-table-body');
-                if (tbody) {
-                    tbody.innerHTML = `<tr id="empty-service-msg"><td colspan="3" class="text-center py-8 text-neutral-600 dark:text-neutral-500 text-sm italic font-bold">La lista de servicios está vacía</td></tr>`;
-                }
-                updateServiceTotal();
-                showToast("Lista de servicios limpia", "fa-eraser");
-            });
-        }
         
         // --- FUNCIONES DE INVENTARIO (INVENTORY) ---
         // Fecha de la venta más reciente registrada para un ítem (o aviso si es histórico sin fecha)
@@ -5400,25 +5208,6 @@
             if (subtitle) subtitle.innerHTML = getBodegaSubtitleHTML();
         }
 
-        function clearInventoryList() {
-            if (state.inventoryList.length === 0) return;
-            showConfirmModal("¿Limpiar Inventario?", "Se borrarán permanentemente todos los ítems registrados.", "Limpiar Todo", function() {
-                state.inventoryList = [];
-                saveData();
-                closeConfirmModal();
-                
-                const tbody = document.getElementById('inventory-table-body');
-                if (tbody) {
-                    tbody.innerHTML = getEmptyInventoryRowHTML();
-                }
-                const cardsBody = document.getElementById('inventory-cards-body');
-                if (cardsBody) {
-                    cardsBody.innerHTML = getEmptyInventoryCardHTML();
-                }
-                updateInventoryTotal();
-                showToast("Inventario limpio", "fa-eraser");
-            });
-        }
 
         // --- NUEVO MÓDULO DE GESTIÓN (BODEGA) ---
         // Vista tipo "planilla de cálculo" (estilo Excel/Google Sheets): tabla con
@@ -5992,58 +5781,6 @@
             showPdfModal(doc.output('blob'), fileName, title);
         }
 
-        async function downloadServicePDF() {
-            if (state.serviceList.length === 0) {
-                showToast("Lista de servicios vacía", "fa-triangle-exclamation"); return;
-            }
-            showToast("Generando PDF...", "fa-spinner fa-spin");
-            
-            const subtotal = state.serviceList.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
-            const iva = Math.round(subtotal * 0.19);
-            const total = subtotal + iva;
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            
-            const title = state.shopTitle.replace('Lista de Compras', 'Detalle de Servicios') || "Detalle de Servicios";
-            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
-            doc.text(title, 14, 20);
-            
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            if (state.shopAddress) doc.text(`Dirección: ${state.shopAddress}`, 14, 27);
-            
-            const tableData = state.serviceList.map(item => [item.service, `$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}`]);
-            
-            doc.autoTable({
-                startY: 35,
-                head: [['Servicio / Detalle', 'Precio']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [220, 38, 38] },
-                columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
-                foot: [[
-                    { content: 'TOTAL (+IVA)', styles: { halign: 'right', fontStyle: 'bold' } }, 
-                    { content: `$${total.toLocaleString('es-CL')}`, styles: { halign: 'right', fontStyle: 'bold', textColor: [220, 38, 38] } }
-                ]],
-                footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] }
-            });
-
-            let finalY = doc.lastAutoTable.finalY + 5;
-            doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(100,100,100);
-            doc.text(`Subtotal: $${subtotal.toLocaleString('es-CL')} | IVA (19%): $${iva.toLocaleString('es-CL')}`, 196, finalY, { align: "right" });
-
-            if (state.shopNote) {
-                finalY += 10;
-                doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0,0,0);
-                doc.text("OBSERVACIONES:", 14, finalY);
-                doc.setFont("helvetica", "italic");
-                const splitNote = doc.splitTextToSize(state.shopNote, 180);
-                doc.text(splitNote, 14, finalY + 6);
-            }
-
-            const fileName = `Servicios_${new Date().toISOString().slice(0,10)}.pdf`;
-            showPdfModal(doc.output('blob'), fileName, title);
-        }
 
         async function downloadInventoryPDF() {
             if (state.inventoryList.length === 0) {

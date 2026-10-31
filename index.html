@@ -1654,16 +1654,34 @@
         // sincronización. Lo que cambió solo de un lado se toma de ese lado;
         // si cambió en los dos, se mezcla por dentro (listas por id, objetos
         // por campo) y, si es un valor simple, gana el local.
-        function mergeSyncValue(base, local, cloud) {
+        // Campos que son contadores: si los dos dispositivos los cambiaron, se
+        // suman los cambios de cada uno en vez de quedarse con uno solo. Así,
+        // dos ventas del mismo repuesto hechas a la vez descuentan las dos
+        // unidades del stock (6 → 5 en un lado y 6 → 5 en el otro = 4).
+        const SYNC_COUNTER_PATHS = new Set(['inventoryList[].qty', 'inventoryList[].soldQty']);
+
+        function toSyncNumber(v) {
+            if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+            if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v);
+            return null;
+        }
+
+        function mergeSyncValue(base, local, cloud, path = '') {
+            // Contadores primero: dos ventas iguales (6 → 5 en cada lado) dan el
+            // mismo número, pero son dos cambios que hay que sumar.
+            if (SYNC_COUNTER_PATHS.has(path)) {
+                const b = toSyncNumber(base), l = toSyncNumber(local), c = toSyncNumber(cloud);
+                if (b !== null && l !== null && c !== null && l !== b && c !== b) return Math.round((b + (l - b) + (c - b)) * 1000) / 1000;
+            }
             if (syncEqual(local, cloud)) return local;
             if (syncEqual(local, base)) return cloud;
             if (syncEqual(cloud, base)) return local;
-            if (isIdList(local) && isIdList(cloud)) return mergeSyncLists(isIdList(base) ? base : [], local, cloud);
+            if (isIdList(local) && isIdList(cloud)) return mergeSyncLists(isIdList(base) ? base : [], local, cloud, path + '[]');
             if (isPlainObject(local) && isPlainObject(cloud)) {
                 const b = isPlainObject(base) ? base : {};
                 const out = {};
                 new Set([...Object.keys(local), ...Object.keys(cloud)]).forEach(k => {
-                    const v = mergeSyncValue(b[k], local[k], cloud[k]);
+                    const v = mergeSyncValue(b[k], local[k], cloud[k], path ? `${path}.${k}` : k);
                     if (v !== undefined) out[k] = v;
                 });
                 return out;
@@ -1671,7 +1689,7 @@
             return local;
         }
 
-        function mergeSyncLists(base, local, cloud) {
+        function mergeSyncLists(base, local, cloud, path = '') {
             const byId = arr => new Map(arr.map(x => [String(x.id), x]));
             const B = byId(base), C = byId(cloud);
             const result = [];
@@ -1680,7 +1698,7 @@
                 const id = String(item.id);
                 if (seen.has(id)) return;
                 seen.add(id);
-                const v = mergeSyncValue(B.get(id), item, C.get(id));
+                const v = mergeSyncValue(B.get(id), item, C.get(id), path);
                 if (v !== undefined) result.push(v);
             });
             // Lo que solo está en la nube (agregado en otro dispositivo) se
@@ -1689,7 +1707,7 @@
                 const id = String(item.id);
                 if (seen.has(id)) return;
                 seen.add(id);
-                const v = mergeSyncValue(B.get(id), undefined, item);
+                const v = mergeSyncValue(B.get(id), undefined, item, path);
                 if (v === undefined) return;
                 let at = result.length;
                 for (let j = idx + 1; j < cloud.length; j++) {
@@ -1710,7 +1728,40 @@
             // Los correlativos nunca bajan, para no repetir números de OT.
             merged.nextOtNumber = Math.max(local.nextOtNumber || 1, cloud.nextOtNumber || 1);
             merged.last_updated = Math.max(local.last_updated || 0, cloud.last_updated || 0);
+            renumberDuplicateOrders(merged, cloud);
             return merged;
+        }
+
+        // Si dos dispositivos crearon una OT al mismo tiempo, las dos pudieron
+        // tomar el mismo número. La que ya estaba en la nube lo conserva; la de
+        // este dispositivo recibe el siguiente número libre y se avisa.
+        let lastRenumberedOrders = [];
+        function renumberDuplicateOrders(merged, cloud) {
+            lastRenumberedOrders = [];
+            if (!Array.isArray(merged.patients)) return;
+            const patients = merged.patients = merged.patients.slice();
+            const inCloud = new Set((cloud.patients || []).map(p => String(p.id)));
+            let next = Math.max(merged.nextOtNumber || 1, ...patients.map(p => (parseInt(p.otNumber, 10) || 0) + 1));
+            const byNumber = new Map();
+            patients.forEach(p => {
+                const n = parseInt(p.otNumber, 10);
+                if (!n) return;
+                if (!byNumber.has(n)) byNumber.set(n, []);
+                byNumber.get(n).push(p);
+            });
+            byNumber.forEach((group, n) => {
+                if (group.length < 2) return;
+                // Se queda con el número una de las que ya estaban en la nube (o la primera).
+                const keeper = group.find(p => inCloud.has(String(p.id))) || group[0];
+                group.forEach(p => {
+                    if (p === keeper) return;
+                    const idx = merged.patients.indexOf(p);
+                    merged.patients[idx] = { ...p, otNumber: next };
+                    lastRenumberedOrders.push({ from: n, to: next });
+                    next++;
+                });
+            });
+            merged.nextOtNumber = next;
         }
 
         // Aplica una versión bajada de la nube. Devuelve true si quedan
@@ -1729,6 +1780,14 @@
             try { await idbKeyval.set(APP_KEY, stripLocalOnly(state)); } catch (e) {}
 
             if (localChanged) refreshAfterCloudChange();
+            if (lastRenumberedOrders.length) {
+                const r = lastRenumberedOrders[0];
+                const fmt = n => `OT-${String(n).padStart(4, '0')}`;
+                showToast(lastRenumberedOrders.length === 1
+                    ? `${fmt(r.from)} pasó a ser ${fmt(r.to)}: otro dispositivo usó ese número al mismo tiempo`
+                    : `${lastRenumberedOrders.length} órdenes cambiaron de número: otro dispositivo usó esos números al mismo tiempo`, "fa-circle-info");
+                lastRenumberedOrders = [];
+            }
             return !syncEqual(merged, cloud);
         }
 
